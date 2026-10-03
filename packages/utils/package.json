@@ -1,0 +1,16 @@
+{
+  "name": "@base-ui-solid/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./platform": "./src/platform/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "peerDependencies": {
+    "solid-js": "2.0.0-rc.13"
+  },
+  "dependencies": {
+    "@floating-ui/utils": "^0.2.12"
+  }
+}

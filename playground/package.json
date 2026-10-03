@@ -1,0 +1,11 @@
+{
+  "name": "playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "base-ui-solid": "workspace:*"
+  }
+}

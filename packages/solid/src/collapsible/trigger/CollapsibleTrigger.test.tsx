@@ -1,0 +1,68 @@
+import { Collapsible } from '..';
+import {
+  render,
+  screen,
+  describeConformance,
+} from '#test-utils';
+
+describe('<Collapsible.Trigger />', () => {
+  it('throws when rendered outside a Collapsible.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(() => <Collapsible.Trigger />)).rejects.toThrow(
+        'Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  describeConformance(Collapsible.Trigger, {
+    refInstanceof: window.HTMLButtonElement,
+    wrap: (node) => <Collapsible.Root>{node()}</Collapsible.Root>,
+  });
+
+  it('renders the disabled attribute when disabled', async () => {
+    await render(() => (
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+      </Collapsible.Root>
+    ));
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toBeDisabled();
+    expect(trigger).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('removes a disabled non-native trigger from the tab order', async () => {
+    const { user } = await render(() => (
+      <Collapsible.Root disabled>
+        <Collapsible.Trigger nativeButton={false} render="span">
+          Trigger
+        </Collapsible.Trigger>
+      </Collapsible.Root>
+    ));
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).toHaveAttribute('aria-disabled', 'true');
+    expect(trigger).toHaveAttribute('tabindex', '-1');
+    expect(trigger).not.toHaveAttribute('disabled');
+
+    await user.keyboard('[Tab]');
+    expect(trigger).not.toHaveFocus();
+  });
+
+  it('forwards the id prop', async () => {
+    await render(() => (
+      <Collapsible.Root>
+        <Collapsible.Trigger id="custom-trigger-id">Trigger</Collapsible.Trigger>
+      </Collapsible.Root>
+    ));
+
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+      'id',
+      'custom-trigger-id',
+    );
+  });
+});
