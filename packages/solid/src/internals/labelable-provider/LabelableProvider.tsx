@@ -89,7 +89,7 @@ export function LabelableProvider(props: LabelableProvider.Props) {
 export interface LabelableProviderState {}
 
 export interface LabelableProviderProps {
-  children?: JSX.Element;
+  children?: JSX.Element | undefined;
 }
 
 export namespace LabelableProvider {

@@ -1,10 +1,12 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
+import { isJSDOM, render, screen, describeConformance } from '#test-utils';
 import { DirectionProvider } from '../direction-provider';
 import type { TextDirection } from '../direction-provider';
 import { ToggleGroup } from '.';
 import { Toggle } from '../toggle';
+import { Toolbar } from '../toolbar';
 import type { Orientation } from '../internals/types';
-import { isJSDOM, render, screen, describeConformance } from '#test-utils';
 
 describe('<ToggleGroup />', () => {
   describeConformance(ToggleGroup, {
@@ -319,60 +321,68 @@ describe('<ToggleGroup />', () => {
   });
 
   describe.skipIf(isJSDOM)('prop: multiple transitions', () => {
-    // Port note: upstream also runs a `['nested in Toolbar.Group', true]` row; it's split out below
-    // until Toolbar is ported.
-    it.each([['standalone', false]] as const)(
-      'preserves selection and roving focus when %s',
-      async (_label, _inToolbar) => {
-        const [multiple, setMultiple] = createSignal(false);
-
-        const { user } = await render(() => (
-          <ToggleGroup data-testid="toggle-group" defaultValue={['one']} multiple={multiple()}>
+    it.each([
+      ['standalone', false],
+      ['nested in Toolbar.Group', true],
+    ] as const)('preserves selection and roving focus when %s', async (_label, inToolbar) => {
+      function TestToggleGroup(props: { multiple: boolean }) {
+        const group = () => (
+          <ToggleGroup data-testid="toggle-group" defaultValue={['one']} multiple={props.multiple}>
             <Toggle value="one">One</Toggle>
             <Toggle value="two">Two</Toggle>
           </ToggleGroup>
-        ));
-        const group = screen.getByTestId('toggle-group');
-        const [button1, button2] = screen.getAllByRole('button');
+        );
 
-        expect(group).not.toHaveAttribute('data-multiple');
-        expect(button1).toHaveAttribute('aria-pressed', 'true');
-        expect(button2).toHaveAttribute('aria-pressed', 'false');
+        // eslint-disable-next-line solid/components-return-once -- `inToolbar` is a static test parameter
+        return inToolbar ? (
+          <Toolbar.Root>
+            <Toolbar.Group>{group()}</Toolbar.Group>
+          </Toolbar.Root>
+        ) : (
+          group()
+        );
+      }
 
-        await user.keyboard('[Tab][ArrowRight]');
-        expect(button2).toHaveFocus();
+      const [multiple, setMultiple] = createSignal(false);
 
-        await user.click(button2);
-        expect(button1).toHaveAttribute('aria-pressed', 'false');
-        expect(button2).toHaveAttribute('aria-pressed', 'true');
+      const { user } = await render(() => <TestToggleGroup multiple={multiple()} />);
+      const group = screen.getByTestId('toggle-group');
+      const [button1, button2] = screen.getAllByRole('button');
 
-        setMultiple(true);
-        flush();
-        expect(group).toHaveAttribute('data-multiple');
+      expect(group).not.toHaveAttribute('data-multiple');
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'false');
 
-        await user.click(button1);
-        expect(button1).toHaveAttribute('aria-pressed', 'true');
-        expect(button2).toHaveAttribute('aria-pressed', 'true');
+      await user.keyboard('[Tab][ArrowRight]');
+      expect(button2).toHaveFocus();
 
-        await user.click(button2);
-        expect(button1).toHaveAttribute('aria-pressed', 'true');
-        expect(button2).toHaveAttribute('aria-pressed', 'false');
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
 
-        setMultiple(false);
-        flush();
-        expect(group).not.toHaveAttribute('data-multiple');
+      setMultiple(true);
+      flush();
+      expect(group).toHaveAttribute('data-multiple');
 
-        await user.click(button2);
-        expect(button1).toHaveAttribute('aria-pressed', 'false');
-        expect(button2).toHaveAttribute('aria-pressed', 'true');
+      await user.click(button1);
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
 
-        await user.keyboard('[ArrowLeft]');
-        expect(button1).toHaveFocus();
-      },
-    );
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'true');
+      expect(button2).toHaveAttribute('aria-pressed', 'false');
 
-    // TODO(port): needs <Toolbar>
-    it.skip('preserves selection and roving focus when nested in Toolbar.Group', () => {});
+      setMultiple(false);
+      flush();
+      expect(group).not.toHaveAttribute('data-multiple');
+
+      await user.click(button2);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+      expect(button2).toHaveAttribute('aria-pressed', 'true');
+
+      await user.keyboard('[ArrowLeft]');
+      expect(button1).toHaveFocus();
+    });
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {

@@ -1,6 +1,6 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { Collapsible } from '..';
 import {
   fireEvent,
   flushMicrotasks,
@@ -12,6 +12,7 @@ import {
   isJSDOM,
   renderToString,
 } from '#test-utils';
+import { Collapsible } from '..';
 import {
   OpenPanelWithInlineAnimation,
   OpenPanelWithStylesheetAnimation,

@@ -1,4 +1,5 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { NOOP } from '../noop';

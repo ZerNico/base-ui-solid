@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
-import { type Setter, Show, createEffect, createSignal, flush, untrack } from 'solid-js';
+import { Show, createEffect, createSignal, flush, untrack } from 'solid-js';
+import type { Setter } from 'solid-js';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { flushMicrotasks, render, screen, waitFor } from '#test-utils';
 import { useAnimationsFinished } from './useAnimationsFinished';

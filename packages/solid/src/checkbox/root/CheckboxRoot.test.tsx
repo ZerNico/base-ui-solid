@@ -1,8 +1,5 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal, flush, onSettled, Show } from 'solid-js';
-import { Checkbox } from '..';
-import { CheckboxGroup } from '../../checkbox-group';
-import { Field } from '../../field';
-import { Form } from '../../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -13,6 +10,10 @@ import {
   waitFor,
   describeConformance,
 } from '#test-utils';
+import { Checkbox } from '..';
+import { CheckboxGroup } from '../../checkbox-group';
+import { Field } from '../../field';
+import { Form } from '../../form';
 import { IdTestCase } from './CheckboxRoot.fixtures';
 
 /**

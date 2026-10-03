@@ -1,6 +1,5 @@
 import { type Accessor, createContext, useContext } from 'solid-js';
 
-// TODO(port): the rest of `toolbar` is not ported yet; ToggleGroup reads this context.
 export interface ToolbarGroupContext {
   disabled: Accessor<boolean>;
 }

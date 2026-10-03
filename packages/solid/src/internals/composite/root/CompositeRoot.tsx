@@ -122,7 +122,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   BaseUIComponentProps<'div', State>,
   'render' | 'class' | 'style'
 > {
-  children?: JSX.Element;
+  children?: JSX.Element | undefined;
   /**
    * Props merged into the rendered element. Read reactively.
    */

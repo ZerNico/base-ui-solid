@@ -5,3 +5,4 @@ build
 test-results
 coverage
 *.tsbuildinfo
+/.eslintcache

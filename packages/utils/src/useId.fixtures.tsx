@@ -1,7 +1,7 @@
 import { useId } from '@base-ui-solid/utils/useId';
 
 interface TestComponentProps {
-  id?: string;
+  id?: string | undefined;
 }
 
 // Port note: `useId` returns a plain string in Solid, so a component that must follow a changing

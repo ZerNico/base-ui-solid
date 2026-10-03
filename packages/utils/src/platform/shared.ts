@@ -1,4 +1,5 @@
 import { IS_DEV } from '../isDev';
+
 interface NavigatorUAData {
   readonly brands: ReadonlyArray<{ brand: string; version: string }>;
   readonly mobile: boolean;

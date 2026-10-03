@@ -1,5 +1,6 @@
-import { Field } from '..';
+import { expect, describe, it } from 'vitest';
 import { render, screen, describeConformance } from '#test-utils';
+import { Field } from '..';
 
 describe('<Field.Description />', () => {
   describeConformance(Field.Description, {

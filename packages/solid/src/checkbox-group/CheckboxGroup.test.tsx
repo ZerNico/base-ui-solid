@@ -1,11 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal, Show } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { CheckboxGroup } from '.';
-import { Checkbox } from '../checkbox';
-import { Field } from '../field';
-import { Form } from '../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -16,6 +13,10 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { CheckboxGroup } from '.';
+import { Checkbox } from '../checkbox';
+import { Field } from '../field';
+import { Form } from '../form';
 import {
   GroupedCheckboxInFieldItem,
   ParentAndChildInFieldItems,

@@ -1,7 +1,5 @@
+import { expect, describe, it, beforeEach } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
-import { Switch } from '..';
-import { Field } from '../../field';
-import { Form } from '../../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -11,6 +9,9 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { Switch } from '..';
+import { Field } from '../../field';
+import { Form } from '../../form';
 
 describe('<Switch.Root />', () => {
   describeConformance(Switch.Root, {

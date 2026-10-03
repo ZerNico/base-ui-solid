@@ -1,5 +1,6 @@
-import { Accordion } from '..';
+import { expect, describe, it } from 'vitest';
 import { render, screen, waitFor, describeConformance, isJSDOM, renderToString } from '#test-utils';
+import { Accordion } from '..';
 import { OpenPanelWithInlineAnimation } from './AccordionPanel.fixtures';
 
 const PANEL_CONTENT = 'This is panel content';

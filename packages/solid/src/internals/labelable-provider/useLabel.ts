@@ -1,4 +1,5 @@
-import { type Accessor, untrack } from 'solid-js';
+import { untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { closest, getTarget } from '../../floating-ui-react/utils';

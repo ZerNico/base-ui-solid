@@ -1,4 +1,5 @@
-import { type Accessor, createSignal, untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';

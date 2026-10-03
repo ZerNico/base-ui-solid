@@ -89,6 +89,7 @@ function App() {
       <section>
         <h2>Accordion</h2>
         <Accordion.Root class="Accordion" defaultValue={['a']}>
+          {/* eslint-disable-next-line solid/prefer-for -- static list */}
           {['a', 'b', 'c'].map((value) => (
             <Accordion.Item value={value} class="AccordionItem">
               <Accordion.Header class="AccordionHeader">

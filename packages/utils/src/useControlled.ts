@@ -1,4 +1,5 @@
-import { type Accessor, createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { error } from './error';
 import { IS_DEV } from './isDev';
 

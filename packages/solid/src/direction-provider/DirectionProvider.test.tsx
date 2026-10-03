@@ -1,8 +1,8 @@
 import { expect, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
+import { render, screen } from '#test-utils';
 import { DirectionProvider, useDirection } from '../direction-provider';
 import type { TextDirection } from '../direction-provider';
-import { render, screen } from '#test-utils';
 
 function DirectionProbe() {
   // Port note: `useDirection()` returns an accessor.

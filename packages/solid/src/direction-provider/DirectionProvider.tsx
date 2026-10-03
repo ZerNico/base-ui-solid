@@ -17,7 +17,7 @@ export function DirectionProvider(props: DirectionProvider.Props) {
 export interface DirectionProviderState {}
 
 export interface DirectionProviderProps {
-  children?: JSX.Element;
+  children?: JSX.Element | undefined;
   /**
    * The reading direction of the text
    * @default 'ltr'

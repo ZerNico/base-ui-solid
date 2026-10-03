@@ -1,8 +1,10 @@
 import { expect, describe, it, vi, afterEach } from 'vitest';
-import { type Accessor, createSignal, flush } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { render as solidRender } from '@solidjs/testing-library';
-import { type ControlledSetter, useControlled } from './useControlled';
+import { useControlled } from './useControlled';
+import type { ControlledSetter } from './useControlled';
 
 // Port note: upstream's `toErrorDev` matcher is replaced by a `console.error` spy. `error()` logs
 // each message once (the dedupe is reset after each test, like upstream).

@@ -1,4 +1,5 @@
-import { type Accessor, createMemo } from 'solid-js';
+import { createMemo } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 export function useFocusableWhenDisabled(
   parameters: UseFocusableWhenDisabledParameters,

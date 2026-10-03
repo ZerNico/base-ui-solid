@@ -22,6 +22,7 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import type { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
+const UNSET = Symbol('unset');
 
 /**
  * Provides shared state to a series of radio buttons.
@@ -133,7 +134,7 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
           refCleanup();
         } else {
           // Legacy ref with no attach-time cleanup: detach by calling it with `null`.
-          inputRef(null);
+          void inputRef(null);
         }
       } else if (inputRef) {
         inputRef.current = null;
@@ -313,8 +314,6 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
     </RadioGroupContext>
   );
 }
-
-const UNSET = Symbol('unset');
 
 export interface RadioGroupState extends FieldRootState {
   /**

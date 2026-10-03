@@ -1,8 +1,9 @@
+import { expect, describe } from 'vitest';
 import { Show, createSignal } from 'solid-js';
+import { flushMicrotasks, render, renderToString, screen, waitFor } from '#test-utils';
 import { Checkbox } from '..';
 import { CheckboxGroup } from '../../checkbox-group';
 import { Field } from '../../field';
-import { flushMicrotasks, render, renderToString, screen, waitFor } from '#test-utils';
 import { FieldItemCheckbox } from './CheckboxRoot.react17.fixtures';
 
 // Port note: upstream runs these with `SafeReact.useId` mocked away to exercise React 17's id

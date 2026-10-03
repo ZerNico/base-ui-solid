@@ -1,6 +1,7 @@
+import { expect, describe, it } from 'vitest';
+import { fireEvent, flushMicrotasks, isJSDOM, render, screen } from '#test-utils';
 import { Field } from '..';
 import { Form } from '../../form';
-import { fireEvent, flushMicrotasks, isJSDOM, render, screen } from '#test-utils';
 
 // Port note: `Field.Validity` calls its children once with a reactive state object, so
 // `handleValidity.mock.lastCall[0]` always reflects the current state (upstream re-renders and

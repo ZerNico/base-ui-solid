@@ -1,7 +1,6 @@
 import { type Accessor, createContext, useContext } from 'solid-js';
 import type { Orientation } from '../../internals/types';
 
-// TODO(port): the rest of `toolbar` is not ported yet; ToggleGroup reads this context.
 export interface ToolbarRootContext {
   disabled: Accessor<boolean>;
   orientation: Accessor<Orientation>;

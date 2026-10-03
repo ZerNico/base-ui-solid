@@ -1,5 +1,5 @@
+import { expect, describe, it } from 'vitest';
 import { Show, createSignal } from 'solid-js';
-import { Fieldset } from '..';
 import {
   fireEvent,
   flushMicrotasks,
@@ -10,6 +10,7 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { Fieldset } from '..';
 import { FieldsetWithLegend, FieldsetWithoutLegend } from './FieldsetLegend.fixtures';
 
 describe('<Fieldset.Legend />', () => {

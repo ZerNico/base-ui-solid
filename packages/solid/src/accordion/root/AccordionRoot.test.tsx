@@ -1,6 +1,5 @@
+import { expect, describe, it } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
-import { Accordion } from '..';
-import { REASONS } from '../../internals/reasons';
 import {
   fireEvent,
   render,
@@ -10,6 +9,8 @@ import {
   isJSDOM,
   renderToString,
 } from '#test-utils';
+import { Accordion } from '..';
+import { REASONS } from '../../internals/reasons';
 import { OpenAccordion } from './AccordionRoot.fixtures';
 
 const PANEL_CONTENT_1 = 'Panel contents 1';

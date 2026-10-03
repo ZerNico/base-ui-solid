@@ -1,5 +1,6 @@
-import { Separator } from '.';
+import { expect, describe, it } from 'vitest';
 import { render, screen, describeConformance } from '#test-utils';
+import { Separator } from '.';
 
 describe('<Separator />', () => {
   describeConformance(Separator, {

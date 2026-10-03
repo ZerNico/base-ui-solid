@@ -1,5 +1,7 @@
+/* eslint-disable no-underscore-dangle */ // `__ssrSource` (set by the fixtures plugin) and Solid's `_$HY` hydration global
 import * as Solid from 'solid-js';
-import { createComponent, createStore, flush, type Component } from 'solid-js';
+import { createComponent, createStore, flush } from 'solid-js';
+import type { Component } from 'solid-js';
 import { hydrate as solidHydrate } from '@solidjs/web';
 import { onTestFinished, vi } from 'vitest';
 import { isJSDOM } from '@base-ui-solid/utils/testUtils';

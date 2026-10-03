@@ -1,5 +1,6 @@
-import { Collapsible } from '..';
+import { expect, describe, it } from 'vitest';
 import { render, screen, describeConformance } from '#test-utils';
+import { Collapsible } from '..';
 
 describe('<Collapsible.Trigger />', () => {
   it('throws when rendered outside a Collapsible.Root', async () => {

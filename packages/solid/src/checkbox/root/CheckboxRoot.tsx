@@ -136,9 +136,9 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
   const groupIndeterminate = () => groupProps().indeterminate ?? indeterminate();
   const otherGroupProps = () => {
     const {
-      checked: _checked,
-      indeterminate: _indeterminate,
-      onCheckedChange: _onCheckedChange,
+      checked: ignoredChecked,
+      indeterminate: ignoredIndeterminate,
+      onCheckedChange: ignoredOnCheckedChange,
       ...rest
     } = groupProps();
     return rest as HTMLProps;

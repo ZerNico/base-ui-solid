@@ -1,4 +1,5 @@
-import { type Accessor, createSignal, onCleanup, untrack } from 'solid-js';
+import { createSignal, onCleanup, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';

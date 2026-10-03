@@ -1,7 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
+import { flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 import { Toggle } from '.';
 import { ToggleGroup } from '../toggle-group/ToggleGroup';
-import { flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 
 describe('<Toggle />', () => {
   describeConformance(Toggle, {

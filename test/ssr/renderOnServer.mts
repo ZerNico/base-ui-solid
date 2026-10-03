@@ -1,4 +1,5 @@
-import { createServer, type ViteDevServer } from 'vite';
+import { createServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import solid from 'vite-plugin-solid';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

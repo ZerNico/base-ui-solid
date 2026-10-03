@@ -1,4 +1,5 @@
-import { type Accessor, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import { createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
@@ -328,7 +329,7 @@ export function useCollapsiblePanel(
 
       panel.setAttribute('hidden', '');
       // Reading a computed value forces a style recalculation.
-      ownerWindow(panel).getComputedStyle(panel).display;
+      void ownerWindow(panel).getComputedStyle(panel).display;
       panel.setAttribute('hidden', 'until-found');
     },
     () => [hidden(), hiddenUntilFound()],

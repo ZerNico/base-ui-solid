@@ -1,4 +1,5 @@
-import { type Accessor, onCleanup, untrack } from 'solid-js';
+import { onCleanup, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { NOOP } from '../noop';
 import { useBaseUiId } from '../useBaseUiId';

@@ -128,11 +128,11 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
       }
 
       if (isDisabled && isChecked) {
-        groupContext.registerInputRef(null);
+        void groupContext.registerInputRef(null);
         return;
       }
 
-      groupContext.registerInputRef(inputElement);
+      void groupContext.registerInputRef(inputElement);
     },
     () => [checked(), disabled()],
   );

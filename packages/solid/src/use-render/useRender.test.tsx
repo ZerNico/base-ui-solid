@@ -1,8 +1,9 @@
 import { expect, describe, it } from 'vitest';
+/* eslint-disable testing-library/render-result-naming-convention */
 import { createSignal, flush } from 'solid-js';
+import { render } from '#test-utils';
 import { useRender } from '../use-render';
 import type { IntrinsicTagName } from '../internals/types';
-import { render } from '#test-utils';
 
 // Port note: Solid can't clone elements, so upstream's `render={<button type="button" />}` element
 // form becomes the `render="button"` tag-name form where the test is about something else.
@@ -26,6 +27,7 @@ describe('useRender', () => {
     const { container } = await render(() => (
       <TestComponent
         render={(props: any, state: any) => (
+          // eslint-disable-next-line solid/prefer-structured-class -- mirrors upstream's `className` string
           <span {...props} class={`my-span ${props.class ?? ''}`} {...state} />
         )}
       />

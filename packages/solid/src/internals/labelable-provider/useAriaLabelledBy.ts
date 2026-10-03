@@ -1,4 +1,5 @@
-import { type Accessor, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../useBaseUiId';
 

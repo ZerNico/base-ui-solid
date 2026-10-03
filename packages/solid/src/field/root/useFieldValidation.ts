@@ -1,4 +1,5 @@
-import { type Accessor, untrack } from 'solid-js';
+import { untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import type { RefObject } from '@base-ui-solid/utils/refObject';

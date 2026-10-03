@@ -1,11 +1,34 @@
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui-solid/utils/platform';
 import { activeElement, closest, contains, getTarget } from '@base-ui-solid/utils/shadowDom';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
+import type { PopupTriggerMap } from '../../utils/popups';
+import * as TooltipTriggerDataAttributes from '../../tooltip/trigger/TooltipTriggerDataAttributes';
 
 export { activeElement, closest, contains, getTarget };
 
-// Port note: `isTargetInsideEnabledTrigger` is added together with the popup/tooltip port.
+export function isTargetInsideEnabledTrigger(
+  target: EventTarget | null,
+  triggerElements: PopupTriggerMap,
+) {
+  if (!isElement(target)) {
+    return false;
+  }
+
+  const targetElement = target as Element;
+
+  if (triggerElements.hasElement(targetElement)) {
+    return !targetElement.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
+  }
+
+  for (const [, trigger] of triggerElements.entries()) {
+    if (contains(trigger, targetElement)) {
+      return !trigger.hasAttribute(TooltipTriggerDataAttributes.triggerDisabled);
+    }
+  }
+
+  return false;
+}
 
 export function isEventTargetWithin(event: Event, node: Node | null | undefined) {
   if (node == null) {

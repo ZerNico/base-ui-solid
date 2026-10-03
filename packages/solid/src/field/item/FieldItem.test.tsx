@@ -1,10 +1,11 @@
+import { expect, describe, it } from 'vitest';
 import type { JSX } from '@solidjs/web';
+import { render, screen, describeConformance } from '#test-utils';
 import { Field } from '..';
 import { Checkbox } from '../../checkbox';
 import { CheckboxGroup } from '../../checkbox-group';
 import { Radio } from '../../radio';
 import { RadioGroup } from '../../radio-group';
-import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Field.Item />', () => {
   describeConformance(Field.Item, {

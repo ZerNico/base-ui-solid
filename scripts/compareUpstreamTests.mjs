@@ -37,18 +37,15 @@ function collect(file) {
   const out = {};
   function calleeInfo(expr) {
     // it / it.skip / it.skipIf(c) / describe.skipIf(c) / it.each(rows)
-    let base,
-      mods = [];
-    let e = expr;
-    if (ts.isCallExpression(e) && ts.isPropertyAccessExpression(e.expression)) {
-      const pa = e.expression;
+    if (ts.isCallExpression(expr) && ts.isPropertyAccessExpression(expr.expression)) {
+      const pa = expr.expression;
       if (['skipIf', 'runIf', 'each'].includes(pa.name.text) && ts.isIdentifier(pa.expression)) {
         return {
           base: pa.expression.text,
           mod:
             pa.name.text === 'each'
               ? 'each'
-              : `${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})`,
+              : `${pa.name.text}(${norm(expr.arguments.map((a) => a.getText()).join(','))})`,
         };
       }
       if (
@@ -58,35 +55,46 @@ function collect(file) {
       ) {
         return {
           base: pa.expression.expression.text,
-          mod: `${pa.expression.name.text}.${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})`,
+          mod: `${pa.expression.name.text}.${pa.name.text}(${norm(expr.arguments.map((a) => a.getText()).join(','))})`,
         };
       }
     }
-    if (ts.isIdentifier(e)) return { base: e.text, mod: '' };
-    if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression))
-      return { base: e.expression.text, mod: e.name.text };
+    if (ts.isIdentifier(expr)) {
+      return { base: expr.text, mod: '' };
+    }
+    if (ts.isPropertyAccessExpression(expr) && ts.isIdentifier(expr.expression)) {
+      return { base: expr.expression.text, mod: expr.name.text };
+    }
     return null;
   }
   function bodySkip(fn) {
     // ({ skip }) => { if (cond) skip(); }  or  function ({ skip }) ...
-    if (!fn || !(ts.isArrowFunction(fn) || ts.isFunctionExpression(fn))) return '';
-    if (!fn.parameters.length) return '';
+    if (!fn || !(ts.isArrowFunction(fn) || ts.isFunctionExpression(fn))) {
+      return '';
+    }
+    if (!fn.parameters.length) {
+      return '';
+    }
     const p = fn.parameters[0];
     if (
       !ts.isObjectBindingPattern(p.name) ||
       !p.name.elements.some((el) => el.name.getText() === 'skip')
-    )
+    ) {
       return '';
+    }
     let cond = '';
     if (fn.body && ts.isBlock(fn.body)) {
       for (const st of fn.body.statements.slice(0, 3)) {
-        if (ts.isIfStatement(st) && /\bskip\s*\(/.test(st.thenStatement.getText()))
+        if (ts.isIfStatement(st) && /\bskip\s*\(/.test(st.thenStatement.getText())) {
           cond = norm(st.expression.getText());
+        }
       }
     }
     // A condition that only detects the React version (e.g. `React.useId === undefined`) has no
     // Solid counterpart; the port runs the test unconditionally.
-    if (/^React\.\w+ === undefined$/.test(cond)) return '';
+    if (/^React\.\w+ === undefined$/.test(cond)) {
+      return '';
+    }
     return cond ? `skipIf(${cond})` : '';
   }
   function visit(node, prefix, inherited) {
@@ -94,7 +102,7 @@ function collect(file) {
       const info = calleeInfo(node.expression);
       if (info && ['it', 'test', 'describe'].includes(info.base) && node.arguments.length >= 1) {
         const nameArg = node.arguments[0];
-        let name = ts.isStringLiteralLike(nameArg) ? nameArg.text : nameArg.getText();
+        const name = ts.isStringLiteralLike(nameArg) ? nameArg.text : nameArg.getText();
         const fn = node.arguments[node.arguments.length - 1];
         const conds = [...inherited];
         let mod = info.mod;
@@ -102,15 +110,24 @@ function collect(file) {
           // Allowed hard skips carry a reason marker in a leading comment or the body.
           const stmt = node.parent;
           const full = src.text.slice(stmt.getFullStart(), node.end);
-          if (/React-only/.test(full)) mod = 'skip(react-only)';
-          else if (/TODO\(port\): needs/.test(full)) mod = 'skip(needs-component)';
+          if (/React-only/.test(full)) {
+            mod = 'skip(react-only)';
+          } else if (/TODO\(port\): needs/.test(full)) {
+            mod = 'skip(needs-component)';
+          }
         }
-        if (mod && mod !== 'each') conds.push(mod);
+        if (mod && mod !== 'each') {
+          conds.push(mod);
+        }
         const bs = bodySkip(fn);
-        if (bs) conds.push(bs);
+        if (bs) {
+          conds.push(bs);
+        }
         const full = prefix ? `${prefix} > ${name}` : name;
         if (info.base === 'describe') {
-          if (fn) ts.forEachChild(fn, (c) => visit(c, full, conds));
+          if (fn) {
+            ts.forEachChild(fn, (c) => visit(c, full, conds));
+          }
         } else {
           out[full] = conds.length ? conds.join(' & ') : 'run';
         }
@@ -126,8 +143,11 @@ function collect(file) {
 function walk(dir, acc = []) {
   for (const f of fs.readdirSync(dir)) {
     const p = path.join(dir, f);
-    if (fs.statSync(p).isDirectory()) walk(p, acc);
-    else if (/\.test\.tsx?$/.test(f)) acc.push(p);
+    if (fs.statSync(p).isDirectory()) {
+      walk(p, acc);
+    } else if (/\.test\.tsx?$/.test(f)) {
+      acc.push(p);
+    }
   }
   return acc;
 }
@@ -139,29 +159,37 @@ for (const [u, p] of MAP) {
   for (const upFile of walk(path.join(UP, u))) {
     const rel = path.relative(path.join(UP, u), upFile);
     const ptFile = path.join(PT, p, rel);
-    if (!fs.existsSync(ptFile)) continue;
+    if (!fs.existsSync(ptFile)) {
+      continue;
+    }
     const a = collect(upFile),
       b = collect(ptFile);
     for (const [name, cond] of Object.entries(a)) {
       if (!(name in b)) {
         rows.push([`${p}/${rel}`, name, cond, 'MISSING']);
-        diffs++;
+        diffs += 1;
         continue;
       }
       const pc = b[name];
       const same = pc === cond;
-      if (same) continue;
+      if (same) {
+        continue;
+      }
       if (/skip\(react-only\)|skip\(needs-component\)/.test(pc)) {
         allowed[pc.match(/skip\((\S+)\)/)[1]] = (allowed[pc.match(/skip\((\S+)\)/)[1]] || 0) + 1;
         continue;
       }
       rows.push([`${p}/${rel}`, name, cond, pc]);
-      diffs++;
+      diffs += 1;
     }
   }
 }
-for (const r of rows)
+for (const r of rows) {
+  // eslint-disable-next-line no-console
   console.log(`${r[0]}\n   ${r[1].slice(0, 120)}\n     upstream: ${r[2]}\n     port:     ${r[3]}`);
+}
+// eslint-disable-next-line no-console
 console.log('\nALLOWED SKIPS:', JSON.stringify(allowed));
+// eslint-disable-next-line no-console
 console.log('DIFFERENCES:', diffs);
 process.exitCode = diffs > 0 ? 1 : 0;

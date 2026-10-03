@@ -1,5 +1,7 @@
-import { type Accessor, createMemo, merge, onCleanup, untrack } from 'solid-js';
-import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo, merge, onCleanup, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
+import { dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
@@ -39,7 +41,7 @@ export function useRenderElement<
   // Port note: `element` may be an accessor (used by `useRender`'s `defaultTagName`), in which case
   // the element is recreated when it changes and no `render` prop is provided.
   const readElement: Accessor<TagName> = typeof element === 'function' ? element : () => element;
-  const { ref, props, stateAttributesMapping } = params;
+  const { ref } = params;
   const stateParam = params.state;
 
   const readState: () => State =
@@ -111,7 +113,7 @@ export function useRenderElement<
 interface ComputedRenderElementProps {
   props: Record<string, any>;
   ref: unknown;
-  childrenSource: { children?: JSX.Element } | undefined;
+  childrenSource: { children?: JSX.Element | undefined } | undefined;
 }
 
 const EMPTY_COMPUTED: ComputedRenderElementProps = {

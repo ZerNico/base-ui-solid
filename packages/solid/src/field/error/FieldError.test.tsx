@@ -1,6 +1,5 @@
+import { expect, describe, it, afterEach } from 'vitest';
 import { createSignal } from 'solid-js';
-import { Field } from '..';
-import { Form } from '../../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -10,6 +9,8 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { Field } from '..';
+import { Form } from '../../form';
 
 async function focus(element: HTMLElement) {
   fireEvent.focus(element);
@@ -364,6 +365,7 @@ describe('<Field.Error />', () => {
 
         return (
           <div>
+            {/* eslint-disable-next-line solid/no-innerhtml */}
             <style innerHTML={style} />
             <button onClick={() => setShowError(true)}>Show</button>
             <Field.Root>
@@ -413,6 +415,7 @@ describe('<Field.Error />', () => {
 
         return (
           <div>
+            {/* eslint-disable-next-line solid/no-innerhtml */}
             <style innerHTML={style} />
             <button onClick={() => setShowError(false)}>Hide</button>
             <Field.Root>

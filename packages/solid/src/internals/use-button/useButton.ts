@@ -1,4 +1,5 @@
-import { type Accessor, createMemo, untrack } from 'solid-js';
+import { createMemo, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';

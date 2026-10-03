@@ -1,6 +1,5 @@
+import { expect, describe, it, beforeEach } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
-import { Field } from '..';
-import { Form } from '../../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -11,6 +10,8 @@ import {
   isJSDOM,
   renderToString,
 } from '#test-utils';
+import { Field } from '..';
+import { Form } from '../../form';
 import { AutoFocusApp } from './FieldControl.fixtures';
 
 async function change(element: HTMLElement, value: string) {

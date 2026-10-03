@@ -30,7 +30,11 @@ export function describeConformance<P extends Record<string, any>>(
   describe('Base UI component API', () => {
     it('forwards the ref', async () => {
       let element: Element | undefined;
-      await renderTested({ ref: (el: Element) => (element = el) });
+      await renderTested({
+        ref: (el: Element) => {
+          element = el;
+        },
+      });
       expect(element).toBeInstanceOf(refInstanceof);
     });
 
@@ -78,7 +82,9 @@ export function describeConformance<P extends Record<string, any>>(
       it('renders the element returned by a render function', async () => {
         let element: Element | undefined;
         await renderTested({
-          ref: (el: Element) => (element = el),
+          ref: (el: Element) => {
+            element = el;
+          },
           'data-testid': 'tested',
           class: 'custom-class',
           render: (props: Record<string, any>) => <section {...props} data-rendered="" />,

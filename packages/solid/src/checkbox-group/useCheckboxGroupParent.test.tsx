@@ -1,7 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal, Show } from 'solid-js';
+import { fireEvent, flushMicrotasks, render, screen } from '#test-utils';
 import { CheckboxGroup } from '.';
 import { Checkbox } from '../checkbox';
-import { fireEvent, flushMicrotasks, render, screen } from '#test-utils';
 
 async function click(element: HTMLElement) {
   fireEvent.click(element);

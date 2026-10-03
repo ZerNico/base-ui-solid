@@ -82,7 +82,7 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
 
   // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
   // must not point `htmlFor` at one arbitrary checkbox inside the group.
-  useLabelableId({ id: () => null });
+  void useLabelableId({ id: () => null });
 
   const generatedId = useBaseUiId();
   const id = () => (componentProps.id as string | undefined) ?? generatedId;

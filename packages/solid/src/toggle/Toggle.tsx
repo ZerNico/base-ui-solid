@@ -13,12 +13,7 @@ import { CompositeItem } from '../internals/composite/item/CompositeItem';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
-
-// Port note: upstream imports this from `toolbar/root/ToolbarRoot` (not ported yet).
-interface ToolbarRootItemMetadata {
-  disabled: boolean;
-  focusableWhenDisabled: boolean;
-}
+import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
 
 /**
  * A two-state button that can be on or off.
@@ -83,7 +78,7 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
   }));
 
   const refs = [buttonRef];
-  const props = () => [
+  const props = (ownElementProps: object = elementProps) => [
     {
       'aria-pressed': pressed(),
       onClick(event: MouseEvent) {
@@ -110,18 +105,33 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
         setPressedState(nextPressed);
       },
     },
-    elementProps,
+    ownElementProps,
     getButtonProps,
   ];
 
   if (groupContext) {
     // A disabled toggle is natively disabled and cannot hold roving focus.
     // Toolbar reads this metadata to compute its `disabledIndices`.
-    const itemMetadata = createMemo<ToolbarRootItemMetadata>(() => ({
+    const itemMetadata = createMemo<ToolbarRoot.ItemMetadata>(() => ({
       disabled: disabled(),
       focusableWhenDisabled: false,
     }));
 
+    // Port note: upstream composes the forwarded ref after the composite item's own ref (it's
+    // part of `refs`), so an outer composite item rendering this toggle (e.g. `Toolbar.Button`
+    // with a `render` function) registers last and its metadata wins. Solid forwards the ref
+    // through `elementProps`, which attach first, so it's moved to `refs` here.
+    const itemElementProps = omit(elementProps, 'ref');
+    const forwardedRef = (element: HTMLButtonElement | null) => {
+      if (element) {
+        applyRef(
+          untrack(() => componentProps.ref),
+          element,
+        );
+      }
+    };
+
+    // eslint-disable-next-line solid/components-return-once -- `groupContext` never changes (mirrors upstream's early return)
     return (
       <CompositeItem
         tag="button"
@@ -130,8 +140,8 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
         style={componentProps.style}
         metadata={itemMetadata()}
         state={state()}
-        refs={refs}
-        props={props()}
+        refs={[...refs, forwardedRef]}
+        props={props(itemElementProps)}
       />
     );
   }
@@ -141,6 +151,14 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
     ref: refs,
     props,
   });
+}
+
+function applyRef(ref: unknown, element: HTMLButtonElement) {
+  if (Array.isArray(ref)) {
+    ref.forEach((item) => applyRef(item, element));
+  } else if (typeof ref === 'function') {
+    ref(element);
+  }
 }
 
 export interface ToggleState {

@@ -1,7 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
+import { fireEvent, flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 import { Field } from '../../field';
 import { Fieldset } from '..';
-import { fireEvent, flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 
 describe('<Fieldset.Root />', () => {
   describeConformance(Fieldset.Root, {

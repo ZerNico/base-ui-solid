@@ -1,11 +1,5 @@
+import { expect, describe, it, afterEach, beforeEach } from 'vitest';
 import { Show, createSignal } from 'solid-js';
-import { Field } from '..';
-import { Form } from '../../form';
-import { Checkbox } from '../../checkbox';
-import { CheckboxGroup } from '../../checkbox-group';
-import { Radio } from '../../radio';
-import { RadioGroup } from '../../radio-group';
-import { Switch } from '../../switch';
 import {
   fireEvent,
   flushMicrotasks,
@@ -15,6 +9,13 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { Field } from '..';
+import { Form } from '../../form';
+import { Checkbox } from '../../checkbox';
+import { CheckboxGroup } from '../../checkbox-group';
+import { Radio } from '../../radio';
+import { RadioGroup } from '../../radio-group';
+import { Switch } from '../../switch';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 
 async function focus(element: HTMLElement) {

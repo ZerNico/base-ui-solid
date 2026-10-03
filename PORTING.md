@@ -11,7 +11,7 @@ diagnostic fires).
 ## Public API differences
 
 | Upstream (React)                              | Port (Solid)                                                            |
-| --------------------------------------------- | ----------------------------------------------------------------------- |
+| :-------------------------------------------- | :---------------------------------------------------------------------- |
 | `className` (string or `(state) => …`)        | `class` (any Solid class value, or `(state) => …`)                      |
 | `style` object (camelCase)                    | `style` object (kebab-case) or string, or `(state) => …`                |
 | `render={<a />}` (element, cloned)            | **Not supported** — Solid can't clone elements                          |
@@ -138,13 +138,54 @@ diagnostic fires).
 - Don't use object rest on props that may contain `children`; use `omitProps` from
   `merge-props/mergeProps` instead.
 
+### Stores and popups
+
+Upstream's popups share state through `@base-ui/utils/store` (`Store`/`ReactStore` read with
+`useSyncExternalStore`). The port keeps the same classes, names and methods
+(`@base-ui-solid/utils/store`) so popup code ports 1:1:
+
+- `Store` is unchanged and framework-agnostic: `state` is a plain object, updated synchronously by
+  `setState` / `set` / `update`, and `subscribe` listeners run synchronously. Reading
+  `store.state` (or `select()`) is **not tracked**: use it in event handlers and effects, like
+  upstream.
+- `store.useState(key, ...args)`, `store.use(selector, ...args)` and `useStore(store, selector, ...args)`
+  return an **accessor** backed by a memo: the hook subscribes to the store, re-runs the selector
+  when Solid flushes and notifies readers only when the selected value changed (`Object.is`).
+  Selector arguments may be accessors (`store.useState('isActive', () => index())`); an argument
+  that is itself a function must be wrapped (`() => fn`).
+- `ReactStore` keeps its name. Values synced into the store are passed as accessors:
+  `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
+  `useControlledProp(key, () => props.open)` and `useSyncedValues(() => ({ a: a(), b: props.b }))`.
+  They write in an effect (`useIsoLayoutEffect`), like upstream's layout effects.
+- `useContextCallback(key, () => props.onOpenChange)` stores a stable function that calls the latest
+  callback (replaces `useStableCallback`). `useStateSetter(key)` returns a plain setter.
+- `createSelector` / `createSelectorMemoized` are copied verbatim (reselect-based).
+
+Floating UI:
+
+- `@floating-ui/react-dom` is replaced by `floating-ui-react/dom` (built on `@floating-ui/dom`), with
+  the same API: `useFloating`, middleware accepting `deps`, `arrow` accepting a ref object, and the
+  DOM utilities. Options objects are read lazily (pass getters for reactive options). The returned
+  object (and `FloatingContext`) exposes `x`, `y`, `placement`, `strategy`, `middlewareData`,
+  `isPositioned`, `floatingStyles`, `open`, `floatingId` and `elements.*` as **getters**: read them in
+  a reactive scope and don't destructure them; `refs`, `update` and the stores are stable.
+  `floatingStyles` is a Solid style object (kebab-case, `px` units).
+- Interaction hooks (`useClick`, `useDismiss`, …) return `ElementProps` whose props objects are read
+  lazily: their reactive values are getters, and event handlers are stable functions. Merge them
+  inside `useRenderElement`'s `props` accessor (or `mergeProps` called in a reactive scope).
+- React's `onFocus`/`onBlur` in these props become `onFocusIn`/`onFocusOut` (React's versions bubble).
+  React's `onMouseDown`/`onPointerDown`/… keep their names.
+- Mutable refs shared through stores (`dataRef`, `popupRef`) are `RefObject`s from
+  `@base-ui-solid/utils/refObject`.
+- `FloatingPortal` renders through `@solidjs/web`'s `Portal` semantics, keeping upstream's API.
+
 ## Tests
 
 The setup mirrors upstream: `vitest.shared.mts`, one `vitest.config.mts` per package, a root
 config listing them as projects, and `test/setupVitest.ts`.
 
 | Command                                               | Runs in                                       |
-| ----------------------------------------------------- | --------------------------------------------- |
+| :---------------------------------------------------- | :-------------------------------------------- |
 | `pnpm test`                                           | Chromium (default, like upstream)             |
 | `pnpm test:jsdom`                                     | jsdom                                         |
 | `pnpm test:chromium`                                  | Chromium (Vitest browser mode via Playwright) |
@@ -192,6 +233,43 @@ compiles the same JSX differently for the server and the client, so:
 - `pnpm test:compare-upstream` treats a skip condition that only detects a React API
   (e.g. `React.useId === undefined`) as no condition: the port runs those tests.
 
+## Linting
+
+Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.config.mjs`,
+`.remarkrc.mjs` (Markdown via eslint-plugin-mdx), `stylelint.config.mjs`, `.lintignore`.
+
+| Command           | Runs                                                                        |
+| :---------------- | :-------------------------------------------------------------------------- |
+| `pnpm eslint`     | ESLint on the whole repo (cached, `--max-warnings 0`, unused disables fail) |
+| `pnpm eslint:ci`  | The same without cache                                                      |
+| `pnpm stylelint`  | Stylelint on `**/*.css`                                                     |
+| `pnpm typescript` | `tsc` (TS 7, `@typescript/native`); `pnpm typecheck` is an alias            |
+
+- **Run ESLint on your files before reporting** (and fix what it reports):
+  `pnpm exec eslint --report-unused-disable-directives --max-warnings 0 <files>` (`pnpm eslint <files>`
+  would still lint the whole repo). `--fix` handles import order, `import type`, and missing
+  `vitest` imports.
+- As upstream, tests import `describe`/`it`/`expect`/`vi`/… from `'vitest'` explicitly
+  (`vitest/prefer-importing-vitest-globals`), with upstream's import line order.
+- **React → Solid rule swap.** The code-infra base config enables eslint-plugin-react,
+  react-hooks and react-compiler; every rule of those plugins is turned off for our files and
+  `eslint-plugin-solid` (`v2` preset, Solid 2.0 semantics) is enabled instead. Upstream's
+  `react/no-danger` disables become `solid/no-innerhtml` disables; drop upstream's
+  `react-hooks/*` / `react-compiler/*` disables. `solid/reactivity` is off (its heuristic misreads
+  the accessor conventions above; tests cover reactivity). In tests, `solid/prefer-for` (fixtures
+  mirror upstream's `.map()`) and `vitest/no-disabled-tests` (hard skips carry reason markers) are
+  off.
+- Other port-specific settings: `mui/disallow-react-api-in-server-components` is off (no
+  `'use client'` in Solid); `mui/no-floating-cleanup` is replaced by
+  `base-ui-solid/no-floating-cleanup`, which ignores `onCleanup()`'s returned `Disposable`
+  (discard other intentionally ignored cleanups with `void`, like upstream). Deep imports are
+  restricted to one level for `base-ui-solid/<module>`, and `mui/add-undef-to-optional` applies to
+  `packages/*/src` (write `children?: JSX.Element | undefined`).
+- Keep upstream's `eslint-disable` comments when the rule still exists (translate React rule names
+  as above), with the same placement.
+- `typescript-eslint` needs the TypeScript JS API, so (like upstream) the `typescript` package is
+  TS 6 (`@typescript/typescript6`, binary `tsc6`) and `tsc` comes from `@typescript/native` (TS 7).
+
 ## Known issues
 
 - **Solid dev performance warnings in the browser.** Ported "write state in a layout effect"
@@ -209,7 +287,7 @@ compiles the same JSX differently for the server and the client, so:
 ## Port status
 
 | Area                                                                              | Status                                             |
-| --------------------------------------------------------------------------------- | -------------------------------------------------- |
+| :-------------------------------------------------------------------------------- | :------------------------------------------------- |
 | `merge-props`, `use-render`                                                       | Ported                                             |
 | `internals/useRenderElement`                                                      | Ported (Solid-specific implementation)             |
 | `internals/use-button`                                                            | Ported                                             |
@@ -219,9 +297,8 @@ compiles the same JSX differently for the server and the client, so:
 | `separator`, `toggle`, `toggle-group`                                             | Ported, upstream tests ported                      |
 | `direction-provider`                                                              | Ported (`useDirection()` returns an accessor)      |
 | `internals/composite`                                                             | Ported (list, item, root, grid navigation)         |
-| `floating-ui-react/utils`                                                         | `composite`, `event`, `element` (partial)          |
 | `toolbar`                                                                         | Only the root/group contexts (read by ToggleGroup) |
 | `field`, `fieldset`, `form`, `input` + field/form/labelable internals             | Ported; tests in progress                          |
 | `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                    | In progress                                        |
-| `floating-ui-react`                                                               | Not started                                        |
+| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals         | In progress                                        |
 | Other components                                                                  | Not started                                        |

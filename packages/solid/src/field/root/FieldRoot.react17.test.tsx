@@ -1,7 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { Field } from '..';
 import { fireEvent, render, screen, waitFor } from '#test-utils';
+import { Field } from '..';
 
 // Port note: upstream runs these with `SafeReact.useId` mocked away to exercise React 17's id
 // fallback. Solid always has `createUniqueId`, so there's nothing to mock; the behaviors are kept.

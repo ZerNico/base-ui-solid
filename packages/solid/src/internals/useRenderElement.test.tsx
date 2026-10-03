@@ -1,4 +1,5 @@
 import { vi, expect, describe, it } from 'vitest';
+/* eslint-disable testing-library/render-result-naming-convention */
 import { createMemo, createSignal, flush, lazy, Loading, omit, untrack } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { render, waitFor } from '#test-utils';
@@ -66,7 +67,6 @@ describe('useRenderElement', () => {
       {},
       {
         enabled: false,
-        // eslint-disable-next-line solid/reactivity
         props: [props.propsGetter],
       },
     );
@@ -460,6 +460,7 @@ describe('useRenderElement', () => {
       ));
 
       await waitFor(() => {
+        // eslint-disable-next-line testing-library/no-container -- same element as the assertions below
         expect(container.firstElementChild?.getAttribute('data-lazy')).toBe('true');
       });
 
@@ -478,6 +479,7 @@ describe('useRenderElement', () => {
 
       it.skip('does not unwrap a pending element when disabled', () => {});
 
+      // eslint-disable-next-line vitest/expect-expect -- placeholder in the skipped React-only suite
       it.each([
         ['null', null],
         ['false', false],

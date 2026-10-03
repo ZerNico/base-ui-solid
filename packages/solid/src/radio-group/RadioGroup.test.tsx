@@ -1,5 +1,7 @@
+import { expect, describe, it } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
 import { Portal } from '@solidjs/web';
+import { fireEvent, render, screen, describeConformance, isJSDOM } from '#test-utils';
 import { RadioGroup } from '.';
 import { Radio } from '../radio';
 import { Field } from '../field';
@@ -7,7 +9,6 @@ import { Fieldset } from '../fieldset';
 import { Form } from '../form';
 import { DirectionProvider } from '../direction-provider';
 import type { TextDirection } from '../direction-provider';
-import { fireEvent, render, screen, describeConformance, isJSDOM } from '#test-utils';
 
 function click(element: Element) {
   fireEvent.click(element);

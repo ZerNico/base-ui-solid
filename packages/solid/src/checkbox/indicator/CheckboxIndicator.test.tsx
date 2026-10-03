@@ -1,8 +1,9 @@
+import { expect, describe, beforeEach, it, afterEach } from 'vitest';
 import { createSignal, For } from 'solid-js';
+import { isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 import { Checkbox } from '..';
 import { CheckboxRootContext } from '../root/CheckboxRootContext';
 import type { CheckboxRootState } from '../root/CheckboxRoot';
-import { isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 
 const testContext: CheckboxRootState = {
   checked: true,
@@ -153,6 +154,7 @@ describe('<Checkbox.Indicator />', () => {
 
     const { user } = await render(() => (
       <div>
+        {/* eslint-disable-next-line solid/no-innerhtml */}
         <style innerHTML={style} />
         <button onClick={() => setChecked(false)}>Close</button>
         <Checkbox.Root checked={checked()}>
@@ -211,6 +213,7 @@ describe('<Checkbox.Indicator />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
           <button onClick={() => setChecked(true)}>Check</button>
           <Checkbox.Root checked={checked()}>
@@ -254,6 +257,7 @@ describe('<Checkbox.Indicator />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
           <button onClick={() => setChecked(false)}>Uncheck</button>
           <Checkbox.Root checked={checked()}>
@@ -302,6 +306,7 @@ describe('<Checkbox.Indicator />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
           <button onClick={() => setChecked(false)}>Uncheck</button>
           <For each={Array.from({ length: 10 }, (_, index) => index)}>

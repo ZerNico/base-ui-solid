@@ -1,7 +1,8 @@
+import { expect, describe, beforeEach, it, afterEach } from 'vitest';
 import { createSignal, flush } from 'solid-js';
+import { fireEvent, isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 import { Radio } from '..';
 import { RadioGroup } from '../../radio-group';
-import { fireEvent, isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 
 describe('<Radio.Indicator />', () => {
   beforeEach(() => {
@@ -70,6 +71,7 @@ describe('<Radio.Indicator />', () => {
 
     const { user } = await render(() => (
       <div>
+        {/* eslint-disable-next-line solid/no-innerhtml */}
         <style innerHTML={style} />
         <button onClick={() => setValue('b')}>Close</button>
         <RadioGroup value={value()}>
@@ -127,6 +129,7 @@ describe('<Radio.Indicator />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
           <button onClick={() => setValue('a')}>Select a</button>
           <RadioGroup value={value()}>
@@ -173,6 +176,7 @@ describe('<Radio.Indicator />', () => {
 
       await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
           <button onClick={() => setValue('b')}>Select b</button>
           <RadioGroup value={value()}>

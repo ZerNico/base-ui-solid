@@ -1,11 +1,7 @@
+import { expect, describe, it } from 'vitest';
 import { For, Show, createSignal } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import { within } from '@solidjs/testing-library';
-import { Form } from '.';
-import { Checkbox } from '../checkbox';
-import { Field } from '../field';
-import { Fieldset } from '../fieldset';
-import { Switch } from '../switch';
 import {
   fireEvent,
   flushMicrotasks,
@@ -14,6 +10,12 @@ import {
   waitFor,
   describeConformance,
 } from '#test-utils';
+import { Form } from '.';
+import { Checkbox } from '../checkbox';
+import { Field } from '../field';
+import { Fieldset } from '../fieldset';
+import { NumberField } from '../number-field';
+import { Switch } from '../switch';
 
 async function change(element: HTMLElement, value: string) {
   // React's `onChange` on text inputs is the native `input` event.
@@ -999,27 +1001,33 @@ describe('<Form />', () => {
   });
 
   describe('prop: onFormSubmit', () => {
-    // TODO(port): needs <NumberField>
-    it.skip('runs when the form is submitted', () => {});
-
-    it('runs when the form is submitted (Field.Control only)', async () => {
-      // Port note: same as the skipped test above without the NumberField.
+    it('runs when the form is submitted', async () => {
       const submitSpy = vi.fn((formValues, eventDetails) => ({ formValues, eventDetails }));
 
-      await render(() => (
-        <Form onFormSubmit={submitSpy}>
-          <Field.Root name="username">
-            <Field.Control defaultValue="alice132" />
-          </Field.Root>
-          <button type="submit">submit</button>
-        </Form>
-      ));
+      function App() {
+        return (
+          <Form onFormSubmit={submitSpy}>
+            <Field.Root name="username">
+              <Field.Control defaultValue="alice132" />
+            </Field.Root>
+            <Field.Root name="quantity">
+              <NumberField.Root defaultValue={5}>
+                <NumberField.Input />
+              </NumberField.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(() => <App />);
 
       await click(screen.getByText('submit'));
 
       expect(submitSpy.mock.calls.length).toBe(1);
       expect(submitSpy.mock.results.at(-1)?.value.formValues).toEqual({
         username: 'alice132',
+        quantity: 5,
       });
       expect(submitSpy.mock.results.at(-1)?.value.eventDetails.event.defaultPrevented).toBe(true);
     });
@@ -1085,14 +1093,7 @@ describe('<Form />', () => {
   });
 
   describe('prop: actionsRef', () => {
-    // TODO(port): needs <NumberField>
-    it.skip('validates the form when the `validate` method is called', () => {});
-
-    // TODO(port): needs <NumberField>
-    it.skip('validates a field when the `validate` method is called with the field name', () => {});
-
-    it('validates the form when the `validate` method is called (Field.Control only)', async () => {
-      // Port note: same as the skipped test above, with a Field.Control instead of a NumberField.
+    it('validates the form when the `validate` method is called', async () => {
       function App() {
         const actionsRef: { current: Form.Actions | null } = { current: null };
         return (
@@ -1103,7 +1104,9 @@ describe('<Form />', () => {
                 <Field.Error data-testid="error" />
               </Field.Root>
               <Field.Root name="quantity" validate={() => 'error'}>
-                <Field.Control defaultValue="5" />
+                <NumberField.Root defaultValue={5}>
+                  <NumberField.Input />
+                </NumberField.Root>
                 <Field.Error data-testid="error" />
               </Field.Root>
               <button type="submit">submit</button>
@@ -1122,10 +1125,10 @@ describe('<Form />', () => {
       await user.click(screen.getByText('validate'));
       await flushMicrotasks();
 
-      expect(screen.queryAllByTestId('error').length).toBe(2);
+      await expect(screen.queryAllByTestId('error').length).toBe(2);
     });
 
-    it('validates a field when the `validate` method is called with the field name (Field.Control only)', async () => {
+    it('validates a field when the `validate` method is called with the field name', async () => {
       function App() {
         const actionsRef: { current: Form.Actions | null } = { current: null };
         return (
@@ -1136,7 +1139,9 @@ describe('<Form />', () => {
                 <Field.Error data-testid="error" />
               </Field.Root>
               <Field.Root name="quantity" validate={() => 'number field error'}>
-                <Field.Control defaultValue="5" />
+                <NumberField.Root defaultValue={5}>
+                  <NumberField.Input />
+                </NumberField.Root>
                 <Field.Error data-testid="error" />
               </Field.Root>
               <button type="submit">submit</button>
@@ -1155,7 +1160,7 @@ describe('<Form />', () => {
       await user.click(screen.getByText('validate'));
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('error')).toHaveTextContent('number field error');
+      await expect(screen.queryByTestId('error')).toHaveTextContent('number field error');
     });
 
     it('targets only the current Strict Mode registration after name, id, and control replacement', async () => {

@@ -1,5 +1,6 @@
-import { Accordion } from '..';
+import { expect, describe, it } from 'vitest';
 import { render, screen, describeConformance, isJSDOM } from '#test-utils';
+import { Accordion } from '..';
 
 describe('<Accordion.Item />', () => {
   it('throws when rendered outside an Accordion.Root', async () => {

@@ -1,7 +1,8 @@
+import { expect, describe, it } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
+import { render, screen, describeConformance, isJSDOM } from '#test-utils';
 import { Collapsible } from '..';
 import { REASONS } from '../../internals/reasons';
-import { render, screen, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT = 'This is panel content';
 

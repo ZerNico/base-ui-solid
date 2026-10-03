@@ -4,34 +4,55 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@base-ui-solid/utils": "workspace:*"
+    "@base-ui-solid/utils": "workspace:*",
+    "@floating-ui/dom": "^1.8.0"
   },
   "peerDependencies": {
     "@solidjs/web": "2.0.0-rc.13",
     "solid-js": "2.0.0-rc.13"
   },
   "imports": {
-    "#test-utils": "./test/index.ts"
+    "#test-utils": "./test/index.ts",
+    "#prehydration/tabs/indicator": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/tabs/indicator/prehydrationScript.min.ts"
+    },
+    "#prehydration/slider/thumb": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/slider/thumb/prehydrationScript.min.ts"
+    }
   },
   "exports": {
     ".": "./src/index.ts",
     "./accordion": "./src/accordion/index.ts",
+    "./avatar": "./src/avatar/index.ts",
+    "./button": "./src/button/index.ts",
     "./checkbox": "./src/checkbox/index.ts",
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
+    "./csp-provider": "./src/csp-provider/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
     "./field": "./src/field/index.ts",
     "./fieldset": "./src/fieldset/index.ts",
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
+    "./meter": "./src/meter/index.ts",
+    "./number-field": "./src/number-field/index.ts",
+    "./otp-field": "./src/otp-field/index.ts",
+    "./progress": "./src/progress/index.ts",
     "./radio": "./src/radio/index.ts",
     "./radio-group": "./src/radio-group/index.ts",
+    "./scroll-area": "./src/scroll-area/index.ts",
     "./separator": "./src/separator/index.ts",
+    "./slider": "./src/slider/index.ts",
     "./switch": "./src/switch/index.ts",
+    "./tabs": "./src/tabs/index.ts",
     "./toggle": "./src/toggle/index.ts",
     "./toggle-group": "./src/toggle-group/index.ts",
+    "./toolbar": "./src/toolbar/index.ts",
     "./types": "./src/types/index.ts",
+    "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts"
   }
 }

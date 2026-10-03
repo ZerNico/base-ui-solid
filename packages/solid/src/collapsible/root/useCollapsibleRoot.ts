@@ -1,4 +1,5 @@
-import { type Accessor, type Setter, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
+import type { Accessor, Setter } from 'solid-js';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';

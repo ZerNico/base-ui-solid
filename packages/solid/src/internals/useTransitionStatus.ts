@@ -1,4 +1,5 @@
-import { type Accessor, createSignal, untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 

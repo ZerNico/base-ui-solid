@@ -1,6 +1,7 @@
+import { expect, describe, it, beforeEach } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
-import { Field } from '..';
 import { render, screen, describeConformance } from '#test-utils';
+import { Field } from '..';
 
 describe('<Field.Label />', () => {
   describeConformance(Field.Label, {

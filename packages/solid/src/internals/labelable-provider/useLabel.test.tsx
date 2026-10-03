@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { flushMicrotasks, render, screen } from '#test-utils';
 import { useLabel } from './useLabel';
 

@@ -41,7 +41,7 @@ export interface CompositeItemProps<Metadata, State extends Record<string, any>>
   BaseUIComponentProps<any, State>,
   'render' | 'class' | 'style'
 > {
-  children?: JSX.Element;
+  children?: JSX.Element | undefined;
   metadata?: Metadata | undefined;
   refs?: Array<((element: any) => void) | undefined> | undefined;
   /**

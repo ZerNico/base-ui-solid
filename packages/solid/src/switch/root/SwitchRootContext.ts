@@ -1,4 +1,5 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { SwitchRootState } from './SwitchRoot';
 
 // Port note: the context holds an accessor to the root state instead of a snapshot.

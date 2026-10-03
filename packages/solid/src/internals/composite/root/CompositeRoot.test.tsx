@@ -1329,6 +1329,7 @@ describe.each([false, true])('nested Composite items (strict: %s)', (strict) => 
     return;
   }
 
+  // eslint-disable-next-line vitest/no-identical-title -- the React-only placeholder above only registers for the strict=true row
   it('keeps outer metadata and focus navigation when items share a DOM node', async () => {
     const { user } = await render(() => <NestedItemsRoot />);
     const first = screen.getByTestId('first');
@@ -1349,6 +1350,7 @@ describe.each([false, true])('nested Composite items (strict: %s)', (strict) => 
     });
   });
 
+  // eslint-disable-next-line vitest/no-identical-title -- the React-only placeholder above only registers for the strict=true row
   it('keeps the outer registration when only the inner item updates', async () => {
     const onMapChange = vi.fn();
     const { user } = await render(() => <DynamicNestedRoot onMapChange={onMapChange} />);
