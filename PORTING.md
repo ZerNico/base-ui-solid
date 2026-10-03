@@ -286,19 +286,20 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ## Port status
 
-| Area                                                                              | Status                                             |
-| :-------------------------------------------------------------------------------- | :------------------------------------------------- |
-| `merge-props`, `use-render`                                                       | Ported                                             |
-| `internals/useRenderElement`                                                      | Ported (Solid-specific implementation)             |
-| `internals/use-button`                                                            | Ported                                             |
-| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete` | Ported                                             |
-| `collapsible`                                                                     | Ported, upstream jsdom tests ported                |
-| `accordion`                                                                       | Ported                                             |
-| `separator`, `toggle`, `toggle-group`                                             | Ported, upstream tests ported                      |
-| `direction-provider`                                                              | Ported (`useDirection()` returns an accessor)      |
-| `internals/composite`                                                             | Ported (list, item, root, grid navigation)         |
-| `toolbar`                                                                         | Only the root/group contexts (read by ToggleGroup) |
-| `field`, `fieldset`, `form`, `input` + field/form/labelable internals             | Ported; tests in progress                          |
-| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                    | In progress                                        |
-| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals         | In progress                                        |
-| Other components                                                                  | Not started                                        |
+| Area                                                                                | Status                                             |
+| :---------------------------------------------------------------------------------- | :------------------------------------------------- |
+| `merge-props`, `use-render`                                                         | Ported                                             |
+| `internals/useRenderElement`                                                        | Ported (Solid-specific implementation)             |
+| `internals/use-button`                                                              | Ported                                             |
+| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete`   | Ported                                             |
+| `collapsible`                                                                       | Ported, upstream jsdom tests ported                |
+| `accordion`                                                                         | Ported                                             |
+| `separator`, `toggle`, `toggle-group`                                               | Ported, upstream tests ported                      |
+| `direction-provider`                                                                | Ported (`useDirection()` returns an accessor)      |
+| `internals/composite`                                                               | Ported (list, item, root, grid navigation)         |
+| `toolbar`                                                                           | Only the root/group contexts (read by ToggleGroup) |
+| `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                          |
+| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | In progress                                        |
+| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | In progress                                        |
+| `button`, `meter`, `progress`, `avatar`, `csp-provider`, `unstable-use-media-query` | Ported, upstream tests ported                      |
+| Other components                                                                    | Not started                                        |
