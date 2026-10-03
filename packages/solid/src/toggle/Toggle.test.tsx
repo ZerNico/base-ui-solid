@@ -1,12 +1,7 @@
 import { createSignal } from 'solid-js';
 import { Toggle } from '.';
 import { ToggleGroup } from '../toggle-group/ToggleGroup';
-import {
-  flushMicrotasks,
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 
 describe('<Toggle />', () => {
   describeConformance(Toggle, {
@@ -142,7 +137,11 @@ describe('<Toggle />', () => {
           <Toggle
             value="left"
             render={(props) => (
-              <button type="button" {...props} data-tabindex={(renderSpy(props.tabindex), props.tabindex)} />
+              <button
+                type="button"
+                {...props}
+                data-tabindex={(renderSpy(props.tabindex), props.tabindex)}
+              />
             )}
           />
         </ToggleGroup>

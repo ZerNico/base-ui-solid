@@ -70,8 +70,8 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
 
   useIsoLayoutEffect(
     ([currentRegisteredId]) => {
-      setPanelIdState((currentId) =>
-        currentRegisteredId ?? (currentId === null ? undefined : currentId),
+      setPanelIdState(
+        (currentId) => currentRegisteredId ?? (currentId === null ? undefined : currentId),
       );
       return () => {
         setPanelIdState((currentId) => (currentId === currentRegisteredId ? null : currentId));
@@ -125,7 +125,9 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
             resolvedStyle ? { style: resolvedStyle } : undefined,
             // Resolve the public `style` prop so temporary `animation-name: none`
             // can still win after user's inline styles have been merged.
-            panel.shouldPreventOpenAnimation() ? { style: { 'animation-name': 'none' } } : undefined,
+            panel.shouldPreventOpenAnimation()
+              ? { style: { 'animation-name': 'none' } }
+              : undefined,
           ];
         },
         stateAttributesMapping: accordionStateAttributesMapping,

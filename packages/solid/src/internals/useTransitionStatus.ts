@@ -1,6 +1,6 @@
-import { type Accessor, createSignal, untrack } from "solid-js";
-import { useIsoLayoutEffect } from "@base-ui-solid/utils/useIsoLayoutEffect";
-import { AnimationFrame } from "@base-ui-solid/utils/useAnimationFrame";
+import { type Accessor, createSignal, untrack } from 'solid-js';
+import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 
 /**
  * Applies a status update made in an animation frame after the browser has rendered that frame.
@@ -24,7 +24,7 @@ function requestFrameUpdate(update: () => void) {
   };
 }
 
-export type TransitionStatus = "starting" | "ending" | "idle" | undefined;
+export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
 interface TransitionState {
   mounted: boolean;
@@ -48,32 +48,23 @@ export function useTransitionStatus(
 ) {
   // Upstream adjusts `mounted` and `transitionStatus` during render. Here the same rules are
   // applied by a writable memo: they run whenever `open` changes, and after every write.
-  function applyRenderPhaseRules(
-    state: TransitionState,
-    isOpen: boolean,
-  ): TransitionState {
+  function applyRenderPhaseRules(state: TransitionState, isOpen: boolean): TransitionState {
     let { mounted, transitionStatus } = state;
 
     if (isOpen && !mounted) {
       mounted = true;
-      transitionStatus = "starting";
+      transitionStatus = 'starting';
     }
 
-    if (
-      !isOpen &&
-      mounted &&
-      transitionStatus !== "ending" &&
-      !deferEndingState
-    ) {
-      transitionStatus = "ending";
+    if (!isOpen && mounted && transitionStatus !== 'ending' && !deferEndingState) {
+      transitionStatus = 'ending';
     }
 
-    if (!isOpen && !mounted && transitionStatus === "ending") {
+    if (!isOpen && !mounted && transitionStatus === 'ending') {
       transitionStatus = undefined;
     }
 
-    return mounted === state.mounted &&
-      transitionStatus === state.transitionStatus
+    return mounted === state.mounted && transitionStatus === state.transitionStatus
       ? state
       : { mounted, transitionStatus };
   }
@@ -85,13 +76,12 @@ export function useTransitionStatus(
       // computation, which is what produces the `'starting'` phase.
       const initial: TransitionState = prev ?? {
         mounted: isOpen && !animateInitialOpen,
-        transitionStatus: isOpen && enableIdleState ? "idle" : undefined,
+        transitionStatus: isOpen && enableIdleState ? 'idle' : undefined,
       };
       return applyRenderPhaseRules(initial, isOpen);
     },
     {
-      equals: (a, b) =>
-        a.mounted === b.mounted && a.transitionStatus === b.transitionStatus,
+      equals: (a, b) => a.mounted === b.mounted && a.transitionStatus === b.transitionStatus,
     },
   );
 
@@ -99,9 +89,7 @@ export function useTransitionStatus(
   const transitionStatus = () => state().transitionStatus;
 
   function update(patch: Partial<TransitionState>) {
-    setState((prev) =>
-      applyRenderPhaseRules({ ...prev, ...patch }, untrack(open)),
-    );
+    setState((prev) => applyRenderPhaseRules({ ...prev, ...patch }, untrack(open)));
   }
 
   const setMounted = (nextMounted: boolean) => update({ mounted: nextMounted });
@@ -110,9 +98,9 @@ export function useTransitionStatus(
 
   useIsoLayoutEffect(
     ([isOpen, isMounted, status]) => {
-      if (!isOpen && isMounted && status !== "ending" && deferEndingState) {
+      if (!isOpen && isMounted && status !== 'ending' && deferEndingState) {
         return requestFrameUpdate(() => {
-          setTransitionStatus("ending");
+          setTransitionStatus('ending');
         });
       }
 
@@ -141,12 +129,12 @@ export function useTransitionStatus(
         return undefined;
       }
 
-      if (isOpen && isMounted && status !== "idle") {
-        setTransitionStatus("starting");
+      if (isOpen && isMounted && status !== 'idle') {
+        setTransitionStatus('starting');
       }
 
       return requestFrameUpdate(() => {
-        setTransitionStatus("idle");
+        setTransitionStatus('idle');
       });
     },
     () => [open(), mounted(), transitionStatus()],

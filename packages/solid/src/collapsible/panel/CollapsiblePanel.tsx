@@ -61,8 +61,8 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
 
   useIsoLayoutEffect(
     ([currentRegisteredId]) => {
-      setPanelIdState((currentId) =>
-        currentRegisteredId ?? (currentId === null ? undefined : currentId),
+      setPanelIdState(
+        (currentId) => currentRegisteredId ?? (currentId === null ? undefined : currentId),
       );
       return () => {
         setPanelIdState((currentId) => (currentId === currentRegisteredId ? null : currentId));
@@ -112,7 +112,9 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
             resolvedStyle ? { style: resolvedStyle } : undefined,
             // Resolve the public `style` prop so temporary `animation-name: none`
             // can still win after user's inline styles have been merged.
-            panel.shouldPreventOpenAnimation() ? { style: { 'animation-name': 'none' } } : undefined,
+            panel.shouldPreventOpenAnimation()
+              ? { style: { 'animation-name': 'none' } }
+              : undefined,
           ];
         },
         stateAttributesMapping: collapsibleStateAttributesMapping,

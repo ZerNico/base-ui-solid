@@ -47,8 +47,7 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
   const value = () => (componentProps.value || undefined) ?? generatedValue;
   const groupContext = useToggleGroupContext<string>();
 
-  const disabled = () =>
-    ((componentProps.disabled ?? false) || groupContext?.disabled()) ?? false;
+  const disabled = () => ((componentProps.disabled ?? false) || groupContext?.disabled()) ?? false;
 
   if (IS_DEV) {
     useEffect(
@@ -177,8 +176,7 @@ export interface ToggleProps<Value extends string>
    * Callback fired when the pressed state is changed.
    */
   onPressedChange?:
-    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
-    | undefined;
+    ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void) | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.

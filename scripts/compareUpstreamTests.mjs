@@ -12,31 +12,59 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const UP = path.resolve(process.argv[2] ?? path.join(ROOT, '../base-ui'), 'packages');
 const PT = path.join(ROOT, 'packages');
-const MAP = [['react/src', 'solid/src'], ['utils/src', 'utils/src']];
+const MAP = [
+  ['react/src', 'solid/src'],
+  ['utils/src', 'utils/src'],
+];
 
 function norm(text) {
-  return text.replace(/\s+/g, ' ').replace(/reactMajor\s*<\s*\d+\s*\|\|\s*/g, '').replace(/\s*\|\|\s*reactMajor\s*<\s*\d+/g, '').trim();
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/reactMajor\s*<\s*\d+\s*\|\|\s*/g, '')
+    .replace(/\s*\|\|\s*reactMajor\s*<\s*\d+/g, '')
+    .trim();
 }
 
 // Returns { [fullName]: condition } where condition is 'run' | 'skip' | 'skipIf(<expr>)' | 'only' ...
 function collect(file) {
-  const src = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const src = ts.createSourceFile(
+    file,
+    fs.readFileSync(file, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
   const out = {};
   function calleeInfo(expr) {
     // it / it.skip / it.skipIf(c) / describe.skipIf(c) / it.each(rows)
-    let base, mods = [];
+    let base,
+      mods = [];
     let e = expr;
-    if (ts.isCallExpression(e) && (ts.isPropertyAccessExpression(e.expression))) {
+    if (ts.isCallExpression(e) && ts.isPropertyAccessExpression(e.expression)) {
       const pa = e.expression;
       if (['skipIf', 'runIf', 'each'].includes(pa.name.text) && ts.isIdentifier(pa.expression)) {
-        return { base: pa.expression.text, mod: pa.name.text === 'each' ? 'each' : `${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})` };
+        return {
+          base: pa.expression.text,
+          mod:
+            pa.name.text === 'each'
+              ? 'each'
+              : `${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})`,
+        };
       }
-      if (['skipIf', 'runIf', 'each'].includes(pa.name.text) && ts.isPropertyAccessExpression(pa.expression) && ts.isIdentifier(pa.expression.expression)) {
-        return { base: pa.expression.expression.text, mod: `${pa.expression.name.text}.${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})` };
+      if (
+        ['skipIf', 'runIf', 'each'].includes(pa.name.text) &&
+        ts.isPropertyAccessExpression(pa.expression) &&
+        ts.isIdentifier(pa.expression.expression)
+      ) {
+        return {
+          base: pa.expression.expression.text,
+          mod: `${pa.expression.name.text}.${pa.name.text}(${norm(e.arguments.map((a) => a.getText()).join(','))})`,
+        };
       }
     }
     if (ts.isIdentifier(e)) return { base: e.text, mod: '' };
-    if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression)) return { base: e.expression.text, mod: e.name.text };
+    if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression))
+      return { base: e.expression.text, mod: e.name.text };
     return null;
   }
   function bodySkip(fn) {
@@ -44,11 +72,16 @@ function collect(file) {
     if (!fn || !(ts.isArrowFunction(fn) || ts.isFunctionExpression(fn))) return '';
     if (!fn.parameters.length) return '';
     const p = fn.parameters[0];
-    if (!ts.isObjectBindingPattern(p.name) || !p.name.elements.some((el) => el.name.getText() === 'skip')) return '';
+    if (
+      !ts.isObjectBindingPattern(p.name) ||
+      !p.name.elements.some((el) => el.name.getText() === 'skip')
+    )
+      return '';
     let cond = '';
     if (fn.body && ts.isBlock(fn.body)) {
       for (const st of fn.body.statements.slice(0, 3)) {
-        if (ts.isIfStatement(st) && /\bskip\s*\(/.test(st.thenStatement.getText())) cond = norm(st.expression.getText());
+        if (ts.isIfStatement(st) && /\bskip\s*\(/.test(st.thenStatement.getText()))
+          cond = norm(st.expression.getText());
       }
     }
     // A condition that only detects the React version (e.g. `React.useId === undefined`) has no
@@ -107,18 +140,28 @@ for (const [u, p] of MAP) {
     const rel = path.relative(path.join(UP, u), upFile);
     const ptFile = path.join(PT, p, rel);
     if (!fs.existsSync(ptFile)) continue;
-    const a = collect(upFile), b = collect(ptFile);
+    const a = collect(upFile),
+      b = collect(ptFile);
     for (const [name, cond] of Object.entries(a)) {
-      if (!(name in b)) { rows.push([`${p}/${rel}`, name, cond, 'MISSING']); diffs++; continue; }
+      if (!(name in b)) {
+        rows.push([`${p}/${rel}`, name, cond, 'MISSING']);
+        diffs++;
+        continue;
+      }
       const pc = b[name];
       const same = pc === cond;
       if (same) continue;
-      if (/skip\(react-only\)|skip\(needs-component\)/.test(pc)) { allowed[pc.match(/skip\((\S+)\)/)[1]] = (allowed[pc.match(/skip\((\S+)\)/)[1]] || 0) + 1; continue; }
-      rows.push([`${p}/${rel}`, name, cond, pc]); diffs++;
+      if (/skip\(react-only\)|skip\(needs-component\)/.test(pc)) {
+        allowed[pc.match(/skip\((\S+)\)/)[1]] = (allowed[pc.match(/skip\((\S+)\)/)[1]] || 0) + 1;
+        continue;
+      }
+      rows.push([`${p}/${rel}`, name, cond, pc]);
+      diffs++;
     }
   }
 }
-for (const r of rows) console.log(`${r[0]}\n   ${r[1].slice(0, 120)}\n     upstream: ${r[2]}\n     port:     ${r[3]}`);
+for (const r of rows)
+  console.log(`${r[0]}\n   ${r[1].slice(0, 120)}\n     upstream: ${r[2]}\n     port:     ${r[3]}`);
 console.log('\nALLOWED SKIPS:', JSON.stringify(allowed));
 console.log('DIFFERENCES:', diffs);
 process.exitCode = diffs > 0 ? 1 : 0;

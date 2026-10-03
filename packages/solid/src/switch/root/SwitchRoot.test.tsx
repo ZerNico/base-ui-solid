@@ -318,11 +318,7 @@ describe('<Switch.Root />', () => {
       const handleParentClick = vi.fn();
       await render(() => (
         <div onClick={handleParentClick}>
-          <Switch.Root
-            nativeButton
-            render="button"
-            onClick={(event) => event.stopPropagation()}
-          />
+          <Switch.Root nativeButton render="button" onClick={(event) => event.stopPropagation()} />
         </div>
       ));
 

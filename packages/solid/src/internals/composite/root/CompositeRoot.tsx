@@ -126,7 +126,9 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   /**
    * Props merged into the rendered element. Read reactively.
    */
-  props?: Array<Record<string, any> | ((props: Record<string, any>) => Record<string, any>) | undefined> | undefined;
+  props?:
+    | Array<Record<string, any> | ((props: Record<string, any>) => Record<string, any>) | undefined>
+    | undefined;
   state?: State | undefined;
   stateAttributesMapping?: StateAttributesMapping<State> | undefined;
   refs?: Array<((element: any) => void) | undefined> | undefined;

@@ -1,10 +1,7 @@
 import { Switch } from '..';
 import { SwitchRootContext } from '../root/SwitchRootContext';
 import type { SwitchRootState } from '../root/SwitchRoot';
-import {
-  render,
-  describeConformance,
-} from '#test-utils';
+import { render, describeConformance } from '#test-utils';
 
 const testContext: SwitchRootState = {
   checked: false,

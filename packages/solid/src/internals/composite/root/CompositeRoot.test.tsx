@@ -1,14 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import { For, Show, createMemo, createSignal, flush, omit } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import {
-  fireEvent,
-  flushMicrotasks,
-  render,
-  screen,
-  waitFor,
-  isJSDOM,
-} from '#test-utils';
+import { fireEvent, flushMicrotasks, render, screen, waitFor, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import type { CompositeMetadata } from '../list/CompositeList';
@@ -45,11 +38,7 @@ describe('Composite', () => {
   }
 
   function TestGridItems() {
-    return (
-      <For each={gridItems}>
-        {(i) => <CompositeItem data-testid={i}>{i}</CompositeItem>}
-      </For>
-    );
+    return <For each={gridItems}>{(i) => <CompositeItem data-testid={i}>{i}</CompositeItem>}</For>;
   }
 
   describe('list', () => {
@@ -274,36 +263,39 @@ describe('Composite', () => {
       expect(item3).toHaveFocus();
     });
 
-    it.skipIf(isJSDOM)('updates the order of items when their containers are reordered', async () => {
-      const [groups, setGroups] = createSignal(['a', 'b', 'c']);
-      const { user } = await render(() => (
-        <CompositeRoot>
-          <For each={groups()}>
-            {(group) => (
-              <div role="group">
-                <CompositeItem data-testid={group}>{group}</CompositeItem>
-              </div>
-            )}
-          </For>
-        </CompositeRoot>
-      ));
-      setGroups(['b', 'a', 'c']);
-      flush();
+    it.skipIf(isJSDOM)(
+      'updates the order of items when their containers are reordered',
+      async () => {
+        const [groups, setGroups] = createSignal(['a', 'b', 'c']);
+        const { user } = await render(() => (
+          <CompositeRoot>
+            <For each={groups()}>
+              {(group) => (
+                <div role="group">
+                  <CompositeItem data-testid={group}>{group}</CompositeItem>
+                </div>
+              )}
+            </For>
+          </CompositeRoot>
+        ));
+        setGroups(['b', 'a', 'c']);
+        flush();
 
-      const itemA = screen.getByTestId('a');
-      const itemB = screen.getByTestId('b');
+        const itemA = screen.getByTestId('a');
+        const itemB = screen.getByTestId('b');
 
-      // The re-sort commits asynchronously (MutationObserver); once it does,
-      // the roving tab stop (highlighted index 0) belongs to the first item in
-      // the new DOM order.
-      await waitFor(() => {
-        expect(itemB).toHaveAttribute('tabindex', '0');
-      });
+        // The re-sort commits asynchronously (MutationObserver); once it does,
+        // the roving tab stop (highlighted index 0) belongs to the first item in
+        // the new DOM order.
+        await waitFor(() => {
+          expect(itemB).toHaveAttribute('tabindex', '0');
+        });
 
-      focus(itemB);
-      await user.keyboard('{ArrowDown}');
-      expect(itemA).toHaveFocus();
-    });
+        focus(itemB);
+        await user.keyboard('{ArrowDown}');
+        expect(itemA).toHaveFocus();
+      },
+    );
 
     describe('Home and End keys', () => {
       it('Home key moves focus to the first item', async () => {
@@ -1374,5 +1366,4 @@ describe.each([false, true])('nested Composite items (strict: %s)', (strict) => 
 
     expect(publishedMetadata()).toMatchObject({ focusableWhenDisabled: true });
   });
-
 });

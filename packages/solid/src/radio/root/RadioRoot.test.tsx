@@ -2,13 +2,7 @@ import { createSignal, flush } from 'solid-js';
 import { Radio } from '..';
 import { RadioGroup } from '../../radio-group';
 import { Field } from '../../field';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  describeConformance,
-} from '#test-utils';
+import { fireEvent, render, screen, waitFor, describeConformance } from '#test-utils';
 
 describe('<Radio.Root />', () => {
   describeConformance((props: Record<string, any>) => <Radio.Root value="" {...props} />, {

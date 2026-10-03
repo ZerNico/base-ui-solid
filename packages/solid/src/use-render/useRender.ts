@@ -23,8 +23,7 @@ export function useRender<State extends Record<string, unknown>>(
 }
 
 export type UseRenderRenderProp<State = Record<string, unknown>> =
-  | ComponentRenderFn<HTMLProps, State>
-  | IntrinsicTagName;
+  ComponentRenderFn<HTMLProps, State> | IntrinsicTagName;
 
 export type UseRenderElementProps<ElementType extends IntrinsicTagName> =
   JSX.IntrinsicElements[ElementType];

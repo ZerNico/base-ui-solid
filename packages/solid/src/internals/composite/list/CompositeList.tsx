@@ -196,11 +196,14 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     () => [props.elementsRef, props.labelsRef],
   );
 
-  useIsoLayoutEffect(() => {
-    if (isDirty) {
-      flush();
-    }
-  }, () => [mapTick()]);
+  useIsoLayoutEffect(
+    () => {
+      if (isDirty) {
+        flush();
+      }
+    },
+    () => [mapTick()],
+  );
 
   onCleanup(() => {
     mutationObserver?.disconnect();

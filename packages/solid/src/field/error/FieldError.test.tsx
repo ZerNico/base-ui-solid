@@ -1,6 +1,6 @@
-import { createSignal } from "solid-js";
-import { Field } from "..";
-import { Form } from "../../form";
+import { createSignal } from 'solid-js';
+import { Field } from '..';
+import { Form } from '../../form';
 import {
   fireEvent,
   flushMicrotasks,
@@ -9,7 +9,7 @@ import {
   waitFor,
   describeConformance,
   isJSDOM,
-} from "#test-utils";
+} from '#test-utils';
 
 async function focus(element: HTMLElement) {
   fireEvent.focus(element);
@@ -32,16 +32,13 @@ async function click(element: HTMLElement) {
   await flushMicrotasks();
 }
 
-describe("<Field.Error />", () => {
-  describeConformance(
-    (props: Field.Error.Props) => <Field.Error match {...props} />,
-    {
-      refInstanceof: window.HTMLDivElement,
-      wrap: (node) => <Field.Root invalid>{node()}</Field.Root>,
-    },
-  );
+describe('<Field.Error />', () => {
+  describeConformance((props: Field.Error.Props) => <Field.Error match {...props} />, {
+    refInstanceof: window.HTMLDivElement,
+    wrap: (node) => <Field.Root invalid>{node()}</Field.Root>,
+  });
 
-  it("should set aria-describedby on the control automatically", async () => {
+  it('should set aria-describedby on the control automatically', async () => {
     await render(() => (
       <Field.Root invalid>
         <Field.Control />
@@ -49,13 +46,13 @@ describe("<Field.Error />", () => {
       </Field.Root>
     ));
 
-    expect(screen.getByRole("textbox")).toHaveAttribute(
-      "aria-describedby",
-      screen.getByText("Message").id,
+    expect(screen.getByRole('textbox')).toHaveAttribute(
+      'aria-describedby',
+      screen.getByText('Message').id,
     );
   });
 
-  it("should show error messages by default", async () => {
+  it('should show error messages by default', async () => {
     await render(() => (
       <Form>
         <Field.Root>
@@ -66,22 +63,22 @@ describe("<Field.Error />", () => {
       </Form>
     ));
 
-    expect(screen.queryByText("Message")).toBe(null);
+    expect(screen.queryByText('Message')).toBe(null);
 
-    const input = screen.getByRole<HTMLInputElement>("textbox");
+    const input = screen.getByRole<HTMLInputElement>('textbox');
 
     await focus(input);
-    await change(input, "a");
-    await change(input, "");
+    await change(input, 'a');
+    await change(input, '');
     await blur(input);
-    expect(screen.queryByText("Message")).toBe(null);
+    expect(screen.queryByText('Message')).toBe(null);
 
-    await click(screen.getByText("submit"));
-    expect(screen.queryByText("Message")).not.toBe(null);
+    await click(screen.getByText('submit'));
+    expect(screen.queryByText('Message')).not.toBe(null);
   });
 
-  describe("prop: match", () => {
-    it("should only render when `match` matches constraint validation", async () => {
+  describe('prop: match', () => {
+    it('should only render when `match` matches constraint validation', async () => {
       await render(() => (
         <Form>
           <Field.Root>
@@ -92,25 +89,25 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.queryByText("Message")).toBe(null);
+      expect(screen.queryByText('Message')).toBe(null);
 
-      await click(screen.getByText("submit"));
-      expect(screen.queryByText("Message")).not.toBe(null);
+      await click(screen.getByText('submit'));
+      expect(screen.queryByText('Message')).not.toBe(null);
 
-      const input = screen.getByRole<HTMLInputElement>("textbox");
+      const input = screen.getByRole<HTMLInputElement>('textbox');
 
       await focus(input);
-      await change(input, "a");
-      expect(screen.queryByText("Message")).toBe(null);
+      await change(input, 'a');
+      expect(screen.queryByText('Message')).toBe(null);
 
-      await change(input, "");
-      expect(screen.queryByText("Message")).not.toBe(null);
+      await change(input, '');
+      expect(screen.queryByText('Message')).not.toBe(null);
     });
 
-    it("should show custom errors", async () => {
+    it('should show custom errors', async () => {
       await render(() => (
         <Form>
-          <Field.Root validate={() => "error"}>
+          <Field.Root validate={() => 'error'}>
             <Field.Control />
             <Field.Error match="customError">Message</Field.Error>
           </Field.Root>
@@ -118,33 +115,24 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      const input = screen.getByRole<HTMLInputElement>("textbox");
+      const input = screen.getByRole<HTMLInputElement>('textbox');
 
       await focus(input);
-      await change(input, "a");
+      await change(input, 'a');
       await blur(input);
-      expect(screen.queryByText("Message")).toBe(null);
+      expect(screen.queryByText('Message')).toBe(null);
 
-      await click(screen.getByText("submit"));
-      expect(screen.queryByText("Message")).not.toBe(null);
+      await click(screen.getByText('submit'));
+      expect(screen.queryByText('Message')).not.toBe(null);
     });
 
-    it("uses `match={false}` as the default slot for Form errors", async () => {
+    it('uses `match={false}` as the default slot for Form errors', async () => {
       await render(() => (
-        <Form errors={{ username: "Username is reserved" }}>
+        <Form errors={{ username: 'Username is reserved' }}>
           <Field.Root name="username">
-            <Field.Control
-              defaultValue="admin"
-              required
-              minlength={8}
-              pattern="[a-z]+"
-            />
-            <Field.Error match="valueMissing">
-              Username is required.
-            </Field.Error>
-            <Field.Error match="tooShort">
-              Username must be at least 8 characters.
-            </Field.Error>
+            <Field.Control defaultValue="admin" required minlength={8} pattern="[a-z]+" />
+            <Field.Error match="valueMissing">Username is required.</Field.Error>
+            <Field.Error match="tooShort">Username must be at least 8 characters.</Field.Error>
             <Field.Error match="patternMismatch">
               Username can only include lowercase letters.
             </Field.Error>
@@ -153,34 +141,19 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.queryByText("Username is required.")).toBe(null);
-      expect(
-        screen.queryByText("Username must be at least 8 characters."),
-      ).toBe(null);
-      expect(
-        screen.queryByText("Username can only include lowercase letters."),
-      ).toBe(null);
-      expect(screen.getByTestId("default-error")).toHaveTextContent(
-        "Username is reserved",
-      );
+      expect(screen.queryByText('Username is required.')).toBe(null);
+      expect(screen.queryByText('Username must be at least 8 characters.')).toBe(null);
+      expect(screen.queryByText('Username can only include lowercase letters.')).toBe(null);
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
-    it("uses an omitted `match` as the default slot for Form errors", async () => {
+    it('uses an omitted `match` as the default slot for Form errors', async () => {
       await render(() => (
-        <Form errors={{ username: "Username is reserved" }}>
+        <Form errors={{ username: 'Username is reserved' }}>
           <Field.Root name="username">
-            <Field.Control
-              defaultValue="admin"
-              required
-              minlength={8}
-              pattern="[a-z]+"
-            />
-            <Field.Error match="valueMissing">
-              Username is required.
-            </Field.Error>
-            <Field.Error match="tooShort">
-              Username must be at least 8 characters.
-            </Field.Error>
+            <Field.Control defaultValue="admin" required minlength={8} pattern="[a-z]+" />
+            <Field.Error match="valueMissing">Username is required.</Field.Error>
+            <Field.Error match="tooShort">Username must be at least 8 characters.</Field.Error>
             <Field.Error match="patternMismatch">
               Username can only include lowercase letters.
             </Field.Error>
@@ -189,21 +162,15 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.queryByText("Username is required.")).toBe(null);
-      expect(
-        screen.queryByText("Username must be at least 8 characters."),
-      ).toBe(null);
-      expect(
-        screen.queryByText("Username can only include lowercase letters."),
-      ).toBe(null);
-      expect(screen.getByTestId("default-error")).toHaveTextContent(
-        "Username is reserved",
-      );
+      expect(screen.queryByText('Username is required.')).toBe(null);
+      expect(screen.queryByText('Username must be at least 8 characters.')).toBe(null);
+      expect(screen.queryByText('Username can only include lowercase letters.')).toBe(null);
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
-    it("uses the Field.Control name fallback for Form errors", async () => {
+    it('uses the Field.Control name fallback for Form errors', async () => {
       await render(() => (
-        <Form errors={{ email: "Email is already taken" }}>
+        <Form errors={{ email: 'Email is already taken' }}>
           <Field.Root>
             <Field.Control name="email" />
             <Field.Error data-testid="default-error" />
@@ -211,20 +178,18 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      const control = screen.getByRole("textbox");
+      const control = screen.getByRole('textbox');
 
-      expect(control).toHaveAttribute("aria-invalid", "true");
-      expect(screen.getByTestId("default-error")).toHaveTextContent(
-        "Email is already taken",
-      );
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
 
-      await change(control, "next@example.com");
+      await change(control, 'next@example.com');
 
-      expect(control).not.toHaveAttribute("aria-invalid");
-      expect(screen.queryByTestId("default-error")).toBe(null);
+      expect(control).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
     });
 
-    it("ignores inherited Form error properties", async () => {
+    it('ignores inherited Form error properties', async () => {
       await render(() => (
         <Form errors={{}}>
           <Field.Root name="constructor">
@@ -234,15 +199,15 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-invalid");
-      expect(screen.queryByTestId("default-error")).toBe(null);
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
     });
 
-    it("renders Form error arrays as a list", async () => {
+    it('renders Form error arrays as a list', async () => {
       await render(() => (
         <Form
           errors={{
-            username: ["Username is reserved", "Username is too short"],
+            username: ['Username is reserved', 'Username is too short'],
           }}
         >
           <Field.Root name="username">
@@ -252,16 +217,16 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      const list = screen.getByTestId("default-error").querySelector("ul");
+      const list = screen.getByTestId('default-error').querySelector('ul');
       expect(list).not.toBe(null);
-      expect(list?.querySelectorAll("li")).toHaveLength(2);
-      expect(screen.getByText("Username is reserved")).not.toBe(null);
-      expect(screen.getByText("Username is too short")).not.toBe(null);
+      expect(list?.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('Username is reserved')).not.toBe(null);
+      expect(screen.getByText('Username is too short')).not.toBe(null);
     });
 
-    it("renders single-item Form error arrays as text", async () => {
+    it('renders single-item Form error arrays as text', async () => {
       await render(() => (
-        <Form errors={{ username: ["Username is reserved"] }}>
+        <Form errors={{ username: ['Username is reserved'] }}>
           <Field.Root name="username">
             <Field.Control defaultValue="admin" />
             <Field.Error data-testid="default-error" />
@@ -269,18 +234,14 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.getByTestId("default-error").querySelector("ul")).toBe(
-        null,
-      );
-      expect(screen.getByTestId("default-error")).toHaveTextContent(
-        "Username is reserved",
-      );
+      expect(screen.getByTestId('default-error').querySelector('ul')).toBe(null);
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
-    it("renders client validation error arrays as a list", async () => {
+    it('renders client validation error arrays as a list', async () => {
       await render(() => (
         <Form>
-          <Field.Root validate={() => ["First error", "Second error"]}>
+          <Field.Root validate={() => ['First error', 'Second error']}>
             <Field.Control />
             <Field.Error data-testid="default-error" />
           </Field.Root>
@@ -288,16 +249,16 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      await click(screen.getByText("submit"));
+      await click(screen.getByText('submit'));
 
-      const list = screen.getByTestId("default-error").querySelector("ul");
+      const list = screen.getByTestId('default-error').querySelector('ul');
       expect(list).not.toBe(null);
-      expect(list?.querySelectorAll("li")).toHaveLength(2);
-      expect(screen.getByText("First error")).not.toBe(null);
-      expect(screen.getByText("Second error")).not.toBe(null);
+      expect(list?.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('First error')).not.toBe(null);
+      expect(screen.getByText('Second error')).not.toBe(null);
     });
 
-    it("does not register an empty error id", async () => {
+    it('does not register an empty error id', async () => {
       await render(() => (
         <Field.Root invalid>
           <Field.Control aria-describedby="external-description" />
@@ -305,13 +266,13 @@ describe("<Field.Error />", () => {
         </Field.Root>
       ));
 
-      expect(screen.getByRole("textbox")).toHaveAttribute(
-        "aria-describedby",
-        "external-description",
+      expect(screen.getByRole('textbox')).toHaveAttribute(
+        'aria-describedby',
+        'external-description',
       );
     });
 
-    it("ignores empty Form error arrays", async () => {
+    it('ignores empty Form error arrays', async () => {
       await render(() => (
         <Form errors={{ username: [] }}>
           <Field.Root name="username">
@@ -321,11 +282,11 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.queryByTestId("default-error")).toBe(null);
-      expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-invalid");
+      expect(screen.queryByTestId('default-error')).toBe(null);
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
     });
 
-    it("uses `match={false}` as the default slot for client validation errors", async () => {
+    it('uses `match={false}` as the default slot for client validation errors', async () => {
       await render(() => (
         <Form>
           <Field.Root>
@@ -336,20 +297,17 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      expect(screen.queryByTestId("default-error")).toBe(null);
+      expect(screen.queryByTestId('default-error')).toBe(null);
 
-      await click(screen.getByText("submit"));
+      await click(screen.getByText('submit'));
 
-      expect(screen.getByTestId("default-error")).not.toBe(null);
+      expect(screen.getByTestId('default-error')).not.toBe(null);
     });
 
-    it("uses the client validation path for specific matches when Form errors are present", async () => {
+    it('uses the client validation path for specific matches when Form errors are present', async () => {
       await render(() => (
-        <Form errors={{ username: "Username is reserved" }}>
-          <Field.Root
-            name="username"
-            validate={() => "Client validation error"}
-          >
+        <Form errors={{ username: 'Username is reserved' }}>
+          <Field.Root name="username" validate={() => 'Client validation error'}>
             <Field.Control />
             <Field.Error data-testid="custom-error" match="customError" />
             <Field.Error data-testid="default-error" />
@@ -358,20 +316,14 @@ describe("<Field.Error />", () => {
         </Form>
       ));
 
-      await click(screen.getByText("submit"));
+      await click(screen.getByText('submit'));
 
-      expect(screen.getByTestId("custom-error")).toHaveTextContent(
-        "Client validation error",
-      );
-      expect(screen.getByTestId("custom-error")).not.toHaveTextContent(
-        "Username is reserved",
-      );
-      expect(screen.getByTestId("default-error")).toHaveTextContent(
-        "Username is reserved",
-      );
+      expect(screen.getByTestId('custom-error')).toHaveTextContent('Client validation error');
+      expect(screen.getByTestId('custom-error')).not.toHaveTextContent('Username is reserved');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
-    it("always renders the error message when `match` is true", async () => {
+    it('always renders the error message when `match` is true', async () => {
       await render(() => (
         <Field.Root>
           <Field.Control required />
@@ -379,16 +331,16 @@ describe("<Field.Error />", () => {
         </Field.Root>
       ));
 
-      expect(screen.queryByText("Message")).not.toBe(null);
+      expect(screen.queryByText('Message')).not.toBe(null);
     });
   });
 
-  describe.skipIf(isJSDOM)("animations", () => {
+  describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
 
-    it("triggers enter animation via data-starting-style when mounting", async () => {
+    it('triggers enter animation via data-starting-style when mounting', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
@@ -430,18 +382,18 @@ describe("<Field.Error />", () => {
       }
 
       const { user } = await render(() => <Test />);
-      expect(screen.queryByTestId("error")).toBe(null);
+      expect(screen.queryByTestId('error')).toBe(null);
 
-      await user.click(screen.getByText("Show"));
+      await user.click(screen.getByText('Show'));
 
       await waitFor(() => {
         expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId("error")).not.toBe(null);
+      expect(screen.getByTestId('error')).not.toBe(null);
     });
 
-    it("applies data-ending-style before unmount", async () => {
+    it('applies data-ending-style before unmount', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       const style = `
@@ -465,11 +417,7 @@ describe("<Field.Error />", () => {
             <button onClick={() => setShowError(false)}>Hide</button>
             <Field.Root>
               <Field.Control required />
-              <Field.Error
-                class="animation-test-error"
-                data-testid="error"
-                match={showError()}
-              >
+              <Field.Error class="animation-test-error" data-testid="error" match={showError()}>
                 Message
               </Field.Error>
             </Field.Root>
@@ -478,18 +426,18 @@ describe("<Field.Error />", () => {
       }
 
       const { user } = await render(() => <Test />);
-      expect(screen.getByTestId("error")).not.toBe(null);
+      expect(screen.getByTestId('error')).not.toBe(null);
 
-      await user.click(screen.getByText("Hide"));
+      await user.click(screen.getByText('Hide'));
 
       await waitFor(() => {
-        const error = screen.queryByTestId("error");
+        const error = screen.queryByTestId('error');
         expect(error).not.toBe(null);
-        expect(error).toHaveAttribute("data-ending-style");
+        expect(error).toHaveAttribute('data-ending-style');
       });
 
       await waitFor(() => {
-        expect(screen.queryByTestId("error")).toBe(null);
+        expect(screen.queryByTestId('error')).toBe(null);
       });
     });
   });

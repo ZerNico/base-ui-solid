@@ -1,8 +1,6 @@
 import { createEffect, createMemo, untrack } from 'solid-js';
 
-export type EffectCallback<Deps extends readonly unknown[]> = (
-  deps: Deps,
-) => void | (() => void);
+export type EffectCallback<Deps extends readonly unknown[]> = (deps: Deps) => void | (() => void);
 
 /**
  * Port of React's `useEffect(effect, deps)` semantics on top of Solid's split effects.

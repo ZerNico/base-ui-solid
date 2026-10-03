@@ -128,8 +128,7 @@ export function getGridNavigatedIndex(
     event: KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
-    onLoop?:
-      ((event: KeyboardEvent, prevIndex: number, nextIndex: number) => number) | undefined;
+    onLoop?: ((event: KeyboardEvent, prevIndex: number, nextIndex: number) => number) | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;

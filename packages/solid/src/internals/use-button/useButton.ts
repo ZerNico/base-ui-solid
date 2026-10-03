@@ -84,7 +84,10 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     }
   }
 
-  useIsoLayoutEffect(([values]) => updateDisabled(values), () => [disabledUpdate()]);
+  useIsoLayoutEffect(
+    ([values]) => updateDisabled(values),
+    () => [disabledUpdate()],
+  );
 
   const getButtonProps = (externalProps: GenericButtonProps = {}) => {
     const {

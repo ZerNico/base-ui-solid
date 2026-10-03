@@ -1,9 +1,5 @@
 import { Accordion } from '..';
-import {
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Accordion.Trigger />', () => {
   describeConformance(Accordion.Trigger, {

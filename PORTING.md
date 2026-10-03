@@ -10,16 +10,16 @@ diagnostic fires).
 
 ## Public API differences
 
-| Upstream (React)                         | Port (Solid)                                                                      |
-| ---------------------------------------- | --------------------------------------------------------------------------------- |
-| `className` (string or `(state) => …`)   | `class` (any Solid class value, or `(state) => …`)                                |
-| `style` object (camelCase)               | `style` object (kebab-case) or string, or `(state) => …`                          |
-| `render={<a />}` (element, cloned)       | **Not supported** — Solid can't clone elements                                    |
-| `render={(props, state) => <a {...props} />}` | Same. `props`/`state` are reactive: spread/read them, don't destructure       |
-| —                                        | `render="a"` (tag name) and `render={Component}`                                  |
-| `ref` (object or callback)               | `ref` callback (Solid semantics; not called with `null` on unmount)               |
-| `event.preventBaseUIHandler()`           | Same, on native events                                                            |
-| `tabIndex`, other camelCase attributes   | Lowercase attributes (`tabindex`)                                                 |
+| Upstream (React)                              | Port (Solid)                                                            |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `className` (string or `(state) => …`)        | `class` (any Solid class value, or `(state) => …`)                      |
+| `style` object (camelCase)                    | `style` object (kebab-case) or string, or `(state) => …`                |
+| `render={<a />}` (element, cloned)            | **Not supported** — Solid can't clone elements                          |
+| `render={(props, state) => <a {...props} />}` | Same. `props`/`state` are reactive: spread/read them, don't destructure |
+| —                                             | `render="a"` (tag name) and `render={Component}`                        |
+| `ref` (object or callback)                    | `ref` callback (Solid semantics; not called with `null` on unmount)     |
+| `event.preventBaseUIHandler()`                | Same, on native events                                                  |
+| `tabIndex`, other camelCase attributes        | Lowercase attributes (`tabindex`)                                       |
 
 ## Translation rules
 
@@ -90,7 +90,7 @@ diagnostic fires).
   set to `false`/`undefined` are removed (Solid semantics).
 - `children` never pass through the reactive merge. They're read lazily from the props object
   that provided them, so they're created once.
-- **Context providers**: call `useRenderElement` *inside* the provider's JSX so the children are
+- **Context providers**: call `useRenderElement` _inside_ the provider's JSX so the children are
   created under it:
 
   ```tsx
@@ -143,13 +143,13 @@ diagnostic fires).
 The setup mirrors upstream: `vitest.shared.mts`, one `vitest.config.mts` per package, a root
 config listing them as projects, and `test/setupVitest.ts`.
 
-| Command                   | Runs in                                             |
-| ------------------------- | --------------------------------------------------- |
-| `pnpm test`               | Chromium (default, like upstream)                   |
-| `pnpm test:jsdom`         | jsdom                                               |
-| `pnpm test:chromium`      | Chromium (Vitest browser mode via Playwright)       |
-| `pnpm test:firefox` / `test:webkit` / `test:browsers` | Firefox / WebKit / all three |
-| `pnpm test:<browser>:ui`  | The same, with a visible browser                    |
+| Command                                               | Runs in                                       |
+| ----------------------------------------------------- | --------------------------------------------- |
+| `pnpm test`                                           | Chromium (default, like upstream)             |
+| `pnpm test:jsdom`                                     | jsdom                                         |
+| `pnpm test:chromium`                                  | Chromium (Vitest browser mode via Playwright) |
+| `pnpm test:firefox` / `test:webkit` / `test:browsers` | Firefox / WebKit / all three                  |
+| `pnpm test:<browser>:ui`                              | The same, with a visible browser              |
 
 - Port upstream tests next to the source with the same file and test names. Import helpers from
   `#test-utils` (`packages/solid/test`): `render(() => <Jsx />)` returns `{ user, … }`, plus
@@ -208,20 +208,20 @@ compiles the same JSX differently for the server and the client, so:
 
 ## Port status
 
-| Area                         | Status                                                     |
-| ---------------------------- | ---------------------------------------------------------- |
-| `merge-props`, `use-render`  | Ported                                                     |
-| `internals/useRenderElement` | Ported (Solid-specific implementation)                     |
-| `internals/use-button`       | Ported                                                     |
-| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete` | Ported |
-| `collapsible`                | Ported, upstream jsdom tests ported                        |
-| `accordion`                  | Ported                                                     |
-| `separator`, `toggle`, `toggle-group` | Ported, upstream tests ported                     |
-| `direction-provider`         | Ported (`useDirection()` returns an accessor)              |
-| `internals/composite`        | Ported (list, item, root, grid navigation)                 |
-| `floating-ui-react/utils`    | `composite`, `event`, `element` (partial)                  |
-| `toolbar`                    | Only the root/group contexts (read by ToggleGroup)          |
-| `field`, `fieldset`, `form`, `input` + field/form/labelable internals | Ported; tests in progress |
-| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group` | In progress           |
-| `floating-ui-react`          | Not started                                                |
-| Other components             | Not started                                                |
+| Area                                                                              | Status                                             |
+| --------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `merge-props`, `use-render`                                                       | Ported                                             |
+| `internals/useRenderElement`                                                      | Ported (Solid-specific implementation)             |
+| `internals/use-button`                                                            | Ported                                             |
+| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete` | Ported                                             |
+| `collapsible`                                                                     | Ported, upstream jsdom tests ported                |
+| `accordion`                                                                       | Ported                                             |
+| `separator`, `toggle`, `toggle-group`                                             | Ported, upstream tests ported                      |
+| `direction-provider`                                                              | Ported (`useDirection()` returns an accessor)      |
+| `internals/composite`                                                             | Ported (list, item, root, grid navigation)         |
+| `floating-ui-react/utils`                                                         | `composite`, `event`, `element` (partial)          |
+| `toolbar`                                                                         | Only the root/group contexts (read by ToggleGroup) |
+| `field`, `fieldset`, `form`, `input` + field/form/labelable internals             | Ported; tests in progress                          |
+| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                    | In progress                                        |
+| `floating-ui-react`                                                               | Not started                                        |
+| Other components                                                                  | Not started                                        |

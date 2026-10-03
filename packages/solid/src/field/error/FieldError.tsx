@@ -98,16 +98,17 @@ export function FieldError(componentProps: FieldError.Props) {
 
   // Upstream keeps the last rendered message (so it stays visible while the error animates out)
   // by adjusting state during render; here it's a memo that only updates while rendered.
-  const lastRenderedError = createMemo<{ key: string | null | undefined; error: ErrorValue } | null>(
-    (previous) => {
-      const currentError = error();
-      if (!rendered()) {
-        return previous ?? null;
-      }
-      const key = Array.isArray(currentError) ? JSON.stringify(currentError) : currentError;
-      return previous && previous.key === key ? previous : { key, error: currentError };
-    },
-  );
+  const lastRenderedError = createMemo<{
+    key: string | null | undefined;
+    error: ErrorValue;
+  } | null>((previous) => {
+    const currentError = error();
+    if (!rendered()) {
+      return previous ?? null;
+    }
+    const key = Array.isArray(currentError) ? JSON.stringify(currentError) : currentError;
+    return previous && previous.key === key ? previous : { key, error: currentError };
+  });
 
   const errorMessage = (): JSX.Element => {
     const currentError = lastRenderedError()?.error;

@@ -1,16 +1,9 @@
-import { createSignal, flush } from "solid-js";
-import { Radio } from "..";
-import { RadioGroup } from "../../radio-group";
-import {
-  fireEvent,
-  isJSDOM,
-  render,
-  screen,
-  waitFor,
-  describeConformance,
-} from "#test-utils";
+import { createSignal, flush } from 'solid-js';
+import { Radio } from '..';
+import { RadioGroup } from '../../radio-group';
+import { fireEvent, isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 
-describe("<Radio.Indicator />", () => {
+describe('<Radio.Indicator />', () => {
   beforeEach(() => {
     (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -20,22 +13,19 @@ describe("<Radio.Indicator />", () => {
     wrap: (node) => <Radio.Root value="">{node()}</Radio.Root>,
   });
 
-  it("should remove the indicator when there is no exit animation defined", async ({ skip }) => {
+  it('should remove the indicator when there is no exit animation defined', async ({ skip }) => {
     if (isJSDOM) {
       skip();
     }
 
-    const [value, setValue] = createSignal("a");
+    const [value, setValue] = createSignal('a');
 
     const { user } = await render(() => (
       <div>
-        <button onClick={() => setValue("b")}>Close</button>
+        <button onClick={() => setValue('b')}>Close</button>
         <RadioGroup value={value()}>
           <Radio.Root value="a">
-            <Radio.Indicator
-              class="animation-test-indicator"
-              data-testid="indicator-a"
-            />
+            <Radio.Indicator class="animation-test-indicator" data-testid="indicator-a" />
           </Radio.Root>
           <Radio.Root value="a">
             <Radio.Indicator class="animation-test-indicator" />
@@ -44,29 +34,27 @@ describe("<Radio.Indicator />", () => {
       </div>
     ));
 
-    expect(screen.getByTestId("indicator-a")).not.toBe(null);
+    expect(screen.getByTestId('indicator-a')).not.toBe(null);
 
-    const closeButton = screen.getByText("Close");
+    const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.queryByTestId("indicator-a")).toBe(null);
+      expect(screen.queryByTestId('indicator-a')).toBe(null);
     });
   });
 
-  it.skipIf(isJSDOM)(
-    "should remove the indicator when the animation finishes",
-    async () => {
-      // requires a real browser
-      (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
+  it.skipIf(isJSDOM)('should remove the indicator when the animation finishes', async () => {
+    // requires a real browser
+    (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
-      let animationFinished = false;
-      const notifyAnimationFinished = () => {
-        animationFinished = true;
-      };
+    let animationFinished = false;
+    const notifyAnimationFinished = () => {
+      animationFinished = true;
+    };
 
-      const style = `
+    const style = `
       @keyframes test-anim {
         to {
           opacity: 0;
@@ -78,46 +66,45 @@ describe("<Radio.Indicator />", () => {
       }
     `;
 
-      const [value, setValue] = createSignal("a");
+    const [value, setValue] = createSignal('a');
 
-      const { user } = await render(() => (
-        <div>
-          <style innerHTML={style} />
-          <button onClick={() => setValue("b")}>Close</button>
-          <RadioGroup value={value()}>
-            <Radio.Root value="a">
-              <Radio.Indicator
-                class="animation-test-indicator"
-                keepMounted
-                onAnimationEnd={notifyAnimationFinished}
-                data-testid="indicator-a"
-              />
-            </Radio.Root>
-            <Radio.Root value="a">
-              <Radio.Indicator class="animation-test-indicator" keepMounted />
-            </Radio.Root>
-          </RadioGroup>
-        </div>
-      ));
+    const { user } = await render(() => (
+      <div>
+        <style innerHTML={style} />
+        <button onClick={() => setValue('b')}>Close</button>
+        <RadioGroup value={value()}>
+          <Radio.Root value="a">
+            <Radio.Indicator
+              class="animation-test-indicator"
+              keepMounted
+              onAnimationEnd={notifyAnimationFinished}
+              data-testid="indicator-a"
+            />
+          </Radio.Root>
+          <Radio.Root value="a">
+            <Radio.Indicator class="animation-test-indicator" keepMounted />
+          </Radio.Root>
+        </RadioGroup>
+      </div>
+    ));
 
-      expect(screen.getByTestId("indicator-a")).not.toBe(null);
+    expect(screen.getByTestId('indicator-a')).not.toBe(null);
 
-      const closeButton = screen.getByText("Close");
-      await user.click(closeButton);
+    const closeButton = screen.getByText('Close');
+    await user.click(closeButton);
 
-      await waitFor(() => {
-        expect(animationFinished).toBe(true);
-      });
-    },
-  );
+    await waitFor(() => {
+      expect(animationFinished).toBe(true);
+    });
+  });
 
   // requires a real browser
-  describe.skipIf(isJSDOM)("animations", () => {
+  describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = true;
     });
 
-    it("triggers enter animation via data-starting-style when mounting", async () => {
+    it('triggers enter animation via data-starting-style when mounting', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
@@ -136,12 +123,12 @@ describe("<Radio.Indicator />", () => {
         }
       `;
 
-      const [value, setValue] = createSignal("b");
+      const [value, setValue] = createSignal('b');
 
       const { user } = await render(() => (
         <div>
           <style innerHTML={style} />
-          <button onClick={() => setValue("a")}>Select a</button>
+          <button onClick={() => setValue('a')}>Select a</button>
           <RadioGroup value={value()}>
             <Radio.Root value="a">
               <Radio.Indicator
@@ -151,26 +138,23 @@ describe("<Radio.Indicator />", () => {
               />
             </Radio.Root>
             <Radio.Root value="b">
-              <Radio.Indicator
-                class="animation-test-indicator"
-                data-testid="indicator-b"
-              />
+              <Radio.Indicator class="animation-test-indicator" data-testid="indicator-b" />
             </Radio.Root>
           </RadioGroup>
         </div>
       ));
-      expect(screen.queryByTestId("indicator-a")).toBe(null);
+      expect(screen.queryByTestId('indicator-a')).toBe(null);
 
-      await user.click(screen.getByText("Select a"));
+      await user.click(screen.getByText('Select a'));
 
       await waitFor(() => {
         expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId("indicator-a")).not.toBe(null);
+      expect(screen.getByTestId('indicator-a')).not.toBe(null);
     });
 
-    it("applies data-ending-style before unmount", async () => {
+    it('applies data-ending-style before unmount', async () => {
       (globalThis as any).BASE_UI_ANIMATIONS_DISABLED = false;
 
       const style = `
@@ -185,40 +169,32 @@ describe("<Radio.Indicator />", () => {
         }
       `;
 
-      const [value, setValue] = createSignal("a");
+      const [value, setValue] = createSignal('a');
 
       await render(() => (
         <div>
           <style innerHTML={style} />
-          <button onClick={() => setValue("b")}>Select b</button>
+          <button onClick={() => setValue('b')}>Select b</button>
           <RadioGroup value={value()}>
             <Radio.Root value="a">
-              <Radio.Indicator
-                class="animation-test-indicator"
-                data-testid="indicator-a"
-              />
+              <Radio.Indicator class="animation-test-indicator" data-testid="indicator-a" />
             </Radio.Root>
             <Radio.Root value="b">
-              <Radio.Indicator
-                class="animation-test-indicator"
-                data-testid="indicator-b"
-              />
+              <Radio.Indicator class="animation-test-indicator" data-testid="indicator-b" />
             </Radio.Root>
           </RadioGroup>
         </div>
       ));
-      expect(screen.getByTestId("indicator-a")).not.toBe(null);
+      expect(screen.getByTestId('indicator-a')).not.toBe(null);
 
-      fireEvent.click(screen.getByText("Select b"));
+      fireEvent.click(screen.getByText('Select b'));
       // Upstream's `fireEvent` applies the update synchronously (`act`).
       flush();
 
-      expect(screen.getByTestId("indicator-a")).toHaveAttribute(
-        "data-ending-style",
-      );
+      expect(screen.getByTestId('indicator-a')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
-        expect(screen.queryByTestId("indicator-a")).toBe(null);
+        expect(screen.queryByTestId('indicator-a')).toBe(null);
       });
     });
   });

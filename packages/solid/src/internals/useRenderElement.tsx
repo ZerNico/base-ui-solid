@@ -1,13 +1,7 @@
 import { type Accessor, createMemo, merge, onCleanup, untrack } from 'solid-js';
 import { dynamic, type JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import type {
-  ClassProp,
-  HTMLProps,
-  IntrinsicTagName,
-  RenderProp,
-  StyleProp,
-} from './types';
+import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
 import { getStateAttributesProps } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
@@ -44,15 +38,12 @@ export function useRenderElement<
 ): JSX.Element {
   // Port note: `element` may be an accessor (used by `useRender`'s `defaultTagName`), in which case
   // the element is recreated when it changes and no `render` prop is provided.
-  const readElement: Accessor<TagName> =
-    typeof element === 'function' ? element : () => element;
+  const readElement: Accessor<TagName> = typeof element === 'function' ? element : () => element;
   const { ref, props, stateAttributesMapping } = params;
   const stateParam = params.state;
 
   const readState: () => State =
-    typeof stateParam === 'function'
-      ? stateParam
-      : () => (stateParam ?? (EMPTY_OBJECT as State));
+    typeof stateParam === 'function' ? stateParam : () => stateParam ?? (EMPTY_OBJECT as State);
 
   // Reactive view of the state passed to the user's `render` callback.
   const state: State =
@@ -65,14 +56,19 @@ export function useRenderElement<
     return typeof enabledParam === 'function' ? enabledParam() : enabledParam !== false;
   });
 
-  const computed = createMemo(() => computeRenderElementProps(componentProps, params, readState, enabled()));
+  const computed = createMemo(() =>
+    computeRenderElementProps(componentProps, params, readState, enabled()),
+  );
 
   // `children` are kept out of the memo: they must only be created once by the rendered element,
   // so they're read lazily through the (stable) object that provided them.
   const childrenSource = createMemo(() => computed().childrenSource);
 
   const refCallback = (node: Element) => {
-    applyRefs(untrack(() => computed().ref), node);
+    applyRefs(
+      untrack(() => computed().ref),
+      node,
+    );
     applyRefs(ref, node);
   };
 
@@ -247,8 +243,7 @@ type RenderElementPropsSource<TagName> =
   | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>);
 
 type RenderElementPropsParam<TagName = any> =
-  | RenderFunctionProps<TagName>
-  | Array<RenderElementPropsSource<TagName>>;
+  RenderFunctionProps<TagName> | Array<RenderElementPropsSource<TagName>>;
 
 export type UseRenderElementParameters<State, TagName> = {
   /**

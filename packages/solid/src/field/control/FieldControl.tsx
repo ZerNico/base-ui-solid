@@ -234,14 +234,15 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
 
 export interface FieldControlState extends FieldRootState {}
 
-export interface FieldControlProps
-  extends Omit<BaseUIComponentProps<'input', FieldControlState>, 'value'> {
+export interface FieldControlProps extends Omit<
+  BaseUIComponentProps<'input', FieldControlState>,
+  'value'
+> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?:
-    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void) | undefined;
   defaultValue?: string | number | string[] | undefined;
   value?: string | number | string[] | undefined;
 }

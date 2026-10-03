@@ -41,9 +41,7 @@ export type ClassProp<State> = JSX.ClassValue | ((state: State) => JSX.ClassValu
  * Value accepted by the `style` prop of Base UI components.
  */
 export type StyleProp<State> =
-  | JSX.CSSProperties
-  | string
-  | ((state: State) => JSX.CSSProperties | string | undefined);
+  JSX.CSSProperties | string | ((state: State) => JSX.CSSProperties | string | undefined);
 
 /**
  * Value accepted by the `render` prop of Base UI components:
@@ -52,8 +50,7 @@ export type StyleProp<State> =
  * - a tag name such as `'a'`.
  */
 export type RenderProp<State, RenderFunctionProps = HTMLProps> =
-  | ComponentRenderFn<RenderFunctionProps, State>
-  | IntrinsicTagName;
+  ComponentRenderFn<RenderFunctionProps, State> | IntrinsicTagName;
 
 /**
  * Props shared by all Base UI components.

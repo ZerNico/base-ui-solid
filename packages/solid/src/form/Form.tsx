@@ -205,8 +205,9 @@ export interface FormActions {
 
 export interface FormState {}
 
-export interface FormProps<FormValues extends Record<string, any> = Record<string, any>>
-  extends Omit<BaseUIComponentProps<'form', FormState>, 'onSubmit'> {
+export interface FormProps<
+  FormValues extends Record<string, any> = Record<string, any>,
+> extends Omit<BaseUIComponentProps<'form', FormState>, 'onSubmit'> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.
@@ -233,8 +234,7 @@ export interface FormProps<FormValues extends Record<string, any> = Record<strin
    * `preventDefault()` is called on the native submit event when used.
    */
   onFormSubmit?:
-    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
-    | undefined;
+    ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.

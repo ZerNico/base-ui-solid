@@ -1,8 +1,5 @@
 import { Accordion } from '..';
-import {
-  render,
-  describeConformance,
-} from '#test-utils';
+import { render, describeConformance } from '#test-utils';
 
 describe('<Accordion.Header />', () => {
   it('throws when rendered outside an Accordion.Item', async () => {

@@ -96,7 +96,14 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
     state: 'checked',
   });
 
-  useRegisterFieldControl(switchRef, () => id, checked, undefined, () => !disabled(), nameProp);
+  useRegisterFieldControl(
+    switchRef,
+    () => id,
+    checked,
+    undefined,
+    () => !disabled(),
+    nameProp,
+  );
 
   useIsoLayoutEffect(
     ([currentChecked]) => {
@@ -249,9 +256,7 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
         ],
         stateAttributesMapping,
       })}
-      <Show
-        when={!checked() && name() && componentProps.uncheckedValue !== undefined}
-      >
+      <Show when={!checked() && name() && componentProps.uncheckedValue !== undefined}>
         <input
           type="hidden"
           form={componentProps.form}
@@ -288,8 +293,7 @@ export interface SwitchRootState extends FieldRootState {
 }
 
 export interface SwitchRootProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
   /**
    * The id of the hidden input element.
    *
@@ -331,8 +335,7 @@ export interface SwitchRootProps
    * Event handler called when the switch is activated or deactivated.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false

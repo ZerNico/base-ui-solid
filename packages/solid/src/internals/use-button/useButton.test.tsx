@@ -1,14 +1,7 @@
 import { expect, vi, describe, it } from 'vitest';
 import { For, createSignal, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import {
-  fireEvent,
-  flushMicrotasks,
-  render,
-  renderToString,
-  screen,
-  isJSDOM,
-} from '#test-utils';
+import { fireEvent, flushMicrotasks, render, renderToString, screen, isJSDOM } from '#test-utils';
 import { NativeTestButton, NonNativeTestButton } from './useButton.fixtures';
 import { useButton } from './useButton';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
@@ -672,7 +665,11 @@ describe('useButton', () => {
       }
 
       const { user } = await render(() => (
-        <TestButton tabindex={0} onKeyUp={(event) => event.preventDefault()} onClick={handleClick} />
+        <TestButton
+          tabindex={0}
+          onKeyUp={(event) => event.preventDefault()}
+          onClick={handleClick}
+        />
       ));
 
       const button = screen.getByRole('button');

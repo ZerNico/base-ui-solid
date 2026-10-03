@@ -58,9 +58,7 @@ class Scheduler {
      * but there's no guarantee that the animation frame will actually run before the fake
      * timers are teared, which leaves `isScheduled` set, but won't run our `tick()`. */
     const didRAFChange =
-      IS_DEV &&
-      LAST_RAF !== requestAnimationFrame &&
-      ((LAST_RAF = requestAnimationFrame), true);
+      IS_DEV && LAST_RAF !== requestAnimationFrame && ((LAST_RAF = requestAnimationFrame), true);
 
     if (!this.isScheduled || didRAFChange) {
       requestAnimationFrame(this.tick);

@@ -1,13 +1,7 @@
 import { createSignal } from 'solid-js';
 import { Field } from '../../field';
 import { Fieldset } from '..';
-import {
-  fireEvent,
-  flushMicrotasks,
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { fireEvent, flushMicrotasks, render, screen, describeConformance } from '#test-utils';
 
 describe('<Fieldset.Root />', () => {
   describeConformance(Fieldset.Root, {

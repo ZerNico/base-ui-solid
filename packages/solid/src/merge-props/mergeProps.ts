@@ -3,7 +3,8 @@ import { mergeObjects } from '@base-ui-solid/utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 
 type PropsOf<T extends object> = WithBaseUIEvent<T>;
-type InputProps<T extends object> = PropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
+type InputProps<T extends object> =
+  PropsOf<T> | ((otherProps: PropsOf<T>) => PropsOf<T>) | undefined;
 
 const EMPTY_PROPS = {};
 

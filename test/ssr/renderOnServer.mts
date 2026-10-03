@@ -46,11 +46,12 @@ export async function renderOnServer(moduleId: string, exportName: string, props
   if (typeof Component !== 'function') {
     throw new Error(`renderOnServer: ${moduleId} has no component export "${exportName}".`);
   }
-  const html = web.renderToString(() =>
-    solidJs.createComponent(Component, props ?? {}),
-  ) as string;
+  const html = web.renderToString(() => solidJs.createComponent(Component, props ?? {})) as string;
   // The bootstrap script a server-rendered page includes; hydration reads its `_$HY` global.
   const scriptTag = web.generateHydrationScript() as string;
-  const hydrationScript = scriptTag.slice(scriptTag.indexOf('>') + 1, scriptTag.indexOf('</script>'));
+  const hydrationScript = scriptTag.slice(
+    scriptTag.indexOf('>') + 1,
+    scriptTag.indexOf('</script>'),
+  );
   return { html, hydrationScript };
 }

@@ -1,9 +1,5 @@
 import { Separator } from '.';
-import {
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Separator />', () => {
   describeConformance(Separator, {

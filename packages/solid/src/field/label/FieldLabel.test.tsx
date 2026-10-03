@@ -1,10 +1,6 @@
 import { Show, createSignal, flush } from 'solid-js';
 import { Field } from '..';
-import {
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
   describeConformance(Field.Label, {

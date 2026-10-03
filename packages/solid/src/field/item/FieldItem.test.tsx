@@ -4,11 +4,7 @@ import { Checkbox } from '../../checkbox';
 import { CheckboxGroup } from '../../checkbox-group';
 import { Radio } from '../../radio';
 import { RadioGroup } from '../../radio-group';
-import {
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Field.Item />', () => {
   describeConformance(Field.Item, {

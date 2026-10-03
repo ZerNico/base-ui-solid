@@ -76,8 +76,13 @@ export function useFieldValidation(
 ): UseFieldValidationReturnValue {
   const { elementRef, formRef } = useFormContext();
 
-  const { setValidityData, validate, markedDirtyRef, shouldValidateOnChange, registeredFieldIdRef } =
-    params;
+  const {
+    setValidityData,
+    validate,
+    markedDirtyRef,
+    shouldValidateOnChange,
+    registeredFieldIdRef,
+  } = params;
 
   const { controlId: labelableControlId, getDescriptionProps } = useLabelableContext();
 
@@ -86,8 +91,7 @@ export function useFieldValidation(
   const registeredInputs: RegisteredInputs = new Map();
   let validationCommitId = 0;
   // Tracks the message installed by Base UI and the custom message it displaced.
-  let customValidity: [element: HTMLInputElement, message: string, displaced: string] | null =
-    null;
+  let customValidity: [element: HTMLInputElement, message: string, displaced: string] | null = null;
 
   // Groups register several inputs against a single field so focus, validation, and form-value
   // projection can use the same live controls. This also ensures a `required` checkbox can't be

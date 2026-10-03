@@ -1,9 +1,5 @@
 import { Field } from '..';
-import {
-  render,
-  screen,
-  describeConformance,
-} from '#test-utils';
+import { render, screen, describeConformance } from '#test-utils';
 
 describe('<Field.Description />', () => {
   describeConformance(Field.Description, {

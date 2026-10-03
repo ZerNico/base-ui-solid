@@ -7,13 +7,7 @@ import { Fieldset } from '../fieldset';
 import { Form } from '../form';
 import { DirectionProvider } from '../direction-provider';
 import type { TextDirection } from '../direction-provider';
-import {
-  fireEvent,
-  render,
-  screen,
-  describeConformance,
-  isJSDOM,
-} from '#test-utils';
+import { fireEvent, render, screen, describeConformance, isJSDOM } from '#test-utils';
 
 function click(element: Element) {
   fireEvent.click(element);
@@ -1316,7 +1310,10 @@ describe('<RadioGroup />', () => {
         await render(() => (
           <>
             <Field.Root validationMode="onChange" validate={validateSpy} name="choices">
-              <RadioGroup value={value()} onValueChange={(nextValue) => setValue(nextValue as string)}>
+              <RadioGroup
+                value={value()}
+                onValueChange={(nextValue) => setValue(nextValue as string)}
+              >
                 <Field.Item>
                   <Radio.Root value="a" data-testid="radio" />
                 </Field.Item>
@@ -1886,28 +1883,31 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
-    it.skipIf(isJSDOM)('projects an enabled selected radio, matching native form data', async () => {
-      const handleSubmit = vi.fn();
+    it.skipIf(isJSDOM)(
+      'projects an enabled selected radio, matching native form data',
+      async () => {
+        const handleSubmit = vi.fn();
 
-      await render(() => (
-        <Form onFormSubmit={handleSubmit} data-testid="form">
-          <Field.Root name="choice">
-            <RadioGroup defaultValue="a">
-              <Radio.Root value="a" data-testid="item-a" />
-              <Radio.Root value="b" data-testid="item-b" />
-            </RadioGroup>
-          </Field.Root>
-          <button type="submit">Submit</button>
-        </Form>
-      ));
+        await render(() => (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        ));
 
-      const form = screen.getByTestId('form') as HTMLFormElement;
-      expect(new FormData(form).getAll('choice')).toEqual(['a']);
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual(['a']);
 
-      click(screen.getByText('Submit'));
+        click(screen.getByText('Submit'));
 
-      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
-    });
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'excludes a radio disabled through an ancestor <fieldset disabled> to match native form data',
@@ -1939,36 +1939,39 @@ describe('<RadioGroup />', () => {
       },
     );
 
-    it.skipIf(isJSDOM)('includes a selected radio after its ancestor fieldset is enabled', async () => {
-      const handleSubmit = vi.fn();
-      const [disabled, setDisabled] = createSignal(true);
+    it.skipIf(isJSDOM)(
+      'includes a selected radio after its ancestor fieldset is enabled',
+      async () => {
+        const handleSubmit = vi.fn();
+        const [disabled, setDisabled] = createSignal(true);
 
-      await render(() => (
-        <Form onFormSubmit={handleSubmit} data-testid="form">
-          <fieldset disabled={disabled()}>
-            <Field.Root name="choice">
-              <RadioGroup defaultValue="a">
-                <Radio.Root value="a" />
-                <Radio.Root value="b" />
-              </RadioGroup>
-            </Field.Root>
-          </fieldset>
-          <button type="button" onClick={() => setDisabled(false)}>
-            Enable
-          </button>
-          <button type="submit">Submit</button>
-        </Form>
-      ));
+        await render(() => (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <fieldset disabled={disabled()}>
+              <Field.Root name="choice">
+                <RadioGroup defaultValue="a">
+                  <Radio.Root value="a" />
+                  <Radio.Root value="b" />
+                </RadioGroup>
+              </Field.Root>
+            </fieldset>
+            <button type="button" onClick={() => setDisabled(false)}>
+              Enable
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        ));
 
-      const form = screen.getByTestId('form') as HTMLFormElement;
-      expect(new FormData(form).getAll('choice')).toEqual([]);
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).getAll('choice')).toEqual([]);
 
-      click(screen.getByText('Enable'));
-      expect(new FormData(form).getAll('choice')).toEqual(['a']);
+        click(screen.getByText('Enable'));
+        expect(new FormData(form).getAll('choice')).toEqual(['a']);
 
-      click(screen.getByText('Submit'));
-      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
-    });
+        click(screen.getByText('Submit'));
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      },
+    );
 
     it.skipIf(isJSDOM)('omits a radio associated to another form via the `form` prop', async () => {
       const handleSubmit = vi.fn();

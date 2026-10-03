@@ -111,7 +111,6 @@ export function AccordionItem(componentProps: AccordionItem.Props) {
   );
 }
 
-
 export interface AccordionItemState extends AccordionRootState {
   /**
    * Whether the accordion item's panel is currently hidden.
@@ -151,8 +150,7 @@ export interface AccordionItemProps extends BaseUIComponentProps<'div', Accordio
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void) | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

@@ -19,8 +19,7 @@ export const AccordionRootContext = createContext<AccordionRootContext<any> | nu
 
 export function useAccordionRootContext<Value = any>() {
   const context = (useContext(AccordionRootContext) ?? undefined) as
-    | AccordionRootContext<Value>
-    | undefined;
+    AccordionRootContext<Value> | undefined;
   if (context === undefined) {
     throw new Error(
       'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',

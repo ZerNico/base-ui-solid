@@ -49,8 +49,8 @@ export function AccordionTrigger(componentProps: AccordionTrigger.Props) {
 
   useIsoLayoutEffect(
     ([currentRegisteredId]) => {
-      setTriggerId((currentId) =>
-        currentRegisteredId ?? (currentId === null ? undefined : currentId),
+      setTriggerId(
+        (currentId) => currentRegisteredId ?? (currentId === null ? undefined : currentId),
       );
       return () => {
         setTriggerId((currentId) => (currentId === currentRegisteredId ? null : currentId));

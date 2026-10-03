@@ -102,10 +102,7 @@ describe('useRenderElement', () => {
 
   it('accepts className as function', async () => {
     const { container } = await render(() => (
-      <TestComponent
-        active
-        class={(state) => (state.active ? 'active-class' : 'inactive-class')}
-      />
+      <TestComponent active class={(state) => (state.active ? 'active-class' : 'inactive-class')} />
     ));
 
     const element = container.firstElementChild;
@@ -265,9 +262,7 @@ describe('useRenderElement', () => {
       refs: RefCallback<HTMLDivElement> | Array<RefCallback<HTMLDivElement>>;
       onClick: (event: MouseEvent) => void;
     }>({ refs: primaryRef, onClick: firstHandleClick });
-    await render(() => (
-      <RerenderTestComponent refs={props().refs} onClick={props().onClick} />
-    ));
+    await render(() => <RerenderTestComponent refs={props().refs} onClick={props().onClick} />);
 
     const initialElement = document.getElementById('rerender-target');
 
@@ -426,9 +421,7 @@ describe('useRenderElement', () => {
       }
 
       const ref = createRef<HTMLDivElement>();
-      const { container } = await render(() => (
-        <TestComponent ref={ref} render={CustomElement} />
-      ));
+      const { container } = await render(() => <TestComponent ref={ref} render={CustomElement} />);
       const element = container.firstElementChild;
       expect(ref.current).toBe(element);
     });

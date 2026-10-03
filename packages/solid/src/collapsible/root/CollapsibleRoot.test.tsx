@@ -1,12 +1,7 @@
 import { Show, createSignal, flush } from 'solid-js';
 import { Collapsible } from '..';
 import { REASONS } from '../../internals/reasons';
-import {
-  render,
-  screen,
-  describeConformance,
-  isJSDOM,
-} from '#test-utils';
+import { render, screen, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT = 'This is panel content';
 

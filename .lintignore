@@ -1,0 +1,12 @@
+.git
+/coverage
+/docs/.output
+/docs/.vinxi
+/docs/dist
+/packages/solid/**/*.min.*
+build
+build-tests
+build-typecheck
+node_modules
+pnpm-lock.yaml
+test-results

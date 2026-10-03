@@ -4,8 +4,9 @@ import { isVirtualPointerEvent } from './event';
 
 // The predicate short-circuits under jsdom, so pin the shape checks with the flag off.
 vi.mock('@base-ui-solid/utils/platform', async () => {
-  const actual =
-    await vi.importActual<typeof import('@base-ui-solid/utils/platform')>('@base-ui-solid/utils/platform');
+  const actual = await vi.importActual<typeof import('@base-ui-solid/utils/platform')>(
+    '@base-ui-solid/utils/platform',
+  );
   return {
     platform: {
       ...actual.platform,

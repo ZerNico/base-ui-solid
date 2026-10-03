@@ -50,8 +50,10 @@ export interface FieldsetRootState {
   disabled: boolean;
 }
 
-export interface FieldsetRootProps
-  extends Omit<BaseUIComponentProps<'fieldset', FieldsetRootState>, 'disabled'> {
+export interface FieldsetRootProps extends Omit<
+  BaseUIComponentProps<'fieldset', FieldsetRootState>,
+  'disabled'
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

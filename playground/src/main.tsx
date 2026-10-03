@@ -109,13 +109,24 @@ function App() {
       <section>
         <h2>Toggle group (arrow keys, Home/End)</h2>
         <ToggleGroup class="ToggleGroup" defaultValue={['left']} aria-label="Alignment">
-          <Toggle value="left" class="Toggle">Left</Toggle>
-          <Toggle value="center" class="Toggle">Center</Toggle>
-          <Toggle value="right" class="Toggle" disabled>Right</Toggle>
-          <Toggle value="justify" class="Toggle">Justify</Toggle>
+          <Toggle value="left" class="Toggle">
+            Left
+          </Toggle>
+          <Toggle value="center" class="Toggle">
+            Center
+          </Toggle>
+          <Toggle value="right" class="Toggle" disabled>
+            Right
+          </Toggle>
+          <Toggle value="justify" class="Toggle">
+            Justify
+          </Toggle>
         </ToggleGroup>
         <p>
-          Standalone: <Toggle class="Toggle" aria-label="Bold">B</Toggle>
+          Standalone:{' '}
+          <Toggle class="Toggle" aria-label="Bold">
+            B
+          </Toggle>
         </p>
       </section>
 

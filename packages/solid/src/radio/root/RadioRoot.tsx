@@ -64,9 +64,9 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
   const disabled = () =>
     Boolean(
       fieldDisabled() ||
-        fieldItemContext.disabled() ||
-        groupContext?.disabled() ||
-        (componentProps.disabled ?? false),
+      fieldItemContext.disabled() ||
+      groupContext?.disabled() ||
+      (componentProps.disabled ?? false),
     );
   const readOnly = () => Boolean(groupContext?.readOnly() || (componentProps.readOnly ?? false));
   const required = () => Boolean(groupContext?.required() || (componentProps.required ?? false));

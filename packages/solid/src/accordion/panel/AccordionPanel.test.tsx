@@ -1,21 +1,12 @@
-import { Accordion } from "..";
-import {
-  render,
-  screen,
-  waitFor,
-  describeConformance,
-  isJSDOM,
-  renderToString,
-} from "#test-utils";
-import { OpenPanelWithInlineAnimation } from "./AccordionPanel.fixtures";
+import { Accordion } from '..';
+import { render, screen, waitFor, describeConformance, isJSDOM, renderToString } from '#test-utils';
+import { OpenPanelWithInlineAnimation } from './AccordionPanel.fixtures';
 
-const PANEL_CONTENT = "This is panel content";
+const PANEL_CONTENT = 'This is panel content';
 
-describe("<Accordion.Panel />", () => {
+describe('<Accordion.Panel />', () => {
   describeConformance(
-    (props: Accordion.Panel.Props) => (
-      <Accordion.Panel keepMounted {...props} />
-    ),
+    (props: Accordion.Panel.Props) => <Accordion.Panel keepMounted {...props} />,
     {
       refInstanceof: window.HTMLDivElement,
       wrap: (node) => (
@@ -26,8 +17,8 @@ describe("<Accordion.Panel />", () => {
     },
   );
 
-  it("warns when a panel enables hiddenUntilFound and disables keepMounted", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it('warns when a panel enables hiddenUntilFound and disables keepMounted', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     try {
       await render(() => (
@@ -41,28 +32,26 @@ describe("<Accordion.Panel />", () => {
       ));
 
       expect(warnSpy).toHaveBeenCalledWith(
-        "Base UI: The `keepMounted={false}` prop on an `Accordion.Panel` is ignored when `hiddenUntilFound` is enabled on the panel or root, since the panel must remain mounted while closed.",
+        'Base UI: The `keepMounted={false}` prop on an `Accordion.Panel` is ignored when `hiddenUntilFound` is enabled on the panel or root, since the panel must remain mounted while closed.',
       );
-      expect(screen.getByText(PANEL_CONTENT).getAttribute("hidden")).toBe(
-        "until-found",
-      );
+      expect(screen.getByText(PANEL_CONTENT).getAttribute('hidden')).toBe('until-found');
     } finally {
       warnSpy.mockRestore();
     }
   });
 
-  describe("server-side rendering", () => {
-    it("suppresses the initial keyframe animation from inline styles when rendered open", async () => {
+  describe('server-side rendering', () => {
+    it('suppresses the initial keyframe animation from inline styles when rendered open', async () => {
       await renderToString(OpenPanelWithInlineAnimation);
 
-      const panel = screen.getByTestId("panel");
+      const panel = screen.getByTestId('panel');
 
-      expect(panel.style.animationName).toBe("none");
-      expect(panel.style.animationDuration).toBe("100ms");
+      expect(panel.style.animationName).toBe('none');
+      expect(panel.style.animationDuration).toBe('100ms');
     });
   });
 
-  it("passes root keepMounted to closed panels", async () => {
+  it('passes root keepMounted to closed panels', async () => {
     await render(() => (
       <Accordion.Root keepMounted>
         <Accordion.Item value={0}>
@@ -74,10 +63,10 @@ describe("<Accordion.Panel />", () => {
       </Accordion.Root>
     ));
 
-    expect(screen.getByText(PANEL_CONTENT)).toHaveAttribute("hidden");
+    expect(screen.getByText(PANEL_CONTENT)).toHaveAttribute('hidden');
   });
 
-  it("passes root hiddenUntilFound to closed panels and allows panel overrides", async () => {
+  it('passes root hiddenUntilFound to closed panels and allows panel overrides', async () => {
     await render(() => (
       <Accordion.Root hiddenUntilFound keepMounted>
         <Accordion.Item value={0}>
@@ -97,14 +86,12 @@ describe("<Accordion.Panel />", () => {
       </Accordion.Root>
     ));
 
-    expect(screen.getByText(PANEL_CONTENT).getAttribute("hidden")).toBe(
-      "until-found",
-    );
-    expect(screen.queryByText("Overridden panel")).toBe(null);
+    expect(screen.getByText(PANEL_CONTENT).getAttribute('hidden')).toBe('until-found');
+    expect(screen.queryByText('Overridden panel')).toBe(null);
   });
 
-  describe.skipIf(isJSDOM)("CSS transitions", () => {
-    it("keeps the closing panel visible until its exit transition completes when switching items", async () => {
+  describe.skipIf(isJSDOM)('CSS transitions', () => {
+    it('keeps the closing panel visible until its exit transition completes when switching items', async () => {
       const { user } = await render(() => (
         <>
           <style>{`
@@ -125,11 +112,7 @@ describe("<Accordion.Panel />", () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel
-                class="transition-test-panel"
-                data-testid="panel-1"
-                keepMounted
-              >
+              <Accordion.Panel class="transition-test-panel" data-testid="panel-1" keepMounted>
                 First panel
               </Accordion.Panel>
             </Accordion.Item>
@@ -138,11 +121,7 @@ describe("<Accordion.Panel />", () => {
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 2</Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel
-                class="transition-test-panel"
-                data-testid="panel-2"
-                keepMounted
-              >
+              <Accordion.Panel class="transition-test-panel" data-testid="panel-2" keepMounted>
                 Second panel
               </Accordion.Panel>
             </Accordion.Item>
@@ -150,37 +129,33 @@ describe("<Accordion.Panel />", () => {
         </>
       ));
 
-      const trigger2 = screen.getByRole("button", { name: "Trigger 2" });
-      const panel1 = screen.getByTestId("panel-1");
-      const panel2 = screen.getByTestId("panel-2");
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const panel1 = screen.getByTestId('panel-1');
+      const panel2 = screen.getByTestId('panel-2');
 
       await waitFor(() => {
-        expect(panel1).toHaveAttribute("data-open");
-        expect(panel1.style.getPropertyValue("--accordion-panel-height")).toBe(
-          "auto",
-        );
+        expect(panel1).toHaveAttribute('data-open');
+        expect(panel1.style.getPropertyValue('--accordion-panel-height')).toBe('auto');
       });
 
       await user.click(trigger2);
 
       await waitFor(() => {
-        expect(panel1).toHaveAttribute("data-ending-style");
-        expect(panel1).not.toHaveAttribute("hidden");
-        expect(
-          panel1.style.getPropertyValue("--accordion-panel-height"),
-        ).toMatch(/px$/);
-        expect(panel2).toHaveAttribute("data-open");
+        expect(panel1).toHaveAttribute('data-ending-style');
+        expect(panel1).not.toHaveAttribute('hidden');
+        expect(panel1.style.getPropertyValue('--accordion-panel-height')).toMatch(/px$/);
+        expect(panel2).toHaveAttribute('data-open');
       });
 
       await waitFor(() => {
-        expect(panel1).toHaveAttribute("hidden");
-        expect(panel2).not.toHaveAttribute("hidden");
+        expect(panel1).toHaveAttribute('hidden');
+        expect(panel2).not.toHaveAttribute('hidden');
       });
     });
   });
 
-  describe("React.Activity", () => {
+  describe('React.Activity', () => {
     // React-only: React.Activity has no Solid equivalent.
-    it.skip("does not replay open keyframe animations from inline styles when revealing a panel opened by the user", () => {});
+    it.skip('does not replay open keyframe animations from inline styles when revealing a panel opened by the user', () => {});
   });
 });

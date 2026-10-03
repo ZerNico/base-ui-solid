@@ -92,9 +92,7 @@ describe('useRender', () => {
       }
 
       const [defaultTagName, setDefaultTagName] = createSignal<IntrinsicTagName>('div');
-      const { container } = await render(() => (
-        <TestComponent defaultTagName={defaultTagName()} />
-      ));
+      const { container } = await render(() => <TestComponent defaultTagName={defaultTagName()} />);
       expect(container.firstElementChild).toHaveProperty('tagName', 'DIV');
 
       setDefaultTagName('span');

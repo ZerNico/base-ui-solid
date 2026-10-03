@@ -80,11 +80,14 @@ describe('<Fieldset.Legend />', () => {
     );
   });
 
-  it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when legend is absent', async () => {
-    await renderToString(FieldsetWithoutLegend);
+  it.skipIf(isJSDOM)(
+    'does not set `aria-labelledby` during SSR when legend is absent',
+    async () => {
+      await renderToString(FieldsetWithoutLegend);
 
-    expect(screen.getByTestId('fieldset')).not.toHaveAttribute('aria-labelledby');
-  });
+      expect(screen.getByTestId('fieldset')).not.toHaveAttribute('aria-labelledby');
+    },
+  );
 
   it.skipIf(isJSDOM)(
     'sets `aria-labelledby` after hydration without a custom legend id',

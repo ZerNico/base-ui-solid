@@ -128,7 +128,10 @@ describe('<Field.Control />', () => {
       const [value, setValue] = createSignal(5);
       return (
         <Field.Root data-testid="root">
-          <Field.Control value={value()} onValueChange={(nextValue) => setValue(Number(nextValue))} />
+          <Field.Control
+            value={value()}
+            onValueChange={(nextValue) => setValue(Number(nextValue))}
+          />
         </Field.Root>
       );
     }
@@ -451,31 +454,34 @@ describe('<Field.Control />', () => {
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
-  it.skipIf(isJSDOM)('validates when a disabled submit button blocks implicit submission', async () => {
-    const validate = vi.fn(() => null);
-    const handleSubmit = vi.fn();
+  it.skipIf(isJSDOM)(
+    'validates when a disabled submit button blocks implicit submission',
+    async () => {
+      const validate = vi.fn(() => null);
+      const handleSubmit = vi.fn();
 
-    const { user } = await render(() => (
-      <Form onSubmit={handleSubmit}>
-        <Field.Root validate={validate}>
-          <Field.Control defaultValue="a" />
-        </Field.Root>
-        <button type="submit" disabled>
-          submit
-        </button>
-      </Form>
-    ));
+      const { user } = await render(() => (
+        <Form onSubmit={handleSubmit}>
+          <Field.Root validate={validate}>
+            <Field.Control defaultValue="a" />
+          </Field.Root>
+          <button type="submit" disabled>
+            submit
+          </button>
+        </Form>
+      ));
 
-    const control = screen.getByRole<HTMLInputElement>('textbox');
+      const control = screen.getByRole<HTMLInputElement>('textbox');
 
-    await user.type(control, '{Enter}');
-    await new Promise((resolve) => {
-      setTimeout(resolve, 10);
-    });
+      await user.type(control, '{Enter}');
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10);
+      });
 
-    expect(validate).toHaveBeenCalledTimes(1);
-    expect(handleSubmit).not.toHaveBeenCalled();
-  });
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).not.toHaveBeenCalled();
+    },
+  );
 
   it('validates the latest value when Enter does not submit the form', async () => {
     const validate = vi.fn((_value: unknown) => null);

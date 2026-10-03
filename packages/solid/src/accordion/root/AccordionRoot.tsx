@@ -23,7 +23,9 @@ const rootStateAttributesMapping = {
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-export function AccordionRoot<Value = any>(componentProps: AccordionRoot.Props<Value>): JSX.Element {
+export function AccordionRoot<Value = any>(
+  componentProps: AccordionRoot.Props<Value>,
+): JSX.Element {
   const elementProps = omit(
     componentProps,
     'render',
@@ -117,7 +119,6 @@ export function AccordionRoot<Value = any>(componentProps: AccordionRoot.Props<V
     </AccordionRootContext>
   );
 }
-
 
 export type AccordionValue<Value = any> = Value[];
 
