@@ -297,7 +297,7 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 | `separator`, `toggle`, `toggle-group`                                               | Ported, upstream tests ported                      |
 | `direction-provider`                                                                | Ported (`useDirection()` returns an accessor)      |
 | `internals/composite`                                                               | Ported (list, item, root, grid navigation)         |
-| `toolbar`                                                                           | Only the root/group contexts (read by ToggleGroup) |
+| `toolbar`, `tabs`                                                                   | Ported, upstream tests ported                      |
 | `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                          |
 | `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | In progress                                        |
 | `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | In progress                                        |

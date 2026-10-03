@@ -1,6 +1,6 @@
 import { createMemo, merge, onCleanup, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
-import { dynamic } from '@solidjs/web';
+import { dynamic, isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
@@ -86,6 +86,9 @@ export function useRenderElement<
   // `render` subscribes to that whole source, so filter the notifications through a memo.
   const renderProp = createMemo(() => componentProps.render);
 
+  // Counts the elements created below, so a stale cleanup can tell it was superseded.
+  let renderCount = 0;
+
   const rendered = createMemo(() => {
     if (!enabled()) {
       return null;
@@ -97,10 +100,17 @@ export function useRenderElement<
     // React detaches refs by calling them with `null` when the element unmounts, and the ported
     // internals rely on it. Do the same for the internal `ref`s (not for user refs, which follow
     // Solid's semantics). Elements that a `render` function swaps out on its own can't be
-    // observed here; internals that care check `isConnected`.
-    if (ref) {
+    // observed here; internals that care check `isConnected`. Refs never run on the server, so
+    // neither does this cleanup (it would write signals during the server render's disposal).
+    // When the element is recreated, the previous run's cleanup only runs after the new element
+    // has attached its refs, so it skips its `null` call then: it would detach the new element.
+    if (ref && !isServer) {
+      renderCount += 1;
+      const currentRender = renderCount;
       onCleanup(() => {
-        applyRefs(ref, null);
+        if (currentRender === renderCount) {
+          applyRefs(ref, null);
+        }
       });
     }
 

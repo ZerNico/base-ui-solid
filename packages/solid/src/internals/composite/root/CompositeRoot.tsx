@@ -96,6 +96,10 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     relayKeyboardEvent,
   };
 
+  // Port note: defined outside the JSX because Solid's SSR compiler treats the `State` type in
+  // an `as State` assertion inside JSX as a captured variable ("State is not defined").
+  const state = () => componentProps.state ?? (EMPTY_OBJECT as State);
+
   return (
     <CompositeRootContext value={contextValue}>
       <CompositeList<Metadata>
@@ -106,7 +110,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
         }}
       >
         {useRenderElement(untrack(() => componentProps.tag) ?? 'div', componentProps, {
-          state: () => componentProps.state ?? (EMPTY_OBJECT as State),
+          state,
           ref: untrack(() => componentProps.refs),
           props: () => [defaultProps, ...(componentProps.props ?? EMPTY_ARRAY), elementProps],
           stateAttributesMapping: untrack(() => componentProps.stateAttributesMapping),
