@@ -26,9 +26,9 @@ export function waitForAnimationFrame() {
 /**
  * Counterpart of upstream's `createRenderer().render`.
  */
-export async function render(ui: () => JSX.Element) {
+export async function render(ui: () => JSX.Element, options?: { container?: HTMLElement }) {
   const user = userEvent.setup();
-  const result = solidRender(ui);
+  const result = solidRender(ui, options);
   await flushMicrotasks();
   return { user, ...result };
 }

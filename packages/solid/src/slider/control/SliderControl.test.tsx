@@ -1,0 +1,694 @@
+import { expect, vi, describe, it } from 'vitest';
+import { createSignal, flush, For, omit } from 'solid-js';
+import { render, fireEvent, screen, waitFor, describeConformance, isJSDOM } from '#test-utils';
+import { Slider } from '..';
+import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
+
+describe('<Slider.Control />', () => {
+  describeConformance(Slider.Control, {
+    wrap: (node) => <Slider.Root>{node()}</Slider.Root>,
+    refInstanceof: window.HTMLDivElement,
+  });
+
+  it('does not apply a tabIndex by default', async () => {
+    await render(() => (
+      <Slider.Root defaultValue={50}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    expect(screen.getByTestId('control')).not.toHaveAttribute('tabindex');
+  });
+
+  it('throws a descriptive error when rendered outside <Slider.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(() => <Slider.Control />)).rejects.toThrow(
+        'Base UI: SliderRootContext is missing. Slider parts must be placed within <Slider.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('moves the first of several thumbs stacked at the maximum', async () => {
+    const onValueChange = vi.fn();
+
+    await render(() => (
+      <Slider.Root defaultValue={[100, 100, 100]} onValueChange={onValueChange}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb index={0} data-testid="thumb-0" />
+          <Slider.Thumb index={1} data-testid="thumb-1" />
+          <Slider.Thumb index={2} data-testid="thumb-2" />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    const control = screen.getByTestId('control');
+    const lastThumb = screen.getByTestId('thumb-2');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    vi.spyOn(lastThumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(90, 0, 20, 10));
+
+    fireEvent.pointerDown(lastThumb, { buttons: 1, clientX: 100 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 50 });
+
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      [50, 100, 100],
+      expect.objectContaining({ activeThumbIndex: 0, reason: 'drag' }),
+    );
+  });
+
+  it('clears the grabbed offset when swapping to a thumb that is not rendered', async () => {
+    const onValueChange = vi.fn();
+
+    await render(() => (
+      <Slider.Root
+        defaultValue={[20, 40]}
+        thumbCollisionBehavior="swap"
+        onValueChange={onValueChange}
+      >
+        <Slider.Control data-testid="control">
+          <Slider.Thumb index={0} data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    const control = screen.getByTestId('control');
+    const thumb = screen.getByTestId('thumb');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    vi.spyOn(thumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 0, 20, 10));
+
+    fireEvent.pointerDown(thumb, { buttons: 1, clientX: 30 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 70 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 80 });
+
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      [40, 80],
+      expect.objectContaining({ activeThumbIndex: 1, reason: 'drag' }),
+    );
+  });
+
+  it('ignores a drag when collision behavior cannot satisfy the minimum distance', async () => {
+    const onValueChange = vi.fn();
+
+    await render(() => (
+      <Slider.Root
+        value={[20, 40]}
+        thumbCollisionBehavior="none"
+        minStepsBetweenValues={50}
+        onValueChange={onValueChange}
+      >
+        <Slider.Control data-testid="control">
+          <Slider.Thumb index={0} data-testid="thumb" />
+          <Slider.Thumb index={1} />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    const control = screen.getByTestId('control');
+    const thumb = screen.getByTestId('thumb');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    vi.spyOn(thumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 0, 20, 10));
+
+    fireEvent.pointerDown(thumb, { button: 0, buttons: 1, clientX: 20 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 80 });
+
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  [
+    {
+      name: 'horizontal',
+      orientation: 'horizontal' as const,
+      controlRect: new DOMRect(0, 0, 100, 10),
+      thumbRect: new DOMRect(40, 0, 20, 10),
+      pointer: { clientX: 10, clientY: 5 },
+    },
+    {
+      name: 'vertical',
+      orientation: 'vertical' as const,
+      controlRect: new DOMRect(0, 0, 10, 100),
+      thumbRect: new DOMRect(0, 40, 10, 20),
+      pointer: { clientX: 5, clientY: 90 },
+    },
+  ].forEach(({ name, orientation, controlRect, thumbRect, pointer }) => {
+    it(`accounts for the thumb size when pressing an inset ${name} control`, async () => {
+      const onValueChange = vi.fn();
+
+      await render(() => (
+        <Slider.Root
+          defaultValue={50}
+          orientation={orientation}
+          thumbAlignment="edge-client-only"
+          onValueChange={onValueChange}
+        >
+          <Slider.Control data-testid="control">
+            <Slider.Thumb data-testid="thumb" />
+          </Slider.Control>
+        </Slider.Root>
+      ));
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(controlRect);
+      vi.spyOn(screen.getByTestId('thumb'), 'getBoundingClientRect').mockReturnValue(thumbRect);
+
+      fireEvent.pointerDown(control, { button: 0, buttons: 1, ...pointer });
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        0,
+        expect.objectContaining({ activeThumbIndex: 0, reason: 'track-press' }),
+      );
+    });
+  });
+
+  it('preserves single-element array values on track press', async () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    await render(() => (
+      <Slider.Root
+        defaultValue={[25]}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    Object.defineProperties(control, {
+      setPointerCapture: { configurable: true, value: vi.fn() },
+      hasPointerCapture: { configurable: true, value: () => false },
+    });
+
+    fireEvent.pointerDown(control, { button: 0, buttons: 1, clientX: 50 });
+    fireEvent.pointerUp(document.body, { buttons: 0, clientX: 50 });
+
+    expect(onValueChange.mock.calls[0][0]).toEqual([50]);
+    expect(onValueCommitted.mock.calls[0][0]).toEqual([50]);
+  });
+
+  it('releases pointer capture when the interaction ends', async () => {
+    await render(() => (
+      <Slider.Root defaultValue={20}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    const control = screen.getByTestId('control');
+    vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+    const releasePointerCapture = vi.fn();
+    Object.defineProperties(control, {
+      setPointerCapture: { configurable: true, value: vi.fn() },
+      hasPointerCapture: { configurable: true, value: () => true },
+      releasePointerCapture: { configurable: true, value: releasePointerCapture },
+    });
+
+    fireEvent.pointerDown(control, {
+      pointerId: 7,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: 1,
+      clientX: 40,
+    });
+    fireEvent.pointerUp(document.body, {
+      pointerId: 7,
+      pointerType: 'mouse',
+      buttons: 0,
+      clientX: 40,
+    });
+
+    expect(releasePointerCapture).toHaveBeenCalledWith(7);
+  });
+
+  it('degrades safely when a custom render function drops the control ref', async () => {
+    const onValueChange = vi.fn();
+    const { unmount } = await render(() => (
+      <Slider.Root defaultValue={20} onValueChange={onValueChange}>
+        {/* Port note: upstream overrides the ref with `ref={null}`; here it's omitted instead. */}
+        <Slider.Control data-testid="control" render={(props) => <div {...omit(props, 'ref')} />}>
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>
+    ));
+
+    fireEvent.pointerDown(screen.getByTestId('control'), {
+      button: 0,
+      buttons: 1,
+      clientX: 80,
+    });
+    expect(onValueChange).not.toHaveBeenCalled();
+
+    unmount();
+  });
+
+  it.skipIf(isJSDOM || typeof Touch === 'undefined')(
+    'handles touch interactions that originate on a text node',
+    async () => {
+      const onValueChange = vi.fn();
+
+      await render(() => (
+        <Slider.Root defaultValue={20} onValueChange={onValueChange}>
+          <Slider.Control data-testid="control">
+            <span data-testid="track-text">Track</span>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      ));
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      const textNode = screen.getByTestId('track-text').firstChild!;
+
+      fireEvent.touchStart(textNode, createTouches([{ identifier: 1, clientX: 60, clientY: 0 }]));
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        60,
+        expect.objectContaining({ activeThumbIndex: 0, reason: 'track-press' }),
+      );
+    },
+  );
+
+  it.skipIf(isJSDOM || typeof Touch === 'undefined')(
+    'ignores touch interactions when no thumbs are composed',
+    async () => {
+      const onValueChange = vi.fn();
+
+      await render(() => (
+        <Slider.Root
+          defaultValue={20}
+          thumbAlignment="edge-client-only"
+          onValueChange={onValueChange}
+        >
+          <Slider.Control data-testid="control" />
+        </Slider.Root>
+      ));
+
+      const control = screen.getByTestId('control');
+      fireEvent.touchStart(control, createTouches([{ identifier: 1, clientX: 60, clientY: 0 }]));
+      fireEvent.touchMove(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+      );
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    },
+  );
+
+  describe('cancelled gestures', () => {
+    // Port note: the dragging state (`data-dragging`) is batched until Solid flushes, so the
+    // tests below call `flush()` before asserting on it or on a commit that ends the drag.
+    async function renderCancelTestSlider() {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      // Port note: upstream's `setProps` on a `TestSlider` component becomes a signal.
+      const [disabled, setDisabled] = createSignal(false);
+
+      function TestSlider() {
+        return (
+          <>
+            <Slider.Root
+              disabled={disabled()}
+              defaultValue={20}
+              onValueChange={onValueChange}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+            <div data-testid="elsewhere" />
+          </>
+        );
+      }
+
+      await render(() => <TestSlider />);
+
+      const setProps = async (props: { disabled: boolean }) => {
+        setDisabled(props.disabled);
+        flush();
+      };
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      Object.defineProperties(control, {
+        setPointerCapture: { configurable: true, value: vi.fn() },
+        hasPointerCapture: { configurable: true, value: () => false },
+        releasePointerCapture: { configurable: true, value: vi.fn() },
+      });
+
+      return {
+        control,
+        elsewhere: screen.getByTestId('elsewhere'),
+        onValueChange,
+        onValueCommitted,
+        setProps,
+      };
+    }
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined').each(['touchEnd', 'touchCancel'] as const)(
+      'ignores %s from another finger during a touch drag',
+      async (eventName) => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 1, pointerType: 'touch' };
+        const firstTouch = createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]);
+        const secondTouch = createTouches([{ identifier: 2, clientX: 90, clientY: 0 }]);
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.touchStart(control, firstTouch);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+        fireEvent.touchStart(elsewhere, secondTouch);
+        fireEvent[eventName](elsewhere, secondTouch);
+        flush();
+
+        expect(onValueCommitted).not.toHaveBeenCalled();
+        expect(control).toHaveAttribute('data-dragging', '');
+
+        const lastTouch = createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]);
+        fireEvent.touchMove(document.body, lastTouch);
+        expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(80);
+
+        fireEvent.touchCancel(document.body, lastTouch);
+        flush();
+        expect(onValueCommitted).toHaveBeenCalledExactlyOnceWith(
+          80,
+          expect.objectContaining({ reason: 'drag' }),
+        );
+        expect(control).not.toHaveAttribute('data-dragging');
+      },
+    );
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined').each(['mouse', 'pen'])(
+      'ends a cancelled %s drag after disabling and re-enabling during a touch drag',
+      async (pointerType) => {
+        const { control, elsewhere, onValueChange, onValueCommitted, setProps } =
+          await renderCancelTestSlider();
+
+        fireEvent.pointerDown(control, {
+          pointerId: 1,
+          pointerType: 'touch',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+        });
+        const touches = createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]);
+        fireEvent.touchStart(control, touches);
+        await setProps({ disabled: true });
+        fireEvent.touchCancel(document.body, touches);
+        await setProps({ disabled: false });
+
+        const pointer = { pointerId: 7, pointerType };
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 50 });
+        fireEvent.pointerMove(document.body, { ...pointer, buttons: 1, clientX: 70 });
+        fireEvent.pointerCancel(document.body, pointer);
+        flush();
+
+        expect(onValueCommitted).toHaveBeenCalledExactlyOnceWith(
+          70,
+          expect.objectContaining({ reason: 'drag' }),
+        );
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        fireEvent.pointerMove(elsewhere, { ...pointer, buttons: 1, clientX: 90 });
+        fireEvent.pointerUp(elsewhere, { ...pointer, buttons: 0, clientX: 90 });
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it.each(['mouse', 'pen'])(
+      'commits and ends a %s drag on pointercancel',
+      async (pointerType) => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 7, pointerType };
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.pointerMove(document.body, { ...pointer, buttons: 1, clientX: 70 });
+        flush();
+        expect(control).toHaveAttribute('data-dragging', '');
+
+        fireEvent.pointerCancel(document.body, pointer);
+        flush();
+
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+        expect(onValueCommitted.mock.calls[0][0]).toBe(70);
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        fireEvent.pointerDown(elsewhere, { ...pointer, button: 0, buttons: 1, clientX: 90 });
+        fireEvent.pointerMove(elsewhere, { ...pointer, buttons: 1, clientX: 90 });
+        fireEvent.pointerUp(elsewhere, { ...pointer, buttons: 0, clientX: 90 });
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+
+    it.skipIf(isJSDOM || typeof Touch === 'undefined')(
+      'keeps a touch drag going after pointercancel and commits and ends it on touchcancel',
+      async () => {
+        const { control, elsewhere, onValueChange, onValueCommitted } =
+          await renderCancelTestSlider();
+        const pointer = { pointerId: 1, pointerType: 'touch' };
+
+        fireEvent.pointerDown(control, { ...pointer, button: 0, buttons: 1, clientX: 40 });
+        fireEvent.touchStart(control, createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]));
+        // Without `touch-action: none`, the browser cancels the pointer once it starts panning.
+        fireEvent.pointerCancel(document.body, pointer);
+        fireEvent.touchMove(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+
+        expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(70);
+
+        fireEvent.touchCancel(
+          document.body,
+          createTouches([{ identifier: 1, clientX: 70, clientY: 0 }]),
+        );
+        flush();
+
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+        expect(onValueCommitted.mock.calls[0][0]).toBe(70);
+        expect(control).not.toHaveAttribute('data-dragging');
+
+        onValueChange.mockClear();
+        const touches = createTouches([{ identifier: 2, clientX: 90, clientY: 0 }]);
+        fireEvent.pointerDown(elsewhere, { pointerId: 2, pointerType: 'touch', buttons: 1 });
+        fireEvent.touchStart(elsewhere, touches);
+        fireEvent.touchMove(document.body, touches);
+        fireEvent.pointerUp(elsewhere, { pointerId: 2, pointerType: 'touch', buttons: 0 });
+        fireEvent.touchEnd(document.body, touches);
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueCommitted.mock.calls.length).toBe(1);
+      },
+    );
+  });
+
+  it.skipIf(isJSDOM)(
+    'does not resurrect a removed thumb value when the range shrinks mid-drag',
+    async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      function App() {
+        const [value, setValue] = createSignal<number[]>([10, 20, 30]);
+        return (
+          <>
+            <button type="button" onClick={() => setValue([10, 20])}>
+              shrink
+            </button>
+            <Slider.Root
+              value={value()}
+              min={0}
+              max={100}
+              onValueChange={onValueChange}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                {/* Port note: a non-keyed `For` mirrors upstream's index keys. */}
+                <For each={value()} keyed={false}>
+                  {(_, index) => <Slider.Thumb index={index} data-testid={`thumb-${index}`} />}
+                </For>
+              </Slider.Control>
+            </Slider.Root>
+          </>
+        );
+      }
+
+      await render(() => <App />);
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      // Press the last thumb so the pressed index points at index 2.
+      fireEvent.pointerDown(screen.getByTestId('thumb-2'), { buttons: 1, clientX: 30 });
+
+      // Cache a committed drag value before the range shrinks.
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 50 });
+      expect(onValueChange).toHaveBeenCalledWith(
+        [10, 20, 100],
+        expect.objectContaining({ reason: 'drag' }),
+      );
+
+      // Shrink the value array while the pointer is still down, removing index 2.
+      // `fireEvent.click` avoids dispatching a `pointerup` that would end the drag.
+      fireEvent.click(screen.getByRole('button', { name: 'shrink' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('slider')).toHaveLength(2);
+      });
+
+      onValueChange.mockClear();
+      onValueCommitted.mockClear();
+
+      // A subsequent move must not write past the end of the shrunken array.
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 50 });
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 50 });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    },
+  );
+
+  // Requires layout: the range drag relies on real thumb measurements.
+  it.skipIf(isJSDOM)(
+    'does not commit a stale value when the range shrinks mid-drag and the pressed thumb stays valid',
+    async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      function App() {
+        const [value, setValue] = createSignal<number[]>([10, 20, 30]);
+        return (
+          <>
+            <button type="button" onClick={() => setValue([10, 20])}>
+              shrink
+            </button>
+            <Slider.Root
+              value={value()}
+              min={0}
+              max={100}
+              onValueChange={onValueChange}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                <For each={value()} keyed={false}>
+                  {(_, index) => <Slider.Thumb index={index} data-testid={`thumb-${index}`} />}
+                </For>
+              </Slider.Control>
+            </Slider.Root>
+          </>
+        );
+      }
+
+      await render(() => <App />);
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      // Press the middle thumb so the pressed index (1) stays in range after the shrink.
+      fireEvent.pointerDown(screen.getByTestId('thumb-1'), { buttons: 1, clientX: 20 });
+
+      // Cache a 3-element drag value before the range shrinks.
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+      expect(onValueChange).toHaveBeenCalled();
+      expect(onValueChange.mock.calls.at(-1)?.[0]).toHaveLength(3);
+
+      // Shrink the value array while the pointer is still down. Index 1 is still valid,
+      // so the pressed-index guard alone would not invalidate the cached 3-element array.
+      fireEvent.click(screen.getByRole('button', { name: 'shrink' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('slider')).toHaveLength(2);
+      });
+
+      onValueChange.mockClear();
+      onValueCommitted.mockClear();
+
+      // Releasing without a reconciling move must not commit the now-mismatched array.
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 40 });
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    },
+  );
+
+  // Requires layout: the range drag relies on real thumb measurements.
+  it.skipIf(isJSDOM)(
+    'clears cached interaction state when the controlled range grows mid-drag',
+    async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      function App() {
+        const [value, setValue] = createSignal<number[]>([10, 20]);
+        return (
+          <>
+            <button type="button" onClick={() => setValue([10, 20, 30])}>
+              grow
+            </button>
+            <Slider.Root
+              value={value()}
+              min={0}
+              max={100}
+              onValueChange={(nextValue, details) => {
+                onValueChange(nextValue, details);
+                setValue(nextValue as number[]);
+              }}
+              onValueCommitted={onValueCommitted}
+            >
+              <Slider.Control data-testid="control">
+                <For each={value()} keyed={false}>
+                  {(_, index) => <Slider.Thumb index={index} data-testid={`thumb-${index}`} />}
+                </For>
+              </Slider.Control>
+            </Slider.Root>
+          </>
+        );
+      }
+
+      await render(() => <App />);
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(screen.getByTestId('thumb-1'), { buttons: 1, clientX: 20 });
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+      fireEvent.click(screen.getByRole('button', { name: 'grow' }));
+      await waitFor(() => {
+        expect(screen.getAllByRole('slider')).toHaveLength(3);
+      });
+
+      onValueChange.mockClear();
+      onValueCommitted.mockClear();
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 40 });
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.pointerDown(screen.getByTestId('thumb-2'), { buttons: 1, clientX: 30 });
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 80 });
+      fireEvent.pointerUp(document.body, { buttons: 0, clientX: 80 });
+
+      const nextValue = onValueChange.mock.lastCall?.[0];
+      expect(nextValue).toEqual([10, 20, 100]);
+      expect(onValueCommitted).toHaveBeenCalledWith(
+        nextValue,
+        expect.objectContaining({ reason: 'drag' }),
+      );
+    },
+  );
+});

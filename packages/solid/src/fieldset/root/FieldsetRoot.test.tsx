@@ -1,7 +1,11 @@
 import { expect, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
 import { fireEvent, flushMicrotasks, render, screen, describeConformance } from '#test-utils';
+import { Checkbox } from '../../checkbox';
+import { CheckboxGroup } from '../../checkbox-group';
 import { Field } from '../../field';
+import { RadioGroup } from '../../radio-group';
+import { Slider } from '../../slider';
 import { Fieldset } from '..';
 
 describe('<Fieldset.Root />', () => {
@@ -77,6 +81,33 @@ describe('<Fieldset.Root />', () => {
     expect(screen.getByTestId('root')).not.toHaveAttribute('data-disabled');
   });
 
-  // TODO(port): needs <Slider>
-  it.skip('passes disabled to rendered Base UI roots', () => {});
+  // Port note: upstream renders React elements (`render={<RadioGroup />}`); Solid uses render
+  // functions that spread the props onto the Base UI roots.
+  it('passes disabled to rendered Base UI roots', async () => {
+    await render(() => (
+      <div>
+        <Fieldset.Root
+          disabled
+          render={(props) => <RadioGroup {...(props as object)} data-testid="radio-group" />}
+        />
+        <Fieldset.Root disabled render={(props) => <CheckboxGroup {...(props as object)} />}>
+          <Checkbox.Root name="apple" data-testid="checkbox" />
+        </Fieldset.Root>
+        <Fieldset.Root
+          disabled
+          render={(props) => <Slider.Root {...(props as object)} defaultValue={50} />}
+        >
+          <Slider.Control data-testid="slider-control">
+            <Slider.Track>
+              <Slider.Thumb />
+            </Slider.Track>
+          </Slider.Control>
+        </Fieldset.Root>
+      </div>
+    ));
+
+    expect(screen.getByTestId('radio-group')).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByTestId('checkbox')).toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('slider-control')).toHaveAttribute('data-disabled');
+  });
 });
