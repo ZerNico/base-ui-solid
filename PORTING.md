@@ -333,7 +333,7 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 | `internals/composite`                                                               | Ported (list, item, root, grid navigation)    |
 | `toolbar`, `tabs`                                                                   | Ported, upstream tests ported                 |
 | `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                     |
-| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | In progress                                   |
+| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | Ported                                        |
 | `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | Ported, upstream tests ported                 |
 | `button`, `meter`, `progress`, `avatar`, `csp-provider`, `unstable-use-media-query` | Ported, upstream tests ported                 |
-| Other components                                                                    | Not started                                   |
+| All other modules                                                                   | Ported (every upstream module; see git log)   |
