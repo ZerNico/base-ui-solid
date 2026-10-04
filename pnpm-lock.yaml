@@ -17,6 +17,9 @@ importers:
       '@next/eslint-plugin-next':
         specifier: 16.3.6
         version: 16.3.6(eslint@10.11.0(jiti@2.7.0)(supports-color@10.2.2))
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
       '@solidjs/testing-library':
         specifier: 1.0.0-beta.3
         version: 1.0.0-beta.3(@solidjs/web@2.0.0-rc.13(solid-js@2.0.0-rc.13))(solid-js@2.0.0-rc.13)
@@ -38,6 +41,9 @@ importers:
       '@vitest/browser-playwright':
         specifier: 5.0.3
         version: 5.0.3(playwright@1.63.0)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vitest@5.0.3)
+      concurrently:
+        specifier: 10.0.5
+        version: 10.0.5
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -68,6 +74,9 @@ importers:
       remark-mdx:
         specifier: 3.1.1
         version: 3.1.1(supports-color@10.2.2)
+      serve:
+        specifier: 14.2.6
+        version: 14.2.6(supports-color@10.2.2)
       solid-js:
         specifier: 2.0.0-rc.13
         version: 2.0.0-rc.13
@@ -289,6 +298,45 @@ importers:
       base-ui-solid:
         specifier: workspace:*
         version: link:../packages/solid
+
+  test:
+    devDependencies:
+      '@base-ui-solid/utils':
+        specifier: workspace:*
+        version: link:../packages/utils
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@solidjs/web':
+        specifier: 2.0.0-rc.13
+        version: 2.0.0-rc.13(solid-js@2.0.0-rc.13)
+      '@tailwindcss/vite':
+        specifier: 4.3.3
+        version: 4.3.3(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      '@tanstack/solid-router':
+        specifier: 2.0.0-rc.8
+        version: 2.0.0-rc.8(@solidjs/web@2.0.0-rc.13(solid-js@2.0.0-rc.13))(solid-js@2.0.0-rc.13)
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      base-ui-solid:
+        specifier: workspace:*
+        version: link:../packages/solid
+      docs:
+        specifier: workspace:^
+        version: link:../docs
+      postcss-custom-media:
+        specifier: ^12.0.3
+        version: 12.0.3(postcss@8.5.28)
+      postcss-import:
+        specifier: ^17.0.0
+        version: 17.0.0(postcss@8.5.28)
+      solid-js:
+        specifier: 2.0.0-rc.13
+        version: 2.0.0-rc.13
+      vite-plugin-solid:
+        specifier: 3.0.0-next.27
+        version: 3.0.0-next.27(@solidjs/web@2.0.0-rc.13(solid-js@2.0.0-rc.13))(@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.3))(solid-js@2.0.0-rc.13)(supports-color@10.2.2)(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
 
 packages:
 
@@ -1934,6 +1982,11 @@ packages:
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
+  '@playwright/test@1.63.0':
+    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   '@pnpm/config.matcher@1100.0.2':
     resolution: {integrity: sha512-eCn1f1iWHllUyLKX5IeVjnXw8p7KLdnpmfXYltsrAK7wFutMGERMwurCqt9G7GtOJ6uk1Edao4tjz1xtBgusDQ==}
     engines: {node: '>=22.13'}
@@ -3342,6 +3395,10 @@ packages:
     resolution: {integrity: sha512-Fo07WOYGqMfCWHOzSXOt2CxDbC6skS/jO9ynEcmpANMoPrD+W1r1K6Vx7iNm+AQmETU1Xr2t+n8nzkV9t6xh3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
   chalk@6.0.1:
     resolution: {integrity: sha512-/Ce6KNm3vIbWdMlNna6RVIZ/ICQxnJxCicet5LBKK9ZffBkqzDw0xh9EiKSljdRtiIQ1S1z4YgcscUUGzNCWrA==}
     engines: {node: '>=22'}
@@ -3446,6 +3503,11 @@ packages:
   concat-stream@2.0.0:
     resolution: {integrity: sha512-MWufYdFw53ccGjCA+Ol7XJYpAlW6/prSMzuPOTRnJGcGzuhLn4Scrz7qf6o8bROZ514ltazcIFJZevcfbo0x7A==}
     engines: {'0': node >= 6.0}
+
+  concurrently@10.0.5:
+    resolution: {integrity: sha512-JaP/CoftUrCcAFW/g//RbgEGwlelnEae6cfBLgH6ZdO6s8jPkn6p9SB9u6pdVxYXoiSnFqseOlHfrEfF82TVOg==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   content-disposition@0.5.2:
     resolution: {integrity: sha512-kRGRZw3bLlFISDBgwTSA1TMBFN6J6GWDeubmDE3AF+3+yXL8hTWv8r5rkLbqYXY4RjPk/EzHnClI3zQf1cFmHA==}
@@ -5863,6 +5925,9 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
+
   safe-array-concat@1.1.4:
     resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
     engines: {node: '>=0.4'}
@@ -5940,6 +6005,10 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+
+  shell-quote@1.9.0:
+    resolution: {integrity: sha512-Iov+JwFv/2HcTpcwNMKd8+IWNb8tboQJNQTkAY/LLVK7gGH9jy+LGkVqPxfekHl+yMmiqXszdGWXgkfml7hjqA==}
+    engines: {node: '>= 0.4'}
 
   side-channel-list@1.0.1:
     resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
@@ -6267,6 +6336,10 @@ packages:
   tr46@6.0.0:
     resolution: {integrity: sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==}
     engines: {node: '>=20'}
+
+  tree-kill@1.2.2:
+    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
+    hasBin: true
 
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
@@ -6769,6 +6842,10 @@ packages:
 
   yargs-parser@22.0.0:
     resolution: {integrity: sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
+
+  yargs@18.0.0:
+    resolution: {integrity: sha512-4UEqdc2RYGHZc7Doyqkrqiln3p9X2DZVxaGbwhn2pi7MrRagKaOcIKe8L3OxYcbhXLgLFUS3zAYuQjKBQgmuNg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yargs@18.2.0:
@@ -8633,6 +8710,10 @@ snapshots:
 
   '@pkgr/core@0.3.6': {}
 
+  '@playwright/test@1.63.0':
+    dependencies:
+      playwright: 1.63.0
+
   '@pnpm/config.matcher@1100.0.2':
     dependencies:
       escape-string-regexp: 5.0.0
@@ -9984,6 +10065,8 @@ snapshots:
 
   chalk@5.0.1: {}
 
+  chalk@5.6.2: {}
+
   chalk@6.0.1: {}
 
   character-entities-html4@2.1.0: {}
@@ -10081,6 +10164,15 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
       typedarray: 0.0.6
+
+  concurrently@10.0.5:
+    dependencies:
+      chalk: 5.6.2
+      rxjs: 7.8.2
+      shell-quote: 1.9.0
+      supports-color: 10.2.2
+      tree-kill: 1.2.2
+      yargs: 18.0.0
 
   content-disposition@0.5.2: {}
 
@@ -13139,6 +13231,10 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+  rxjs@7.8.2:
+    dependencies:
+      tslib: 2.8.1
+
   safe-array-concat@1.1.4:
     dependencies:
       call-bind: 1.0.9
@@ -13262,6 +13358,8 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
+
+  shell-quote@1.9.0: {}
 
   side-channel-list@1.0.1:
     dependencies:
@@ -13653,6 +13751,8 @@ snapshots:
   tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
+
+  tree-kill@1.2.2: {}
 
   trim-lines@3.0.1: {}
 
@@ -14201,6 +14301,15 @@ snapshots:
   yargs-parser@20.2.9: {}
 
   yargs-parser@22.0.0: {}
+
+  yargs@18.0.0:
+    dependencies:
+      cliui: 9.0.1
+      escalade: 3.2.0
+      get-caller-file: 2.0.5
+      string-width: 7.2.0
+      y18n: 5.0.8
+      yargs-parser: 22.0.0
 
   yargs@18.2.0:
     dependencies:

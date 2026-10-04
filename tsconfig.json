@@ -15,5 +15,6 @@
     "allowJs": true,
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["packages/*/src", "packages/*/test", "playground/src", "test", "scripts/*.mts"]
+  "include": ["packages/*/src", "packages/*/test", "playground/src", "test", "scripts/*.mts"],
+  "exclude": ["node_modules", "**/build"]
 }
