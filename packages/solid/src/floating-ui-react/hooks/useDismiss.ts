@@ -53,12 +53,21 @@ function isEventTargetWithinComponentTree(event: Event, element: Element | null)
     return false;
   }
 
-  let node: any = getTarget(event);
-  while (node) {
+  // Port note: a portaled node can be inside the popup through its physical parent
+  // or its Solid host. Check both paths: nested content portals can have a host
+  // outside the positioner even though their physical parents are inside it.
+  const pending: any[] = [getTarget(event)];
+  const visited = new Set<Node>();
+  while (pending.length) {
+    const node = pending.pop();
+    if (!node || visited.has(node)) {
+      continue;
+    }
     if (node === element) {
       return true;
     }
-    node = node._$host || node.parentNode || (isShadowRoot(node) ? node.host : null);
+    visited.add(node);
+    pending.push(node._$host, node.parentNode, isShadowRoot(node) ? node.host : null);
   }
   return false;
 }
@@ -822,14 +831,39 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     onClick: closeOnReferencePress,
   };
 
+  // Port note: the capture listeners registered above can't see inside a closed shadow root other
+  // than the floating element's own root, such as one a nested popup is portaled into. Solid
+  // delegates these bubbling handlers from the portal's mount (that shadow root) along the
+  // component tree, so they still reach the floating element, and before the listener that
+  // `closeOnPressOutside` adds to the retargeted shadow host.
+  function markInsideClosedShadowRoot(event: Event) {
+    const root = (event.composedPath()[0] as Node | undefined)?.getRootNode();
+    if (
+      isShadowRoot(root) &&
+      root.mode === 'closed' &&
+      root !== store.select('floatingElement')?.getRootNode()
+    ) {
+      markInsideReactTree();
+    }
+  }
+
+  function handleFloatingPressStart(event: PointerEvent | MouseEvent) {
+    markInsideClosedShadowRoot(event);
+    markInsidePressStartPrevented(event);
+  }
+
   // Port note: the capture-phase handlers are registered by the effect above.
   const floating: NonNullable<ElementProps['floating']> = {
     onKeyDown: closeOnEscapeKeyDown,
     // `onMouseDown` may be blocked if `event.preventDefault()` is called in
     // `onPointerDown`, such as with <NumberField.ScrubArea>.
     // See https://github.com/mui/base-ui/pull/3379
-    onPointerDown: markInsidePressStartPrevented,
-    onMouseDown: markInsidePressStartPrevented,
+    onPointerDown: handleFloatingPressStart,
+    onMouseDown: handleFloatingPressStart,
+    onClick: markInsideClosedShadowRoot,
+    onMouseUp: markInsideClosedShadowRoot,
+    onTouchEnd: markInsideClosedShadowRoot,
+    onTouchMove: markInsideClosedShadowRoot,
   };
 
   return {
