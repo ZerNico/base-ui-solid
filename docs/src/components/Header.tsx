@@ -10,7 +10,7 @@ export function Header() {
       <div class="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
         <a class="HeaderLogoLink" href="/" aria-label="Go to the homepage">
-          <Logo aria-label="Base UI" />
+          <Logo aria-label="Base UI Solid" />
         </a>
         <div class="HeaderSearch">
           <SearchDialog />

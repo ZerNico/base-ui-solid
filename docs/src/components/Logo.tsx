@@ -1,10 +1,10 @@
 import type { JSX } from '@solidjs/web';
 
+// Base UI Solid mark: an abstract S, a block with two thin slits entering from opposite sides.
 export function Logo(props: JSX.IntrinsicElements['svg']) {
   return (
-    <svg width="17" height="24" viewBox="0 0 17 24" fill="currentColor" {...props}>
-      <path d="M9.5001 7.01537C9.2245 6.99837 9 7.22385 9 7.49999V23C13.4183 23 17 19.4183 17 15C17 10.7497 13.6854 7.27351 9.5001 7.01537Z" />
-      <path d="M8 9.8V12V23C3.58172 23 0 19.0601 0 14.2V12V1C4.41828 1 8 4.93989 8 9.8Z" />
+    <svg width="22" height="24" viewBox="0 0 22 24" fill="currentColor" {...props}>
+      <path d="M22 0H10C4.477 0 0 4.477 0 10V14.75H14V15.75H0V24H12C17.523 24 22 19.523 22 14V9.25H8V8.25H22Z" />
     </svg>
   );
 }
