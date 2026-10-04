@@ -23,10 +23,6 @@ export default function Homepage() {
           url: 'https://base-ui.com',
         })}
       />
-      <p class="Text sz-1 bui-gcs-1 bui-gce-9">
-        Port note: This site mirrors the upstream Base UI marketing content and team. base-ui-solid
-        is an unofficial Solid 2.0 port.
-      </p>
       {/* Set the Site name for Google results. https://developers.google.com/search/docs/appearance/site-names */}
       {/* Organization schema for Google Knowledge Panel and entity recognition.
           https://developers.google.com/search/docs/appearance/structured-data/organization */}

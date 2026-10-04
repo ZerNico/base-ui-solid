@@ -5,6 +5,8 @@ import type { JSX } from '@solidjs/web';
 import type { CodeNode } from '../CodeBlock/Hast';
 import { Hast } from '../CodeBlock/Hast';
 import './Demo.css';
+import '../GhostButton.css';
+import { CopyIcon } from '../../icons/CopyIcon';
 
 export interface DemoVariant {
   name: string;
@@ -29,71 +31,104 @@ function handleTabKeys(event: KeyboardEvent & { currentTarget: HTMLDivElement })
   tabs[next].click();
 }
 export function Demo(props: { variants: DemoVariant[] }) {
+  let source: HTMLPreElement | undefined;
   const [variant, setVariant] = createSignal(0);
   const [file, setFile] = createSignal('index.tsx');
   const [showCode, setShowCode] = createSignal(false);
   return (
     <section class="DemoRoot" aria-label="Live demo">
-      <div
-        class="DemoToolbar"
-        role="tablist"
-        tabindex="-1"
-        aria-label="Styling variant"
-        onKeyDown={handleTabKeys as JSX.EventHandler<HTMLDivElement, KeyboardEvent>}
-      >
-        <For each={props.variants}>
-          {(item, index) => (
-            <button
-              role="tab"
-              tabindex={variant() === index() ? 0 : -1}
-              aria-selected={variant() === index() ? 'true' : 'false'}
-              onClick={() => {
-                setVariant(index());
-                setFile('index.tsx');
-              }}
+      <div class="DemoPlayground DemoPreview">
+        <div class="DemoPlaygroundInner" data-demo={variant() === 0 ? 'css-modules' : 'tailwind'}>
+          <Dynamic component={props.variants[variant()].component} />
+        </div>
+      </div>
+      <div class="DemoToolbar">
+        <div class="DemoToolbarScrollAreaRoot">
+          <div class="DemoToolbarViewport" style={{ 'overflow-x': 'auto' }}>
+            <div
+              class="DemoTabsList"
+              role="tablist"
+              tabindex="-1"
+              aria-label="Source files"
+              onKeyDown={handleTabKeys as JSX.EventHandler<HTMLDivElement, KeyboardEvent>}
             >
-              {item.name}
-            </button>
-          )}
-        </For>
-      </div>
-      <div class="DemoPreview" data-demo={variant() === 0 ? 'css-modules' : 'tailwind'}>
-        <Dynamic component={props.variants[variant()].component} />
-      </div>
-      <button
-        class="DemoSourceToggle"
-        aria-expanded={showCode() ? 'true' : 'false'}
-        onClick={() => setShowCode(!showCode())}
-      >
-        Source code
-      </button>
-      <Show when={showCode()}>
+              <For each={Object.keys(props.variants[variant()].files)}>
+                {(name) => (
+                  <button
+                    class="DemoTab"
+                    role="tab"
+                    data-active={file() === name || undefined}
+                    tabindex={file() === name ? 0 : -1}
+                    aria-selected={file() === name ? 'true' : 'false'}
+                    onClick={() => setFile(name)}
+                  >
+                    <span>{name}</span>
+                  </button>
+                )}
+              </For>
+            </div>
+          </div>
+        </div>
         <div
-          role="tablist"
+          class="DemoToolbarActions"
           tabindex="-1"
-          aria-label="Source files"
+          role="tablist"
+          aria-label="Styling variant"
           onKeyDown={handleTabKeys as JSX.EventHandler<HTMLDivElement, KeyboardEvent>}
         >
-          <For each={Object.keys(props.variants[variant()].files)}>
-            {(name) => (
+          <For each={props.variants}>
+            {(item, index) => (
               <button
+                class="DemoVariant"
                 role="tab"
-                aria-selected={file() === name ? 'true' : 'false'}
-                onClick={() => setFile(name)}
+                tabindex={variant() === index() ? 0 : -1}
+                aria-selected={variant() === index() ? 'true' : 'false'}
+                onClick={() => {
+                  setVariant(index());
+                  setFile('index.tsx');
+                }}
               >
-                {name}
+                {item.name}
               </button>
             )}
           </For>
         </div>
-        <pre class="CodeBlockPre" tabindex="0">
-          <code>
-            <Show when={props.variants[variant()].files[file()]} keyed>
-              {(node) => <Hast node={node} />}
-            </Show>
-          </code>
-        </pre>
-      </Show>
+      </div>
+      <div class="DemoCodeBlockCollapsible">
+        <div class="DemoCodeBlockRoot" data-closed={!showCode() || undefined}>
+          <button
+            class="GhostButton DemoCodeBlockCopyButton"
+            data-layout="icon"
+            aria-label="Copy code"
+            onClick={() => navigator.clipboard.writeText(source?.textContent ?? '')}
+          >
+            <CopyIcon />
+          </button>
+          <div class="DemoCodeBlockViewport" data-closed={!showCode() || undefined} tabindex="0">
+            <div class="DemoSourceBrowser">
+              <pre
+                ref={(element) => {
+                  source = element;
+                }}
+              >
+                <code>
+                  <Show when={props.variants[variant()].files[file()]} keyed>
+                    {(node) => <Hast node={node} />}
+                  </Show>
+                </code>
+              </pre>
+            </div>
+          </div>
+        </div>
+        <button
+          class="DemoCollapseButton DemoSourceToggle"
+          data-sticky={showCode() || undefined}
+          aria-expanded={showCode() ? 'true' : 'false'}
+          onClick={() => setShowCode(!showCode())}
+        >
+          <span class="DemoCollapseButtonVisual">{showCode() ? 'Hide code' : 'Show code'}</span>
+        </button>
+      </div>
     </section>
   );
 }

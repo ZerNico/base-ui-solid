@@ -1,9 +1,11 @@
 import { createFileRoute, Outlet } from '@tanstack/solid-router';
+import websiteStyles from '../app/(website)/css/index.css?url';
 import Layout from '../app/(website)/layout';
 
 export const Route = createFileRoute('/_website')({
   head: () => ({
     links: [
+      { rel: 'stylesheet', href: websiteStyles },
       {
         rel: 'preload',
         href: '/fonts/die-grotesk-a-regular.woff2',

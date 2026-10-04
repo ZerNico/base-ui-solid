@@ -3,6 +3,7 @@ import './css/index.css';
 
 import type { JSX } from '@solidjs/web';
 import { Link } from './Link';
+import { SearchDialog } from '../../components/Search/SearchDialog';
 import { Logo } from '../../components/Logo';
 
 export default function Layout(props: { children?: JSX.Element }) {
@@ -33,9 +34,7 @@ export default function Layout(props: { children?: JSX.Element }) {
                 </Link>
               </nav>
               <div class="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
-                <Link class="Text sz-1" href="/react/overview/quick-start">
-                  Documentation
-                </Link>
+                <SearchDialog mobileTriggerClass="bui-d-n" />
               </div>
             </header>
             <main id="main" class="bui-d-c">

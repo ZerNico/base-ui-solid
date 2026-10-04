@@ -11,7 +11,6 @@ export function Header() {
         <SkipNav>Skip to contents</SkipNav>
         <a class="HeaderLogoLink" href="/" aria-label="Go to the homepage">
           <Logo aria-label="Base UI" />
-          <span class="PortBadge">Solid</span>
         </a>
         <div class="HeaderSearch">
           <SearchDialog />

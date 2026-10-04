@@ -1,0 +1,4 @@
+/* Port note: an explicit SSR stylesheet URL also styles Vite dev HTML before hydration. */
+@import './index.css';
+@import './mdx-components.css';
+@import './port.css';

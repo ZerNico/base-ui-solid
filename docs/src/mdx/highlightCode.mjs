@@ -26,6 +26,7 @@ export function highlightCode() {
         ?.find((name) => name.startsWith('language-'))
         ?.slice(9);
       if (language) {
+        ancestors.at(-1).properties.dataTitle = node.properties.dataTitle;
         const source = node.children.map((child) => child.value ?? '').join('');
         jobs.push(
           highlightSource(source, `index.${language}`, language).then((result) => {

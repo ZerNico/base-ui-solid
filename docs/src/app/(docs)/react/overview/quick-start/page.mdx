@@ -8,9 +8,12 @@
 
 Install Base UI using a package manager.
 
-```bash
-npm install base-ui-solid solid-js@2.0.0-rc.13 @solidjs/web@2.0.0-rc.13
-```
+import { InstallationBlock } from 'docs/src/components/InstallationBlock';
+
+<InstallationBlock
+  class="bui-mt-5 bui-mb-6"
+  package="base-ui-solid solid-js@2.0.0-rc.13 @solidjs/web@2.0.0-rc.13"
+/>
 
 Port note: Use Solid 2.0 and configure your compiler with `jsxImportSource: "@solidjs/web"`. Solid 1.x is not supported.
 

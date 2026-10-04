@@ -1,5 +1,8 @@
 import type { JSX } from '@solidjs/web';
 import { Dynamic } from '@solidjs/web';
+import './components/Link.css';
+import { Subtitle } from './components/Subtitle/Subtitle';
+import { CodeBlock } from './components/CodeBlock/CodeBlock';
 import * as QuickNav from './components/QuickNav/QuickNav';
 
 function Heading(props: {
@@ -36,19 +39,17 @@ export const mdxComponents = {
   h5: (props: JSX.IntrinsicElements['h5']) => <Heading {...props} as="h5" />,
   h6: (props: JSX.IntrinsicElements['h6']) => <Heading {...props} as="h6" />,
   p: (props: JSX.IntrinsicElements['p']) => <p {...props} class="MdP" />,
-  a: (props: JSX.IntrinsicElements['a']) => <a {...props} class="MdLink" />,
+  a: (props: JSX.IntrinsicElements['a']) => <a {...props} class="Link MdLink" />,
   code: (props: JSX.IntrinsicElements['code']) => (
-    <code {...props} class={['MdCode', props.class]} />
+    <code {...props} class={['Code', 'MdCode', props.class]} />
   ),
-  pre: (props: JSX.IntrinsicElements['pre']) => (
-    <pre {...props} class="CodeBlockPre" tabindex="0" />
-  ),
+  pre: (props: JSX.IntrinsicElements['pre']) => <CodeBlock {...props} />,
   ul: (props: JSX.IntrinsicElements['ul']) => <ul {...props} class="MdUl" />,
   ol: (props: JSX.IntrinsicElements['ol']) => <ol {...props} class="MdOl" />,
   li: (props: JSX.IntrinsicElements['li']) => <li {...props} class="MdListItem" />,
   table: (props: JSX.IntrinsicElements['table']) => <table {...props} class="MdTable" />,
   kbd: (props: JSX.IntrinsicElements['kbd']) => <kbd {...props} class="Kbd" />,
-  Subtitle: (props: { children?: JSX.Element }) => <p class="Subtitle">{props.children}</p>,
+  Subtitle,
   // Port note: route head metadata replaces Next.js's metadata export extraction.
   Meta: () => null,
   QuickNav,

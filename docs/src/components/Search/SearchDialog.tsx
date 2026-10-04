@@ -2,8 +2,11 @@ import { createSignal, For, Show } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
 import { pages } from '../../data/sitemap';
 import './Search.css';
+import '../GhostButton.css';
+import '../SearchTrigger.css';
+import '../MobileNav.css';
 
-export function SearchDialog() {
+export function SearchDialog(props: { mobileTriggerClass?: string } = {}) {
   const [query, setQuery] = createSignal('');
   const results = () =>
     pages.filter((page) =>
@@ -11,7 +14,19 @@ export function SearchDialog() {
     );
   return (
     <Dialog.Root>
-      <Dialog.Trigger class="SearchButton">Search documentation</Dialog.Trigger>
+      <Dialog.Trigger class="SearchTrigger HeaderSearchDesktopTrigger">
+        Search <span style={{ color: 'var(--gray-t1)' }}>(⌘K)</span>
+      </Dialog.Trigger>
+      <Dialog.Trigger
+        class={['SearchTrigger', props.mobileTriggerClass ?? 'HeaderSearchMobileTrigger']}
+        aria-label="Search documentation"
+      >
+        <svg class="MobileNavTriggerIcon" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+          <circle cx="7" cy="7" r="5.5" />
+          <path d="m11 11 4 4" />
+        </svg>
+        Navigation
+      </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop class="SearchBackdrop" />
         <Dialog.Popup class="SearchPopup">

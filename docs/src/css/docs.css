@@ -1,0 +1,12 @@
+/* Port note: load the docs shell in SSR HTML, including CSS otherwise imported by client components. */
+@layer all, base, theme, components, utilities;
+@import '../app/(docs)/layout.css';
+@import '../components/Header.css';
+@import '../components/SideNav.css';
+@import '../components/QuickNav/QuickNav.css';
+@import '../components/Subtitle/Subtitle.css';
+@import '../components/Demo/Demo.css';
+@import '../components/CodeBlock/CodeBlock.css';
+@import '../components/GhostButton.css';
+@import '../components/MobileNav.css';
+@import '../components/SearchTrigger.css';

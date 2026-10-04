@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web';
+import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useLocation } from '@tanstack/solid-router';
 import { ScrollArea } from 'base-ui-solid/scroll-area';
 import './SideNav.css';
@@ -28,8 +29,32 @@ export function List(props: JSX.IntrinsicElements['ul']) {
 }
 export function Item(props: { href: string; children?: JSX.Element }) {
   const location = useLocation();
+  let item: HTMLLIElement | undefined;
+  // Port note: native geometry implements upstream's nearest scrolling within this viewport.
+  useEffect(
+    () => {
+      const viewport = item?.closest<HTMLElement>('[data-side-nav-viewport]');
+      if (!item || !viewport || location().pathname !== props.href) {
+        return;
+      }
+      const rect = item.getBoundingClientRect();
+      const bounds = viewport.getBoundingClientRect();
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      if (rect.bottom > bounds.bottom) {
+        viewport.scrollTop += rect.bottom - bounds.bottom + 7 * rem;
+      } else if (rect.top < bounds.top) {
+        viewport.scrollTop += rect.top - bounds.top + rem;
+      }
+    },
+    () => [location().pathname, props.href],
+  );
   return (
-    <li class="SideNavItem">
+    <li
+      class="SideNavItem"
+      ref={(element) => {
+        item = element;
+      }}
+    >
       <a
         class="SideNavLink"
         href={props.href}
