@@ -18,20 +18,14 @@ export default function Layout(props: { children?: JSX.Element }) {
           >
             <header class="bui-d-c">
               <div class="bui-gcs-1 bui-gce-4">
-                <Logo aria-label="Base UI" />
+                <Logo aria-label="Base UI for Solid" />
               </div>
               <nav
                 class="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
                 aria-label="social links"
               >
-                <Link class="Text sz-1" href="https://x.com/base_ui">
-                  X
-                </Link>
                 <Link class="Text sz-1" href={REPO_URL}>
                   GitHub
-                </Link>
-                <Link class="Text sz-1" href="https://discord.com/invite/g6C3hUtuxz">
-                  Discord
                 </Link>
               </nav>
               <div class="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
@@ -46,26 +40,17 @@ export default function Layout(props: { children?: JSX.Element }) {
             </div>
             <footer class="bui-d-c">
               <div class="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-                <span class="Text sz-1">© Base UI</span>
+                <span class="Text sz-1">© base-ui-solid contributors</span>
               </div>
               <nav
                 class="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
-                <Link class="Text sz-1" href="https://x.com/base_ui">
-                  X
-                </Link>
                 <Link class="Text sz-1" href={REPO_URL}>
                   GitHub
                 </Link>
-                <Link class="Text sz-1" href="https://discord.com/invite/g6C3hUtuxz">
-                  Discord
-                </Link>
                 <Link class="Text sz-1" href="https://www.npmjs.com/package/base-ui-solid">
                   npm
-                </Link>
-                <Link class="Text sz-1" href="https://bsky.app/profile/base-ui.com">
-                  Bluesky
                 </Link>
               </nav>
             </footer>

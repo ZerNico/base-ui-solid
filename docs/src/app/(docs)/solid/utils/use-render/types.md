@@ -4,7 +4,7 @@
 
 ### useRender
 
-Renders a Base UI element. Port note: the upstream API is translated to native Solid JSX and reactive accessors.
+Renders a Base UI element.
 
 ```typescript
 export type UseRenderRenderProp<State = Record<string, unknown>> =

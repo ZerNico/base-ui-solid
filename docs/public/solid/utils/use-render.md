@@ -310,8 +310,6 @@ function Button(componentProps: ButtonProps) {
 
 ## Migrating from Radix UI
 
-Port note: Radix is a React library. Its Slot example below is upstream React code for comparison; use the Solid `render` example for this package.
-
 Radix UI uses an `asChild` prop, while Base UI uses a `render` prop. Learn more about how composition works in Base UI in the [composition guide](/solid/handbook/composition.md).
 
 In Radix UI, the `Slot` component lets you implement an `asChild` prop.

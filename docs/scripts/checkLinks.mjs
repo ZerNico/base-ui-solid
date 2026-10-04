@@ -1,7 +1,7 @@
 // Port note: audit the port's source and generated output, then crawl every static page.
 /* eslint-disable no-await-in-loop, no-console */
 import assert from 'node:assert/strict';
-import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
 import { SITE_URL, REPO_URL } from '../src/config.ts'; // eslint-disable-line import/extensions
@@ -31,7 +31,12 @@ const sourceFiles = [
 const builtFiles = await files(path.join(root, 'export'));
 const upstreamPattern =
   /https:\/\/(?:base-ui\.com|github\.com\/mui\/base-ui)(?:[^\s"'<>`)([\]\\]*)/g;
-const allowlist = new Set();
+// Attribution links to the upstream project (About, Community, Releases, homepage).
+const allowlist = new Set([
+  'https://base-ui.com',
+  'https://github.com/mui/base-ui',
+  'https://base-ui.com/react/overview/about#team',
+]);
 for (const filename of sourceFiles.filter(
   (file) =>
     file.includes('/overview/releases/') ||
@@ -49,7 +54,7 @@ for (const filename of sourceFiles.filter(
     }
   }
 }
-console.log('Allowed upstream URLs (release history and implementation provenance):');
+console.log('Allowed upstream URLs (attribution, changelog and implementation provenance):');
 console.log([...allowlist].sort().join('\n'));
 console.log(
   'https://base-ui.com — only in performance.mjs / compareScreenshots.mjs as upstream comparison target',
@@ -233,8 +238,6 @@ try {
     allowlist: [...allowlist].sort(),
     errors: [...new Set(errors)],
   };
-  await mkdir('/tmp/codex-jobs', { recursive: true });
-  await writeFile('/tmp/codex-jobs/DOCSLINKS.audit.json', `${JSON.stringify(report, null, 2)}\n`);
   console.log(
     JSON.stringify(
       {

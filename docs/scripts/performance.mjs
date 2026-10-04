@@ -1,9 +1,11 @@
 // Port note: measure the same real interaction on SSR documents in dev, static export and upstream.
 /* eslint-disable no-await-in-loop, no-console */
+import os from 'node:os';
+import path from 'node:path';
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 
-const output = process.env.DOCS_EVIDENCE_DIR ?? '/tmp/codex-jobs/docsfix2';
+const output = process.env.DOCS_EVIDENCE_DIR ?? path.join(os.tmpdir(), 'base-ui-solid-docs');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch();
 const results = [];

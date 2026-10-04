@@ -9,7 +9,7 @@
 `mergeProps` helps you combine multiple prop objects (for example, internal props + user props) into a single set of props you can spread onto an element.
 It behaves like `Object.assign` (rightmost wins) with a few special cases, so common Solid patterns work as expected.
 
-Port note: `mergeProps` returns a props snapshot except for lazy children. Call it in JSX, a memo, or a props accessor to keep reactive values up to date. Solid bound event handlers (`[handler, data]`) are supported.
+`mergeProps` returns a props snapshot except for lazy children. Call it in JSX, a memo, or a props accessor to keep reactive values up to date. Solid bound event handlers (`[handler, data]`) are supported.
 
 ## How merging works
 

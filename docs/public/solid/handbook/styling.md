@@ -127,7 +127,7 @@ export default function ExampleMenu() {
 
 Wrap each component part and apply styles, then assemble your styled components.
 
-Port note: upstream uses Emotion's React renderer, which cannot wrap Solid components. Use Solid wrappers and reactive style callbacks, or a CSS-in-JS renderer compatible with Solid 2.0.
+Use a CSS-in-JS library that supports Solid 2.0, or plain wrapper components with reactive style callbacks as shown below.
 
 ```tsx title="menu.tsx"
 import { Menu, MenuPositionerCssVariables } from 'base-ui-solid/menu';

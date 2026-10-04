@@ -1,5 +1,5 @@
 /*
- * Main stylesheet for the public site: docs, home page, careers, etc. Also used in e2e/regression tests.
+ * Main stylesheet for the public site: docs, home page, etc. Also used in e2e/regression tests.
  *
  * Rules when writing CSS for the public site (except demos):
  *   - Components' CSS must be wrapped in "@layer components".

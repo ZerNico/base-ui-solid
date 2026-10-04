@@ -28,7 +28,6 @@ createServer((request, response) => {
       { source: '/drafts', destination: '/', type: 301 },
       { source: '/trash', destination: '/', type: 301 },
       { source: '/inbox/:path*', destination: '/', type: 301 },
-      { source: '/r/discord', destination: 'https://discord.com/invite/g6C3hUtuxz', type: 302 },
     ],
   });
 }).listen(Number(process.env.PORT ?? 3010));

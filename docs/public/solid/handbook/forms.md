@@ -1529,13 +1529,27 @@ export function createControlledForm<T extends Record<string, any>>(options: {
       }
     },
   };
-  function handleSubmit(callback: (value: T) => void) {
+  function focusFirstError() {
+    // Like react-hook-form's `shouldFocusError`: focus the first invalid field, in registration
+    // order.
+    for (const name of rules.keys()) {
+      const element = elements.get(name);
+      if (errors()[name] && element) {
+        element.focus();
+        return;
+      }
+    }
+  }
+  function handleSubmit(callback: (value: T) => void, shouldFocusError = true) {
     return (event?: Event) => {
       event?.preventDefault();
       submitted = true;
       flush();
       if (validate(values())) {
         callback(values());
+      } else if (shouldFocusError) {
+        flush();
+        focusFirstError();
       }
     };
   }
@@ -1571,7 +1585,8 @@ export function createControlledForm<T extends Record<string, any>>(options: {
     control,
     handleSubmit,
     Field,
-    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }))(),
+    // TanStack Form doesn't move focus on submit.
+    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }), false)(),
   };
 }
 export function Controller(props: {
@@ -1911,7 +1926,7 @@ const [errors, setErrors] = createSignal(); // @highlight-text "errors"
 </Form>;
 ```
 
-Port note: React's `useActionState` and React Server Function form actions are not Solid APIs. Use an async native submit handler, or the server-function integration provided by your Solid framework, and pass its returned field errors to `errors`.
+To get errors from the server, use an async submit handler (or the server-function integration provided by your Solid framework) and pass the returned field errors to `errors`.
 
 ```tsx title="Returning server errors in Solid"
 import { createSignal } from 'solid-js';
@@ -1949,7 +1964,7 @@ Use `<Field.Error>` without `children` to automatically display the field's nati
 
 ## React Hook Form
 
-Port note: React Hook Form is React-only and cannot be used in Solid. The ported demo demonstrates the equivalent controlled-field pattern with a local Solid controller: values, validation, touched and dirty flags, and submission. Its source is included alongside the demo.
+React Hook Form is a React library, but the same integration pattern works with any controlled-form solution in Solid. The demo below uses a small Solid helper (included in its source) that manages values, validation, touched and dirty flags, and submission, and wires them to Base UI's `Field` props.
 
 ## Demo
 
@@ -2639,13 +2654,27 @@ export function createControlledForm<T extends Record<string, any>>(options: {
       }
     },
   };
-  function handleSubmit(callback: (value: T) => void) {
+  function focusFirstError() {
+    // Like react-hook-form's `shouldFocusError`: focus the first invalid field, in registration
+    // order.
+    for (const name of rules.keys()) {
+      const element = elements.get(name);
+      if (errors()[name] && element) {
+        element.focus();
+        return;
+      }
+    }
+  }
+  function handleSubmit(callback: (value: T) => void, shouldFocusError = true) {
     return (event?: Event) => {
       event?.preventDefault();
       submitted = true;
       flush();
       if (validate(values())) {
         callback(values());
+      } else if (shouldFocusError) {
+        flush();
+        focusFirstError();
       }
     };
   }
@@ -2681,7 +2710,8 @@ export function createControlledForm<T extends Record<string, any>>(options: {
     control,
     handleSubmit,
     Field,
-    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }))(),
+    // TanStack Form doesn't move focus on submit.
+    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }), false)(),
   };
 }
 export function Controller(props: {
@@ -3811,7 +3841,7 @@ import { Form } from 'base-ui-solid/form';
 
 ## TanStack Form
 
-Port note: the upstream example uses TanStack Form's React adapter. This Solid 2.0 demo uses a local controller preserving the field API and form validation flow. Do not import `@tanstack/react-form` in Solid. An external Solid adapter must support Solid 2.0 before it can replace this controller.
+TanStack Form's Solid adapter (`@tanstack/solid-form`) targets Solid 1.x. The demo below shows the same integration with a small Solid 2.0 helper (included in its source) that mirrors TanStack Form's field API and validation flow, so it can be swapped for the adapter once that supports Solid 2.0.
 
 ## Demo
 
@@ -4527,13 +4557,27 @@ export function createControlledForm<T extends Record<string, any>>(options: {
       }
     },
   };
-  function handleSubmit(callback: (value: T) => void) {
+  function focusFirstError() {
+    // Like react-hook-form's `shouldFocusError`: focus the first invalid field, in registration
+    // order.
+    for (const name of rules.keys()) {
+      const element = elements.get(name);
+      if (errors()[name] && element) {
+        element.focus();
+        return;
+      }
+    }
+  }
+  function handleSubmit(callback: (value: T) => void, shouldFocusError = true) {
     return (event?: Event) => {
       event?.preventDefault();
       submitted = true;
       flush();
       if (validate(values())) {
         callback(values());
+      } else if (shouldFocusError) {
+        flush();
+        focusFirstError();
       }
     };
   }
@@ -4569,7 +4613,8 @@ export function createControlledForm<T extends Record<string, any>>(options: {
     control,
     handleSubmit,
     Field,
-    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }))(),
+    // TanStack Form doesn't move focus on submit.
+    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }), false)(),
   };
 }
 export function Controller(props: {

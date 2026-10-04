@@ -9,36 +9,10 @@ The Tailwind CSS examples are written for Tailwind CSS v4. If `package.json` use
 
 - [Quick start](./solid/overview/quick-start.md): A quick guide to getting started with Base UI.
 - [Accessibility](./solid/overview/accessibility.md): Learn how to make the most of Base UI's accessibility features and guidelines.
-- [Releases](./solid/overview/releases.md):
-- [About Base UI](./solid/overview/about.md): An overview of Base UI, providing information on its history, team, and goals.
+- [Releases](./solid/overview/releases.md): Release notes for base-ui-solid, the Solid port of Base UI.
+- [About Base UI](./solid/overview/about.md): An overview of base-ui-solid, the unofficial Solid port of Base UI, and how it relates to upstream.
 - [Overview](./solid/overview.md):
-- [Community](./solid/overview/community.md): Learn how to use Base UI with styles, where to get help, how to stay up to date, and how to contribute.
-- [v1.0.0](./solid/overview/releases/v1-0-0.md): v1.0.0 release notes. Dec 11, 2025.
-- [v1.0.0-alpha.4](./solid/overview/releases/v1-0-0-alpha-4.md): v1.0.0-alpha.4 release notes. Dec 17, 2024.
-- [v1.0.0-alpha.5](./solid/overview/releases/v1-0-0-alpha-5.md): v1.0.0-alpha.5 release notes. Jan 10, 2025.
-- [v1.0.0-beta.0](./solid/overview/releases/v1-0-0-beta-0.md): v1.0.0-beta.0 release notes. May 29, 2025.
-- [v1.0.0-alpha.8](./solid/overview/releases/v1-0-0-alpha-8.md): v1.0.0-alpha.8 release notes. Apr 17, 2025.
-- [v1.0.0-beta.1](./solid/overview/releases/v1-0-0-beta-1.md): v1.0.0-beta.1 release notes. Jul 1, 2025.
-- [v1.0.0-alpha.6](./solid/overview/releases/v1-0-0-alpha-6.md): v1.0.0-alpha.6 release notes. Feb 6, 2025.
-- [v1.0.0-alpha.7](./solid/overview/releases/v1-0-0-alpha-7.md): v1.0.0-alpha.7 release notes. Mar 20, 2025.
-- [v1.0.0-beta.3](./solid/overview/releases/v1-0-0-beta-3.md): v1.0.0-beta.3 release notes. Sep 3, 2025.
-- [v1.0.0-beta.2](./solid/overview/releases/v1-0-0-beta-2.md): v1.0.0-beta.2 release notes. Jul 30, 2025.
-- [v1.0.0-beta.5](./solid/overview/releases/v1-0-0-beta-5.md): v1.0.0-beta.5 release notes. Nov 17, 2025.
-- [v1.0.0-beta.4](./solid/overview/releases/v1-0-0-beta-4.md): v1.0.0-beta.4 release notes. Oct 1, 2025.
-- [v1.0.0-beta.6](./solid/overview/releases/v1-0-0-beta-6.md): v1.0.0-beta.6 release notes. Nov 17, 2025.
-- [v1.0.0-rc.2](./solid/overview/releases/v1-0-0-rc-2.md): v1.0.0-rc.2 release notes. Dec 11, 2025.
-- [v1.0.0-rc.1](./solid/overview/releases/v1-0-0-rc-1.md): v1.0.0-rc.1 release notes. Dec 11, 2025.
-- [v1.1.0](./solid/overview/releases/v1-1-0.md): v1.1.0 release notes. Jan 15, 2026.
-- [v1.0.0-rc.0](./solid/overview/releases/v1-0-0-rc-0.md): v1.0.0-rc.0 release notes. Dec 4, 2025.
-- [v1.0.0-beta.7](./solid/overview/releases/v1-0-0-beta-7.md): v1.0.0-beta.7 release notes. Nov 27, 2025.
-- [v1.3.0](./solid/overview/releases/v1-3-0.md): v1.3.0 release notes. Mar 12, 2026.
-- [v1.4.0](./solid/overview/releases/v1-4-0.md): v1.4.0 release notes. Apr 13, 2026.
-- [v1.4.1](./solid/overview/releases/v1-4-1.md): v1.4.1 release notes. Apr 20, 2026.
-- [v1.5.0](./solid/overview/releases/v1-5-0.md): v1.5.0 release notes. May 19, 2026.
-- [v1.6.0](./solid/overview/releases/v1-6-0.md): v1.6.0 release notes. Jun 18, 2026.
-- [v1.7.0](./solid/overview/releases/v1-7-0.md): v1.7.0 release notes. Aug 4, 2026.
-- [v1.2.0](./solid/overview/releases/v1-2-0.md): v1.2.0 release notes. Feb 12, 2026.
-- [v1.8.0](./solid/overview/releases/v1-8-0.md): v1.8.0 release notes. Sep 4, 2026.
+- [Community](./solid/overview/community.md): Learn where to get help with base-ui-solid, how to contribute, and how to stay up to date.
 
 ## Handbook
 

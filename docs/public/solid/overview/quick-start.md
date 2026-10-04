@@ -40,7 +40,7 @@ yarn add base-ui-solid solid-js@2.0.0-rc.13 @solidjs/web@2.0.0-rc.13
 bun add base-ui-solid solid-js@2.0.0-rc.13 @solidjs/web@2.0.0-rc.13
 ```
 
-Port note: Use Solid 2.0 and configure your compiler with `jsxImportSource: "@solidjs/web"`. Solid 1.x is not supported.
+base-ui-solid requires Solid 2.0, with the compiler configured for `jsxImportSource: "@solidjs/web"`. Solid 1.x is not supported.
 
 All components are included in a single package. Base UI is tree-shakable, so your app bundle will contain only the components that you actually use.
 
@@ -333,12 +333,6 @@ export default function ExamplePopover() {
   );
 }
 ```
-
-## Pre-styled components
-
-[shadcn/ui](https://ui.shadcn.com/) uses the upstream React Base UI library as its unstyled foundation. Its React components cannot be used directly with this Solid port.
-
-Take a look at the [Community](/solid/overview/community.md) page to see more styled libraries powered by Base UI.
 
 ## Working with LLMs
 

@@ -89,7 +89,7 @@ JavaScript animation libraries need the popup to stay rendered while its exit an
 
 When a popup closes, `open` becomes `false` right away, but the popup stays rendered in a closing phase until its closing animation finishes. Base UI detects animations on the popup element, including animations that include `opacity`. Once the animation ends, the popup is removed from the DOM, or hidden if the `<Portal>` has `keepMounted`, and `onOpenChangeComplete(false)` fires.
 
-Port note: Motion's React components and `AnimatePresence` cannot run in Solid. These demos use the framework-independent Web Animations API, driven by the reactive `open` state supplied to the render callback. Their opacity and scale animations preserve the upstream examples' appearance and closing lifecycle.
+The demos below use the Web Animations API, driven by the reactive `open` state supplied to the render callback. The same approach works with any JavaScript animation library that can animate a DOM element, such as Motion's `animate()` function.
 
 ### Animating components unmounted from DOM when closed
 

@@ -1,10 +1,12 @@
 // Port note: sequential browser checks verify the upstream search behavior and all forms demos.
 /* eslint-disable no-await-in-loop, no-console */
+import os from 'node:os';
+import path from 'node:path';
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { writeFile, mkdir } from 'node:fs/promises';
 
-const evidence = process.env.DOCS_EVIDENCE_DIR ?? '/tmp/codex-jobs/docsfix2';
+const evidence = process.env.DOCS_EVIDENCE_DIR ?? path.join(os.tmpdir(), 'base-ui-solid-docs');
 await mkdir(evidence, { recursive: true });
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: 1440, height: 900 } });

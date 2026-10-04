@@ -2,15 +2,18 @@ import { sourceUrl } from '../../../../../config';
 
 # About Base UI
 
-<Subtitle>An open-source Solid component library for building accessible user interfaces.</Subtitle>
+<Subtitle>An unofficial Solid port of Base UI for building accessible user interfaces.</Subtitle>
 <Meta
   name="description"
-  content="An overview of Base UI, providing information on its history, team, and goals."
+  content="An overview of base-ui-solid, the unofficial Solid port of Base UI, and how it relates to upstream."
 />
 
-From the creators of Radix, Material UI, and Floating UI, Base UI is an unstyled Solid component library for building accessible user interfaces.
-Our focus is on accessibility, performance, and developer experience.
-Our goal is to provide a complete set of open-source UI components, with a delightful developer experience, in a sustainable way.
+base-ui-solid is an unofficial port of [Base UI](https://base-ui.com) to Solid 2.0.
+Base UI is an unstyled React component library for building accessible user interfaces, created by the team behind Radix, Material UI, and Floating UI.
+This port is not affiliated with or endorsed by the Base UI team.
+
+The port follows upstream file by file: components keep the same parts, props, data attributes, CSS variables, and behavior, and the upstream test suite is ported alongside them.
+Where React and Solid differ, the port adapts the API to Solid (for example `class` instead of `className`, and reactive accessors instead of hooks).
 
 ## Features
 
@@ -30,15 +33,10 @@ Base UI components adhere to [WAI-ARIA design patterns](https://www.w3.org/WAI/
 
 Component APIs are fully open, so you have direct access to each node, you can easily add or remove parts, and you can wrap them however you prefer.
 
-## Team
+## Credits
 
-- **Colm Tuite** [@colmtuite](https://x.com/colmtuite)
-- **Marija Najdova** [@marijanajdova](https://x.com/marijanajdova)
-- **Flavien Delangle** [@flaviendelangle](https://github.com/flaviendelangle)
-- **James Nelson** [@atomiksdev](https://x.com/atomiksdev)
-- **Jenna Smith** [@jjenzz](https://x.com/jjenzz)
-- **Michał Dudak** [@michaldudak](https://x.com/michaldudak)
-- **Aarón García** [@aarongarciah](https://github.com/aarongarciah)
+The component design, behavior, accessibility work, documentation, and demos come from the upstream [Base UI](https://github.com/mui/base-ui) project and [its team](https://base-ui.com/react/overview/about#team).
+Base UI is licensed under the MIT license.
 
 ## Browser support
 
@@ -57,12 +55,12 @@ Base UI works with maintained versions of all popular bundlers, including Vite,
 
 ## Community
 
-Visit the [Community](/solid/overview/community) page to learn more about ecosystem projects, support channels, and how to stay up to date and contribute.
+Visit the [Community](/solid/overview/community) page to learn where to get help, how to stay up to date, and how to contribute.
 
 export const metadata = {
   keywords: [
-    'About Base UI',
-    'Base UI Team',
+    'About base-ui-solid',
+    'Base UI Solid port',
     'Headless Solid Components',
     'Accessible Solid Library',
     'Open Source UI Components',
@@ -72,7 +70,6 @@ export const metadata = {
     'Component Library',
     'Headless UI Library',
     'Solid UI Toolkit',
-    'MUI Team',
     'Radix Alternative',
   ],
 };

@@ -1,9 +1,11 @@
 // Port note: capture every public top-level docs page at the upstream desktop viewport.
 /* eslint-disable no-await-in-loop, no-console */
+import os from 'node:os';
+import path from 'node:path';
 import { chromium } from 'playwright';
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 
-const evidence = process.env.DOCS_EVIDENCE_DIR ?? '/tmp/codex-jobs/docsfix2';
+const evidence = process.env.DOCS_EVIDENCE_DIR ?? path.join(os.tmpdir(), 'base-ui-solid-docs');
 await mkdir(evidence, { recursive: true });
 const paths = [];
 for (const filename of await readdir(new URL('../src/routes/', import.meta.url))) {

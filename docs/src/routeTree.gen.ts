@@ -20,7 +20,6 @@ import { Route as DocsSolidIndexRouteImport } from './routes/_docs.solid.index'
 import { Route as DocsSolidHandbookRouteImport } from './routes/_docs.solid.handbook'
 import { Route as DocsSolidOverviewRouteImport } from './routes/_docs.solid.overview'
 import { Route as DocsSolidUtilsRouteImport } from './routes/_docs.solid.utils'
-import { Route as WebsiteCareersDesignEngineerRouteImport } from './routes/_website.careers.design-engineer'
 import { Route as DocsSolidComponentsIndexRouteImport } from './routes/_docs.solid.components.index'
 import { Route as DocsSolidComponentsAccordionRouteImport } from './routes/_docs.solid.components.accordion'
 import { Route as DocsSolidComponentsAlertDialogRouteImport } from './routes/_docs.solid.components.alert-dialog'
@@ -78,32 +77,6 @@ import { Route as DocsSolidUtilsDirectionProviderRouteImport } from './routes/_d
 import { Route as DocsSolidUtilsMergePropsRouteImport } from './routes/_docs.solid.utils.merge-props'
 import { Route as DocsSolidUtilsUseRenderRouteImport } from './routes/_docs.solid.utils.use-render'
 import { Route as DocsSolidOverviewReleasesIndexRouteImport } from './routes/_docs.solid.overview.releases.index'
-import { Route as DocsSolidOverviewReleasesV100RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0'
-import { Route as DocsSolidOverviewReleasesV100Alpha4RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-4'
-import { Route as DocsSolidOverviewReleasesV100Alpha5RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-5'
-import { Route as DocsSolidOverviewReleasesV100Alpha6RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-6'
-import { Route as DocsSolidOverviewReleasesV100Alpha7RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-7'
-import { Route as DocsSolidOverviewReleasesV100Alpha8RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-8'
-import { Route as DocsSolidOverviewReleasesV100Beta0RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-0'
-import { Route as DocsSolidOverviewReleasesV100Beta1RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-1'
-import { Route as DocsSolidOverviewReleasesV100Beta2RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-2'
-import { Route as DocsSolidOverviewReleasesV100Beta3RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-3'
-import { Route as DocsSolidOverviewReleasesV100Beta4RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-4'
-import { Route as DocsSolidOverviewReleasesV100Beta5RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-5'
-import { Route as DocsSolidOverviewReleasesV100Beta6RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-6'
-import { Route as DocsSolidOverviewReleasesV100Beta7RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-7'
-import { Route as DocsSolidOverviewReleasesV100Rc0RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-0'
-import { Route as DocsSolidOverviewReleasesV100Rc1RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-1'
-import { Route as DocsSolidOverviewReleasesV100Rc2RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-2'
-import { Route as DocsSolidOverviewReleasesV110RouteImport } from './routes/_docs.solid.overview.releases.v1-1-0'
-import { Route as DocsSolidOverviewReleasesV120RouteImport } from './routes/_docs.solid.overview.releases.v1-2-0'
-import { Route as DocsSolidOverviewReleasesV130RouteImport } from './routes/_docs.solid.overview.releases.v1-3-0'
-import { Route as DocsSolidOverviewReleasesV140RouteImport } from './routes/_docs.solid.overview.releases.v1-4-0'
-import { Route as DocsSolidOverviewReleasesV141RouteImport } from './routes/_docs.solid.overview.releases.v1-4-1'
-import { Route as DocsSolidOverviewReleasesV150RouteImport } from './routes/_docs.solid.overview.releases.v1-5-0'
-import { Route as DocsSolidOverviewReleasesV160RouteImport } from './routes/_docs.solid.overview.releases.v1-6-0'
-import { Route as DocsSolidOverviewReleasesV170RouteImport } from './routes/_docs.solid.overview.releases.v1-7-0'
-import { Route as DocsSolidOverviewReleasesV180RouteImport } from './routes/_docs.solid.overview.releases.v1-8-0'
 
 const DocsRoute = DocsRouteImport.update({
   id: '/_docs',
@@ -157,12 +130,6 @@ const DocsSolidUtilsRoute = DocsSolidUtilsRouteImport.update({
   path: '/utils',
   getParentRoute: () => DocsSolidRoute,
 } as any)
-const WebsiteCareersDesignEngineerRoute =
-  WebsiteCareersDesignEngineerRouteImport.update({
-    id: '/careers/design-engineer',
-    path: '/careers/design-engineer',
-    getParentRoute: () => WebsiteRoute,
-  } as any)
 const DocsSolidComponentsIndexRoute =
   DocsSolidComponentsIndexRouteImport.update({
     id: '/components/',
@@ -496,162 +463,6 @@ const DocsSolidOverviewReleasesIndexRoute =
     path: '/',
     getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsSolidOverviewReleasesV100Route =
-  DocsSolidOverviewReleasesV100RouteImport.update({
-    id: '/v1-0-0',
-    path: '/v1-0-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Alpha4Route =
-  DocsSolidOverviewReleasesV100Alpha4RouteImport.update({
-    id: '/v1-0-0-alpha-4',
-    path: '/v1-0-0-alpha-4',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Alpha5Route =
-  DocsSolidOverviewReleasesV100Alpha5RouteImport.update({
-    id: '/v1-0-0-alpha-5',
-    path: '/v1-0-0-alpha-5',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Alpha6Route =
-  DocsSolidOverviewReleasesV100Alpha6RouteImport.update({
-    id: '/v1-0-0-alpha-6',
-    path: '/v1-0-0-alpha-6',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Alpha7Route =
-  DocsSolidOverviewReleasesV100Alpha7RouteImport.update({
-    id: '/v1-0-0-alpha-7',
-    path: '/v1-0-0-alpha-7',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Alpha8Route =
-  DocsSolidOverviewReleasesV100Alpha8RouteImport.update({
-    id: '/v1-0-0-alpha-8',
-    path: '/v1-0-0-alpha-8',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta0Route =
-  DocsSolidOverviewReleasesV100Beta0RouteImport.update({
-    id: '/v1-0-0-beta-0',
-    path: '/v1-0-0-beta-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta1Route =
-  DocsSolidOverviewReleasesV100Beta1RouteImport.update({
-    id: '/v1-0-0-beta-1',
-    path: '/v1-0-0-beta-1',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta2Route =
-  DocsSolidOverviewReleasesV100Beta2RouteImport.update({
-    id: '/v1-0-0-beta-2',
-    path: '/v1-0-0-beta-2',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta3Route =
-  DocsSolidOverviewReleasesV100Beta3RouteImport.update({
-    id: '/v1-0-0-beta-3',
-    path: '/v1-0-0-beta-3',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta4Route =
-  DocsSolidOverviewReleasesV100Beta4RouteImport.update({
-    id: '/v1-0-0-beta-4',
-    path: '/v1-0-0-beta-4',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta5Route =
-  DocsSolidOverviewReleasesV100Beta5RouteImport.update({
-    id: '/v1-0-0-beta-5',
-    path: '/v1-0-0-beta-5',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta6Route =
-  DocsSolidOverviewReleasesV100Beta6RouteImport.update({
-    id: '/v1-0-0-beta-6',
-    path: '/v1-0-0-beta-6',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Beta7Route =
-  DocsSolidOverviewReleasesV100Beta7RouteImport.update({
-    id: '/v1-0-0-beta-7',
-    path: '/v1-0-0-beta-7',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Rc0Route =
-  DocsSolidOverviewReleasesV100Rc0RouteImport.update({
-    id: '/v1-0-0-rc-0',
-    path: '/v1-0-0-rc-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Rc1Route =
-  DocsSolidOverviewReleasesV100Rc1RouteImport.update({
-    id: '/v1-0-0-rc-1',
-    path: '/v1-0-0-rc-1',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV100Rc2Route =
-  DocsSolidOverviewReleasesV100Rc2RouteImport.update({
-    id: '/v1-0-0-rc-2',
-    path: '/v1-0-0-rc-2',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV110Route =
-  DocsSolidOverviewReleasesV110RouteImport.update({
-    id: '/v1-1-0',
-    path: '/v1-1-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV120Route =
-  DocsSolidOverviewReleasesV120RouteImport.update({
-    id: '/v1-2-0',
-    path: '/v1-2-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV130Route =
-  DocsSolidOverviewReleasesV130RouteImport.update({
-    id: '/v1-3-0',
-    path: '/v1-3-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV140Route =
-  DocsSolidOverviewReleasesV140RouteImport.update({
-    id: '/v1-4-0',
-    path: '/v1-4-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV141Route =
-  DocsSolidOverviewReleasesV141RouteImport.update({
-    id: '/v1-4-1',
-    path: '/v1-4-1',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV150Route =
-  DocsSolidOverviewReleasesV150RouteImport.update({
-    id: '/v1-5-0',
-    path: '/v1-5-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV160Route =
-  DocsSolidOverviewReleasesV160RouteImport.update({
-    id: '/v1-6-0',
-    path: '/v1-6-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV170Route =
-  DocsSolidOverviewReleasesV170RouteImport.update({
-    id: '/v1-7-0',
-    path: '/v1-7-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
-const DocsSolidOverviewReleasesV180Route =
-  DocsSolidOverviewReleasesV180RouteImport.update({
-    id: '/v1-8-0',
-    path: '/v1-8-0',
-    getParentRoute: () => DocsSolidOverviewReleasesRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteIndexRoute
@@ -661,7 +472,6 @@ export interface FileRoutesByFullPath {
   '/solid/handbook': typeof DocsSolidHandbookRouteWithChildren
   '/solid/overview': typeof DocsSolidOverviewRouteWithChildren
   '/solid/utils': typeof DocsSolidUtilsRouteWithChildren
-  '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
   '/solid/': typeof DocsSolidIndexRoute
   '/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
   '/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
@@ -719,39 +529,12 @@ export interface FileRoutesByFullPath {
   '/solid/handbook/': typeof DocsSolidHandbookIndexRoute
   '/solid/overview/': typeof DocsSolidOverviewIndexRoute
   '/solid/utils/': typeof DocsSolidUtilsIndexRoute
-  '/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
-  '/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
-  '/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
-  '/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
-  '/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
-  '/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
-  '/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
-  '/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
-  '/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
-  '/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
-  '/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
-  '/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
-  '/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
-  '/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
-  '/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
-  '/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
-  '/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
-  '/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
-  '/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
-  '/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
-  '/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
-  '/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
-  '/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
-  '/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
-  '/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
-  '/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
   '/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteIndexRoute
   '/production-error': typeof DocsProductionErrorRoute
   '/playground': typeof PrivatePlaygroundRoute
-  '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
   '/solid': typeof DocsSolidIndexRoute
   '/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
   '/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
@@ -808,32 +591,6 @@ export interface FileRoutesByTo {
   '/solid/handbook': typeof DocsSolidHandbookIndexRoute
   '/solid/overview': typeof DocsSolidOverviewIndexRoute
   '/solid/utils': typeof DocsSolidUtilsIndexRoute
-  '/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
-  '/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
-  '/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
-  '/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
-  '/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
-  '/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
-  '/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
-  '/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
-  '/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
-  '/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
-  '/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
-  '/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
-  '/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
-  '/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
-  '/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
-  '/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
-  '/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
-  '/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
-  '/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
-  '/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
-  '/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
-  '/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
-  '/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
-  '/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
-  '/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
-  '/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
   '/solid/overview/releases': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesById {
@@ -848,7 +605,6 @@ export interface FileRoutesById {
   '/_docs/solid/handbook': typeof DocsSolidHandbookRouteWithChildren
   '/_docs/solid/overview': typeof DocsSolidOverviewRouteWithChildren
   '/_docs/solid/utils': typeof DocsSolidUtilsRouteWithChildren
-  '/_website/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
   '/_docs/solid/': typeof DocsSolidIndexRoute
   '/_docs/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
   '/_docs/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
@@ -906,32 +662,6 @@ export interface FileRoutesById {
   '/_docs/solid/handbook/': typeof DocsSolidHandbookIndexRoute
   '/_docs/solid/overview/': typeof DocsSolidOverviewIndexRoute
   '/_docs/solid/utils/': typeof DocsSolidUtilsIndexRoute
-  '/_docs/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
-  '/_docs/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
-  '/_docs/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
-  '/_docs/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
-  '/_docs/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
-  '/_docs/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
-  '/_docs/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
-  '/_docs/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
-  '/_docs/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
-  '/_docs/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
-  '/_docs/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
-  '/_docs/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
-  '/_docs/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
-  '/_docs/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
-  '/_docs/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
-  '/_docs/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
-  '/_docs/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
-  '/_docs/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
-  '/_docs/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
   '/_docs/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRouteTypes {
@@ -944,7 +674,6 @@ export interface FileRouteTypes {
     | '/solid/handbook'
     | '/solid/overview'
     | '/solid/utils'
-    | '/careers/design-engineer'
     | '/solid/'
     | '/solid/components/accordion'
     | '/solid/components/alert-dialog'
@@ -1002,39 +731,12 @@ export interface FileRouteTypes {
     | '/solid/handbook/'
     | '/solid/overview/'
     | '/solid/utils/'
-    | '/solid/overview/releases/v1-0-0'
-    | '/solid/overview/releases/v1-0-0-alpha-4'
-    | '/solid/overview/releases/v1-0-0-alpha-5'
-    | '/solid/overview/releases/v1-0-0-alpha-6'
-    | '/solid/overview/releases/v1-0-0-alpha-7'
-    | '/solid/overview/releases/v1-0-0-alpha-8'
-    | '/solid/overview/releases/v1-0-0-beta-0'
-    | '/solid/overview/releases/v1-0-0-beta-1'
-    | '/solid/overview/releases/v1-0-0-beta-2'
-    | '/solid/overview/releases/v1-0-0-beta-3'
-    | '/solid/overview/releases/v1-0-0-beta-4'
-    | '/solid/overview/releases/v1-0-0-beta-5'
-    | '/solid/overview/releases/v1-0-0-beta-6'
-    | '/solid/overview/releases/v1-0-0-beta-7'
-    | '/solid/overview/releases/v1-0-0-rc-0'
-    | '/solid/overview/releases/v1-0-0-rc-1'
-    | '/solid/overview/releases/v1-0-0-rc-2'
-    | '/solid/overview/releases/v1-1-0'
-    | '/solid/overview/releases/v1-2-0'
-    | '/solid/overview/releases/v1-3-0'
-    | '/solid/overview/releases/v1-4-0'
-    | '/solid/overview/releases/v1-4-1'
-    | '/solid/overview/releases/v1-5-0'
-    | '/solid/overview/releases/v1-6-0'
-    | '/solid/overview/releases/v1-7-0'
-    | '/solid/overview/releases/v1-8-0'
     | '/solid/overview/releases/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/production-error'
     | '/playground'
-    | '/careers/design-engineer'
     | '/solid'
     | '/solid/components/accordion'
     | '/solid/components/alert-dialog'
@@ -1091,32 +793,6 @@ export interface FileRouteTypes {
     | '/solid/handbook'
     | '/solid/overview'
     | '/solid/utils'
-    | '/solid/overview/releases/v1-0-0'
-    | '/solid/overview/releases/v1-0-0-alpha-4'
-    | '/solid/overview/releases/v1-0-0-alpha-5'
-    | '/solid/overview/releases/v1-0-0-alpha-6'
-    | '/solid/overview/releases/v1-0-0-alpha-7'
-    | '/solid/overview/releases/v1-0-0-alpha-8'
-    | '/solid/overview/releases/v1-0-0-beta-0'
-    | '/solid/overview/releases/v1-0-0-beta-1'
-    | '/solid/overview/releases/v1-0-0-beta-2'
-    | '/solid/overview/releases/v1-0-0-beta-3'
-    | '/solid/overview/releases/v1-0-0-beta-4'
-    | '/solid/overview/releases/v1-0-0-beta-5'
-    | '/solid/overview/releases/v1-0-0-beta-6'
-    | '/solid/overview/releases/v1-0-0-beta-7'
-    | '/solid/overview/releases/v1-0-0-rc-0'
-    | '/solid/overview/releases/v1-0-0-rc-1'
-    | '/solid/overview/releases/v1-0-0-rc-2'
-    | '/solid/overview/releases/v1-1-0'
-    | '/solid/overview/releases/v1-2-0'
-    | '/solid/overview/releases/v1-3-0'
-    | '/solid/overview/releases/v1-4-0'
-    | '/solid/overview/releases/v1-4-1'
-    | '/solid/overview/releases/v1-5-0'
-    | '/solid/overview/releases/v1-6-0'
-    | '/solid/overview/releases/v1-7-0'
-    | '/solid/overview/releases/v1-8-0'
     | '/solid/overview/releases'
   id:
     | '__root__'
@@ -1130,7 +806,6 @@ export interface FileRouteTypes {
     | '/_docs/solid/handbook'
     | '/_docs/solid/overview'
     | '/_docs/solid/utils'
-    | '/_website/careers/design-engineer'
     | '/_docs/solid/'
     | '/_docs/solid/components/accordion'
     | '/_docs/solid/components/alert-dialog'
@@ -1188,32 +863,6 @@ export interface FileRouteTypes {
     | '/_docs/solid/handbook/'
     | '/_docs/solid/overview/'
     | '/_docs/solid/utils/'
-    | '/_docs/solid/overview/releases/v1-0-0'
-    | '/_docs/solid/overview/releases/v1-0-0-alpha-4'
-    | '/_docs/solid/overview/releases/v1-0-0-alpha-5'
-    | '/_docs/solid/overview/releases/v1-0-0-alpha-6'
-    | '/_docs/solid/overview/releases/v1-0-0-alpha-7'
-    | '/_docs/solid/overview/releases/v1-0-0-alpha-8'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-0'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-1'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-2'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-3'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-4'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-5'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-6'
-    | '/_docs/solid/overview/releases/v1-0-0-beta-7'
-    | '/_docs/solid/overview/releases/v1-0-0-rc-0'
-    | '/_docs/solid/overview/releases/v1-0-0-rc-1'
-    | '/_docs/solid/overview/releases/v1-0-0-rc-2'
-    | '/_docs/solid/overview/releases/v1-1-0'
-    | '/_docs/solid/overview/releases/v1-2-0'
-    | '/_docs/solid/overview/releases/v1-3-0'
-    | '/_docs/solid/overview/releases/v1-4-0'
-    | '/_docs/solid/overview/releases/v1-4-1'
-    | '/_docs/solid/overview/releases/v1-5-0'
-    | '/_docs/solid/overview/releases/v1-6-0'
-    | '/_docs/solid/overview/releases/v1-7-0'
-    | '/_docs/solid/overview/releases/v1-8-0'
     | '/_docs/solid/overview/releases/'
   fileRoutesById: FileRoutesById
 }
@@ -1301,13 +950,6 @@ declare module '@tanstack/solid-router' {
       fullPath: '/solid/utils'
       preLoaderRoute: typeof DocsSolidUtilsRouteImport
       parentRoute: typeof DocsSolidRoute
-    }
-    '/_website/careers/design-engineer': {
-      id: '/_website/careers/design-engineer'
-      path: '/careers/design-engineer'
-      fullPath: '/careers/design-engineer'
-      preLoaderRoute: typeof WebsiteCareersDesignEngineerRouteImport
-      parentRoute: typeof WebsiteRoute
     }
     '/_docs/solid/components/': {
       id: '/_docs/solid/components/'
@@ -1708,188 +1350,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsSolidOverviewReleasesIndexRouteImport
       parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/solid/overview/releases/v1-0-0': {
-      id: '/_docs/solid/overview/releases/v1-0-0'
-      path: '/v1-0-0'
-      fullPath: '/solid/overview/releases/v1-0-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-alpha-4': {
-      id: '/_docs/solid/overview/releases/v1-0-0-alpha-4'
-      path: '/v1-0-0-alpha-4'
-      fullPath: '/solid/overview/releases/v1-0-0-alpha-4'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha4RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-alpha-5': {
-      id: '/_docs/solid/overview/releases/v1-0-0-alpha-5'
-      path: '/v1-0-0-alpha-5'
-      fullPath: '/solid/overview/releases/v1-0-0-alpha-5'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha5RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-alpha-6': {
-      id: '/_docs/solid/overview/releases/v1-0-0-alpha-6'
-      path: '/v1-0-0-alpha-6'
-      fullPath: '/solid/overview/releases/v1-0-0-alpha-6'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha6RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-alpha-7': {
-      id: '/_docs/solid/overview/releases/v1-0-0-alpha-7'
-      path: '/v1-0-0-alpha-7'
-      fullPath: '/solid/overview/releases/v1-0-0-alpha-7'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha7RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-alpha-8': {
-      id: '/_docs/solid/overview/releases/v1-0-0-alpha-8'
-      path: '/v1-0-0-alpha-8'
-      fullPath: '/solid/overview/releases/v1-0-0-alpha-8'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha8RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-0': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-0'
-      path: '/v1-0-0-beta-0'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta0RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-1': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-1'
-      path: '/v1-0-0-beta-1'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-1'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta1RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-2': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-2'
-      path: '/v1-0-0-beta-2'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-2'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta2RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-3': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-3'
-      path: '/v1-0-0-beta-3'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-3'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta3RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-4': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-4'
-      path: '/v1-0-0-beta-4'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-4'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta4RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-5': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-5'
-      path: '/v1-0-0-beta-5'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-5'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta5RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-6': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-6'
-      path: '/v1-0-0-beta-6'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-6'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta6RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-beta-7': {
-      id: '/_docs/solid/overview/releases/v1-0-0-beta-7'
-      path: '/v1-0-0-beta-7'
-      fullPath: '/solid/overview/releases/v1-0-0-beta-7'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta7RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-rc-0': {
-      id: '/_docs/solid/overview/releases/v1-0-0-rc-0'
-      path: '/v1-0-0-rc-0'
-      fullPath: '/solid/overview/releases/v1-0-0-rc-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc0RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-rc-1': {
-      id: '/_docs/solid/overview/releases/v1-0-0-rc-1'
-      path: '/v1-0-0-rc-1'
-      fullPath: '/solid/overview/releases/v1-0-0-rc-1'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc1RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-0-0-rc-2': {
-      id: '/_docs/solid/overview/releases/v1-0-0-rc-2'
-      path: '/v1-0-0-rc-2'
-      fullPath: '/solid/overview/releases/v1-0-0-rc-2'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc2RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-1-0': {
-      id: '/_docs/solid/overview/releases/v1-1-0'
-      path: '/v1-1-0'
-      fullPath: '/solid/overview/releases/v1-1-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV110RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-2-0': {
-      id: '/_docs/solid/overview/releases/v1-2-0'
-      path: '/v1-2-0'
-      fullPath: '/solid/overview/releases/v1-2-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV120RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-3-0': {
-      id: '/_docs/solid/overview/releases/v1-3-0'
-      path: '/v1-3-0'
-      fullPath: '/solid/overview/releases/v1-3-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV130RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-4-0': {
-      id: '/_docs/solid/overview/releases/v1-4-0'
-      path: '/v1-4-0'
-      fullPath: '/solid/overview/releases/v1-4-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV140RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-4-1': {
-      id: '/_docs/solid/overview/releases/v1-4-1'
-      path: '/v1-4-1'
-      fullPath: '/solid/overview/releases/v1-4-1'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV141RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-5-0': {
-      id: '/_docs/solid/overview/releases/v1-5-0'
-      path: '/v1-5-0'
-      fullPath: '/solid/overview/releases/v1-5-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV150RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-6-0': {
-      id: '/_docs/solid/overview/releases/v1-6-0'
-      path: '/v1-6-0'
-      fullPath: '/solid/overview/releases/v1-6-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV160RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-7-0': {
-      id: '/_docs/solid/overview/releases/v1-7-0'
-      path: '/v1-7-0'
-      fullPath: '/solid/overview/releases/v1-7-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV170RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
-    '/_docs/solid/overview/releases/v1-8-0': {
-      id: '/_docs/solid/overview/releases/v1-8-0'
-      path: '/v1-8-0'
-      fullPath: '/solid/overview/releases/v1-8-0'
-      preLoaderRoute: typeof DocsSolidOverviewReleasesV180RouteImport
-      parentRoute: typeof DocsSolidOverviewReleasesRoute
-    }
   }
 }
 
@@ -1917,79 +1377,11 @@ const DocsSolidHandbookRouteWithChildren =
   DocsSolidHandbookRoute._addFileChildren(DocsSolidHandbookRouteChildren)
 
 interface DocsSolidOverviewReleasesRouteChildren {
-  DocsSolidOverviewReleasesV100Route: typeof DocsSolidOverviewReleasesV100Route
-  DocsSolidOverviewReleasesV100Alpha4Route: typeof DocsSolidOverviewReleasesV100Alpha4Route
-  DocsSolidOverviewReleasesV100Alpha5Route: typeof DocsSolidOverviewReleasesV100Alpha5Route
-  DocsSolidOverviewReleasesV100Alpha6Route: typeof DocsSolidOverviewReleasesV100Alpha6Route
-  DocsSolidOverviewReleasesV100Alpha7Route: typeof DocsSolidOverviewReleasesV100Alpha7Route
-  DocsSolidOverviewReleasesV100Alpha8Route: typeof DocsSolidOverviewReleasesV100Alpha8Route
-  DocsSolidOverviewReleasesV100Beta0Route: typeof DocsSolidOverviewReleasesV100Beta0Route
-  DocsSolidOverviewReleasesV100Beta1Route: typeof DocsSolidOverviewReleasesV100Beta1Route
-  DocsSolidOverviewReleasesV100Beta2Route: typeof DocsSolidOverviewReleasesV100Beta2Route
-  DocsSolidOverviewReleasesV100Beta3Route: typeof DocsSolidOverviewReleasesV100Beta3Route
-  DocsSolidOverviewReleasesV100Beta4Route: typeof DocsSolidOverviewReleasesV100Beta4Route
-  DocsSolidOverviewReleasesV100Beta5Route: typeof DocsSolidOverviewReleasesV100Beta5Route
-  DocsSolidOverviewReleasesV100Beta6Route: typeof DocsSolidOverviewReleasesV100Beta6Route
-  DocsSolidOverviewReleasesV100Beta7Route: typeof DocsSolidOverviewReleasesV100Beta7Route
-  DocsSolidOverviewReleasesV100Rc0Route: typeof DocsSolidOverviewReleasesV100Rc0Route
-  DocsSolidOverviewReleasesV100Rc1Route: typeof DocsSolidOverviewReleasesV100Rc1Route
-  DocsSolidOverviewReleasesV100Rc2Route: typeof DocsSolidOverviewReleasesV100Rc2Route
-  DocsSolidOverviewReleasesV110Route: typeof DocsSolidOverviewReleasesV110Route
-  DocsSolidOverviewReleasesV120Route: typeof DocsSolidOverviewReleasesV120Route
-  DocsSolidOverviewReleasesV130Route: typeof DocsSolidOverviewReleasesV130Route
-  DocsSolidOverviewReleasesV140Route: typeof DocsSolidOverviewReleasesV140Route
-  DocsSolidOverviewReleasesV141Route: typeof DocsSolidOverviewReleasesV141Route
-  DocsSolidOverviewReleasesV150Route: typeof DocsSolidOverviewReleasesV150Route
-  DocsSolidOverviewReleasesV160Route: typeof DocsSolidOverviewReleasesV160Route
-  DocsSolidOverviewReleasesV170Route: typeof DocsSolidOverviewReleasesV170Route
-  DocsSolidOverviewReleasesV180Route: typeof DocsSolidOverviewReleasesV180Route
   DocsSolidOverviewReleasesIndexRoute: typeof DocsSolidOverviewReleasesIndexRoute
 }
 
 const DocsSolidOverviewReleasesRouteChildren: DocsSolidOverviewReleasesRouteChildren =
   {
-    DocsSolidOverviewReleasesV100Route: DocsSolidOverviewReleasesV100Route,
-    DocsSolidOverviewReleasesV100Alpha4Route:
-      DocsSolidOverviewReleasesV100Alpha4Route,
-    DocsSolidOverviewReleasesV100Alpha5Route:
-      DocsSolidOverviewReleasesV100Alpha5Route,
-    DocsSolidOverviewReleasesV100Alpha6Route:
-      DocsSolidOverviewReleasesV100Alpha6Route,
-    DocsSolidOverviewReleasesV100Alpha7Route:
-      DocsSolidOverviewReleasesV100Alpha7Route,
-    DocsSolidOverviewReleasesV100Alpha8Route:
-      DocsSolidOverviewReleasesV100Alpha8Route,
-    DocsSolidOverviewReleasesV100Beta0Route:
-      DocsSolidOverviewReleasesV100Beta0Route,
-    DocsSolidOverviewReleasesV100Beta1Route:
-      DocsSolidOverviewReleasesV100Beta1Route,
-    DocsSolidOverviewReleasesV100Beta2Route:
-      DocsSolidOverviewReleasesV100Beta2Route,
-    DocsSolidOverviewReleasesV100Beta3Route:
-      DocsSolidOverviewReleasesV100Beta3Route,
-    DocsSolidOverviewReleasesV100Beta4Route:
-      DocsSolidOverviewReleasesV100Beta4Route,
-    DocsSolidOverviewReleasesV100Beta5Route:
-      DocsSolidOverviewReleasesV100Beta5Route,
-    DocsSolidOverviewReleasesV100Beta6Route:
-      DocsSolidOverviewReleasesV100Beta6Route,
-    DocsSolidOverviewReleasesV100Beta7Route:
-      DocsSolidOverviewReleasesV100Beta7Route,
-    DocsSolidOverviewReleasesV100Rc0Route:
-      DocsSolidOverviewReleasesV100Rc0Route,
-    DocsSolidOverviewReleasesV100Rc1Route:
-      DocsSolidOverviewReleasesV100Rc1Route,
-    DocsSolidOverviewReleasesV100Rc2Route:
-      DocsSolidOverviewReleasesV100Rc2Route,
-    DocsSolidOverviewReleasesV110Route: DocsSolidOverviewReleasesV110Route,
-    DocsSolidOverviewReleasesV120Route: DocsSolidOverviewReleasesV120Route,
-    DocsSolidOverviewReleasesV130Route: DocsSolidOverviewReleasesV130Route,
-    DocsSolidOverviewReleasesV140Route: DocsSolidOverviewReleasesV140Route,
-    DocsSolidOverviewReleasesV141Route: DocsSolidOverviewReleasesV141Route,
-    DocsSolidOverviewReleasesV150Route: DocsSolidOverviewReleasesV150Route,
-    DocsSolidOverviewReleasesV160Route: DocsSolidOverviewReleasesV160Route,
-    DocsSolidOverviewReleasesV170Route: DocsSolidOverviewReleasesV170Route,
-    DocsSolidOverviewReleasesV180Route: DocsSolidOverviewReleasesV180Route,
     DocsSolidOverviewReleasesIndexRoute: DocsSolidOverviewReleasesIndexRoute,
   }
 
@@ -2159,12 +1551,10 @@ const PrivateRouteWithChildren =
 
 interface WebsiteRouteChildren {
   WebsiteIndexRoute: typeof WebsiteIndexRoute
-  WebsiteCareersDesignEngineerRoute: typeof WebsiteCareersDesignEngineerRoute
 }
 
 const WebsiteRouteChildren: WebsiteRouteChildren = {
   WebsiteIndexRoute: WebsiteIndexRoute,
-  WebsiteCareersDesignEngineerRoute: WebsiteCareersDesignEngineerRoute,
 }
 
 const WebsiteRouteWithChildren =

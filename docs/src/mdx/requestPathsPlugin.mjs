@@ -23,8 +23,6 @@ export function requestPathsPlugin() {
         target = '/solid/handbook/composition';
       } else if (url.pathname === '/solid/components/radio') {
         target = '/solid/components/radio-group';
-      } else if (url.pathname === '/r/discord') {
-        target = 'https://discord.com/invite/g6C3hUtuxz';
       }
       if (target) {
         response.statusCode = 301;

@@ -220,8 +220,8 @@ function transformJsx() {
               // eslint-disable-next-line no-template-curly-in-string
               else if (expression === '`${REPO_URL}/releases`') {
                 href.value = `${REPO_URL}/releases`;
-              } else if (expression === "sourceUrl('.browserslistrc')") {
-                href.value = sourceUrl('.browserslistrc');
+              } else if (/^sourceUrl\('[^']+'\)$/.test(expression)) {
+                href.value = sourceUrl(expression.slice("sourceUrl('".length, -"')".length));
               } else {
                 throw new Error(`Unsupported repository expression: ${expression}`);
               }
