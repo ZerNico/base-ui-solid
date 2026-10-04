@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, omit, untrack } from 'solid-js';
+import { createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -1359,7 +1359,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (releasedQuery !== null) {
       const wasReleasedQuery = currentQuery === releasedQuery;
       releasedQuery = null;
-      if (wasReleasedQuery) return;
+      if (wasReleasedQuery) {
+        return;
+      }
     }
     if (
       untrack(open) &&
@@ -1844,7 +1846,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           return;
         }
 
-        const nextValue = (event.currentTarget as HTMLInputElement).value;
+        const input = event.currentTarget as HTMLInputElement;
+        const nextValue = input.value;
         const nextValueLower = nextValue.toLowerCase();
         const details = createChangeEventDetails(REASONS.none, event);
 
@@ -1898,7 +1901,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             store.set('forceMounted', true);
           }
         }
-        queueMicrotask(handleChange);
+        queueMicrotask(() => {
+          handleChange();
+          // Port note: React restores controlled inputs after every edit, including
+          // unknown values, cancellation, and changes rejected by a controlled parent.
+          flush();
+          input.value = untrack(serializedValue);
+        });
       },
     }),
   );

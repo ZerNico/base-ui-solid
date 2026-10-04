@@ -1033,6 +1033,56 @@ describe('<Select.Root />', () => {
     });
   });
 
+  // Port note: port-specific coverage for Solid's explicit controlled DOM restoration.
+  it.each(['accepted', 'unmatched', 'canceled', 'parent-rejected'] as const)(
+    'keeps FormData consistent after %s hidden-input autofill (port regression)',
+    async (outcome) => {
+      const onValueChange = vi.fn((_value, details) => {
+        if (outcome === 'canceled') {
+          details.cancel();
+        }
+      });
+      await render(() => (
+        <form data-testid="autofill-form">
+          <Select.Root
+            name="fruit"
+            defaultValue="apple"
+            value={outcome === 'parent-rejected' ? 'apple' : undefined}
+            onValueChange={onValueChange}
+            defaultOpen
+          >
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="pear">Pear</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </form>
+      ));
+      const form = screen.getByTestId('autofill-form') as HTMLFormElement;
+      const input = form.querySelector<HTMLInputElement>('input[name="fruit"]')!;
+      const event = new Event('input', { bubbles: true });
+      input.value = outcome === 'unmatched' ? 'orange' : 'pear';
+      input.dispatchEvent(event);
+      await flushMicrotasks();
+      expect(new FormData(form).get('fruit')).toBe(outcome === 'accepted' ? 'pear' : 'apple');
+      expect(input.value).toBe(outcome === 'accepted' ? 'pear' : 'apple');
+      expect(onValueChange).toHaveBeenCalledTimes(outcome === 'unmatched' ? 0 : 1);
+      expect(onValueChange.mock.lastCall?.[1].event).toBe(
+        outcome === 'unmatched' ? undefined : event,
+      );
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(
+        outcome === 'unmatched' ? undefined : REASONS.none,
+      );
+    },
+  );
+
   it('should handle browser autofill', async () => {
     const { user } = await render(() => (
       <Select.Root name="select">
@@ -1056,7 +1106,7 @@ describe('<Select.Root />', () => {
       hidden: true,
     });
     expect(selectInput).toHaveAttribute('name', 'select');
-    fireEvent.change(selectInput, { target: { value: 'b' } });
+    fireEvent.input(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1089,7 +1139,7 @@ describe('<Select.Root />', () => {
 
     // Autofill only ever writes a single scalar, which can't be meaningfully applied to a
     // multi-selection, so it must be dropped rather than collapsing the value to one item.
-    fireEvent.change(selectInput, { target: { value: 'b' } });
+    fireEvent.input(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     expect(handleValueChange).not.toHaveBeenCalled();
@@ -1117,7 +1167,7 @@ describe('<Select.Root />', () => {
     const trigger = screen.getByTestId('trigger');
     const selectInput = screen.getByRole('textbox', { hidden: true });
 
-    fireEvent.change(selectInput, { target: { value: 'not-an-option' } });
+    fireEvent.input(selectInput, { target: { value: 'not-an-option' } });
     await flushMicrotasks();
 
     expect(handleValueChange).not.toHaveBeenCalled();
@@ -1209,7 +1259,7 @@ describe('<Select.Root />', () => {
       hidden: true,
     });
     expect(selectInput).toHaveAttribute('name', 'country');
-    fireEvent.change(selectInput, { target: { value: 'CA' } });
+    fireEvent.input(selectInput, { target: { value: 'CA' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1259,7 +1309,7 @@ describe('<Select.Root />', () => {
     expect(selectInput).toHaveAttribute('name', 'country');
 
     // Simulate browser autofill with the LABEL (displayed text), not the value
-    fireEvent.change(selectInput, { target: { value: 'Canada' } }); // Browser sends "Canada" (label), not "CA" (value)
+    fireEvent.input(selectInput, { target: { value: 'Canada' } }); // Browser sends "Canada" (label), not "CA" (value)
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1292,7 +1342,7 @@ describe('<Select.Root />', () => {
     const trigger = screen.getByTestId('trigger');
     const selectInput = screen.getByRole('textbox', { hidden: true });
 
-    fireEvent.change(selectInput, { target: { value: 'canada' } });
+    fireEvent.input(selectInput, { target: { value: 'canada' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1325,7 +1375,7 @@ describe('<Select.Root />', () => {
     const trigger = screen.getByTestId('trigger');
     const selectInput = screen.getByRole('textbox', { hidden: true });
 
-    fireEvent.change(selectInput, { target: { value: 'US' } });
+    fireEvent.input(selectInput, { target: { value: 'US' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1361,7 +1411,7 @@ describe('<Select.Root />', () => {
     const trigger = screen.getByTestId('trigger');
     const selectInput = screen.getByRole('textbox', { hidden: true });
 
-    fireEvent.change(selectInput, { target: { value: 'Canada' } });
+    fireEvent.input(selectInput, { target: { value: 'Canada' } });
     await flushMicrotasks();
 
     await user.click(trigger);
@@ -1402,7 +1452,7 @@ describe('<Select.Root />', () => {
 
     expect(trigger).not.toHaveAttribute('data-dirty');
 
-    fireEvent.change(selectInput, { target: { value: 'CA' } });
+    fireEvent.input(selectInput, { target: { value: 'CA' } });
     await flushMicrotasks();
 
     await waitFor(() => {
@@ -1445,7 +1495,7 @@ describe('<Select.Root />', () => {
     expect(trigger).not.toHaveAttribute('data-dirty');
     expect(screen.getByTestId('error')).toHaveTextContent('server error');
 
-    fireEvent.change(selectInput, { target: { value: 'CA' } });
+    fireEvent.input(selectInput, { target: { value: 'CA' } });
     await flushMicrotasks();
 
     expect(trigger).not.toHaveAttribute('data-dirty');
@@ -1667,7 +1717,7 @@ describe('<Select.Root />', () => {
 
       expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
 
-      fireEvent.change(selectInput, { target: { value: 'b' } });
+      fireEvent.input(selectInput, { target: { value: 'b' } });
       await flushMicrotasks();
 
       expect(onValueChange).not.toHaveBeenCalled();

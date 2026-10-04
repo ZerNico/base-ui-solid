@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, flush, untrack, onSettled } from 'solid-js';
 
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { fireEvent, screen, waitFor, waitForPositioned, resetBrowserPointer } from '#test-utils';
@@ -9,6 +9,68 @@ import { act } from '../../../test/utils';
 describe('filtered Menu items', () => {
   beforeEach(resetBrowserPointer);
   const { render } = createRenderer();
+  // Port note: port-specific regressions for child materialization ownership and replacement.
+  it('updates array-valued children in a plain menu (port regression)', async () => {
+    const [label, setLabel] = createSignal(['Archive']);
+    await render(() => (
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner anchor={document.body}>
+            <Menu.Popup>
+              <Menu.Item>{label()}</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ));
+    expect(screen.getByRole('menuitem', { name: 'Archive' })).toBeVisible();
+    setLabel(['Delete']);
+    flush();
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
+  });
+
+  // Port note: Solid must keep reappearing descendant bindings under a live owner.
+  it('updates descendant text after filtering an item out and back in (port regression)', async () => {
+    const [count, setCount] = createSignal(1);
+    const mounts = vi.fn();
+    const disposals = vi.fn();
+    function Label() {
+      mounts();
+      onSettled(() => disposals);
+      return <span>Archive {count()}</span>;
+    }
+    const { user } = await render(() => (
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner anchor={document.body}>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>
+                    <Label />
+                  </Menu.Item>
+                  <Menu.Item>Delete</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>
+    ));
+    const input = screen.getByRole('searchbox');
+    expect(mounts).toHaveBeenCalledOnce();
+    await user.type(input, 'delete');
+    expect(screen.queryByRole('menuitem', { name: 'Archive 1' })).toBe(null);
+    expect(disposals).toHaveBeenCalledOnce();
+    await user.clear(input);
+    expect(mounts).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('menuitem', { name: 'Archive 1' })).toBeVisible();
+    setCount(2);
+    flush();
+    expect(screen.getByRole('menuitem', { name: 'Archive 2' })).toBeVisible();
+  });
+
   it('keeps focus on the input when items are pressed', async () => {
     const handleItemClick = vi.fn();
     const { user } = await render(

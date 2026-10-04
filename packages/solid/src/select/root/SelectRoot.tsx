@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, untrack } from 'solid-js';
+import { createMemo, createSignal, flush, For, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
@@ -517,9 +517,90 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod: renderedOpenMethod(),
   }));
 
+  const hiddenInputProps = createMemo(() =>
+    validation.getValidationProps(disabled(), {
+      // Port note: a `focus` listener on the input itself (React's `onFocus` bubbles, but
+      // only the input's own focus matters here).
+      onFocus() {
+        // Move focus to the trigger element when the hidden input is focused.
+        store.state.triggerElement?.focus({
+          // Supported in Chrome from 144 (January 2026)
+          focusVisible: true,
+        } as FocusOptions);
+      },
+      // Handle browser autofill.
+      // Port note: React's text-input `onChange` is the native `input` event.
+      onInput(event: Event) {
+        if (event.defaultPrevented || untrack(disabled) || untrack(readOnly)) {
+          // Port note: React restores controlled inputs after rejected changes.
+          (event.currentTarget as HTMLInputElement).value = untrack(serializedValue);
+          return;
+        }
+
+        const input = event.currentTarget as HTMLInputElement;
+        const nextValue = input.value;
+        const details = createChangeEventDetails(REASONS.none, event);
+
+        function handleChange() {
+          if (untrack(multiple)) {
+            // Browser autofill only writes a single scalar value.
+            return;
+          }
+
+          const currentItemToStringValue = untrack(itemToStringValue);
+          const currentItemToStringLabel = untrack(itemToStringLabel);
+
+          // Preserve the original serialized matching, then fall back to rendered text,
+          // which browsers can autofill for primitive values like
+          // `value="US">United States`.
+          const nextValueLower = nextValue.toLowerCase();
+          let matchingIndex = valuesRef.current.findIndex(
+            (candidate) =>
+              stringifyAsValue(candidate, currentItemToStringValue).toLowerCase() ===
+                nextValueLower ||
+              stringifyAsLabel(candidate, currentItemToStringLabel).toLowerCase() ===
+                nextValueLower,
+          );
+
+          if (matchingIndex === -1) {
+            matchingIndex = valuesRef.current.findIndex((_, index) => {
+              const renderedLabel = labelsRef.current[index];
+              return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+            });
+          }
+
+          const matchingValue = valuesRef.current[matchingIndex];
+          if (matchingValue != null) {
+            // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+            // mark the field dirty and run validation only when the value actually changes.
+            setValue(matchingValue, details);
+          }
+        }
+
+        store.set('forceMount', true);
+        queueMicrotask(() => {
+          handleChange();
+          // Port note: React restores controlled inputs after every edit, including
+          // unknown values, cancellation, and changes rejected by a controlled parent.
+          flush();
+          input.value = untrack(serializedValue);
+        });
+      },
+    }),
+  );
+  // Port note: delegated input listeners suppress disabled controls. A native listener must
+  // also restore autofill edits dispatched on a disabled hidden input, like React does.
+  const attachAutofillListener = (node: HTMLInputElement) => {
+    const listener = (event: Event) =>
+      untrack(() => (hiddenInputProps().onInput as (event: Event) => void)(event));
+    node.addEventListener('input', listener);
+    return () => node.removeEventListener('input', listener);
+  };
+
   const ref = useMergedRefs<HTMLInputElement>(
     () => props.inputRef,
     () => validation.inputRef,
+    () => attachAutofillListener,
   );
 
   const hiddenInputName = () => (multiple() ? undefined : name());
@@ -539,69 +620,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       {useRenderElement('input', EMPTY_OBJECT, {
         ref,
         props: () => [
-          validation.getValidationProps(disabled(), {
-            // Port note: a `focus` listener on the input itself (React's `onFocus` bubbles, but
-            // only the input's own focus matters here).
-            onFocus() {
-              // Move focus to the trigger element when the hidden input is focused.
-              store.state.triggerElement?.focus({
-                // Supported in Chrome from 144 (January 2026)
-                focusVisible: true,
-              } as FocusOptions);
-            },
-            // Handle browser autofill.
-            // Port note: React's `onChange` also fires on `input` events; browser autofill
-            // dispatches both `input` and `change`, so the `change` event is handled.
-            onChange(event: Event) {
-              if (event.defaultPrevented || untrack(disabled) || untrack(readOnly)) {
-                // Port note: React restores controlled inputs after rejected changes.
-                (event.currentTarget as HTMLInputElement).value = untrack(serializedValue);
-                return;
-              }
-
-              const nextValue = (event.currentTarget as HTMLInputElement).value;
-              const details = createChangeEventDetails(REASONS.none, event);
-
-              function handleChange() {
-                if (untrack(multiple)) {
-                  // Browser autofill only writes a single scalar value.
-                  return;
-                }
-
-                const currentItemToStringValue = untrack(itemToStringValue);
-                const currentItemToStringLabel = untrack(itemToStringLabel);
-
-                // Preserve the original serialized matching, then fall back to rendered text,
-                // which browsers can autofill for primitive values like
-                // `value="US">United States`.
-                const nextValueLower = nextValue.toLowerCase();
-                let matchingIndex = valuesRef.current.findIndex(
-                  (candidate) =>
-                    stringifyAsValue(candidate, currentItemToStringValue).toLowerCase() ===
-                      nextValueLower ||
-                    stringifyAsLabel(candidate, currentItemToStringLabel).toLowerCase() ===
-                      nextValueLower,
-                );
-
-                if (matchingIndex === -1) {
-                  matchingIndex = valuesRef.current.findIndex((_, index) => {
-                    const renderedLabel = labelsRef.current[index];
-                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
-                  });
-                }
-
-                const matchingValue = valuesRef.current[matchingIndex];
-                if (matchingValue != null) {
-                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
-                  // mark the field dirty and run validation only when the value actually changes.
-                  setValue(matchingValue, details);
-                }
-              }
-
-              store.set('forceMount', true);
-              queueMicrotask(handleChange);
-            },
-          }),
+          { ...hiddenInputProps(), onInput: undefined },
           {
             id:
               generatedId() && hiddenInputName() == null

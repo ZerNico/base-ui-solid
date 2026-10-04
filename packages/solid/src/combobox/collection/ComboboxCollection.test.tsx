@@ -1,9 +1,58 @@
+import { createSignal, flush } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { expect, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
 import { createRenderer, screen } from '#test-utils';
 
 describe('<Combobox.Collection />', () => {
   const { render } = createRenderer();
+
+  // Port note: port-specific coverage: function arity cannot detect numeric-index usage.
+  it.each(['defaulted', 'rest'] as const)(
+    'updates %s renderer indices after reordering and filtering (port regression)',
+    async (kind) => {
+      const [items, setItems] = createSignal(['apple', 'pear', 'plum']);
+      const [filteredItems, setFilteredItems] = createSignal<string[] | undefined>();
+      const renderItem = (item: string, index: number) => (
+        <Combobox.Item value={item} index={index}>
+          {item}:{index}
+        </Combobox.Item>
+      );
+      const renderer: (item: string, index: number) => JSX.Element =
+        kind === 'defaulted'
+          ? (item, index = 0) => renderItem(item, index)
+          : (...args: [string, number]) => renderItem(...args);
+      await render(() => (
+        <Combobox.Root items={items()} filteredItems={filteredItems()} defaultOpen>
+          <Combobox.Input />
+          <Combobox.List>
+            <Combobox.Collection>{renderer}</Combobox.Collection>
+          </Combobox.List>
+        </Combobox.Root>
+      ));
+      setItems(['pear', 'apple', 'plum']);
+      flush();
+      expect(screen.getAllByRole('option').map((item) => item.textContent)).toEqual([
+        'pear:0',
+        'apple:1',
+        'plum:2',
+      ]);
+      setFilteredItems(['pear', 'plum']);
+      flush();
+      expect(screen.getAllByRole('option').map((item) => item.textContent)).toEqual([
+        'pear:0',
+        'plum:1',
+      ]);
+      setFilteredItems(undefined);
+      flush();
+      setItems(['apple', 'plum']);
+      flush();
+      expect(screen.getAllByRole('option').map((item) => item.textContent)).toEqual([
+        'apple:0',
+        'plum:1',
+      ]);
+    },
+  );
 
   it('renders filtered items', async () => {
     await render(() => (

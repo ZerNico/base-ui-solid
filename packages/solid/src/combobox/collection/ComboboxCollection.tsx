@@ -64,14 +64,9 @@ export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element
       {(item, index) => {
         const currentItem = untrack(item);
         const itemView = isGroup(currentItem) ? createGroupView(item) : currentItem;
-        // Port note: the numeric render-function index changes when filtering reorders an item.
-        // Evaluate the renderer in a JSX computation so the Item receives the current index.
-        // Keep items mounted when the renderer does not consume the numeric index.
-        return props.children.length > 1 ? (
-          <>{props.children(itemView, index())}</>
-        ) : (
-          untrack(() => props.children(itemView, index()))
-        );
+        // Port note: upstream invokes every renderer with the current numeric index. Track
+        // it regardless of function arity, which excludes defaulted and rest parameters.
+        return <>{props.children(itemView, index())}</>;
       }}
     </For>
   );

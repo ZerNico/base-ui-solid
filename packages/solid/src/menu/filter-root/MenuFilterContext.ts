@@ -1,4 +1,4 @@
-import { merge, omit, createContext, useContext } from 'solid-js';
+import { children, createMemo, merge, omit, createContext, useContext, onCleanup } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -10,6 +10,9 @@ import type { MenuFilterGroup, MenuFilterRadioGroup } from './MenuFilterGroup';
 import type { MenuFilterList } from './MenuFilterList';
 import type { MenuParent } from '../root/MenuRoot';
 import type { MenuStore } from '../store/MenuStore';
+
+const filterChildren = new WeakMap<object, () => JSX.Element>();
+
 /**
  * Port note: read lazily like Solid props (pass the component props or an object with getters).
  */
@@ -118,7 +121,8 @@ export function useMenuFilterItem(
       return props.label;
     },
     get children() {
-      return props.children;
+      const readChildren = filterChildren.get(props);
+      return readChildren ? readChildren() : props.children;
     },
     get render() {
       return props.render;
@@ -128,24 +132,68 @@ export function useMenuFilterItem(
   return { visible: item.visible, ref, props: item.props };
 }
 
-/** Port note: Solid creates JSX children when read. Share the first rendered subtree with the
- * filter's text reader instead of instantiating a second child component from an effect. */
+function textOfChildren(content: JSX.Element): string {
+  if (typeof content === 'string' || typeof content === 'number') {
+    return String(content);
+  }
+  if (Array.isArray(content)) {
+    return content.map(textOfChildren).join('');
+  }
+  if (typeof content === 'function') {
+    return textOfChildren((content as () => JSX.Element)());
+  }
+  if (typeof Node !== 'undefined' && content instanceof Node) {
+    return content.textContent ?? '';
+  }
+  return '';
+}
+
+function isTextChildren(content: JSX.Element): boolean {
+  return (
+    content == null ||
+    (typeof content !== 'object' && typeof content !== 'function') ||
+    (Array.isArray(content) && content.every(isTextChildren))
+  );
+}
+
+/** Port note: materialize children reactively under the rendered item's owner and context.
+ * Disposal clears the memo, so showing an item again creates fresh child bindings. The filter
+ * retains only text while a nonprimitive subtree is absent, never its disposed DOM nodes. */
 export function stabilizeFilterChildren<P extends { children?: JSX.Element | undefined }>(
   props: P,
 ): P {
-  let content: JSX.Element;
-  let resolved = false;
-  return merge(omit(props, 'children'), {
+  let rawContent: Accessor<JSX.Element> | undefined;
+  let content: Accessor<JSX.Element> | undefined;
+  let text = '';
+  let textOnly = true;
+  const stabilized = merge(omit(props, 'children'), {
     get children() {
-      if (!resolved) {
-        content = props.children;
-        resolved =
-          content != null &&
-          typeof content !== 'string' &&
-          typeof content !== 'number' &&
-          typeof content !== 'boolean';
+      if (!content) {
+        rawContent = createMemo(() => props.children);
+        content = children(rawContent);
+        onCleanup(() => {
+          if (content) {
+            const previous = content();
+            text = textOfChildren(previous);
+            textOnly = isTextChildren(rawContent?.());
+          }
+          content = undefined;
+          rawContent = undefined;
+        });
       }
-      return resolved ? content : props.children;
+      return content();
     },
   }) as P;
+  filterChildren.set(stabilized, () => {
+    if (content) {
+      const current = content();
+      // Read primitive props directly as well: a filter subscription must outlive the
+      // rendered subtree's memo to notice replacements while that subtree is hidden.
+      return isTextChildren(rawContent?.()) ? props.children : current;
+    }
+    // Primitive children can still change while hidden without creating a child component
+    // outside its provider. Component children use the separately registered rendered text.
+    return textOnly ? props.children : text;
+  });
+  return stabilized;
 }

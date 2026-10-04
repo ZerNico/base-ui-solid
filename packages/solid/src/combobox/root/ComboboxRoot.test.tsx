@@ -2786,12 +2786,15 @@ describe('<Combobox.Root />', () => {
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
         await user.type(input, 'cherry');
-        const cherryItem = await screen.findByRole('option', { name: 'cherry' });
+        let cherryItem = await screen.findByRole('option', { name: 'cherry' });
         onItemHighlighted.mockClear();
         await user.click(cherryItem);
         await waitFor(() => {
           expect(input).toHaveValue('');
         });
+        // Port note: Solid recreates render-function output when its numeric index changes.
+        // Query the current item after filtering changes instead of retaining a disposed node.
+        cherryItem = screen.getByRole('option', { name: 'cherry' });
         expect(screen.getByRole('listbox')).not.toBe(null);
         expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute(
           'aria-selected',
@@ -2843,11 +2846,14 @@ describe('<Combobox.Root />', () => {
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
         await user.type(input, 'banana');
-        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        let bananaItem = await screen.findByRole('option', { name: 'banana' });
         await user.click(bananaItem);
         await waitFor(() => {
           expect(input).toHaveValue('');
         });
+        // Port note: Solid recreates render-function output when its numeric index changes.
+        // Query the current item after filtering changes instead of retaining a disposed node.
+        bananaItem = screen.getByRole('option', { name: 'banana' });
         await waitFor(() => {
           expect(bananaItem).toHaveAttribute('aria-selected', 'false');
         });
@@ -3625,6 +3631,56 @@ describe('<Combobox.Root />', () => {
       expect(trigger).toHaveAttribute('aria-controls', 'custom-render-id');
     });
   });
+  // Port note: port-specific coverage for Solid's explicit controlled DOM restoration.
+  it.each(['accepted', 'unmatched', 'canceled', 'parent-rejected'] as const)(
+    'keeps FormData consistent after %s hidden-input autofill (port regression)',
+    async (outcome) => {
+      const onValueChange = vi.fn((_value, details) => {
+        if (outcome === 'canceled') {
+          details.cancel();
+        }
+      });
+      await render(() => (
+        <form data-testid="autofill-form">
+          <Combobox.Root
+            name="fruit"
+            defaultValue="apple"
+            value={outcome === 'parent-rejected' ? 'apple' : undefined}
+            onValueChange={onValueChange}
+            defaultOpen
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">Apple</Combobox.Item>
+                    <Combobox.Item value="pear">Pear</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </form>
+      ));
+      const form = screen.getByTestId('autofill-form') as HTMLFormElement;
+      const input = form.querySelector<HTMLInputElement>('input[name="fruit"]')!;
+      const event = new Event('input', { bubbles: true });
+      input.value = outcome === 'unmatched' ? 'orange' : 'pear';
+      input.dispatchEvent(event);
+      await flushMicrotasks();
+      expect(new FormData(form).get('fruit')).toBe(outcome === 'accepted' ? 'pear' : 'apple');
+      expect(input.value).toBe(outcome === 'accepted' ? 'pear' : 'apple');
+      expect(onValueChange).toHaveBeenCalledTimes(outcome === 'unmatched' ? 0 : 1);
+      expect(onValueChange.mock.lastCall?.[1].event).toBe(
+        outcome === 'unmatched' ? undefined : event,
+      );
+      expect(onValueChange.mock.lastCall?.[1].reason).toBe(
+        outcome === 'unmatched' ? undefined : REASONS.none,
+      );
+    },
+  );
+
   it('should handle browser autofill', async () => {
     const onInputValueChange = vi.fn();
     const { user } = await render((overrides) => (
