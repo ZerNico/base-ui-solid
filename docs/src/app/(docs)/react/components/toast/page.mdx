@@ -237,7 +237,7 @@ import { DemoToastUndo } from './demos/undo';
 
 An asynchronous toast can be created with three possible states: `loading`, `success`, and `error`.
 The `type` string matches these states to change the styling.
-Each of the states also accepts the [method options](#toastmanagerupdateoptions) object for more granular control.
+Each of the states also accepts the [method options](#update-method) object for more granular control.
 
 import { DemoToastPromise } from './demos/promise';
 
@@ -415,7 +415,7 @@ const promise = toastManager.promise(
 );
 ```
 
-Each state also accepts the [method options](#toastmanagerupdateoptions) object to granularly control the toast for each state:
+Each state also accepts the [method options](#update-method) object to granularly control the toast for each state:
 
 ```tsx title="Method options configuration"
 const promise = toastManager.promise(
@@ -445,7 +445,7 @@ const promise = toastManager.promise(
 );
 ```
 
-See full [`promise` method](#ToastuseToastManager-promise)
+See full [`promise` method](#promise-method)
 
 [//]: # '@exclude-table-of-contents'
 

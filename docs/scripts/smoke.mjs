@@ -30,11 +30,15 @@ try {
   // A click before hydration may do nothing; wait for Start's client entry to settle first.
   await page.waitForLoadState('networkidle');
   assert.ok(
-    await page.locator('.QuickNavContent > pre .pl-k').count(),
+    await // Port note: inline blocks now scroll inside the CodeBlock viewport.
+    page.locator('.QuickNavContent .CodeBlockViewport > pre .pl-k').count(),
     'MDX code syntax highlighting',
   );
   for (const variant of ['CSS Modules', 'Tailwind']) {
-    await page.getByRole('tab', { name: variant, exact: true }).click();
+    // Port note: upstream's styling selector replaces the former variant tabs.
+    await page.getByRole('combobox', { name: 'Styling method', exact: true }).click();
+    await page.getByRole('option', { name: variant, exact: true }).click();
+    await page.getByRole('listbox').waitFor({ state: 'hidden' });
     const trigger = page.getByRole('button', { name: 'Recovery keys' });
     assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
     await trigger.click();
@@ -44,16 +48,29 @@ try {
     await page.getByText('alien-bean-pasta', { exact: true }).waitFor({ state: 'hidden' });
     assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
   }
-  await page.getByRole('tab', { name: 'CSS Modules', exact: true }).focus();
+  const styling = page.getByRole('combobox', { name: 'Styling method', exact: true });
+  await styling.focus();
+  await page.keyboard.press('ArrowDown');
+  await page.getByRole('option', { name: 'CSS Modules', exact: true }).waitFor();
+  await page.waitForFunction(() => document.activeElement?.getAttribute('role') === 'option');
+  await page.keyboard.press('Home');
+  await page.waitForFunction(() => document.activeElement?.textContent === 'CSS Modules');
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() =>
+    document.querySelector('[aria-label="Styling method"]')?.textContent?.includes('CSS Modules'),
+  );
+  assert.match(await styling.innerText(), /CSS Modules/);
+  await page.getByRole('tab', { name: 'index.tsx', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   assert.equal(
-    await page.getByRole('tab', { name: 'Tailwind', exact: true }).getAttribute('aria-selected'),
+    await page
+      .getByRole('tab', { name: 'index.module.css', exact: true })
+      .getAttribute('aria-selected'),
     'true',
   );
-  await page.getByRole('button', { name: 'Source code', exact: true }).click();
+  await page.getByRole('tab', { name: 'index.tsx', exact: true }).click();
   assert.match(await page.locator('.DemoRoot pre').innerText(), /base-ui-solid\/collapsible/);
   assert.ok(await page.locator('.DemoRoot pre .pl-k').count());
-  await page.getByRole('tab', { name: 'CSS Modules', exact: true }).click();
   await page.getByRole('tab', { name: 'index.module.css', exact: true }).click();
   assert.match(await page.locator('.DemoRoot pre').innerText(), /\.Collapsible/);
   await page.getByRole('tab', { name: 'index.tsx', exact: true }).click();
@@ -63,15 +80,13 @@ try {
     .getByRole('link', { name: 'API reference', exact: true })
     .click();
   assert.match(page.url(), /#api-reference$/);
-  await page.getByRole('button', { name: 'Search documentation', exact: true }).click();
-  const search = page.getByRole('searchbox', { name: 'Search documentation' });
+  await page.getByRole('button', { name: /^Search/ }).click();
+  const search = page.getByRole('combobox', { name: 'Search', exact: true });
   await search.fill('collapsible');
-  assert.ok(
-    await page
-      .getByRole('dialog')
-      .getByRole('link', { name: 'Collapsible', exact: true })
-      .isVisible(),
-  );
+  const result = page.getByRole('dialog').getByRole('option', { name: 'Collapsible', exact: true });
+  await result.waitFor({ state: 'visible' });
+  assert.ok(await result.isVisible());
+  assert.equal(await result.getAttribute('href'), '/react/components/collapsible');
   await search.fill('missing-component');
   await page.getByText('No results found.').waitFor();
   await page.keyboard.press('Escape');

@@ -5,10 +5,9 @@ import { resolve } from 'node:path';
 // Convert that authoritative snapshot to a framework-neutral JSON reference for Solid rendering.
 const name = process.argv[2] ?? 'collapsible';
 const upstream = process.argv[3] ?? '../../base-ui/docs';
-const source = await readFile(
-  resolve(upstream, `src/app/(docs)/react/components/${name}/types.md`),
-  'utf8',
-);
+const source = (
+  await readFile(resolve(upstream, `src/app/(docs)/react/components/${name}/types.md`), 'utf8')
+).replaceAll('https://base-ui.com/react/', '/react/');
 const sections = source
   .split(/^### /m)
   .slice(1)

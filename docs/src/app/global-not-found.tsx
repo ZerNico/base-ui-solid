@@ -1,3 +1,4 @@
+import { REPO_URL } from '../config';
 // Port note: TanStack's root notFoundComponent replaces Next's global-not-found entry.
 import Layout from './(website)/layout';
 import { Link } from './(website)/Link';
@@ -11,7 +12,7 @@ export default function NotFoundPage() {
           <p class="Text sz-2">
             This page couldn't be found. Please return to the{' '}
             <Link href="/react/overview/quick-start">docs</Link> or create a corresponding issue on{' '}
-            <Link href="https://github.com/mui/base-ui">GitHub</Link>.
+            <Link href={REPO_URL}>GitHub</Link>.
           </p>
         </div>
       </section>

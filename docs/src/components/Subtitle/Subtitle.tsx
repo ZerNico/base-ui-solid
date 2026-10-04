@@ -1,6 +1,7 @@
 import type { JSX } from '@solidjs/web';
 import { useLocation } from '@tanstack/solid-router';
 import { Show } from 'solid-js';
+import { sourceUrl } from '../../config';
 import { MarkdownIcon } from '../../icons/MarkdownIcon';
 import { GitHubIcon } from '../../icons/GitHubIcon';
 import './Subtitle.css';
@@ -12,7 +13,7 @@ export function Subtitle(props: { children?: JSX.Element; skipLinks?: boolean })
       <p>{props.children}</p>
       <Show when={!props.skipLinks}>
         <div class="SubtitleLinks">
-          <a class="SubtitleLink" href={`https://base-ui.com${location().pathname}.md`}>
+          <a class="SubtitleLink" href={`${location().pathname.replace(/\/$/, '')}.md`}>
             <span class="SubtitleLinkText">
               <MarkdownIcon />
               View as Markdown
@@ -26,7 +27,9 @@ export function Subtitle(props: { children?: JSX.Element; skipLinks?: boolean })
           >
             <a
               class="SubtitleLink"
-              href={`https://github.com/mui/base-ui/blob/master/docs/src/app/(docs)${location().pathname}/page.mdx`}
+              href={sourceUrl(
+                `docs/src/app/(docs)${location().pathname.replace(/\/$/, '')}/page.mdx`,
+              )}
             >
               <span class="SubtitleLinkText">
                 <GitHubIcon />

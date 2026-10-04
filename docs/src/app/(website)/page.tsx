@@ -1,4 +1,5 @@
 import { Accordion } from 'base-ui-solid/accordion';
+import { SITE_URL } from '../../config';
 import { Link } from './Link';
 import { Paper } from './logos/Paper';
 import { Zed } from './logos/Zed';
@@ -20,7 +21,7 @@ export default function Homepage() {
           '@context': 'https://schema.org',
           '@type': 'WebSite',
           name: 'Base UI for Solid',
-          url: 'https://base-ui.com',
+          url: SITE_URL,
         })}
       />
       {/* Set the Site name for Google results. https://developers.google.com/search/docs/appearance/site-names */}

@@ -4,6 +4,7 @@ import solid from 'vite-plugin-solid';
 import mdx from '@mdx-js/rollup';
 import tailwind from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/solid-start/plugin/vite';
+import { markdownPlugin } from './src/mdx/markdownPlugin.mjs';
 import { requestPathsPlugin } from './src/mdx/requestPathsPlugin.mjs';
 import { searchIndexPlugin } from './src/mdx/searchIndexPlugin.mjs';
 import { sourcePlugin } from './src/mdx/sourcePlugin.mjs';
@@ -30,6 +31,7 @@ export default defineConfig({
   ssr: { noExternal: ['solid-js', '@solidjs/web', 'base-ui-solid', '@base-ui-solid/utils'] },
   plugins: [
     requestPathsPlugin(),
+    markdownPlugin(),
     sourcePlugin(),
     searchIndexPlugin(),
     { ...mdx(mdxOptions), enforce: 'pre' },

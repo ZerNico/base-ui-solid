@@ -179,9 +179,15 @@ importers:
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1(supports-color@10.2.2)
+      remark-mdx:
+        specifier: 3.1.1
+        version: 3.1.1(supports-color@10.2.2)
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0(supports-color@10.2.2)
+      remark-stringify:
+        specifier: 11.0.0
+        version: 11.0.0
       remark-typography:
         specifier: 0.8.9
         version: 0.8.9

@@ -5,8 +5,20 @@ import { searchIndexPlugin } from './src/mdx/searchIndexPlugin.mjs';
 export default defineConfig({
   plugins: [searchIndexPlugin()],
   test: {
-    include: ['src/**/*.test.mjs'],
+    include: [],
     environment: process.env.VITEST_ENV === 'jsdom' ? 'jsdom' : 'node',
+    projects: [
+      { extends: true, test: { name: 'docs', include: ['src/**/*.test.mjs'] } },
+      {
+        extends: true,
+        test: {
+          name: 'markdown',
+          include: ['scripts/**/*.test.mjs'],
+          environment: 'node',
+          browser: { enabled: false },
+        },
+      },
+    ],
     browser:
       process.env.VITEST_ENV === 'chromium'
         ? {

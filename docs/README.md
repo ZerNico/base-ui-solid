@@ -10,10 +10,21 @@ TanStack Start + Solid 2.0, with upstream MDX, CSS, and MUI docs infrastructure.
 - `pnpm --filter docs test`: all copied upstream docs plugin tests.
 - `pnpm --filter docs smoke`: Playwright check against the running dev or static server.
 
-Port note: URL paths intentionally keep `/react/` to preserve upstream links. The components,
-demos, package imports, and runtime are Solid. Only Collapsible is ported in this infrastructure
-phase; navigation and search list only ported pages. Links to other upstream pages remain in the
-content for subsequent ports.
+Port note: URL paths intentionally keep `/react/` for compatibility. Components, demos,
+package imports, and runtime are Solid. The build generates per-page `.md`, `llms.txt`,
+`llms-full.txt`, `index.md`, `sitemap.xml`, and `robots.txt` into `public` and the static export.
+Development regenerates Markdown when source or reference files change.
+
+Set `SITE_URL`, `REPO_URL`, and `REPO_BRANCH` in [src/config.ts](./src/config.ts) before
+publishing. The defaults `https://base-ui-solid.example` and
+`https://github.com/OWNER/base-ui-solid` are deliberate placeholders. Site navigation and
+Markdown links are root relative; canonical metadata and discovery files use `SITE_URL`.
+Source links use `sourceUrl`, which maps `packages/react/src` to `packages/solid/src`.
+Release PRs and the upstream changelog retain their upstream destinations.
+
+Run `pnpm --filter docs links` after building to audit source/config/public/generated URLs
+and crawl every exported HTML page. It prints the exact upstream allowlist and fails on
+unapproved upstream URLs, broken internal destinations, or missing fragment targets.
 
 `npm view` on 2026-10-04 verified `@tanstack/solid-start` and `@tanstack/solid-router`
 **2.0.0-rc.8**, and their Solid 2.0 peer ranges. Both are pinned to that release.

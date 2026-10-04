@@ -2,6 +2,7 @@
 import './css/index.css';
 
 import type { JSX } from '@solidjs/web';
+import { REPO_URL } from '../../config';
 import { Link } from './Link';
 import { SearchDialog } from '../../components/Search/SearchDialog';
 import { Logo } from '../../components/Logo';
@@ -26,10 +27,10 @@ export default function Layout(props: { children?: JSX.Element }) {
                 <Link class="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link class="Text sz-1" href="https://github.com/mui/base-ui">
+                <Link class="Text sz-1" href={REPO_URL}>
                   GitHub
                 </Link>
-                <Link class="Text sz-1" href="https://base-ui.com/r/discord">
+                <Link class="Text sz-1" href="https://discord.com/invite/g6C3hUtuxz">
                   Discord
                 </Link>
               </nav>
@@ -54,10 +55,10 @@ export default function Layout(props: { children?: JSX.Element }) {
                 <Link class="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link class="Text sz-1" href="https://github.com/mui/base-ui">
+                <Link class="Text sz-1" href={REPO_URL}>
                   GitHub
                 </Link>
-                <Link class="Text sz-1" href="https://base-ui.com/r/discord">
+                <Link class="Text sz-1" href="https://discord.com/invite/g6C3hUtuxz">
                   Discord
                 </Link>
                 <Link class="Text sz-1" href="https://www.npmjs.com/package/base-ui-solid">

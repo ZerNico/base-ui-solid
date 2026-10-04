@@ -1,6 +1,6 @@
 {
   "Input": {
-    "description": "A native input element that automatically works with [Field](https://base-ui.com/react/components/field).\nRenders an `<input>` element.",
+    "description": "A native input element that automatically works with [Field](/react/components/field).\nRenders an `<input>` element.",
     "props": [
       {
         "name": "defaultValue",
