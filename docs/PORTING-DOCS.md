@@ -51,7 +51,7 @@ Vite resolves CSS Modules normally, and Tailwind compiles the upstream demo util
 Upstream `src/css` and component CSS are copied as-is; `port.css` supplies Solid shell controls.
 
 Port note: upstream's Next.js loader factories, React demo editing/error machinery, and analytics
-cannot be reused as Solid components. The current phase provides live demos, source variant/file
+cannot be reused as Solid components. The site provides live demos, source variant/file
 selection, local search, navigation, and TOC. It does not provide an in-browser code editor,
 CodeSandbox export, analytics, or the remaining website/private pages.
 

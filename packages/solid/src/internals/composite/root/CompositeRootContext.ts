@@ -14,7 +14,6 @@ export interface CompositeRootContext {
   relayKeyboardEvent: (event: KeyboardEvent) => void;
 }
 
-// TODO(port): the rest of `internals/composite` is not ported yet.
 // Solid treats an `undefined` default as "no default" (reading it without a provider throws),
 // so `null` stands in for upstream's `undefined` default.
 export const CompositeRootContext = createContext<CompositeRootContext | null>(null);

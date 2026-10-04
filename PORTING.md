@@ -1,5 +1,8 @@
 # Porting guide: `@base-ui/react` → Solid 2.0
 
+Every upstream module is ported. This guide is for porting upstream changes (see `UPSTREAM.md`
+for the tracked commit and the sync workflow) and for reviewing deviations.
+
 The goal is a file-by-file port: same folder layout, file names, exports, data attributes, CSS
 variables, event reasons and behavior as upstream (see `UPSTREAM.md` for the tracked commit).
 Deviate only where React and Solid fundamentally differ, and leave a `Port note:` comment when you do.
@@ -317,23 +320,3 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
   The last two could become derived state. Revisit once more components share these primitives,
   and keep the upstream behavior tests green while doing it.
-
-## Port status
-
-| Area                                                                                | Status                                        |
-| :---------------------------------------------------------------------------------- | :-------------------------------------------- |
-| `merge-props`, `use-render`                                                         | Ported                                        |
-| `internals/useRenderElement`                                                        | Ported (Solid-specific implementation)        |
-| `internals/use-button`                                                              | Ported                                        |
-| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete`   | Ported                                        |
-| `collapsible`                                                                       | Ported, upstream jsdom tests ported           |
-| `accordion`                                                                         | Ported                                        |
-| `separator`, `toggle`, `toggle-group`                                               | Ported, upstream tests ported                 |
-| `direction-provider`                                                                | Ported (`useDirection()` returns an accessor) |
-| `internals/composite`                                                               | Ported (list, item, root, grid navigation)    |
-| `toolbar`, `tabs`                                                                   | Ported, upstream tests ported                 |
-| `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                     |
-| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | Ported                                        |
-| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | Ported, upstream tests ported                 |
-| `button`, `meter`, `progress`, `avatar`, `csp-provider`, `unstable-use-media-query` | Ported, upstream tests ported                 |
-| All other modules                                                                   | Ported (every upstream module; see git log)   |

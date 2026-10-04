@@ -21,6 +21,7 @@
     "smoke:fix2": "node scripts/checkDocs.mjs",
     "performance": "node scripts/performance.mjs",
     "screenshots": "node scripts/compareScreenshots.mjs",
+    "interactions": "node scripts/compareInteractions.mjs",
     "redirects": "node scripts/checkRedirects.mjs"
   },
   "dependencies": {

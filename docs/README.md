@@ -10,6 +10,9 @@ TanStack Start + Solid 2.0, with upstream MDX, CSS, and MUI docs infrastructure.
 - `pnpm --filter docs test`: all copied upstream docs plugin tests.
 - `pnpm --filter docs redirects`: verify every legacy HTML/Markdown URL returns 301.
 - `pnpm --filter docs smoke`: Playwright check against the running dev or static server.
+- `pnpm --filter docs interactions`: interact with every demo on the dev server and on
+  base-ui.com and diff the results (`--only <path>`, `--out <file>`). Differences can also come
+  from base-ui.com running a newer release than the tracked upstream commit.
 
 Port note: Documentation URLs use `/solid/`. Legacy `/react/*` URLs permanently redirect
 to `/solid/*` in dev, SSR, and static hosting. Components, demos,
