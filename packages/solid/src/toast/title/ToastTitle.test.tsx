@@ -1,0 +1,284 @@
+import { createSignal, flush } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { expect, vi, describe, it } from 'vitest';
+import { Toast } from 'base-ui-solid/toast';
+import { createRenderer, describeConformance, screen } from '#test-utils';
+import { List, Button } from '../utils/test-utils';
+
+const toast = {
+  id: 'test',
+  title: 'Toast title',
+};
+
+describe('<Toast.Title />', () => {
+  const { render } = createRenderer();
+
+  describeConformance((props: Toast.Title.Props) => <Toast.Title {...props}>title</Toast.Title>, {
+    refInstanceof: window.HTMLHeadingElement,
+    wrap: (node) => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>{node()}</Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ),
+  });
+
+  it('throws a descriptive error when rendered outside <Toast.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Port note: when a part throws below another element, Solid rethrows the error that `render`
+    // rejects with once more as an uncaught error (reported through `window`'s `error` event).
+    // Swallow that duplicate report only.
+    const handleWindowError = (event: ErrorEvent) => {
+      if (event.message.includes('ToastRootContext is missing')) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener('error', handleWindowError);
+
+    try {
+      await expect(
+        render(() => (
+          <Toast.Provider>
+            <Toast.Viewport>
+              <Toast.Title />
+            </Toast.Viewport>
+          </Toast.Provider>
+        )),
+      ).rejects.toThrow(
+        'Base UI: ToastRootContext is missing. Toast parts must be used within <Toast.Root>.',
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    } finally {
+      window.removeEventListener('error', handleWindowError);
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('adds aria-labelledby to the root element', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const titleElement = screen.getByTestId('title');
+    const titleId = titleElement.id;
+
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement).not.toBe(null);
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(titleId);
+  });
+
+  it('does not render if it has no children', async () => {
+    function AddButton() {
+      const { add } = Toast.useToastManager();
+      return (
+        <button type="button" onClick={() => add({ title: undefined })}>
+          add
+        </button>
+      );
+    }
+
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <AddButton />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const titleElement = screen.queryByTestId('title');
+    expect(titleElement).toBe(null);
+  });
+
+  it('renders the title by default', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const titleElement = screen.getByTestId('title');
+    expect(titleElement).not.toBe(null);
+    expect(titleElement.textContent).toBe('title');
+  });
+
+  // Port note: `render={<div>…</div>}` is a React element; render functions are used instead.
+  it('renders content passed through the render prop', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={(props) => <div {...props}>render prop title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.getByText('render prop title')).not.toBe(null);
+  });
+
+  it('renders content passed through a render function', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={(props) => <div {...props}>render fn title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.getByText('render fn title')).not.toBe(null);
+  });
+
+  it('wires aria-labelledby to a title rendered through the render prop', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }} data-testid="root">
+            <Toast.Title render={(props) => <div {...props}>render prop title</div>} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    const titleElement = screen.getByText('render prop title');
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(titleElement.id);
+  });
+
+  it('does not render a childless render prop when there is no content', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title render={(props) => <div {...props} data-testid="title-render" />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.queryByTestId('title-render')).toBe(null);
+  });
+
+  it('renders a numeric zero child', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }}>
+            <Toast.Title>{0}</Toast.Title>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.getByText('0')).not.toBe(null);
+  });
+
+  it('does not render when a render function returns no element', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ id: 'test' }} data-testid="root">
+            <Toast.Title data-testid="title-render" render={(() => null) as any} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.getByTestId('root')).not.toBe(null);
+    expect(screen.queryByTestId('title-render')).toBe(null);
+  });
+
+  it('clears aria-labelledby from the root when the title content is removed', async () => {
+    function Fixture() {
+      const [title, setTitle] = createSignal<JSX.Element>('Toast title');
+      return (
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={{ id: 'test' }} data-testid="root">
+              <Toast.Title>{title()}</Toast.Title>
+            </Toast.Root>
+          </Toast.Viewport>
+          <button type="button" onClick={() => setTitle(null)}>
+            clear
+          </button>
+        </Toast.Provider>
+      );
+    }
+
+    const { user } = await render(() => <Fixture />);
+
+    const rootElement = screen.getByTestId('root');
+    expect(rootElement.getAttribute('aria-labelledby')).not.toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'clear' }));
+
+    expect(screen.queryByText('Toast title')).toBe(null);
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(null);
+  });
+
+  it('does not let an older title cleanup clear a newer title', async () => {
+    const [titles, setTitles] = createSignal<'old' | 'both' | 'new'>('old');
+
+    function Fixture(props: { titles: 'old' | 'both' | 'new' }) {
+      return (
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={{ id: 'test' }} data-testid="root">
+              {props.titles !== 'new' && <Toast.Title id="old-title">Old</Toast.Title>}
+              {props.titles !== 'old' && <Toast.Title id="new-title">New</Toast.Title>}
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>
+      );
+    }
+
+    await render(() => <Fixture titles={titles()} />);
+
+    const root = screen.getByTestId('root');
+    expect(root).toHaveAttribute('aria-labelledby', 'old-title');
+
+    setTitles('both');
+    flush();
+    expect(root).toHaveAttribute('aria-labelledby', 'new-title');
+
+    setTitles('new');
+    flush();
+    expect(root).toHaveAttribute('aria-labelledby', 'new-title');
+  });
+
+  it('renders the toast title through a childless render prop', async () => {
+    await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={toast}>
+            <Toast.Title render={(props) => <div {...props} />} />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    expect(screen.getByText('Toast title')).not.toBe(null);
+  });
+});
