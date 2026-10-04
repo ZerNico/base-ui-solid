@@ -15,14 +15,19 @@ describe('custom toast render content', () => {
     expect(root).not.toHaveAttribute('aria-describedby');
     setEmpty(false);
     flush();
-    await waitFor(() => expect(screen.getByRole('heading')).toHaveTextContent('title'));
-    expect(screen.getByRole('button')).toHaveTextContent('action');
+    // Each part detects its content on its own, so WebKit may reveal them in separate ticks.
+    await waitFor(() => {
+      expect(screen.getByRole('heading')).toHaveTextContent('title');
+      expect(screen.getByRole('button')).toHaveTextContent('action');
+      expect(root.getAttribute('aria-describedby')).toBe(screen.getByText('description').id);
+    });
     expect(root.getAttribute('aria-labelledby')).toBe(screen.getByRole('heading').id);
-    expect(root.getAttribute('aria-describedby')).toBe(screen.getByText('description').id);
     setEmpty(true);
     flush();
-    await waitFor(() => expect(screen.queryByRole('heading')).toBeNull());
-    expect(screen.queryByRole('button')).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByRole('heading')).toBeNull();
+      expect(screen.queryByRole('button')).toBeNull();
+    });
     expect(root).not.toHaveAttribute('aria-labelledby');
     expect(root).not.toHaveAttribute('aria-describedby');
     // Detached custom roots must still be observed when content returns.

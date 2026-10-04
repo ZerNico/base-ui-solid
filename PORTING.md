@@ -295,6 +295,16 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ## Known issues
 
+### Firefox and WebKit
+
+Like upstream, CI only runs jsdom and Chromium. `pnpm test:firefox` and `pnpm test:webkit` fail
+in upstream too: many tests rely on `Touch`, pointer capture and Chromium focus/scroll behavior.
+On 2026-10-04, upstream's own suite failed the same tests as this port in WebKit (192), and in
+Firefox the port matched upstream's 137 failures apart from a few tests that only fail under
+full-suite load and pass when their file runs alone. Compare against upstream before treating a
+Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox --run <names>` in
+`../base-ui` (it needs `pnpm install` and `pnpm --filter @base-ui/utils build` there first).
+
 ### Porting pitfalls
 
 - `useIsoLayoutEffect` compares dependencies with `Object.is`. Use incrementing counters for tick
