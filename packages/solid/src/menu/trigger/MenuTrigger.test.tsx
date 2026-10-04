@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, flush, untrack } from 'solid-js';
 
 import type { JSX } from '@solidjs/web';
 
@@ -363,6 +363,7 @@ describe('<Menu.Trigger />', () => {
   describe('impatient clicks with `openOnHover=true`', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
     clock.withFakeTimers();
+    // Port note: flush after native events and timer advances, matching React act boundaries.
     it('does not close the menu if the user clicks too quickly', async () => {
       await renderFakeTimers(() => (
         <Menu.Root>
@@ -371,8 +372,11 @@ describe('<Menu.Trigger />', () => {
       ));
       const trigger = screen.getByRole('button');
       fireEvent.mouseMove(trigger);
+      flush();
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+      flush();
       fireEvent.click(trigger);
+      flush();
       expect(trigger).toHaveAttribute('data-popup-open');
     });
     it('closes the menu if the user clicks patiently', async () => {
@@ -388,8 +392,11 @@ describe('<Menu.Trigger />', () => {
       ));
       const trigger = screen.getByRole('button');
       fireEvent.mouseEnter(trigger);
+      flush();
       clock.tick(PATIENT_CLICK_THRESHOLD);
+      flush();
       fireEvent.click(trigger);
+      flush();
       expect(trigger).not.toHaveAttribute('data-popup-open');
     });
     it('sticks if the user clicks impatiently', async () => {
@@ -400,11 +407,16 @@ describe('<Menu.Trigger />', () => {
       ));
       const trigger = screen.getByRole('button');
       fireEvent.mouseEnter(trigger);
+      flush();
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+      flush();
       fireEvent.click(trigger);
+      flush();
       fireEvent.mouseLeave(trigger);
+      flush();
       expect(trigger).toHaveAttribute('data-popup-open');
       clock.tick(1);
+      flush();
       expect(trigger).toHaveAttribute('data-popup-open');
     });
     it('does not stick if the user clicks patiently', async () => {
@@ -420,9 +432,13 @@ describe('<Menu.Trigger />', () => {
       ));
       const trigger = screen.getByRole('button');
       fireEvent.mouseEnter(trigger);
+      flush();
       clock.tick(PATIENT_CLICK_THRESHOLD);
+      flush();
       fireEvent.click(trigger);
+      flush();
       fireEvent.mouseLeave(trigger);
+      flush();
       expect(trigger).not.toHaveAttribute('data-popup-open');
     });
     it('sticks when clicked before the hover delay completes', async () => {
@@ -440,12 +456,17 @@ describe('<Menu.Trigger />', () => {
       ));
       const trigger = screen.getByRole('button');
       fireEvent.mouseEnter(trigger);
+      flush();
       fireEvent.mouseMove(trigger);
+      flush();
       clock.tick(100);
+      flush();
       // User clicks impatiently to open
       fireEvent.click(trigger);
+      flush();
       expect(trigger).toHaveAttribute('data-popup-open');
       fireEvent.mouseLeave(trigger);
+      flush();
       expect(trigger).toHaveAttribute('data-popup-open');
     });
     it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
@@ -470,15 +491,23 @@ describe('<Menu.Trigger />', () => {
       );
       const trigger = screen.getByRole('button');
       fireEvent.mouseEnter(trigger);
+      flush();
       fireEvent.mouseMove(trigger);
+      flush();
       clock.tick(100);
+      flush();
       await flushMicrotasks();
       expect(screen.getByText('Content')).not.toBe(null);
       clock.tick(PATIENT_CLICK_THRESHOLD);
+      flush();
       fireEvent.mouseLeave(trigger);
+      flush();
       fireEvent.mouseEnter(trigger);
+      flush();
       fireEvent.mouseMove(trigger);
+      flush();
       fireEvent.click(trigger);
+      flush();
       expect(screen.getByText('Content')).not.toBe(null);
     });
   });

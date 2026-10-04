@@ -1,4 +1,4 @@
-import { omit } from 'solid-js';
+import { createEffect, flush, omit } from 'solid-js';
 
 import type { JSX } from '@solidjs/web';
 
@@ -81,7 +81,11 @@ describe('<Menu.RadioItem />', () => {
       },
       ref: Ref<HTMLLIElement>,
     ) {
-      props.renderSpy();
+      // Port note: count Solid reactive prop updates instead of React StrictMode renders.
+      createEffect(
+        () => ({ ...omit(props, 'renderSpy', 'state') }),
+        () => props.renderSpy(),
+      );
       return <li {...omit(props, 'renderSpy', 'state')} ref={ref} />;
     });
     await render(
@@ -150,16 +154,16 @@ describe('<Menu.RadioItem />', () => {
     renderItem4Spy.mockClear();
     expect(renderItem1Spy.mock.calls.length).toBe(0);
     fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
-    // React renders twice in strict mode, so we expect twice the number of spy calls
+    // Port note: Solid updates each changed item once.
     await waitFor(
       () => {
-        expect(renderItem1Spy.mock.calls.length).toBe(2); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.mock.calls.length).toBe(1); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
     await waitFor(
       () => {
-        expect(renderItem2Spy.mock.calls.length).toBe(2); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.mock.calls.length).toBe(1); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );
@@ -492,6 +496,8 @@ describe('<Menu.RadioItem />', () => {
       expect(handleClick.mock.calls.length).toBe(0);
       expect(handleValueChange.mock.calls.length).toBe(0);
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      // Port note: native fireEvent does not flush Solid navigation like React act.
+      flush();
       expect(handleKeyDown.mock.calls.length).toBe(0);
       expect(item2).toHaveFocus();
       fireEvent.keyDown(item2, { key: 'Enter' });
@@ -566,6 +572,8 @@ describe('<Menu.RadioItem />', () => {
     expect(handleClick.mock.calls.length).toBe(0);
     expect(handleValueChange.mock.calls.length).toBe(0);
     fireEvent.keyDown(item1, { key: 'ArrowDown' });
+    // Port note: native fireEvent does not flush Solid navigation like React act.
+    flush();
     expect(handleKeyDown.mock.calls.length).toBe(0);
     expect(item2).toHaveFocus();
     fireEvent.keyDown(item2, { key: 'Enter' });

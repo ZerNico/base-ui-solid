@@ -1,3 +1,4 @@
+import { flush } from 'solid-js';
 import type { ComponentProps } from 'solid-js';
 
 import { fireEvent, screen, waitFor, isJSDOM } from '#test-utils';
@@ -42,6 +43,8 @@ function fireScreenReaderMouseDown(element: Element) {
     buttons: 0,
   });
   fireEvent.mouseDown(element, { detail: 0 });
+  // Port note: match React fireEvent's act flush synchronously, without waiting a frame.
+  flush();
 }
 // Chrome performs a screen reader activation (TalkBack, VoiceOver, NVDA) as a synthetic mouse
 // press: a zero-pressure 1x1 `pointerdown` followed by `mousedown` and a `detail: 0` click.

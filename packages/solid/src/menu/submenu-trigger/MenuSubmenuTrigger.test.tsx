@@ -1,3 +1,4 @@
+import { flush } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 
 import { afterEach, beforeEach, vi, expect, describe, it } from 'vitest';
@@ -11,6 +12,14 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
 
 type TextDirection = 'ltr' | 'rtl';
+
+// Port note: production guards use Solid's build flag, not a runtime NODE_ENV check.
+const buildMode = vi.hoisted(() => ({ isDev: true }));
+vi.mock('@base-ui-solid/utils/isDev', () => ({
+  get IS_DEV() {
+    return buildMode.isDev;
+  },
+}));
 
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
@@ -397,8 +406,11 @@ describe('<Menu.SubmenuTrigger />', () => {
         }),
       );
       const submenuTrigger = screen.getByText('2');
-      fireEvent.focus(submenuTrigger);
+      // Port note: native focus dispatch does not move focus or bubble as React onFocus does.
+      await act(() => submenuTrigger.focus());
       fireEvent.keyDown(submenuTrigger, { key: componentProps3.openKey });
+      // Port note: flush the native event before findAll sees only the parent items.
+      flush();
       const submenuItems = await screen.findAllByRole('menuitem');
       const submenuItem1 = submenuItems.find((item) => item.textContent === '2.1');
       await waitFor(() => {
@@ -424,7 +436,7 @@ describe('<Menu.SubmenuTrigger />', () => {
       }),
     );
     const submenuTrigger = screen.getByText('2');
-    fireEvent.focus(submenuTrigger);
+    await act(() => submenuTrigger.focus());
     fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
     await waitFor(() => {
       expect(submenuTrigger).toHaveAttribute('tabIndex', '0');
@@ -462,7 +474,8 @@ describe('<Menu.SubmenuTrigger />', () => {
         },
       }),
     );
-    fireEvent.focus(screen.getByText('Alpha'));
+    // Port note: move real focus before typing through user-event.
+    await act(() => screen.getByText('Alpha').focus());
     await user.keyboard('r');
     await waitFor(() => {
       expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
@@ -632,6 +645,7 @@ describe('<Menu.SubmenuTrigger />', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const originalNodeEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
+      buildMode.isDev = false;
       try {
         await render(
           (testProps: any) => <Menu.Root {...testProps} />,
@@ -664,6 +678,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         expect(warnSpy).not.toHaveBeenCalled();
       } finally {
         process.env.NODE_ENV = originalNodeEnv;
+        buildMode.isDev = true;
       }
     });
   });

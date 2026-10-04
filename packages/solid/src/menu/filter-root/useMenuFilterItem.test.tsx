@@ -1,7 +1,7 @@
 import { createSignal, untrack } from 'solid-js';
 
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { fireEvent, screen, waitFor, resetBrowserPointer } from '#test-utils';
+import { fireEvent, screen, waitFor, waitForPositioned, resetBrowserPointer } from '#test-utils';
 import { Menu } from 'base-ui-solid/menu';
 import { createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
@@ -65,6 +65,7 @@ describe('filtered Menu items', () => {
         setLabel = setLabelState;
         return <>{label()}</>;
       }
+      // Port note: triggerless fixtures use a DOM anchor to exercise filtering with a positioned popup.
       const { user } = await render(
         (testProps: any) => <Menu.FilterProvider {...testProps} />,
         () => ({
@@ -73,7 +74,7 @@ describe('filtered Menu items', () => {
               <>
                 <Menu.Root open>
                   <Menu.Portal>
-                    <Menu.Positioner>
+                    <Menu.Positioner anchor={document.body}>
                       <Menu.Popup>
                         <Menu.Input aria-label="Filter actions" />
                         <Menu.List>
@@ -91,6 +92,8 @@ describe('filtered Menu items', () => {
           },
         }),
       );
+      // Port note: settle Solid positioning before asserting rendered visibility.
+      await waitForPositioned(screen.getByRole('dialog').parentElement!);
       await act(async () => setLabel('Rename'));
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rename');
@@ -186,10 +189,11 @@ describe('filtered Menu items', () => {
       }
       function Test(props: { value: string; tick: number }) {
         return (
+          // Port note: give this triggerless filtering fixture a DOM anchor so visibility can be asserted.
           <Menu.FilterProvider value={props.value}>
             <Menu.Root open>
               <Menu.Portal>
-                <Menu.Positioner>
+                <Menu.Positioner anchor={document.body}>
                   <Menu.Popup data-tick={props.tick}>
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
@@ -214,6 +218,8 @@ describe('filtered Menu items', () => {
           tick: 0,
         }),
       );
+      // Port note: settle Solid positioning before asserting rendered visibility.
+      await waitForPositioned(screen.getByRole('dialog').parentElement!);
       await setProps({ value: 'usu', tick: 0 });
       expect(screen.queryByRole('menuitem', { name: 'Zmień nazwę' })).toBe(null);
       // Re-render the hidden item with the same children.
@@ -225,10 +231,11 @@ describe('filtered Menu items', () => {
     it('matches the new children of an item that changed while it was filtered out', async () => {
       function Test(props: { value: string; label: string }) {
         return (
+          // Port note: give this triggerless filtering fixture a DOM anchor so visibility can be asserted.
           <Menu.FilterProvider value={props.value}>
             <Menu.Root open>
               <Menu.Portal>
-                <Menu.Positioner>
+                <Menu.Positioner anchor={document.body}>
                   <Menu.Popup>
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>
@@ -249,6 +256,8 @@ describe('filtered Menu items', () => {
           label: 'Rename',
         }),
       );
+      // Port note: settle Solid positioning before asserting rendered visibility.
+      await waitForPositioned(screen.getByRole('dialog').parentElement!);
       await setProps({ value: 'del', label: 'Rename' });
       await setProps({ value: 'del', label: 'Duplicate' });
       await setProps({ value: 'dup', label: 'Duplicate' });
@@ -257,10 +266,11 @@ describe('filtered Menu items', () => {
     it('matches the updated text of an item rendered through its render element', async () => {
       function Test(props: { value: string; name: string }) {
         return (
+          // Port note: give this triggerless filtering fixture a DOM anchor so visibility can be asserted.
           <Menu.FilterProvider value={props.value}>
             <Menu.Root open>
               <Menu.Portal>
-                <Menu.Positioner>
+                <Menu.Positioner anchor={document.body}>
                   <Menu.Popup>
                     <Menu.Input aria-label="Filter actions" />
                     <Menu.List>

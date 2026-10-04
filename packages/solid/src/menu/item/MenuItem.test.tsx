@@ -307,7 +307,8 @@ describe('<Menu.Item />', () => {
         </Menu.Root>
       ));
 
-      const [firstItem, lastItem] = screen.getAllByRole('menuitem');
+      // Port note: preserve upstream's skipped middle (natively disabled) item.
+      const [firstItem, , lastItem] = screen.getAllByRole('menuitem');
       firstItem.focus();
       await flushMicrotasks();
 

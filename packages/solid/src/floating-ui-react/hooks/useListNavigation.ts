@@ -9,7 +9,7 @@ import { platform } from '@base-ui-solid/utils/platform';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import { useFloatingParentNodeIdAccessor, useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingRootContext } from '../types';
 import {
@@ -337,8 +337,10 @@ export function useListNavigation(
 
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
-  const parentId = useFloatingParentNodeId();
-  const tree = useFloatingTree(untrack(() => props.externalTree));
+  const parentId = useFloatingParentNodeIdAccessor();
+  // Port note: React re-reads the external tree after detached trigger registration.
+  const contextTree = useFloatingTree();
+  const tree = () => props.externalTree ?? contextTree;
 
   let focusItemOnOpenRef = untrack(focusItemOnOpen);
   let indexRef = untrack(selectedIndex) ?? -1;
@@ -553,12 +555,12 @@ export function useListNavigation(
   // to allow arrow key navigation to work after the pointer leaves the child.
   useIsoLayoutEffect(
     ([enabledValue, floatingElementValue, domReferenceElementValue, virtualValue]) => {
-      if (!enabledValue || floatingElementValue || !tree || virtualValue || !previousMountedRef) {
+      if (!enabledValue || floatingElementValue || !tree() || virtualValue || !previousMountedRef) {
         return;
       }
 
-      const nodes = tree.nodesRef.current;
-      const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
+      const nodes = tree()!.nodesRef.current;
+      const parent = nodes.find((node) => node.id === parentId())?.context?.elements.floating;
       // `floatingElement` is null here (see the guard above), so resolve the owner document from an
       // in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling back to
       // the parent floating element when the reference is virtual (`domReferenceElement` is null).
@@ -606,7 +608,7 @@ export function useListNavigation(
   const getParentOrientation = () => {
     return (
       parentOrientation() ??
-      (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current
+      (tree()?.nodesRef.current.find((node) => node.id === parentId())?.context?.dataRef?.current
         .orientation as UseListNavigationProps['orientation'])
     );
   };

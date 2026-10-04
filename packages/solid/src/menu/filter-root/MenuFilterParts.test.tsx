@@ -26,7 +26,8 @@ describe('Menu filter parts conformance', () => {
                   <Menu.Positioner>
                     <Menu.Popup>
                       {withInput && <Menu.Input aria-label="Filter" />}
-                      {node}
+                      {/* Port note: evaluate the Solid JSX factory under the popup owner. */}
+                      {typeof node === 'function' ? node() : node}
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>

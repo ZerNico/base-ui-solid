@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 
 import { expect, describe, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor, isJSDOM } from '#test-utils';
+import { fireEvent, screen, waitFor, waitForPositioned, isJSDOM } from '#test-utils';
 import userEvent from '@testing-library/user-event';
 import { Menu } from 'base-ui-solid/menu';
 import {
@@ -249,6 +249,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     expect(submenuTrigger).toHaveAttribute('aria-haspopup', 'menu');
     await user.click(submenuTrigger);
     const submenu = await screen.findByRole('menu', { name: 'Move to' });
+    // Port note: Solid positioning resolves after the popup mounts, outside React act.
+    await waitForPositioned(submenu);
     expect(submenu).toBeVisible();
     expect(screen.getAllByRole('searchbox')).toHaveLength(1);
     // The trigger is still an item of the filterable parent list, so the parent query hides it.

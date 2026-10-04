@@ -922,13 +922,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
         const activeEl = activeElement(doc);
         // Port note: cleanup observes the latest inside elements without establishing dependencies.
         const insideElements = untrack(getResolvedInsideElements);
-        const isFocusInsideFloatingTree =
-          contains(floatingValue, activeEl) ||
-          insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-          (tree &&
-            getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
-              contains(node.context?.elements.floating, activeEl),
-            ));
+        // Port note: cleanup snapshots the current tree; these reads cannot subscribe.
+        const isFocusInsideFloatingTree = untrack(
+          () =>
+            contains(floatingValue, activeEl) ||
+            insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
+            (tree &&
+              getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
+                contains(node.context?.elements.floating, activeEl),
+              )),
+        );
 
         const returnFocusValueOrFn = untrack(returnFocus);
         const closeTypeValue = closeType;

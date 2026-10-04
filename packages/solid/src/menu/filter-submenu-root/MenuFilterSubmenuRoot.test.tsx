@@ -578,8 +578,13 @@ describe('closing a filtered submenu from the keyboard', () => {
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-highlighted');
       });
+      // Port note: keyboard input targets the focused input after deferred opening focus.
       await user.keyboard('[ArrowDown]');
-      await screen.findByTestId('submenu');
+      const openedSubmenu = await screen.findByTestId('submenu');
+      // Port note: wait for deferred popup focus before sending the child's close key.
+      await waitFor(() =>
+        expect(openedSubmenu).toContainElement(document.activeElement as HTMLElement),
+      );
       await user.keyboard('[ArrowLeft]');
       await waitFor(() => {
         expect(screen.queryByTestId('submenu')).toBe(null);
@@ -624,8 +629,14 @@ describe('closing a filtered submenu from the keyboard', () => {
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
       });
+      // Port note: keyboard input targets the focused input after deferred opening focus.
+      await waitFor(() => expect(input).toHaveFocus());
       await user.keyboard('[ArrowDown]');
-      await screen.findByTestId('submenu');
+      const openedSubmenu = await screen.findByTestId('submenu');
+      // Port note: wait for deferred popup focus before sending the child's close key.
+      await waitFor(() =>
+        expect(openedSubmenu).toContainElement(document.activeElement as HTMLElement),
+      );
       await user.keyboard('[ArrowLeft]');
       await waitFor(() => {
         expect(screen.queryByTestId('submenu')).toBe(null);
@@ -680,7 +691,10 @@ describe('closing a filtered submenu from the keyboard', () => {
       });
       await user.keyboard('[ArrowDown]');
       await waitFor(() => {
-        expect(shadowRoot.querySelector('[data-testid="submenu"]')).not.toBe(null);
+        // Port note: focus settles after the Solid portal mounts.
+        expect(shadowRoot.querySelector('[data-testid="submenu"]')).toContainElement(
+          shadowRoot.activeElement as HTMLElement,
+        );
       });
       await user.keyboard('[ArrowLeft]');
       await waitFor(() => {

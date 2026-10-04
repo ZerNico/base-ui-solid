@@ -378,7 +378,8 @@ describe('<Menu.Positioner />', () => {
         const handleRef = portCallback((element: HTMLDivElement | null) => {
           setAnchor(element);
         }, []);
-        const getAnchor = portCallback(() => anchor(), [anchor()]);
+        // Port note: Solid callbacks are stable closures that read the latest signal.
+        const getAnchor = () => anchor();
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>

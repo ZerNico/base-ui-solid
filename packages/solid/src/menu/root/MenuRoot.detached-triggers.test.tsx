@@ -1,8 +1,16 @@
-import { createSignal, untrack } from 'solid-js';
+import { createEffect, createSignal, untrack } from 'solid-js';
 
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import { fireEvent, screen, waitFor, isJSDOM, wait } from '#test-utils';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  waitForPositioned,
+  waitSingleFrame,
+  isJSDOM,
+  wait,
+} from '#test-utils';
 import { Menu } from 'base-ui-solid/menu';
 import { PortFragment, createRenderer, ignoreActWarnings } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
@@ -571,7 +579,11 @@ describe('<MenuRoot />', () => {
         const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
         const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
         await user.click(trigger1);
-        await screen.findByTestId('menu');
+        const focusedPopupmenu = await screen.findByTestId('menu');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopupmenu).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
@@ -696,7 +708,11 @@ describe('<MenuRoot />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Trigger 1' });
         await user.click(trigger);
-        await screen.findByTestId('level-1');
+        const focusedPopuplevel1 = await screen.findByTestId('level-1');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopuplevel1).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
@@ -704,7 +720,11 @@ describe('<MenuRoot />', () => {
           expect(submenuTrigger1).toHaveFocus();
         });
         await user.keyboard('[ArrowRight]');
-        await screen.findByTestId('level-2');
+        const focusedPopuplevel2 = await screen.findByTestId('level-2');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopuplevel2).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
         await waitFor(() => {
@@ -796,6 +816,8 @@ describe('<MenuRoot />', () => {
         settleTriggerChange?: boolean;
       } = {},
     ) {
+      // Port note: keep the pending-switch fixture's animations alive until explicitly finished,
+      // preserving the upstream overlap assertion even when the browser runner is busy.
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const testMenu = Menu.createHandle<number>();
       const instantsWhileEnding: (string | undefined)[] = [];
@@ -810,14 +832,14 @@ describe('<MenuRoot />', () => {
                   {`
               .positioner {
                 transition:
-                  top 120ms linear,
-                  left 120ms linear,
-                  transform 120ms linear;
+                  top ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear,
+                  left ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear,
+                  transform ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear;
               }
 
               .popup {
                 opacity: 1;
-                transition: opacity 250ms linear;
+                transition: opacity ${componentProps8.settleTriggerChange === false ? 20000 : 250}ms linear;
               }
 
               .popup[data-ending-style] {
@@ -858,9 +880,15 @@ describe('<MenuRoot />', () => {
                           data-testid="popup"
                           class="popup"
                           render={(props, state) => {
-                            if (state.transitionStatus === 'ending') {
-                              instantsWhileEnding.push(state.instant);
-                            }
+                            // Port note: Solid renders once; observe reactive transition state.
+                            createEffect(
+                              () => [state.transitionStatus, state.instant] as const,
+                              ([status, instant]) => {
+                                if (status === 'ending') {
+                                  instantsWhileEnding.push(instant);
+                                }
+                              },
+                            );
                             return <div {...props} />;
                           }}
                         >
@@ -881,6 +909,9 @@ describe('<MenuRoot />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
+      // Port note: commit the first measured position before starting its CSS handoff.
+      await waitForPositioned(screen.getByTestId('positioner'));
+      await waitSingleFrame();
       await utils.user.hover(trigger2);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
@@ -990,11 +1021,17 @@ describe('<MenuRoot />', () => {
                     data-testid="popup"
                     class="popup"
                     render={(props, state) => {
-                      if (state.transitionStatus === 'ending') {
-                        instantsWhileEnding.push(state.instant);
-                      } else if (closeRequested) {
-                        instantsWhileClosePending.push(state.instant);
-                      }
+                      // Port note: Solid calls render once; observe each reactive state update.
+                      createEffect(
+                        () => [state.transitionStatus, state.instant] as const,
+                        ([status, instant]) => {
+                          if (status === 'ending') {
+                            instantsWhileEnding.push(instant);
+                          } else if (closeRequested) {
+                            instantsWhileClosePending.push(instant);
+                          }
+                        },
+                      );
                       return <div {...props} />;
                     }}
                   >
@@ -1049,6 +1086,8 @@ describe('<MenuRoot />', () => {
         expect(popup).toHaveAttribute('data-ending-style');
       });
       await act(async () => {
+        // Port note: complete the measured handoff while leaving the exit transition active.
+        switchAnimations.forEach((animation) => animation.finish());
         await Promise.all(switchAnimations.map((animation) => animation.finished));
       });
       // Still mid-exit: the stale callback must not have marked it instant and
@@ -1403,7 +1442,11 @@ describe('<MenuRoot />', () => {
         const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
         const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
         await user.click(trigger1);
-        await screen.findByTestId('menu');
+        const focusedPopupmenu = await screen.findByTestId('menu');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopupmenu).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
@@ -1531,13 +1574,21 @@ describe('<MenuRoot />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Trigger 1' });
         await user.click(trigger);
-        await screen.findByTestId('level-1');
+        const focusedPopuplevel1 = await screen.findByTestId('level-1');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopuplevel1).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
         await waitFor(() => expect(submenuTrigger1).toHaveFocus());
         await user.keyboard('[ArrowRight]');
-        await screen.findByTestId('level-2');
+        const focusedPopuplevel2 = await screen.findByTestId('level-2');
+        // Port note: Solid schedules opening focus after positioning.
+        await waitFor(() =>
+          expect(focusedPopuplevel2).toContainElement(document.activeElement as HTMLElement),
+        );
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
         await waitFor(() => expect(submenuTrigger2).toHaveFocus());

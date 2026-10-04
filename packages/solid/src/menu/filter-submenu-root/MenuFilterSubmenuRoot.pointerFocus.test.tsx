@@ -1,3 +1,4 @@
+import { untrack } from 'solid-js';
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   fireEvent,
@@ -12,7 +13,8 @@ import { PortFragment, createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 
 function Test(props: { filteredParent: boolean; openOnHover?: boolean }) {
-  const Provider = props.filteredParent ? Menu.FilterProvider : PortFragment;
+  // Port note: each test fixes this provider choice for the lifetime of the fixture.
+  const Provider = untrack(() => (props.filteredParent ? Menu.FilterProvider : PortFragment));
   return (
     <Provider>
       <Menu.Root defaultOpen modal={false}>

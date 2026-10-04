@@ -1,4 +1,4 @@
-import { omit } from 'solid-js';
+import { createEffect, omit } from 'solid-js';
 
 import { expect, vi, describe, it } from 'vitest';
 import { fireEvent, waitFor, screen, isJSDOM } from '#test-utils';
@@ -33,7 +33,11 @@ describe('<Menu.CheckboxItem />', () => {
       },
       ref: Ref<HTMLLIElement>,
     ) {
-      props.renderSpy();
+      // Port note: Solid mounts once; count reactive prop updates instead of React StrictMode renders.
+      createEffect(
+        () => ({ ...omit(props, 'renderSpy', 'state') }),
+        () => props.renderSpy(),
+      );
       return <li {...omit(props, 'renderSpy', 'state')} ref={ref} />;
     });
     await render(
@@ -96,16 +100,16 @@ describe('<Menu.CheckboxItem />', () => {
     renderItem4Spy.mockClear();
     expect(renderItem1Spy.mock.calls.length).toBe(0);
     fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
-    // React renders twice in strict mode, so we expect twice the number of spy calls
+    // Port note: each changed item updates once; Solid has no StrictMode double render.
     await waitFor(
       () => {
-        expect(renderItem1Spy.mock.calls.length).toBe(2); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.mock.calls.length).toBe(1); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
     await waitFor(
       () => {
-        expect(renderItem2Spy.mock.calls.length).toBe(2); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.mock.calls.length).toBe(1); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );

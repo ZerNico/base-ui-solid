@@ -27,6 +27,13 @@ export const useFloatingParentNodeId = (): string | null => {
   return untrack(() => node?.id) || null;
 };
 
+// Port note: detached triggers can replace a popup node ID after descendants mount.
+// React reads context again on rerender; Solid consumers keep a live accessor instead.
+export function useFloatingParentNodeIdAccessor(): Accessor<string | null> {
+  const node = useContext(FloatingNodeContext);
+  return () => node?.id || null;
+}
+
 /**
  * Returns the nearest floating tree context, if available.
  */
@@ -48,21 +55,21 @@ export function useFloatingNodeId(
   const contextTree = useFloatingTree();
   const tree = () =>
     (typeof externalTree === 'function' ? externalTree() : externalTree) ?? contextTree;
-  const parentId = useFloatingParentNodeId();
+  const parentId = useFloatingParentNodeIdAccessor();
 
   useIsoLayoutEffect(
-    ([treeValue]) => {
+    ([treeValue, parentIdValue]) => {
       if (!id) {
         return undefined;
       }
 
-      const node = { id, parentId };
+      const node = { id, parentId: parentIdValue };
       treeValue?.addNode(node);
       return () => {
         treeValue?.removeNode(node);
       };
     },
-    () => [tree(), id, parentId],
+    () => [tree(), parentId(), id],
   );
 
   return id;
@@ -79,14 +86,16 @@ export interface FloatingNodeProps {
  * @internal
  */
 export function FloatingNode(props: FloatingNodeProps): JSX.Element {
-  const parentId = useFloatingParentNodeId();
+  const parentId = useFloatingParentNodeIdAccessor();
   const id = createMemo(() => props.id);
 
   const value: FloatingNodeType = {
     get id() {
       return id();
     },
-    parentId,
+    get parentId() {
+      return parentId();
+    },
   };
 
   return <FloatingNodeContext value={value}>{props.children}</FloatingNodeContext>;

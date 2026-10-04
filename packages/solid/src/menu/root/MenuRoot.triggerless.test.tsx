@@ -272,19 +272,23 @@ describe('<Menu.Root /> without a trigger', () => {
       }
       function Demo() {
         const [hasTrigger, setHasTrigger] = createSignal(untrack(() => initialTrigger));
+        // Port note: Solid runs parent effects first. Defer the parent observation to a
+        // microtask so the child registration effects have run, as in React layout effects.
         useIsoLayoutEffect(
-          () => {
-            if (hasTrigger()) {
-              const [store, nodeId, parentNodeId] = registered.mock.lastCall!;
-              rootIds(
-                store.select('floatingNodeId'),
-                nodeId,
-                store.select('floatingParentNodeId'),
-                parentNodeId,
-              );
+          ([present]) => {
+            if (present) {
+              queueMicrotask(() => {
+                const [store, nodeId, parentNodeId] = registered.mock.lastCall!;
+                rootIds(
+                  store.select('floatingNodeId'),
+                  nodeId,
+                  store.select('floatingParentNodeId'),
+                  parentNodeId,
+                );
+              });
             }
           },
-          () => [hasTrigger()],
+          () => [hasTrigger()] as const,
         );
         return (
           <Menu.Root defaultOpen modal={false} onOpenChange={changed}>

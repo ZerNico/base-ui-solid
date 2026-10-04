@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, flush, untrack } from 'solid-js';
 
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { Menu } from 'base-ui-solid/menu';
@@ -188,6 +188,8 @@ describe('<Menu.CheckboxItemIndicator />', () => {
       );
       expect(screen.getByTestId('indicator')).not.toBe(null);
       fireEvent.click(screen.getByText('Close'));
+      // Port note: native fireEvent does not flush Solid updates like React act.
+      flush();
       expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

@@ -5,11 +5,11 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { useFloatingParentNodeIdAccessor } from '../../floating-ui-react/components/FloatingTree';
 import {
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
-  useFloatingParentNodeId,
   useListNavigation,
   useTypeahead,
   useSyncedFloatingRootContext,
@@ -118,7 +118,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   // at the generated fallback.
   const floatingId = () => (renderedFloatingId() ?? defaultFloatingId) || undefined;
 
-  const floatingParentNodeIdFromContext = useFloatingParentNodeId();
+  const floatingParentNodeIdFromContext = useFloatingParentNodeIdAccessor();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
@@ -153,7 +153,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
         instantType: seededInstantType,
       },
       floatingId(),
-      floatingParentNodeIdFromContext != null,
+      untrack(floatingParentNodeIdFromContext) != null,
     );
     // A stable ref object, so descendants can read it from the first render.
     menuStore.context.virtualFocusRef = virtualFocusRef;
@@ -172,7 +172,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   // nested roots read their parent ID on their first mount, including triggerless menus.
   store.update({
     floatingNodeId: floatingNodeIdFromContext,
-    floatingParentNodeId: floatingParentNodeIdFromContext,
+    floatingParentNodeId: untrack(floatingParentNodeIdFromContext),
   });
 
   const open = store.useState('open');
@@ -293,18 +293,23 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
             context: contextMenuContext,
           },
           floatingNodeId,
-          floatingParentNodeId: floatingParentNodeIdFromContext,
+          floatingParentNodeId: untrack(floatingParentNodeIdFromContext),
         });
       } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
         // Without an active trigger, the root must supply its own tree IDs.
         // Read the store here: a trigger can register after render, before this effect.
         store.update({
           floatingNodeId,
-          floatingParentNodeId: floatingParentNodeIdFromContext,
+          floatingParentNodeId: untrack(floatingParentNodeIdFromContext),
         });
       }
     },
-    () => [floatingNodeIdFromContext, activeTriggerElement()] as const,
+    () =>
+      [
+        floatingNodeIdFromContext,
+        activeTriggerElement(),
+        floatingParentNodeIdFromContext(),
+      ] as const,
   );
 
   useEffect(
@@ -453,7 +458,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get floatingId() {
       return floatingId();
     },
-    nested: floatingParentNodeIdFromContext != null,
+    nested: untrack(floatingParentNodeIdFromContext) != null,
     onOpenChange: setOpen,
   });
 

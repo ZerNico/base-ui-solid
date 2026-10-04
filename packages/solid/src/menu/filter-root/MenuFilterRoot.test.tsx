@@ -7,8 +7,9 @@ import {
   isJSDOM,
   resetBrowserPointer,
   waitSingleFrame,
+  waitForPositioned,
 } from '#test-utils';
-import { createSignal, untrack } from 'solid-js';
+import { createEffect, createSignal, untrack } from 'solid-js';
 
 import type { JSX } from '@solidjs/web';
 
@@ -724,12 +725,13 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(deleteItem).toHaveAttribute('data-highlighted');
       });
       it('keeps the highlight when an item\'s text changes with autoHighlight="always"', async () => {
+        // Port note: the triggerless visibility fixture needs a concrete positioning anchor.
         function Test(props: { count: number }) {
           return (
             <Menu.FilterProvider autoHighlight="always">
               <Menu.Root open>
                 <Menu.Portal>
-                  <Menu.Positioner>
+                  <Menu.Positioner anchor={document.body}>
                     <Menu.Popup>
                       <Menu.Input aria-label="Filter actions" />
                       <Menu.List>
@@ -1710,7 +1712,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         });
         await user.click(screen.getByRole('menuitem', { name: 'Fruit' }));
         expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
-        expect(await screen.findByRole('menuitem', { name: 'Banana' })).toBeVisible();
+        // Port note: a mounted popup can still be waiting for its positioning frame.
+        const banana = await screen.findByRole('menuitem', { name: 'Banana' });
+        await waitForPositioned(banana.closest('[data-side]')!);
+        expect(banana).toBeVisible();
       },
     );
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
@@ -3478,7 +3483,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                         <Menu.List>
                           <Menu.Item
                             render={(props) => {
-                              firstRender();
+                              // Port note: Solid render callbacks run once; observe reactive item props.
+                              createEffect(
+                                () => ({ ...props }),
+                                () => firstRender(),
+                              );
                               return <div {...props} />;
                             }}
                           >
@@ -3486,7 +3495,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
                           </Menu.Item>
                           <Menu.Item
                             render={(props) => {
-                              secondRender();
+                              // Port note: Solid render callbacks run once; observe reactive item props.
+                              createEffect(
+                                () => ({ ...props }),
+                                () => secondRender(),
+                              );
                               return <div {...props} />;
                             }}
                           >
@@ -4707,6 +4720,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   });
   describe('IME composition', () => {
     it('filters on the committed text, not the composition in progress', async () => {
+      // Port note: triggerless visibility is positioned against the document.
       const onValueChange = vi.fn();
       await render(
         (testProps: any) => <Menu.FilterProvider {...testProps} />,
@@ -4717,7 +4731,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
               <>
                 <Menu.Root open>
                   <Menu.Portal>
-                    <Menu.Positioner>
+                    <Menu.Positioner anchor={document.body}>
                       <Menu.Popup>
                         <Menu.Input aria-label="Filter actions" />
                         <Menu.Empty>No actions found.</Menu.Empty>
@@ -4752,6 +4766,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
   describe('input value change reasons', () => {
+    // Port note: this helper takes the callback itself, not a callback accessor.
     async function renderReasonMenu(onValueChange: (value: string, reason: string) => void) {
       return render(
         (testProps: any) => <Menu.FilterProvider {...testProps} />,
@@ -4783,13 +4798,13 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     }
     it('reports input-change while typing', async () => {
       const onValueChange = vi.fn();
-      const { user } = await renderReasonMenu(() => onValueChange);
+      const { user } = await renderReasonMenu(onValueChange);
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
       expect(onValueChange).toHaveBeenCalledWith('r', 'input-change');
     });
     it('reports input-clear when the field is emptied', async () => {
       const onValueChange = vi.fn();
-      const { user } = await renderReasonMenu(() => onValueChange);
+      const { user } = await renderReasonMenu(onValueChange);
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       await user.type(input, 'r');
       await user.clear(input);
@@ -4797,7 +4812,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
     it('reports clear-press when the clear button is used', async () => {
       const onValueChange = vi.fn();
-      const { user } = await renderReasonMenu(() => onValueChange);
+      const { user } = await renderReasonMenu(onValueChange);
       await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
       await user.click(screen.getByLabelText('Clear filter'));
       expect(onValueChange).toHaveBeenLastCalledWith('', 'clear-press');
@@ -5407,8 +5422,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       const trigger = screen.getByRole('menuitem', { name: 'Share' });
       await user.hover(trigger);
       const item = await screen.findByRole('menuitem', { name: 'Email' });
+      // Port note: wait for submenu initial focus before simulating item movement.
+      await waitForPositioned(item.closest('[data-side]')!);
       fireEvent.mouseMove(item);
-      expect(item).toHaveFocus();
+      await waitFor(() => expect(item).toHaveFocus());
       await waitFor(() => {
         expect(input).not.toHaveAttribute('data-highlighted');
       });
@@ -5767,6 +5784,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       await waitFor(() => {
         expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveValue('');
       });
+      // Port note: reopening a kept-mounted popup still schedules positioning.
+      await waitForPositioned(
+        screen.getByRole('menuitem', { name: 'Delete' }).closest('[data-side]')!,
+      );
       expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(
         'aria-activedescendant',

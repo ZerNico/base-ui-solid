@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, flush, untrack } from 'solid-js';
 
 import type { JSX } from '@solidjs/web';
 
@@ -215,6 +215,8 @@ describe('<Menu.RadioItemIndicator />', () => {
       );
       expect(screen.getByTestId('indicator')).not.toBe(null);
       fireEvent.click(screen.getByText('Select b'));
+      // Port note: native fireEvent does not flush Solid updates like React act.
+      flush();
       expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

@@ -1,4 +1,4 @@
-import { createSignal, omit, untrack } from 'solid-js';
+import { createSignal, flush, omit, untrack } from 'solid-js';
 import type { Component, ComponentProps } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -16,6 +16,7 @@ import {
   popupConformanceTests,
   resetBrowserPointer,
   wait,
+  waitForPositioned,
 } from '#test-utils';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Menu } from 'base-ui-solid/menu';
@@ -37,6 +38,14 @@ import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuRootContext } from './MenuRootContext';
+
+// Port note: production guards use Solid's build flag, not a runtime NODE_ENV check.
+const buildMode = vi.hoisted(() => ({ isDev: true }));
+vi.mock('@base-ui-solid/utils/isDev', () => ({
+  get IS_DEV() {
+    return buildMode.isDev;
+  },
+}));
 
 describe('<Menu.Root />', () => {
   beforeEach(resetBrowserPointer);
@@ -180,6 +189,7 @@ describe('<Menu.Root />', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const originalNodeEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
+    buildMode.isDev = false;
     try {
       await render(
         (testProps: any) => <NestedMenuWithModalProp {...testProps} />,
@@ -188,6 +198,7 @@ describe('<Menu.Root />', () => {
       expect(warnSpy).not.toHaveBeenCalled();
     } finally {
       process.env.NODE_ENV = originalNodeEnv;
+      buildMode.isDev = true;
     }
   });
   // All these tests run for contained and detached triggers.
@@ -423,7 +434,12 @@ describe('<Menu.Root />', () => {
             (testProps: any) => <componentProps1.Component {...testProps} />,
             () => ({
               rootProps: { open: true },
-              popupProps: { children: itemElements() },
+              // Port note: construct Solid items under the popup provider, like React elements.
+              popupProps: {
+                get children() {
+                  return itemElements();
+                },
+              },
             }),
           );
           const items = screen.getAllByRole('menuitem');
@@ -453,7 +469,12 @@ describe('<Menu.Root />', () => {
             (testProps: any) => <componentProps1.Component {...testProps} />,
             () => ({
               rootProps: { open: true },
-              popupProps: { children: itemElements() },
+              // Port note: construct Solid items under the popup provider, like React elements.
+              popupProps: {
+                get children() {
+                  return itemElements();
+                },
+              },
             }),
           );
           const hiddenItem = screen.getByTestId('item-hidden');
@@ -484,7 +505,12 @@ describe('<Menu.Root />', () => {
             (testProps: any) => <componentProps1.Component {...testProps} />,
             () => ({
               rootProps: { open: true },
-              popupProps: { children: itemElements() },
+              // Port note: construct Solid items under the popup provider, like React elements.
+              popupProps: {
+                get children() {
+                  return itemElements();
+                },
+              },
             }),
           );
           const appleItem = screen.getByText('Apple');
@@ -512,7 +538,12 @@ describe('<Menu.Root />', () => {
             const { user } = await render(
               (testProps: any) => <componentProps1.Component {...testProps} />,
               () => ({
-                popupProps: { children: itemElements() },
+                // Port note: construct Solid items under the popup provider, like React elements.
+                popupProps: {
+                  get children() {
+                    return itemElements();
+                  },
+                },
               }),
             );
             const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -558,7 +589,12 @@ describe('<Menu.Root />', () => {
             (testProps: any) => <componentProps1.Component {...testProps} />,
             () => ({
               rootProps: { open: true },
-              popupProps: { children: itemElements() },
+              // Port note: construct Solid items under the popup provider, like React elements.
+              popupProps: {
+                get children() {
+                  return itemElements();
+                },
+              },
             }),
           );
           const items = screen.getAllByRole('menuitem');
@@ -587,7 +623,12 @@ describe('<Menu.Root />', () => {
             (testProps: any) => <componentProps1.Component {...testProps} />,
             () => ({
               rootProps: { open: true },
-              popupProps: { children: itemElements() },
+              // Port note: construct Solid items under the popup provider, like React elements.
+              popupProps: {
+                get children() {
+                  return itemElements();
+                },
+              },
             }),
           );
           const items = screen.getAllByRole('menuitem');
@@ -618,7 +659,12 @@ describe('<Menu.Root />', () => {
               (testProps: any) => <componentProps1.Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
-                popupProps: { children: itemElements() },
+                // Port note: construct Solid items under the popup provider, like React elements.
+                popupProps: {
+                  get children() {
+                    return itemElements();
+                  },
+                },
               }),
             );
             const items = screen.getAllByRole('menuitem');
@@ -645,7 +691,12 @@ describe('<Menu.Root />', () => {
               (testProps: any) => <componentProps1.Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
-                popupProps: { children: itemElements() },
+                // Port note: construct Solid items under the popup provider, like React elements.
+                popupProps: {
+                  get children() {
+                    return itemElements();
+                  },
+                },
               }),
             );
             const items = screen.getAllByRole('menuitem');
@@ -895,9 +946,8 @@ describe('<Menu.Root />', () => {
           () => ({
             rootProps: { onOpenChange },
             triggerProps: {
-              get render() {
-                return <button id="custom-trigger" />;
-              },
+              // Port note: Solid supports render functions rather than React elements.
+              render: (renderProps: any) => <button {...renderProps} id="custom-trigger" />,
             },
             submenuTriggerProps: { openOnHover: false },
           }),
@@ -959,7 +1009,12 @@ describe('<Menu.Root />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-        await screen.findByTestId('menu');
+        // Port note: initial popup focus is scheduled after positioning.
+        await waitFor(() =>
+          expect(screen.getByTestId('menu')).toContainElement(
+            document.activeElement as HTMLElement,
+          ),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -970,6 +1025,11 @@ describe('<Menu.Root />', () => {
         });
         await user.keyboard('[ArrowRight]');
         await screen.findByTestId('submenu');
+        await waitFor(() =>
+          expect(screen.getByTestId('submenu')).toContainElement(
+            document.activeElement as HTMLElement,
+          ),
+        );
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('nested-submenu-trigger');
@@ -1035,7 +1095,12 @@ describe('<Menu.Root />', () => {
           );
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           await user.click(trigger);
-          await screen.findByTestId('menu');
+          // Port note: initial popup focus is scheduled after the positioning frame.
+          await waitFor(() =>
+            expect(screen.getByTestId('menu')).toContainElement(
+              document.activeElement as HTMLElement,
+            ),
+          );
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
@@ -1046,6 +1111,11 @@ describe('<Menu.Root />', () => {
           });
           await user.keyboard('[ArrowRight]');
           const nestedSubmenuTrigger = await screen.findByTestId('nested-submenu-trigger');
+          await waitFor(() =>
+            expect(screen.getByTestId('submenu')).toContainElement(
+              document.activeElement as HTMLElement,
+            ),
+          );
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
           await waitFor(() => {
@@ -1053,6 +1123,11 @@ describe('<Menu.Root />', () => {
           });
           await user.keyboard('[ArrowRight]');
           await screen.findByTestId('nested-submenu');
+          await waitFor(() =>
+            expect(screen.getByTestId('nested-submenu')).toContainElement(
+              document.activeElement as HTMLElement,
+            ),
+          );
           await user.keyboard('[ArrowLeft]');
           await waitFor(() => {
             expect(screen.queryByTestId('nested-submenu')).toBe(null);
@@ -1706,11 +1781,19 @@ describe('<Menu.Root />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         fireEvent.mouseEnter(trigger);
+        // Port note: flush the reactive event update, as React fireEvent act does.
+        flush();
         fireEvent.mouseMove(trigger);
+        // Port note: flush the reactive event update, as React fireEvent act does.
+        flush();
         expect(screen.queryByRole('menu')).not.toBe(null);
         const positioner = screen.getByTestId('menu-positioner');
         fireEvent.mouseEnter(positioner);
+        // Port note: flush the reactive event update, as React fireEvent act does.
+        flush();
         fireEvent.mouseLeave(positioner);
+        // Port note: flush the reactive event update, as React fireEvent act does.
+        flush();
         expect(screen.queryByRole('menu')).toBe(null);
       });
     });
@@ -1745,11 +1828,16 @@ describe('<Menu.Root />', () => {
           const doc = trigger.ownerDocument;
           await user.click(trigger);
           await screen.findByRole('menu');
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-          expect(isScrollLocked).toBe(true);
+          // Port note: anchored scroll locking follows positioning.
+          await waitForPositioned(screen.getByTestId('menu-positioner'));
+          // Port note: the shared scroll locker acquires its lock in a zero-delay task.
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
+            expect(isScrollLocked).toBe(true);
+          });
         });
       });
       describe('touch scroll lock', () => {
@@ -1960,7 +2048,8 @@ describe('<Menu.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('menu')).not.toBe(null);
         });
-        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
+        // Port note: React StrictMode replays the new popup effect; Solid mounts once.
+        await waitFor(() => expect(onOpenChangeComplete.mock.calls.length).toBe(1));
         expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
       });
       it('is called on open when the enter animation finishes', async () => {
@@ -3127,10 +3216,11 @@ describe('<Menu.Root />', () => {
       expect(details.event).toBeInstanceOf(MouseEvent);
       expect(details.event).toBe(hoverEvent);
       expect(details.event).not.toBeInstanceOf(PointerEvent);
-      const leaveEvent = new PointerEvent('pointerout', {
-        bubbles: true,
-        pointerType: 'mouse',
-      });
+      const leaveEvent = // Port note: React synthesizes pointerleave from pointerout; Solid uses native pointerleave.
+        new PointerEvent('pointerleave', {
+          bubbles: true,
+          pointerType: 'mouse',
+        });
       fireEvent(item, leaveEvent);
       await waitFor(() => {
         expect(onItemHighlighted).toHaveBeenLastCalledWith(

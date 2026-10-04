@@ -18,8 +18,8 @@ import type {
  * The caller supplies the root store, which owns the reference and floating elements.
  * @see https://floating-ui.com/docs/useFloating
  *
- * Port note: `options` is read lazily (pass getters for reactive options); `nodeId` and
- * `externalTree` are read once. `rootContext` is read reactively: like upstream re-rendering with
+ * Port note: `options` is read lazily (pass getters for reactive options).
+ * `nodeId`, `externalTree`, and `rootContext` are read reactively: like upstream re-rendering with
  * another store, a new store is subscribed to (Navigation Menu's positioner switches to the active
  * trigger's store). The returned object and its `context` expose the positioning data (and the
  * store-dependent fields) through getters (see `UseFloatingReturn` in `../dom`).
@@ -27,10 +27,8 @@ import type {
 export function useBaseUIFloating(
   options: UseFloatingOptions & { rootContext: FloatingRootStore },
 ): UseFloatingReturn {
-  const { nodeId, externalTree } = untrack(() => ({
-    nodeId: options.nodeId,
-    externalTree: options.externalTree,
-  }));
+  // Port note: detached triggers can replace the node and tree after the popup mounts.
+  const nodeId = () => options.nodeId;
 
   const store = createMemo(() => options.rootContext);
   // The subscriptions are owned by the memo, so they're disposed when the store changes.
@@ -57,7 +55,8 @@ export function useBaseUIFloating(
 
   const domReferenceRef: { current: NarrowedElement<ReferenceType> | null } = { current: null };
 
-  const tree = useFloatingTree(externalTree);
+  const contextTree = useFloatingTree();
+  const tree = () => options.externalTree ?? contextTree;
 
   const position = usePosition({
     get placement() {
@@ -163,7 +162,9 @@ export function useBaseUIFloating(
     },
     refs,
     elements,
-    nodeId,
+    get nodeId() {
+      return nodeId();
+    },
     get rootStore() {
       return store();
     },
@@ -182,15 +183,15 @@ export function useBaseUIFloating(
   // a single object here, so it's assigned once per store.
   untrack(store).context.dataRef.current.floatingContext = context;
   useIsoLayoutEffect(
-    ([treeValue, currentStore]) => {
+    ([treeValue, currentStore, nodeIdValue]) => {
       currentStore.context.dataRef.current.floatingContext = context;
 
-      const node = treeValue?.nodesRef.current.find((n) => n.id === nodeId);
+      const node = treeValue?.nodesRef.current.find((n) => n.id === nodeIdValue);
       if (node) {
         node.context = context;
       }
     },
-    () => [tree, store()] as const,
+    () => [tree(), store(), nodeId()] as const,
   );
 
   return {
