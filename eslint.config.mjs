@@ -7,7 +7,6 @@
 import {
   baseSpecRules,
   createBaseConfig,
-  createDocsConfig,
   createTestConfig,
   EXTENSION_TEST_FILE,
   EXTENSION_TS,
@@ -280,13 +279,14 @@ export default defineConfig(
   {
     name: 'MUI ESLint config for docs (Solid Start)',
     files: [`docs/**/*${EXTENSION_TS}`],
-    extends: createDocsConfig(),
+    // Port note: upstream extends `createDocsConfig()`, which is Next.js's recommended ruleset
+    // plus the three rules below. The docs run on TanStack Start, so only those three are kept.
+    // `@next/eslint-plugin-next` stays installed because code-infra's ESLint entry imports it.
     rules: {
       ...reactRulesOff,
-      // Port note: Solid Start has no Next.js link, document, or image conventions.
-      '@next/next/no-html-link-for-pages': 'off',
-      '@next/next/no-img-element': 'off',
-      '@next/next/no-head-element': 'off',
+      'compat/compat': 'off',
+      'jsx-a11y/anchor-is-valid': 'off',
+      'no-irregular-whitespace': ['error', { skipJSXText: true, skipStrings: true }],
       // Port note: upstream code blocks are keyboard-scrollable pre elements.
       'jsx-a11y/no-noninteractive-tabindex': 'off',
       'mui/disallow-react-api-in-server-components': 'off',
