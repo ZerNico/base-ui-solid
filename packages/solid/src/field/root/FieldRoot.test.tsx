@@ -11,6 +11,7 @@ import {
 } from '#test-utils';
 import { Field } from '..';
 import { Form } from '../../form';
+import { NumberField } from '../../number-field';
 import { Checkbox } from '../../checkbox';
 import { CheckboxGroup } from '../../checkbox-group';
 import { Radio } from '../../radio';
@@ -874,8 +875,43 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
     });
 
-    // TODO(port): needs NumberField
-    it.skip('updates field-aware control name fallbacks when the name changes', () => {});
+    it('updates field-aware control name fallbacks when the name changes', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = createSignal<string | undefined>('quantity');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root>
+              <NumberField.Root name={name()} defaultValue={13}>
+                <NumberField.Input />
+              </NumberField.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setName('amount')}>
+              Change name
+            </button>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(() => <App />);
+
+      await click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ quantity: 13 });
+
+      await click(screen.getByText('Change name'));
+      await click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ amount: 13 });
+
+      await click(screen.getByText('Clear name'));
+      await click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
   });
 
   describe('prop: validationMode', () => {
@@ -2107,8 +2143,30 @@ describe('<Field.Root />', () => {
         expect(description).not.toHaveAttribute('data-dirty');
       });
 
-      // TODO(port): needs NumberField
-      it.skip('should clear [data-dirty] when a null-valued control returns to its empty initial value', () => {});
+      it('should clear [data-dirty] when a null-valued control returns to its empty initial value', async () => {
+        await render(() => (
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>
+        ));
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        await change(control, '5');
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        await change(control, '');
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
 
       // TODO(port): needs Select
       it.skip('should clear [data-dirty] when a Select returns to its null initial value', () => {});
@@ -2157,8 +2215,41 @@ describe('<Field.Root />', () => {
     });
 
     describe('control remount', () => {
-      // TODO(port): needs NumberField
-      it.skip('clears dirty after an empty text control returns to empty following a null-valued control', () => {});
+      it('clears dirty after an empty text control returns to empty following a null-valued control', async () => {
+        // Port note: conditionals create the replacement control under its Field context.
+        function SwappableField() {
+          const [swapped, setSwapped] = createSignal(false);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Show
+                  when={swapped()}
+                  fallback={
+                    <NumberField.Root>
+                      <NumberField.Input />
+                    </NumberField.Root>
+                  }
+                >
+                  <Field.Control data-testid="control" defaultValue="" />
+                </Show>
+              </Field.Root>
+              <button onClick={() => setSwapped(true)}>swap</button>
+            </div>
+          );
+        }
+        await render(() => <SwappableField />);
+        const root = screen.getByTestId('root');
+
+        await click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        await change(control, 'x');
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        await change(control, '');
+        expect(root).not.toHaveAttribute('data-dirty');
+      });
 
       it('keeps the original baseline when a controlled control remounts', async () => {
         function App() {

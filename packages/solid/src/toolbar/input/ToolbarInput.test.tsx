@@ -1,8 +1,9 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { DirectionProvider } from '../../direction-provider';
 import { render, screen, describeConformance, isJSDOM } from '#test-utils';
+import { DirectionProvider } from '../../direction-provider';
 import { Toolbar } from '..';
+import { NumberField } from '../../number-field';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
 import type { Orientation } from '../../internals/types';
@@ -252,14 +253,87 @@ describe('<Toolbar.Input />', () => {
     });
   });
 
+  // Port note: Solid composes render functions instead of cloning React elements.
+  // The native props type permits attribute removal sentinels; these merged props contain only
+  // valid NumberField input values, so narrow the spread to its public props type.
   describe('rendering NumberField', () => {
-    // TODO(port): needs <NumberField>
-    it.skip('renders NumberField.Input', () => {});
+    it('renders NumberField.Input', async () => {
+      await render(() => (
+        <Toolbar.Root>
+          <NumberField.Root>
+            <NumberField.Group>
+              <Toolbar.Input
+                render={(props) => <NumberField.Input {...(props as NumberField.Input.Props)} />}
+              />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>
+      ));
 
-    // TODO(port): needs <NumberField>
-    it.skip('handles interactions', () => {});
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-roledescription', 'Number field');
+    });
 
-    // TODO(port): needs <NumberField>
-    it.skip('disabled state', () => {});
+    it('handles interactions', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(() => (
+        <Toolbar.Root>
+          <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
+            <NumberField.Group>
+              <NumberField.Decrement />
+              <Toolbar.Input
+                render={(props) => <NumberField.Input {...(props as NumberField.Input.Props)} />}
+              />
+              <NumberField.Increment />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>
+      ));
+
+      const input = screen.getByRole('textbox');
+
+      await user.keyboard('[Tab]');
+      expect(input).toHaveAttribute('tabindex', '0');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(6);
+
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toBe(5);
+    });
+
+    it('disabled state', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(() => (
+        <Toolbar.Root>
+          <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
+            <NumberField.Group>
+              <NumberField.Decrement />
+              <Toolbar.Input
+                disabled
+                render={(props) => <NumberField.Input {...(props as NumberField.Input.Props)} />}
+              />
+              <NumberField.Increment />
+            </NumberField.Group>
+          </NumberField.Root>
+        </Toolbar.Root>
+      ));
+
+      const input = screen.getByRole('textbox');
+
+      expect(input).not.toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('data-disabled');
+      expect(input).toHaveAttribute('aria-disabled', 'true');
+
+      await user.keyboard('[Tab]');
+      expect(input).toHaveAttribute('tabindex', '0');
+      expect(input).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(onValueChange.mock.calls.length).toBe(0);
+    });
   });
 });
