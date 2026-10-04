@@ -12,12 +12,15 @@ export default function ActionStateForm() {
   const [loading, setLoading] = createSignal(false);
   async function formAction(event: SubmitEvent) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget as HTMLFormElement);
+    const form = event.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
     setLoading(true);
     try {
       setState(await submitForm(state(), data));
     } finally {
       setLoading(false);
+      // React resets a form passed to `action` once the action completes.
+      form.reset();
     }
   }
 

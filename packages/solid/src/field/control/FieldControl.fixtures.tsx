@@ -8,3 +8,11 @@ export function AutoFocusApp() {
     </Field.Root>
   );
 }
+
+export function DefaultValueApp() {
+  return (
+    <Field.Root>
+      <Field.Control data-testid="control" defaultValue="https://example.com" />
+    </Field.Root>
+  );
+}

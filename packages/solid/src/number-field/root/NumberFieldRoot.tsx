@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
@@ -557,8 +558,9 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
             value: value() ?? '',
             // Port note: React also mirrors a controlled input's value into its `value`
             // attribute, which is the step base for `stepMismatch` when there's no `min`. Solid
-            // only sets the property, so mirror it through `defaultValue`.
-            defaultValue: value() ?? '',
+            // only sets the property, so mirror it through `defaultValue`. The server already
+            // renders `value` as the attribute.
+            defaultValue: isServer ? undefined : (value() ?? ''),
             min: min(),
             max: max(),
             // stepMismatch validation is broken unless an explicit `min` is added.

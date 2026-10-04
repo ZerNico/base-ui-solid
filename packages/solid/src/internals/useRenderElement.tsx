@@ -240,6 +240,9 @@ function evaluateRenderProp<State>(
 
 function renderTag(Tag: IntrinsicTagName, props: HTMLProps, isDefaultElement: boolean) {
   const Component = dynamic(() => Tag, { static: true });
+  if (isServer && Tag === 'input') {
+    props = getServerInputProps(props);
+  }
   if (isDefaultElement && Tag === 'button') {
     return <Component {...merge({ type: 'button' }, props)} />;
   }
@@ -247,6 +250,20 @@ function renderTag(Tag: IntrinsicTagName, props: HTMLProps, isDefaultElement: bo
     return <Component {...merge({ alt: '' }, props)} />;
   }
   return <Component {...props} />;
+}
+
+/**
+ * Port note: React server-renders an input's `defaultValue`/`defaultChecked` as its `value`/
+ * `checked` attributes. Solid's server spread prints them verbatim (`defaultValue="…"`), which
+ * browsers ignore, and hydration doesn't set DOM properties, so the input would start empty.
+ */
+function getServerInputProps(props: HTMLProps): HTMLProps {
+  const { defaultValue, defaultChecked, ...other } = props as Record<string, any>;
+  return {
+    ...other,
+    value: other.value ?? defaultValue,
+    checked: other.checked ?? defaultChecked,
+  } as HTMLProps;
 }
 
 type RenderFunctionProps<TagName> = TagName extends IntrinsicTagName

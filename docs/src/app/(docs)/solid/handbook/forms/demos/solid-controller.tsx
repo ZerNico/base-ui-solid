@@ -98,13 +98,27 @@ export function createControlledForm<T extends Record<string, any>>(options: {
       }
     },
   };
-  function handleSubmit(callback: (value: T) => void) {
+  function focusFirstError() {
+    // Like react-hook-form's `shouldFocusError`: focus the first invalid field, in registration
+    // order.
+    for (const name of rules.keys()) {
+      const element = elements.get(name);
+      if (errors()[name] && element) {
+        element.focus();
+        return;
+      }
+    }
+  }
+  function handleSubmit(callback: (value: T) => void, shouldFocusError = true) {
     return (event?: Event) => {
       event?.preventDefault();
       submitted = true;
       flush();
       if (validate(values())) {
         callback(values());
+      } else if (shouldFocusError) {
+        flush();
+        focusFirstError();
       }
     };
   }
@@ -140,7 +154,8 @@ export function createControlledForm<T extends Record<string, any>>(options: {
     control,
     handleSubmit,
     Field,
-    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }))(),
+    // TanStack Form doesn't move focus on submit.
+    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }), false)(),
   };
 }
 export function Controller(props: {
