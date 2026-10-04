@@ -16,7 +16,7 @@ See `PORTING.md` for the React → Solid translation rules.
    `packages/react/src`, `packages/utils/src`, `packages/react/test`, and `docs` are mapped to
    `packages/solid/src`, `packages/utils/src`, `packages/solid/test`, and `docs`. Each entry shows
    its Git status and whether the mapped port file currently exists. Renames appear as a deletion
-   and an addition; merge commits show changes against their first parent.
+   and an addition. Merge commits show changes against their first parent.
 2. Inspect each patch with `pnpm upstream:sync --diff <commit>`, or inspect a range with
    `pnpm upstream:sync --diff <old>..<new>` (Git three-dot ranges are also supported).
    Port each applicable diff following [PORTING.md](./PORTING.md), including source, tests,
@@ -36,7 +36,7 @@ See `PORTING.md` for the React → Solid translation rules.
 Use `--upstream /path/to/base-ui` to override the reference checkout. The script uses plain Git
 commands and does not change the upstream working tree. Its fetch updates remote-tracking refs.
 Use `--tracking-file /tmp/UPSTREAM.md` with a temporary copy to rehearse listing or marking without
-changing this document. Relative override paths resolve from the current working directory;
-port-file existence checks always use this repository. If a shallow checkout lacks the tracked
+changing this document. Relative override paths resolve from the current working directory.
+Port-file existence checks always use this repository. If a shallow checkout lacks the tracked
 commit or the history needed to prove ancestry, deepen it with
 `git -C ../base-ui fetch --deepen=100 origin` (or use `--unshallow` for full history). Run `pnpm upstream:sync --help` for usage.

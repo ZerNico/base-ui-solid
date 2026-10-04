@@ -205,7 +205,7 @@ export default function Homepage() {
               >
                 <p class="Text sz-2" itemprop="text">
                   Base UI Solid ports a specific upstream Base UI release to Solid 2.0 and follows
-                  its changes. Base UI itself targets React; Base UI Solid uses native Solid
+                  its changes. Base UI itself targets React, while Base UI Solid uses native Solid
                   components, adapting the API where React and Solid differ.
                 </p>
               </Accordion.Panel>

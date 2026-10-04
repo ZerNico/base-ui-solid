@@ -20,7 +20,7 @@ diagnostic fires).
 | `render={<a />}` (element, cloned)            | **Not supported** — Solid can't clone elements                          |
 | `render={(props, state) => <a {...props} />}` | Same. `props`/`state` are reactive: spread/read them, don't destructure |
 | —                                             | `render="a"` (tag name) and `render={Component}`                        |
-| `ref` (object or callback)                    | `ref` callback (Solid semantics; not called with `null` on unmount)     |
+| `ref` (object or callback)                    | `ref` callback (Solid semantics, not called with `null` on unmount)     |
 | `event.preventBaseUIHandler()`                | Same, on native events                                                  |
 | `tabIndex`, other camelCase attributes        | Lowercase attributes (`tabindex`)                                       |
 
@@ -41,7 +41,7 @@ diagnostic fires).
 ### Hooks → primitives
 
 - `useX` functions keep their names and run once per component instance.
-- Reactive parameters become `Accessor`s (`open: () => props.open`); reactive return values become
+- Reactive parameters become `Accessor`s (`open: () => props.open`). Reactive return values become
   `Accessor`s. Callbacks and constants stay plain. Hooks with many reactive parameters (e.g.
   `useCompositeRoot`) may instead take a props-like object read lazily (`params.x`). Pass an object
   with getters, and say so in the hook's doc comment.
@@ -49,7 +49,7 @@ diagnostic fires).
   microtask flush, so use locals instead of reading back what you just wrote.
 - Values that upstream computes during render → plain functions or `createMemo`.
 - Render-phase `setState` (adjusting state while rendering) → a writable memo
-  (`createSignal(prev => …)`); see `internals/useTransitionStatus.ts`.
+  (`createSignal(prev => …)`). See `internals/useTransitionStatus.ts`.
 - `useEffect` / `useLayoutEffect` / `useIsoLayoutEffect` →
   `useIsoLayoutEffect(effect, () => [deps])` / `useEffect` from `@base-ui-solid/utils/useIsoLayoutEffect`.
   React semantics: runs after the DOM update, only when a dep changed (`Object.is`), and the
@@ -59,17 +59,17 @@ diagnostic fires).
   `useRenderElement`'s `ref` param are called with `null` when the rendered element is disposed,
   like React. If a `render` function can swap the element out, also check `element.isConnected`.
 - `useRef` read during render → `useTrackedRef` from `@base-ui-solid/utils/useTrackedRef`.
-- `useStableCallback` / `useCallback` / `useMemo` for identity → not needed; drop them.
+- `useStableCallback` / `useCallback` / `useMemo` for identity → not needed. Drop them.
 - `useControlled({ controlled: () => props.x, default, name, state })` returns `[Accessor, setter]`.
 - `useTimeout` / `useAnimationFrame` → same API, cleaned up with the owner.
 - React applies a `setState` made in an animation frame callback in a later task, after the browser
-  has rendered that frame; Solid applies it before. Where that frame must render the current state
+  has rendered that frame. Solid applies it before. Where that frame must render the current state
   first (e.g. `data-starting-style` before a CSS transition), defer the write to a task like
   `useTransitionStatus` does. In tests, upstream's `act(async () => { await waitForAnimationFrame(); })`
   then needs an extra macrotask before asserting.
 - `ReactDOM.flushSync(fn)` → `fn(); flush();`.
 - `process.env.NODE_ENV !== 'production'` → `IS_DEV` from `@base-ui-solid/utils/isDev`.
-- `React.Activity`-specific logic has no Solid equivalent; drop it with a `Port note:`.
+- `React.Activity`-specific logic has no Solid equivalent. Drop it with a `Port note:`.
 
 ### Rendering (`useRenderElement`)
 
@@ -138,7 +138,7 @@ diagnostic fires).
   - `onMouseEnter` / `onMouseLeave` don't bubble in either framework.
 - `mergeProps` merges `class` into a class array, `style` objects/strings, event handlers
   (including Solid's `[handler, data]` form) and `ref`s (composed, unlike upstream).
-- Don't use object rest on props that may contain `children`; use `omitProps` from
+- Don't use object rest on props that may contain `children`. Use `omitProps` from
   `merge-props/mergeProps` instead.
 
 ### Stores and popups
@@ -154,7 +154,7 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`ReactStor
 - `store.useState(key, ...args)`, `store.use(selector, ...args)` and `useStore(store, selector, ...args)`
   return an **accessor** backed by a memo: the hook subscribes to the store, re-runs the selector
   when Solid flushes and notifies readers only when the selected value changed (`Object.is`).
-  Selector arguments may be accessors (`store.useState('isActive', () => index())`); an argument
+  Selector arguments may be accessors (`store.useState('isActive', () => index())`). An argument
   that is itself a function must be wrapped (`() => fn`).
 - `ReactStore` keeps its name. Values synced into the store are passed as accessors:
   `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
@@ -171,7 +171,7 @@ Floating UI:
   DOM utilities. Options objects are read lazily (pass getters for reactive options). The returned
   object (and `FloatingContext`) exposes `x`, `y`, `placement`, `strategy`, `middlewareData`,
   `isPositioned`, `floatingStyles`, `open`, `floatingId` and `elements.*` as **getters**: read them in
-  a reactive scope and don't destructure them; `refs`, `update` and the stores are stable.
+  a reactive scope and don't destructure them. `refs`, `update` and the stores are stable.
   `floatingStyles` is a Solid style object (kebab-case, `px` units).
 - Interaction hooks (`useClick`, `useDismiss`, …) return `ElementProps` whose props objects are read
   lazily: their reactive values are getters, and event handlers are stable functions. Merge them
@@ -185,11 +185,11 @@ Floating UI:
   don't bubble events through the component tree like React portals: `useDismiss` decides whether
   an event comes from inside the floating tree by following Solid's `_$host` links on portaled
   nodes (the same internal property Solid's event delegation uses).
-- Effect order: Solid runs a parent's effects before its children's; React runs child layout
+- Effect order: Solid runs a parent's effects before its children's. React runs child layout
   effects first. Popup code that relies on child-first ordering needs checking (see the Port notes in
   `popupStoreUtils.test.tsx`).
 - Popup-related utils take accessors: `useMergedRefs(() => props.ref, …)`, `useValueAsRef(accessor)`,
-  `usePreviousValue(accessor)`, `useScrollLock(enabled, referenceElement)`;
+  `usePreviousValue(accessor)`, `useScrollLock(enabled, referenceElement)`.
   `useForcedRerendering()` returns `rerender` plus `rerender.track()` for memos that must re-run.
 
 Tests for popups:
@@ -199,8 +199,8 @@ Tests for popups:
 - Native keyboard events aren't normalized: React maps `Esc` to `Escape`, Solid doesn't.
 - `toBeInaccessible` (from `@mui/internal-test-utils`) is registered in `test/setupVitest.ts`.
 - Production-only code paths can be tested with `vi.doMock('@base-ui-solid/utils/isDev', () => ({ IS_DEV: false }))`.
-- Floating UI's test helpers live in `packages/solid/test/floating-ui-tests` (`useFloating`, `useHover`, …);
-  reactive `useFloating` options are passed as getters (`get open() { return open(); }`).
+- Floating UI's test helpers live in `packages/solid/test/floating-ui-tests` (`useFloating`, `useHover`, …).
+  Reactive `useFloating` options are passed as getters (`get open() { return open(); }`).
 
 ## Tests
 
@@ -220,7 +220,7 @@ config listing them as projects, and `test/setupVitest.ts`.
   `describeConformance`, `isJSDOM`, `flushMicrotasks` and the testing-library exports.
 - Replace `React.useState` wrappers and `setProps` with `createSignal`s. After imperative signal
   writes, call `flush()` before asserting.
-- Like upstream, animations are disabled by default (`BASE_UI_ANIMATIONS_DISABLED`); animation
+- Like upstream, animations are disabled by default (`BASE_UI_ANIMATIONS_DISABLED`). Animation
   tests set it to `false`.
 - Keep upstream's skip conditions exactly (e.g. `skipIf(isJSDOM)`): those tests run in the
   browser pass. Hard skips are allowed only with a reason marker in the comment: `React-only`
@@ -266,7 +266,7 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 | `pnpm eslint`     | ESLint on the whole repo (cached, `--max-warnings 0`, unused disables fail) |
 | `pnpm eslint:ci`  | The same without cache                                                      |
 | `pnpm stylelint`  | Stylelint on `**/*.css`                                                     |
-| `pnpm typescript` | `tsc` (TS 7, `@typescript/native`); `pnpm typecheck` is an alias            |
+| `pnpm typescript` | `tsc` (TS 7, `@typescript/native`), with `pnpm typecheck` as an alias       |
 
 - **Run ESLint on your files before reporting** (and fix what it reports):
   `pnpm exec eslint --report-unused-disable-directives --max-warnings 0 <files>` (`pnpm eslint <files>`
@@ -275,15 +275,15 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 - As upstream, tests import `describe`/`it`/`expect`/`vi`/… from `'vitest'` explicitly
   (`vitest/prefer-importing-vitest-globals`), with upstream's import line order.
 - **React → Solid rule swap.** The code-infra base config enables eslint-plugin-react,
-  react-hooks and react-compiler; every rule of those plugins is turned off for our files and
+  react-hooks and react-compiler. Every rule of those plugins is turned off for our files and
   `eslint-plugin-solid` (`v2` preset, Solid 2.0 semantics) is enabled instead. Upstream's
-  `react/no-danger` disables become `solid/no-innerhtml` disables; drop upstream's
+  `react/no-danger` disables become `solid/no-innerhtml` disables. Drop upstream's
   `react-hooks/*` / `react-compiler/*` disables. `solid/reactivity` is off (its heuristic misreads
-  the accessor conventions above; tests cover reactivity). In tests, `solid/prefer-for` (fixtures
+  the accessor conventions above. Tests cover reactivity). In tests, `solid/prefer-for` (fixtures
   mirror upstream's `.map()`) and `vitest/no-disabled-tests` (hard skips carry reason markers) are
   off.
 - Other port-specific settings: `mui/disallow-react-api-in-server-components` is off (no
-  `'use client'` in Solid); `mui/no-floating-cleanup` is replaced by
+  `'use client'` in Solid), and `mui/no-floating-cleanup` is replaced by
   `base-ui-solid/no-floating-cleanup`, which ignores `onCleanup()`'s returned `Disposable`
   (discard other intentionally ignored cleanups with `void`, like upstream). Deep imports are
   restricted to one level for `base-ui-solid/<module>`, and `mui/add-undef-to-optional` applies to
@@ -297,16 +297,16 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ### Porting pitfalls
 
-- `useIsoLayoutEffect` compares dependencies with `Object.is`; use incrementing counters for tick
+- `useIsoLayoutEffect` compares dependencies with `Object.is`. Use incrementing counters for tick
   signals, since repeated `undefined` values do not rerun the effect.
 - Solid rewrites an input's `value` on every spread update, which can move the caret. Write the DOM
   value only when it differs (see `NumberFieldInput` and `OTPFieldInput`).
 - Expected-throw tests can emit a duplicate uncaught window error in Chromium. Suppress only the
   expected error around the assertion (see `TabsTab.test.tsx`).
-- Solid runs parent effects before children; check popup setup that assumes React's child-first
+- Solid runs parent effects before children. Check popup setup that assumes React's child-first
   layout effects.
 - Popup Root children are render functions only when `typeof children === 'function'` and
-  `children.length > 0`; zero-argument functions are JSX factories. Call
+  `children.length > 0`. Zero-argument functions are JSX factories. Call
   `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
 
 - **Solid dev performance warnings in the browser.** Ported "write state in a layout effect"

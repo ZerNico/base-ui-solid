@@ -3,7 +3,7 @@
 Keep upstream filenames under `src/app/(docs)/solid/{overview,components,handbook,utils}`.
 A small route wrapper in `src/routes` imports each `page.mdx` and passes `mdxComponents`.
 The pathless routes `_docs`, `_website`, and `_private` correspond to upstream `(docs)`,
-`(website)`, and `(private)` without changing URLs. Public framework URLs use `/solid/`; legacy `/react/*`
+`(website)`, and `(private)` without changing URLs. Public framework URLs use `/solid/`. Legacy `/react/*`
 URLs receive permanent redirects through the shared middleware and Netlify `_redirects`. `_private/playground` provides the
 upstream `/playground` URL as a Collapsible smoke surface. It is a route group, not authorization.
 
@@ -12,10 +12,10 @@ upstream `/playground` URL as a Collapsible smoke surface. It is a route group, 
 1. Copy the upstream page and all its demos, including every styling variant and CSS file.
 2. Change `@base-ui/react/<component>` imports to `base-ui-solid/<component>` and utils imports
    to `@base-ui-solid/utils/...`. Use `class`, lowercase native attributes, and native Solid event
-   names. Follow the repository `PORTING.md` and Solid 2.0 cheatsheet; retain reactive props.
+   names. Follow the repository `PORTING.md` and Solid 2.0 cheatsheet. Retain reactive props.
 3. Keep MDX prose, headings, links, and examples. Adjust framework names and API differences.
 4. Copy the Collapsible route wrapper, change its path/import, and export head metadata from the
-   MDX `metadata` export. Start generates `routeTree.gen.ts`; do not edit that file manually.
+   MDX `metadata` export. Start generates `routeTree.gen.ts`. Do not edit that file manually.
 5. Add the completed page to `src/data/sitemap.ts` for navigation and search.
 6. Build and run the browser smoke script, including every live variant. Check console warnings
    and hydration, not merely HTTP status. Add page-specific smoke coverage for later components.
@@ -32,23 +32,23 @@ Both upstream plugin test files are copied in full with identical test names.
 Port note: MDX defaults native tags to strings. `recmaSolidComponents` turns these defaults into
 native JSX functions because Solid member tags require component functions. It also maps
 MDX-generated `className`, `htmlFor`, and `tabIndex` attributes to Solid native spellings. React's MDX provider
-is replaced by an explicit component map. QuickNav renders each list once; evaluating JSX children
+is replaced by an explicit component map. QuickNav renders each list once. Evaluating JSX children
 in a Show condition creates hydration scopes in the wrong order.
 
 Code blocks use MUI docs-infra's `createParseSource` and `createEnhanceCodeEmphasis`, including
 `@highlight` and `@focus` annotations. Inline code uses its inline transform/enhancer. Native HAST
-replaces the React-only CodeHighlighter client; no React runtime enters the client bundle.
+replaces the React-only CodeHighlighter client. No React runtime enters the client bundle.
 The existing upstream syntax CSS is reused.
 
 ## Demos and source files
 
 `src/utils/createDemo.tsx` creates a Solid `<Demo>` from variant records. Each record contains the
 live component and its source files. Import source through `?highlight`, handled by
-`src/mdx/sourcePlugin.mjs`; it uses the same MUI parser and emphasis pipeline at build time.
+`src/mdx/sourcePlugin.mjs`. It uses the same MUI parser and emphasis pipeline at build time.
 Include `index.tsx`, imported CSS Modules, and any supporting source/assets in the file record.
 The variant and file tabs display the source corresponding to the live component.
 Vite resolves CSS Modules normally, and Tailwind compiles the upstream demo utility classes.
-Upstream `src/css` and component CSS are copied as-is; `port.css` supplies Solid shell controls.
+Upstream `src/css` and component CSS are copied as-is, and `port.css` supplies Solid shell controls.
 
 Port note: upstream's Next.js loader factories, React demo editing/error machinery, and analytics
 cannot be reused as Solid components. The site provides live demos, source variant/file
@@ -57,7 +57,7 @@ CodeSandbox export, analytics, or the remaining website/private pages.
 
 ## API reference
 
-This upstream checkout has no `docs/reference` directory; its authoritative generated snapshot
+This upstream checkout has no `docs/reference` directory. Its authoritative generated snapshot
 is each component's `types.md`. Run from `docs`:
 
 ```bash
@@ -88,4 +88,4 @@ pnpm exec eslint docs eslint.config.mjs --report-unused-disable-directives --max
 
 Set `DOCS_URL=http://localhost:3010` when checking `pnpm --filter docs serve`. The smoke script
 also reads the static HTML to ensure actual content is prerendered. Start output remains in
-`dist`; only `export` is deployed. Generated build artifacts are ignored.
+`dist`. Only `export` is deployed. Generated build artifacts are ignored.

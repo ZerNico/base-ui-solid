@@ -18,13 +18,13 @@ Port note: Documentation URLs use `/solid/`. Legacy `/react/*` URLs permanently 
 to `/solid/*` in dev, SSR, and static hosting. Components, demos,
 package imports, and runtime are Solid. The build generates per-page `.md`, `llms.txt`,
 `llms-full.txt`, `index.md`, `sitemap.xml`, and `robots.txt` into `public` and the static export.
-Netlify applies `public/_redirects`; `pnpm serve` applies the shared redirect middleware with the same 301 migration.
+Netlify applies `public/_redirects`, and `pnpm serve` applies the shared redirect middleware with the same 301 migration.
 Deploy the host redirect rules with the export. Development regenerates Markdown when source or reference files change.
 
 Set `SITE_URL`, `REPO_URL`, and `REPO_BRANCH` in [src/config.ts](./src/config.ts) before
 publishing. The defaults `https://base-ui-solid.example` and
 `https://github.com/OWNER/base-ui-solid` are deliberate placeholders. Site navigation and
-Markdown links are root relative; canonical metadata and discovery files use `SITE_URL`.
+Markdown links are root relative. Canonical metadata and discovery files use `SITE_URL`.
 Source links use `sourceUrl`, which maps `packages/react/src` to `packages/solid/src`.
 Release PRs and the upstream changelog retain their upstream destinations.
 
