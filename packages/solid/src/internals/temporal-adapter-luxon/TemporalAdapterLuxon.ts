@@ -2,7 +2,6 @@
 // TODO: Remove if temporal adapters are supported
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-'use client';
 import { DateTime, Info } from 'luxon';
 import type {
   TemporalAdapterFormats,

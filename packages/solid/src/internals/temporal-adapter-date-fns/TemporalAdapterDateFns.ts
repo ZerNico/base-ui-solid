@@ -1,4 +1,3 @@
-'use client';
 import { addDays } from 'date-fns/addDays';
 import { addHours } from 'date-fns/addHours';
 import { addMinutes } from 'date-fns/addMinutes';
