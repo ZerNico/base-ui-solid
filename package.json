@@ -4,6 +4,8 @@
   "type": "module",
   "packageManager": "pnpm@11.20.0",
   "scripts": {
+    "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build",
+    "docs:generate-llms": "pnpm --filter docs run generate-llms",
     "test": "pnpm test:chromium",
     "test:_unit": "cross-env TZ=UTC vitest --project base-ui-solid --project @base-ui-solid/utils",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test:_unit",

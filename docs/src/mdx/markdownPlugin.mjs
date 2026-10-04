@@ -28,7 +28,7 @@ export function markdownPlugin() {
           pending = pending
             .then(() =>
               run(process.execPath, [
-                fileURLToPath(new URL('../../scripts/generateDocsIndex.mjs', import.meta.url)),
+                fileURLToPath(new URL('../../scripts/generateLlmTxt/index.mjs', import.meta.url)),
               ]),
             )
             .catch((error) => {

@@ -30,21 +30,52 @@ export async function processDemo(mdxFilePath, demoPath) {
     }
   }
   const codeMeta = {};
+  const fail = (message) => {
+    throw new Error(`Cannot resolve demo "${demoModulePath}": ${message}`);
+  };
   const property = (node, name) =>
     node.properties.find((item) => item.name?.getText(tree).replace(/['"]/g, '') === name)
       ?.initializer;
+  const VARIANT_IDS = { Tailwind: 'Tailwind', 'CSS Modules': 'CssModules' };
   const collect = (node) => {
     if (ts.isCallExpression(node) && node.expression.getText(tree) === 'createDemoWithVariants') {
-      for (const variant of node.arguments[0].elements) {
-        const name = property(variant, 'name').text === 'Tailwind' ? 'Tailwind' : 'CssModules';
+      const variants = node.arguments[0];
+      if (!variants || !ts.isArrayLiteralExpression(variants)) {
+        fail('createDemoWithVariants() must be called with an array of variants');
+      }
+      for (const variant of variants.elements) {
+        if (!ts.isObjectLiteralExpression(variant)) {
+          fail(`unexpected variant \`${variant.getText(tree)}\``);
+        }
+        const nameNode = property(variant, 'name');
+        if (!nameNode || !ts.isStringLiteral(nameNode)) {
+          fail('every variant needs a string `name`');
+        }
+        const name = VARIANT_IDS[nameNode.text];
+        if (!name) {
+          fail(`unknown variant name "${nameNode.text}"`);
+        }
+        if (codeMeta[name]) {
+          fail(`duplicate variant "${nameNode.text}"`);
+        }
+        const files = property(variant, 'files');
+        if (!files || !ts.isObjectLiteralExpression(files) || files.properties.length === 0) {
+          fail(`variant "${nameNode.text}" needs a non-empty \`files\` object`);
+        }
         codeMeta[name] = Object.fromEntries(
-          property(variant, 'files').properties.map((file) => [
-            file.name.text,
-            path.resolve(
-              path.dirname(demoModulePath),
-              imports.get(file.initializer.text).replace('?highlight', ''),
-            ),
-          ]),
+          files.properties.map((file) => {
+            const specifier =
+              ts.isPropertyAssignment(file) && ts.isIdentifier(file.initializer)
+                ? imports.get(file.initializer.text)
+                : undefined;
+            if (!specifier) {
+              fail(`file \`${file.getText(tree)}\` must reference a default import`);
+            }
+            return [
+              file.name.getText(tree).replace(/['"]/g, ''),
+              path.resolve(path.dirname(demoModulePath), specifier.replace('?highlight', '')),
+            ];
+          }),
         );
       }
     }

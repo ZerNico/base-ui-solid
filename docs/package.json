@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/generateDocsIndex.mjs && vite --port 3005",
-    "build": "node scripts/generateDocsIndex.mjs && vite build && node scripts/exportStatic.mjs",
+    "dev": "pnpm generate-llms && pnpm generate-sitemap && vite --port 3005",
+    "build": "pnpm generate-sitemap && vite build && node scripts/exportStatic.mjs",
     "build:clean": "rimraf dist export && pnpm build",
+    "generate-llms": "node --experimental-strip-types ./scripts/generateLlmTxt/index.mjs",
+    "generate-sitemap": "node scripts/generateSitemap.mjs",
     "serve": "node scripts/serveStatic.mjs",
     "typescript": "tsc -p tsconfig.json --noEmit",
     "docs-infra": "docs-infra",

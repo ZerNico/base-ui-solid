@@ -1728,6 +1728,6 @@ type ReturnValue = Accessor<TextDirection>;
 type TextDirection = 'ltr' | 'rtl';
 \`\`\`
 
-Use this hook to read the current text direction. In Solid it returns an accessor; call \`direction()\` in a reactive scope. This is useful for wrapping portaled components that may be rendered outside your application root and are unaffected by the \`dir\` attribute set within.
+Use this hook to read the current text direction. In Solid it returns an accessor, so call \`direction()\` in a reactive scope. This is useful for wrapping portaled components that may be rendered outside your application root and are unaffected by the \`dir\` attribute set within.
 "
 `;

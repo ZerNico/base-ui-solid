@@ -150,4 +150,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Port note: this repo validates and builds its Solid Vite docs directly.
       - run: pnpm --filter docs validate
-      - run: pnpm --filter docs build
+      - run: pnpm docs:build
