@@ -14,6 +14,3 @@ build-typecheck
 node_modules
 pnpm-lock.yaml
 test-results
-
-# Generator source for the minified prehydration scripts; not part of any TS project (upstream generates it via a build script).
-**/prehydrationScript.template.js

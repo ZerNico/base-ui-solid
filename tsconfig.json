@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["packages/*/src", "packages/*/test", "playground/src", "test"]
+  "include": ["packages/*/src", "packages/*/test", "playground/src", "test", "scripts/*.mts"]
 }
