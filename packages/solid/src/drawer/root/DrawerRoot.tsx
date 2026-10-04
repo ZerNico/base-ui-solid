@@ -144,58 +144,60 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     notifyParentSwipeProgressChange,
     notifyParentHasNestedDrawer,
   };
+  // Port note: hoist generic child types out of JSX closures to avoid runtime type references.
+  const dialogProps = {
+    get open() {
+      return props.open;
+    },
+    get defaultOpen() {
+      return props.defaultOpen ?? false;
+    },
+    onOpenChange: handleOpenChange,
+    get onOpenChangeComplete() {
+      return props.onOpenChangeComplete;
+    },
+    get disablePointerDismissal() {
+      return props.disablePointerDismissal ?? false;
+    },
+    get modal() {
+      return props.modal ?? true;
+    },
+    get actionsRef() {
+      return props.actionsRef;
+    },
+    get handle() {
+      return props.handle;
+    },
+    get triggerId() {
+      return props.triggerId;
+    },
+    get defaultTriggerId() {
+      return props.defaultTriggerId ?? null;
+    },
+    get children() {
+      const children = props.children;
+      // Port note: this getter creates children once; the render-function shape is stable.
+      if (typeof children === 'function' && children.length > 0) {
+        // eslint-disable-next-line solid/components-return-once
+        return (payload: Parameters<PayloadChildRenderFunction<Payload>>[0]) => (
+          <>
+            <DrawerProviderReporter />
+            {(children as PayloadChildRenderFunction<Payload>)(payload)}
+          </>
+        );
+      }
+      return (
+        <>
+          <DrawerProviderReporter />
+          {children as JSX.Element}
+        </>
+      );
+    },
+  };
   // Port note: children and the Dialog root are created under the Drawer provider in Solid.
   return (
     <DrawerRootContext value={contextValue}>
-      {useRenderDialogRoot('drawer', {
-        get open() {
-          return props.open;
-        },
-        get defaultOpen() {
-          return props.defaultOpen ?? false;
-        },
-        onOpenChange: handleOpenChange,
-        get onOpenChangeComplete() {
-          return props.onOpenChangeComplete;
-        },
-        get disablePointerDismissal() {
-          return props.disablePointerDismissal ?? false;
-        },
-        get modal() {
-          return props.modal ?? true;
-        },
-        get actionsRef() {
-          return props.actionsRef;
-        },
-        get handle() {
-          return props.handle;
-        },
-        get triggerId() {
-          return props.triggerId;
-        },
-        get defaultTriggerId() {
-          return props.defaultTriggerId ?? null;
-        },
-        get children() {
-          const children = props.children;
-          // Port note: this getter creates children once; the render-function shape is stable.
-          if (typeof children === 'function' && children.length > 0) {
-            // eslint-disable-next-line solid/components-return-once
-            return (payload: Parameters<PayloadChildRenderFunction<Payload>>[0]) => (
-              <>
-                <DrawerProviderReporter />
-                {(children as PayloadChildRenderFunction<Payload>)(payload)}
-              </>
-            );
-          }
-          return (
-            <>
-              <DrawerProviderReporter />
-              {children as JSX.Element}
-            </>
-          );
-        },
-      })}
+      {useRenderDialogRoot('drawer', dialogProps)}
     </DrawerRootContext>
   );
 }

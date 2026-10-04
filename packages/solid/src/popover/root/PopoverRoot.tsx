@@ -92,20 +92,23 @@ function PopoverRootComponent<Payload>(componentProps: {
     },
   };
 
+  // Port note: keep generic type assertions outside JSX hoisted closures.
+  const renderChildren = () => {
+    const children = props.children;
+    // Port note: a single component child can also be a function (e.g. the accessor a
+    // `<Show>` returns), so a function counts as a render function only when it declares a
+    // parameter, like Solid's `<Show>` does for its function children.
+    return typeof children === 'function' && children.length > 0
+      ? untrack(() => (children as PayloadChildRenderFunction<Payload>)(payloadArg))
+      : children;
+  };
+
   return (
     <PopoverRootContext value={store as PopoverRootContext<unknown>}>
       <Show when={shouldRenderInteractions()}>
         <PopoverInteractions store={store} modal={modal()} />
       </Show>
-      {(() => {
-        const children = props.children;
-        // Port note: a single component child can also be a function (e.g. the accessor a
-        // `<Show>` returns), so a function counts as a render function only when it declares a
-        // parameter, like Solid's `<Show>` does for its function children.
-        return typeof children === 'function' && children.length > 0
-          ? untrack(() => (children as PayloadChildRenderFunction<Payload>)(payloadArg))
-          : children;
-      })()}
+      {renderChildren()}
     </PopoverRootContext>
   );
 }
@@ -145,13 +148,14 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   usePopupHandleAttachment(() => props.handle, store);
 
   if (usePopoverRootContext(true)) {
+    // Port note: JSX type arguments are emitted as runtime values by the Solid compiler.
     // eslint-disable-next-line solid/components-return-once -- context presence never changes (mirrors upstream's early return)
-    return <PopoverRootComponent<Payload> props={props} store={store} />;
+    return <PopoverRootComponent props={props} store={store} />;
   }
 
   return (
     <FloatingTree>
-      <PopoverRootComponent<Payload> props={props} store={store} />
+      <PopoverRootComponent props={props} store={store} />
     </FloatingTree>
   );
 }

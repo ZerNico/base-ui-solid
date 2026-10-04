@@ -1,4 +1,5 @@
-import { type Accessor, createMemo, createSignal, isHydrating } from 'solid-js';
+import { createMemo, createSignal, isHydrating } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { isServer } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -24,11 +25,10 @@ export function useMediaQuery(
   const defaultMatches = () => options().defaultMatches ?? false;
   const matchMedia = () => {
     const matchMediaOption = options().matchMedia;
-    return matchMediaOption === undefined
-      ? supportMatchMedia
-        ? window.matchMedia
-        : null
-      : matchMediaOption;
+    if (matchMediaOption !== undefined) {
+      return matchMediaOption;
+    }
+    return supportMatchMedia ? window.matchMedia : null;
   };
   const ssrMatchMedia = () => options().ssrMatchMedia ?? null;
   const noSsr = () => options().noSsr ?? false;
@@ -48,9 +48,7 @@ export function useMediaQuery(
     return defaultMatches();
   });
 
-  if (isServer) {
-    return getServerSnapshot;
-  }
+  // Port note: allocate identical reactive scopes on server and client for hydration ids.
 
   const mediaQueryList = createMemo(() => {
     const currentMatchMedia = matchMedia();
@@ -88,7 +86,7 @@ export function useMediaQuery(
 
   const match = createMemo(() => {
     version();
-    if (!hydrated()) {
+    if (isServer || !hydrated()) {
       return getServerSnapshot();
     }
 

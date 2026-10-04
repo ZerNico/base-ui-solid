@@ -16,6 +16,7 @@ import { Route as DocsProductionErrorRouteImport } from './routes/_docs.producti
 import { Route as DocsReactRouteImport } from './routes/_docs.react'
 import { Route as PrivatePlaygroundRouteImport } from './routes/_private.playground'
 import { Route as WebsiteIndexRouteImport } from './routes/_website.index'
+import { Route as DocsReactIndexRouteImport } from './routes/_docs.react.index'
 import { Route as DocsReactHandbookRouteImport } from './routes/_docs.react.handbook'
 import { Route as DocsReactOverviewRouteImport } from './routes/_docs.react.overview'
 import { Route as DocsReactUtilsRouteImport } from './routes/_docs.react.utils'
@@ -56,21 +57,25 @@ import { Route as DocsReactComponentsToggleRouteImport } from './routes/_docs.re
 import { Route as DocsReactComponentsToggleGroupRouteImport } from './routes/_docs.react.components.toggle-group'
 import { Route as DocsReactComponentsToolbarRouteImport } from './routes/_docs.react.components.toolbar'
 import { Route as DocsReactComponentsTooltipRouteImport } from './routes/_docs.react.components.tooltip'
+import { Route as DocsReactHandbookIndexRouteImport } from './routes/_docs.react.handbook.index'
 import { Route as DocsReactHandbookAnimationRouteImport } from './routes/_docs.react.handbook.animation'
 import { Route as DocsReactHandbookCompositionRouteImport } from './routes/_docs.react.handbook.composition'
 import { Route as DocsReactHandbookCustomizationRouteImport } from './routes/_docs.react.handbook.customization'
 import { Route as DocsReactHandbookFormsRouteImport } from './routes/_docs.react.handbook.forms'
 import { Route as DocsReactHandbookStylingRouteImport } from './routes/_docs.react.handbook.styling'
 import { Route as DocsReactHandbookTypescriptRouteImport } from './routes/_docs.react.handbook.typescript'
+import { Route as DocsReactOverviewIndexRouteImport } from './routes/_docs.react.overview.index'
 import { Route as DocsReactOverviewAboutRouteImport } from './routes/_docs.react.overview.about'
 import { Route as DocsReactOverviewAccessibilityRouteImport } from './routes/_docs.react.overview.accessibility'
 import { Route as DocsReactOverviewCommunityRouteImport } from './routes/_docs.react.overview.community'
 import { Route as DocsReactOverviewQuickStartRouteImport } from './routes/_docs.react.overview.quick-start'
 import { Route as DocsReactOverviewReleasesRouteImport } from './routes/_docs.react.overview.releases'
+import { Route as DocsReactUtilsIndexRouteImport } from './routes/_docs.react.utils.index'
 import { Route as DocsReactUtilsCspProviderRouteImport } from './routes/_docs.react.utils.csp-provider'
 import { Route as DocsReactUtilsDirectionProviderRouteImport } from './routes/_docs.react.utils.direction-provider'
 import { Route as DocsReactUtilsMergePropsRouteImport } from './routes/_docs.react.utils.merge-props'
 import { Route as DocsReactUtilsUseRenderRouteImport } from './routes/_docs.react.utils.use-render'
+import { Route as DocsReactOverviewReleasesIndexRouteImport } from './routes/_docs.react.overview.releases.index'
 import { Route as DocsReactOverviewReleasesV100RouteImport } from './routes/_docs.react.overview.releases.v1-0-0'
 import { Route as DocsReactOverviewReleasesV100Alpha4RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-4'
 import { Route as DocsReactOverviewReleasesV100Alpha5RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-5'
@@ -129,6 +134,11 @@ const WebsiteIndexRoute = WebsiteIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => WebsiteRoute,
+} as any)
+const DocsReactIndexRoute = DocsReactIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsReactRoute,
 } as any)
 const DocsReactHandbookRoute = DocsReactHandbookRouteImport.update({
   id: '/handbook',
@@ -364,6 +374,11 @@ const DocsReactComponentsTooltipRoute =
     path: '/components/tooltip',
     getParentRoute: () => DocsReactRoute,
   } as any)
+const DocsReactHandbookIndexRoute = DocsReactHandbookIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsReactHandbookRoute,
+} as any)
 const DocsReactHandbookAnimationRoute =
   DocsReactHandbookAnimationRouteImport.update({
     id: '/animation',
@@ -399,6 +414,11 @@ const DocsReactHandbookTypescriptRoute =
     path: '/typescript',
     getParentRoute: () => DocsReactHandbookRoute,
   } as any)
+const DocsReactOverviewIndexRoute = DocsReactOverviewIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsReactOverviewRoute,
+} as any)
 const DocsReactOverviewAboutRoute = DocsReactOverviewAboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -428,6 +448,11 @@ const DocsReactOverviewReleasesRoute =
     path: '/releases',
     getParentRoute: () => DocsReactOverviewRoute,
   } as any)
+const DocsReactUtilsIndexRoute = DocsReactUtilsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsReactUtilsRoute,
+} as any)
 const DocsReactUtilsCspProviderRoute =
   DocsReactUtilsCspProviderRouteImport.update({
     id: '/csp-provider',
@@ -451,6 +476,12 @@ const DocsReactUtilsUseRenderRoute = DocsReactUtilsUseRenderRouteImport.update({
   path: '/use-render',
   getParentRoute: () => DocsReactUtilsRoute,
 } as any)
+const DocsReactOverviewReleasesIndexRoute =
+  DocsReactOverviewReleasesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DocsReactOverviewReleasesRoute,
+  } as any)
 const DocsReactOverviewReleasesV100Route =
   DocsReactOverviewReleasesV100RouteImport.update({
     id: '/v1-0-0',
@@ -617,6 +648,7 @@ export interface FileRoutesByFullPath {
   '/react/overview': typeof DocsReactOverviewRouteWithChildren
   '/react/utils': typeof DocsReactUtilsRouteWithChildren
   '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
+  '/react/': typeof DocsReactIndexRoute
   '/react/components/accordion': typeof DocsReactComponentsAccordionRoute
   '/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
   '/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
@@ -668,6 +700,9 @@ export interface FileRoutesByFullPath {
   '/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
   '/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
   '/react/components/': typeof DocsReactComponentsIndexRoute
+  '/react/handbook/': typeof DocsReactHandbookIndexRoute
+  '/react/overview/': typeof DocsReactOverviewIndexRoute
+  '/react/utils/': typeof DocsReactUtilsIndexRoute
   '/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
   '/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
   '/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
@@ -694,16 +729,14 @@ export interface FileRoutesByFullPath {
   '/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
   '/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
   '/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
+  '/react/overview/releases/': typeof DocsReactOverviewReleasesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteIndexRoute
   '/production-error': typeof DocsProductionErrorRoute
-  '/react': typeof DocsReactRouteWithChildren
   '/playground': typeof PrivatePlaygroundRoute
-  '/react/handbook': typeof DocsReactHandbookRouteWithChildren
-  '/react/overview': typeof DocsReactOverviewRouteWithChildren
-  '/react/utils': typeof DocsReactUtilsRouteWithChildren
   '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
+  '/react': typeof DocsReactIndexRoute
   '/react/components/accordion': typeof DocsReactComponentsAccordionRoute
   '/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
   '/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
@@ -749,12 +782,14 @@ export interface FileRoutesByTo {
   '/react/overview/accessibility': typeof DocsReactOverviewAccessibilityRoute
   '/react/overview/community': typeof DocsReactOverviewCommunityRoute
   '/react/overview/quick-start': typeof DocsReactOverviewQuickStartRoute
-  '/react/overview/releases': typeof DocsReactOverviewReleasesRouteWithChildren
   '/react/utils/csp-provider': typeof DocsReactUtilsCspProviderRoute
   '/react/utils/direction-provider': typeof DocsReactUtilsDirectionProviderRoute
   '/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
   '/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
   '/react/components': typeof DocsReactComponentsIndexRoute
+  '/react/handbook': typeof DocsReactHandbookIndexRoute
+  '/react/overview': typeof DocsReactOverviewIndexRoute
+  '/react/utils': typeof DocsReactUtilsIndexRoute
   '/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
   '/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
   '/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
@@ -781,6 +816,7 @@ export interface FileRoutesByTo {
   '/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
   '/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
   '/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
+  '/react/overview/releases': typeof DocsReactOverviewReleasesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -795,6 +831,7 @@ export interface FileRoutesById {
   '/_docs/react/overview': typeof DocsReactOverviewRouteWithChildren
   '/_docs/react/utils': typeof DocsReactUtilsRouteWithChildren
   '/_website/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
+  '/_docs/react/': typeof DocsReactIndexRoute
   '/_docs/react/components/accordion': typeof DocsReactComponentsAccordionRoute
   '/_docs/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
   '/_docs/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
@@ -846,6 +883,9 @@ export interface FileRoutesById {
   '/_docs/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
   '/_docs/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
   '/_docs/react/components/': typeof DocsReactComponentsIndexRoute
+  '/_docs/react/handbook/': typeof DocsReactHandbookIndexRoute
+  '/_docs/react/overview/': typeof DocsReactOverviewIndexRoute
+  '/_docs/react/utils/': typeof DocsReactUtilsIndexRoute
   '/_docs/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
   '/_docs/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
   '/_docs/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
@@ -872,6 +912,7 @@ export interface FileRoutesById {
   '/_docs/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
   '/_docs/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
   '/_docs/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
+  '/_docs/react/overview/releases/': typeof DocsReactOverviewReleasesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -884,6 +925,7 @@ export interface FileRouteTypes {
     | '/react/overview'
     | '/react/utils'
     | '/careers/design-engineer'
+    | '/react/'
     | '/react/components/accordion'
     | '/react/components/alert-dialog'
     | '/react/components/autocomplete'
@@ -935,6 +977,9 @@ export interface FileRouteTypes {
     | '/react/utils/merge-props'
     | '/react/utils/use-render'
     | '/react/components/'
+    | '/react/handbook/'
+    | '/react/overview/'
+    | '/react/utils/'
     | '/react/overview/releases/v1-0-0'
     | '/react/overview/releases/v1-0-0-alpha-4'
     | '/react/overview/releases/v1-0-0-alpha-5'
@@ -961,16 +1006,14 @@ export interface FileRouteTypes {
     | '/react/overview/releases/v1-6-0'
     | '/react/overview/releases/v1-7-0'
     | '/react/overview/releases/v1-8-0'
+    | '/react/overview/releases/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/production-error'
-    | '/react'
     | '/playground'
-    | '/react/handbook'
-    | '/react/overview'
-    | '/react/utils'
     | '/careers/design-engineer'
+    | '/react'
     | '/react/components/accordion'
     | '/react/components/alert-dialog'
     | '/react/components/autocomplete'
@@ -1016,12 +1059,14 @@ export interface FileRouteTypes {
     | '/react/overview/accessibility'
     | '/react/overview/community'
     | '/react/overview/quick-start'
-    | '/react/overview/releases'
     | '/react/utils/csp-provider'
     | '/react/utils/direction-provider'
     | '/react/utils/merge-props'
     | '/react/utils/use-render'
     | '/react/components'
+    | '/react/handbook'
+    | '/react/overview'
+    | '/react/utils'
     | '/react/overview/releases/v1-0-0'
     | '/react/overview/releases/v1-0-0-alpha-4'
     | '/react/overview/releases/v1-0-0-alpha-5'
@@ -1048,6 +1093,7 @@ export interface FileRouteTypes {
     | '/react/overview/releases/v1-6-0'
     | '/react/overview/releases/v1-7-0'
     | '/react/overview/releases/v1-8-0'
+    | '/react/overview/releases'
   id:
     | '__root__'
     | '/_docs'
@@ -1061,6 +1107,7 @@ export interface FileRouteTypes {
     | '/_docs/react/overview'
     | '/_docs/react/utils'
     | '/_website/careers/design-engineer'
+    | '/_docs/react/'
     | '/_docs/react/components/accordion'
     | '/_docs/react/components/alert-dialog'
     | '/_docs/react/components/autocomplete'
@@ -1112,6 +1159,9 @@ export interface FileRouteTypes {
     | '/_docs/react/utils/merge-props'
     | '/_docs/react/utils/use-render'
     | '/_docs/react/components/'
+    | '/_docs/react/handbook/'
+    | '/_docs/react/overview/'
+    | '/_docs/react/utils/'
     | '/_docs/react/overview/releases/v1-0-0'
     | '/_docs/react/overview/releases/v1-0-0-alpha-4'
     | '/_docs/react/overview/releases/v1-0-0-alpha-5'
@@ -1138,6 +1188,7 @@ export interface FileRouteTypes {
     | '/_docs/react/overview/releases/v1-6-0'
     | '/_docs/react/overview/releases/v1-7-0'
     | '/_docs/react/overview/releases/v1-8-0'
+    | '/_docs/react/overview/releases/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1196,6 +1247,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/'
       preLoaderRoute: typeof WebsiteIndexRouteImport
       parentRoute: typeof WebsiteRoute
+    }
+    '/_docs/react/': {
+      id: '/_docs/react/'
+      path: '/'
+      fullPath: '/react/'
+      preLoaderRoute: typeof DocsReactIndexRouteImport
+      parentRoute: typeof DocsReactRoute
     }
     '/_docs/react/handbook': {
       id: '/_docs/react/handbook'
@@ -1477,6 +1535,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsReactComponentsTooltipRouteImport
       parentRoute: typeof DocsReactRoute
     }
+    '/_docs/react/handbook/': {
+      id: '/_docs/react/handbook/'
+      path: '/'
+      fullPath: '/react/handbook/'
+      preLoaderRoute: typeof DocsReactHandbookIndexRouteImport
+      parentRoute: typeof DocsReactHandbookRoute
+    }
     '/_docs/react/handbook/animation': {
       id: '/_docs/react/handbook/animation'
       path: '/animation'
@@ -1519,6 +1584,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsReactHandbookTypescriptRouteImport
       parentRoute: typeof DocsReactHandbookRoute
     }
+    '/_docs/react/overview/': {
+      id: '/_docs/react/overview/'
+      path: '/'
+      fullPath: '/react/overview/'
+      preLoaderRoute: typeof DocsReactOverviewIndexRouteImport
+      parentRoute: typeof DocsReactOverviewRoute
+    }
     '/_docs/react/overview/about': {
       id: '/_docs/react/overview/about'
       path: '/about'
@@ -1554,6 +1626,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsReactOverviewReleasesRouteImport
       parentRoute: typeof DocsReactOverviewRoute
     }
+    '/_docs/react/utils/': {
+      id: '/_docs/react/utils/'
+      path: '/'
+      fullPath: '/react/utils/'
+      preLoaderRoute: typeof DocsReactUtilsIndexRouteImport
+      parentRoute: typeof DocsReactUtilsRoute
+    }
     '/_docs/react/utils/csp-provider': {
       id: '/_docs/react/utils/csp-provider'
       path: '/csp-provider'
@@ -1581,6 +1660,13 @@ declare module '@tanstack/solid-router' {
       fullPath: '/react/utils/use-render'
       preLoaderRoute: typeof DocsReactUtilsUseRenderRouteImport
       parentRoute: typeof DocsReactUtilsRoute
+    }
+    '/_docs/react/overview/releases/': {
+      id: '/_docs/react/overview/releases/'
+      path: '/'
+      fullPath: '/react/overview/releases/'
+      preLoaderRoute: typeof DocsReactOverviewReleasesIndexRouteImport
+      parentRoute: typeof DocsReactOverviewReleasesRoute
     }
     '/_docs/react/overview/releases/v1-0-0': {
       id: '/_docs/react/overview/releases/v1-0-0'
@@ -1774,6 +1860,7 @@ interface DocsReactHandbookRouteChildren {
   DocsReactHandbookFormsRoute: typeof DocsReactHandbookFormsRoute
   DocsReactHandbookStylingRoute: typeof DocsReactHandbookStylingRoute
   DocsReactHandbookTypescriptRoute: typeof DocsReactHandbookTypescriptRoute
+  DocsReactHandbookIndexRoute: typeof DocsReactHandbookIndexRoute
 }
 
 const DocsReactHandbookRouteChildren: DocsReactHandbookRouteChildren = {
@@ -1783,6 +1870,7 @@ const DocsReactHandbookRouteChildren: DocsReactHandbookRouteChildren = {
   DocsReactHandbookFormsRoute: DocsReactHandbookFormsRoute,
   DocsReactHandbookStylingRoute: DocsReactHandbookStylingRoute,
   DocsReactHandbookTypescriptRoute: DocsReactHandbookTypescriptRoute,
+  DocsReactHandbookIndexRoute: DocsReactHandbookIndexRoute,
 }
 
 const DocsReactHandbookRouteWithChildren =
@@ -1815,6 +1903,7 @@ interface DocsReactOverviewReleasesRouteChildren {
   DocsReactOverviewReleasesV160Route: typeof DocsReactOverviewReleasesV160Route
   DocsReactOverviewReleasesV170Route: typeof DocsReactOverviewReleasesV170Route
   DocsReactOverviewReleasesV180Route: typeof DocsReactOverviewReleasesV180Route
+  DocsReactOverviewReleasesIndexRoute: typeof DocsReactOverviewReleasesIndexRoute
 }
 
 const DocsReactOverviewReleasesRouteChildren: DocsReactOverviewReleasesRouteChildren =
@@ -1861,6 +1950,7 @@ const DocsReactOverviewReleasesRouteChildren: DocsReactOverviewReleasesRouteChil
     DocsReactOverviewReleasesV160Route: DocsReactOverviewReleasesV160Route,
     DocsReactOverviewReleasesV170Route: DocsReactOverviewReleasesV170Route,
     DocsReactOverviewReleasesV180Route: DocsReactOverviewReleasesV180Route,
+    DocsReactOverviewReleasesIndexRoute: DocsReactOverviewReleasesIndexRoute,
   }
 
 const DocsReactOverviewReleasesRouteWithChildren =
@@ -1874,6 +1964,7 @@ interface DocsReactOverviewRouteChildren {
   DocsReactOverviewCommunityRoute: typeof DocsReactOverviewCommunityRoute
   DocsReactOverviewQuickStartRoute: typeof DocsReactOverviewQuickStartRoute
   DocsReactOverviewReleasesRoute: typeof DocsReactOverviewReleasesRouteWithChildren
+  DocsReactOverviewIndexRoute: typeof DocsReactOverviewIndexRoute
 }
 
 const DocsReactOverviewRouteChildren: DocsReactOverviewRouteChildren = {
@@ -1882,6 +1973,7 @@ const DocsReactOverviewRouteChildren: DocsReactOverviewRouteChildren = {
   DocsReactOverviewCommunityRoute: DocsReactOverviewCommunityRoute,
   DocsReactOverviewQuickStartRoute: DocsReactOverviewQuickStartRoute,
   DocsReactOverviewReleasesRoute: DocsReactOverviewReleasesRouteWithChildren,
+  DocsReactOverviewIndexRoute: DocsReactOverviewIndexRoute,
 }
 
 const DocsReactOverviewRouteWithChildren =
@@ -1892,6 +1984,7 @@ interface DocsReactUtilsRouteChildren {
   DocsReactUtilsDirectionProviderRoute: typeof DocsReactUtilsDirectionProviderRoute
   DocsReactUtilsMergePropsRoute: typeof DocsReactUtilsMergePropsRoute
   DocsReactUtilsUseRenderRoute: typeof DocsReactUtilsUseRenderRoute
+  DocsReactUtilsIndexRoute: typeof DocsReactUtilsIndexRoute
 }
 
 const DocsReactUtilsRouteChildren: DocsReactUtilsRouteChildren = {
@@ -1899,6 +1992,7 @@ const DocsReactUtilsRouteChildren: DocsReactUtilsRouteChildren = {
   DocsReactUtilsDirectionProviderRoute: DocsReactUtilsDirectionProviderRoute,
   DocsReactUtilsMergePropsRoute: DocsReactUtilsMergePropsRoute,
   DocsReactUtilsUseRenderRoute: DocsReactUtilsUseRenderRoute,
+  DocsReactUtilsIndexRoute: DocsReactUtilsIndexRoute,
 }
 
 const DocsReactUtilsRouteWithChildren = DocsReactUtilsRoute._addFileChildren(
@@ -1909,6 +2003,7 @@ interface DocsReactRouteChildren {
   DocsReactHandbookRoute: typeof DocsReactHandbookRouteWithChildren
   DocsReactOverviewRoute: typeof DocsReactOverviewRouteWithChildren
   DocsReactUtilsRoute: typeof DocsReactUtilsRouteWithChildren
+  DocsReactIndexRoute: typeof DocsReactIndexRoute
   DocsReactComponentsAccordionRoute: typeof DocsReactComponentsAccordionRoute
   DocsReactComponentsAlertDialogRoute: typeof DocsReactComponentsAlertDialogRoute
   DocsReactComponentsAutocompleteRoute: typeof DocsReactComponentsAutocompleteRoute
@@ -1951,6 +2046,7 @@ const DocsReactRouteChildren: DocsReactRouteChildren = {
   DocsReactHandbookRoute: DocsReactHandbookRouteWithChildren,
   DocsReactOverviewRoute: DocsReactOverviewRouteWithChildren,
   DocsReactUtilsRoute: DocsReactUtilsRouteWithChildren,
+  DocsReactIndexRoute: DocsReactIndexRoute,
   DocsReactComponentsAccordionRoute: DocsReactComponentsAccordionRoute,
   DocsReactComponentsAlertDialogRoute: DocsReactComponentsAlertDialogRoute,
   DocsReactComponentsAutocompleteRoute: DocsReactComponentsAutocompleteRoute,

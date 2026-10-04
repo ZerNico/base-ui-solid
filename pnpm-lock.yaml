@@ -116,6 +116,9 @@ importers:
       '@tanstack/solid-start-server':
         specifier: 2.0.0-rc.8
         version: 2.0.0-rc.8(@solidjs/web@2.0.0-rc.13(solid-js@2.0.0-rc.13))(solid-js@2.0.0-rc.13)
+      '@tanstack/virtual-core':
+        specifier: 3.17.11
+        version: 3.17.11
       '@types/hast':
         specifier: 3.0.5
         version: 3.0.5
@@ -134,6 +137,9 @@ importers:
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1
+      match-sorter:
+        specifier: ^8.3.0
+        version: 8.3.0
       postcss:
         specifier: ^8.5.28
         version: 8.5.28
@@ -167,6 +173,9 @@ importers:
       unist-util-visit-parents:
         specifier: ^6.0.2
         version: 6.0.2
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@types/mdx':
         specifier: ^2.0.14
@@ -2381,6 +2390,12 @@ packages:
   '@tanstack/start-storage-context@1.167.24':
     resolution: {integrity: sha512-HPltgydit1LmLJFX3BhMcXMxkmUgtWJopPUx6Eg0YTC4tVwFvUhSWCrfgtTIiGWcHd1Ah+fi6fK9BAe8Y5KZtw==}
     engines: {node: '>=22.12.0'}
+
+  '@tanstack/virtual-core@3.17.11':
+    resolution:
+      {
+        integrity: sha512-+ILjvtHup6Y2hzQ6YzwMgX1Q+oQpxEGOXCEsCNaPoIP0VxMbizIBTmYTDtkerkIQS8/CbP1BRuyt8V/8BCsy1g==,
+      }
 
   '@tanstack/virtual-file-routes@1.162.0':
     resolution: {integrity: sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA==}
@@ -4729,6 +4744,12 @@ packages:
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
 
+  match-sorter@8.3.0:
+    resolution:
+      {
+        integrity: sha512-8Py1GbZi5zsclYSFcPAH4H5xfTbeD0bOREA7qP/t8bW4MbOSlPl8sbqHOedEV7O+Bxyvxm6xs/v6BXJGe+JDNA==,
+      }
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -5583,6 +5604,12 @@ packages:
   remark-typography@0.8.9:
     resolution: {integrity: sha512-wUBsgHqUUNDirsuMBW90LitJ8qZ62uFHQE0G8rIgPY3cw/2pKkdJYjENFE+0cF5xW/WiqdaTBBvsWagltO//qw==}
     engines: {node: '>=18.20.8'}
+
+  remove-accents@0.5.0:
+    resolution:
+      {
+        integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==,
+      }
 
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -8915,6 +8942,8 @@ snapshots:
     dependencies:
       '@tanstack/router-core': 1.171.22
 
+  '@tanstack/virtual-core@3.17.11': {}
+
   '@tanstack/virtual-file-routes@1.162.0': {}
 
   '@testing-library/dom@10.4.2':
@@ -11379,6 +11408,11 @@ snapshots:
 
   markdown-table@3.0.4: {}
 
+  match-sorter@8.3.0:
+    dependencies:
+      '@babel/runtime': 7.29.7
+      remove-accents: 0.5.0
+
   math-intrinsics@1.1.0: {}
 
   mathml-tag-names@4.0.0: {}
@@ -12673,6 +12707,8 @@ snapshots:
       string-remove-widows: 4.2.10
       unified: 11.0.5
       vfile: 6.0.3
+
+  remove-accents@0.5.0: {}
 
   require-from-string@2.0.2: {}
 

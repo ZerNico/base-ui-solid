@@ -1,13 +1,6 @@
-import { createFileRoute } from '@tanstack/solid-router';
-import Content, { metadata } from '../app/(docs)/react/handbook/page.mdx';
-import { mdxComponents } from '../mdx-components';
+import { createFileRoute, Outlet } from '@tanstack/solid-router';
 
+// Port note: index content must not mask nested documentation routes.
 export const Route = createFileRoute('/_docs/react/handbook')({
-  head: () => ({
-    meta: [
-      { title: metadata.title ?? 'Handbook' },
-      { name: 'description', content: metadata.description ?? 'Handbook' },
-    ],
-  }),
-  component: () => <Content components={mdxComponents} />,
+  component: Outlet,
 });
