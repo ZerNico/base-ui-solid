@@ -1,7 +1,8 @@
-import type { Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi  } from 'vitest';
+import type {Mock} from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
-import { Avatar } from '..';
 import { createRenderer, describeConformance, render, isJSDOM, waitFor, screen } from '#test-utils';
+import { Avatar } from '..';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 import type { ImageLoadingStatus } from '../root/AvatarRoot';
 

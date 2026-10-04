@@ -1,4 +1,5 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { OTPFieldRoot, OTPFieldRootState } from './OTPFieldRoot';
 import type { OTPFieldInputState } from '../input/OTPFieldInput';

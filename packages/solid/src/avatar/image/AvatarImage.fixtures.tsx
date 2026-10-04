@@ -1,6 +1,10 @@
 import { Avatar } from '..';
 
-export function AvatarImageFixture(props: { src: string; alt: string; keepMounted?: boolean }) {
+export function AvatarImageFixture(props: {
+  src: string;
+  alt: string;
+  keepMounted?: boolean | undefined;
+}) {
   return (
     <Avatar.Root>
       <Avatar.Image

@@ -1,4 +1,5 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsRoot } from './TabsRoot';

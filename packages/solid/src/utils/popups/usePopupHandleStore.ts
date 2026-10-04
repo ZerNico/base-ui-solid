@@ -26,7 +26,6 @@ export function usePopupHandleStore<HandleStore>(
   if (handle !== undefined) {
     const unsubscribe = handle.subscribeStore(() => {
       trigger(undefined);
-
     });
     onCleanup(unsubscribe);
   }

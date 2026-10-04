@@ -25,7 +25,7 @@ export function CSPProvider(props: CSPProvider.Props) {
 export interface CSPProviderState {}
 
 export interface CSPProviderProps {
-  children?: JSX.Element;
+  children?: JSX.Element | undefined;
   /**
    * The nonce value to apply to inline `<style>` and `<script>` tags.
    */

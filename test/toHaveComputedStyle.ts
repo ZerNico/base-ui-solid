@@ -1,6 +1,7 @@
 import { expect } from 'vitest';
 
 declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- must match Vitest's Matchers signature for declaration merging
   interface Matchers<R extends void | Promise<void> = void | Promise<void>, T = unknown> {
     /**
      * Port of `@mui/internal-test-utils`' `toHaveComputedStyle` chai assertion: checks that the

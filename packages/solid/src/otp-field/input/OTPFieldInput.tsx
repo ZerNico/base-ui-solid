@@ -1,5 +1,6 @@
 import { createMemo, createRenderEffect, createSignal, flush, omit, untrack } from 'solid-js';
-import { isServer, type JSX } from '@solidjs/web';
+import { isServer } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';

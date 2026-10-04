@@ -1,5 +1,6 @@
-import { Progress } from '..';
+import { describe, it, expect } from 'vitest';
 import { render, describeConformance, isJSDOM, screen } from '#test-utils';
+import { Progress } from '..';
 
 describe('<Progress.Indicator />', () => {
   describeConformance(Progress.Indicator, {

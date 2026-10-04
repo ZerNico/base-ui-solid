@@ -754,7 +754,6 @@ export function useAnchorPositioningWithHook(
   };
 }
 
-
 function isRef(
   param: Element | VirtualElement | RefObject<any> | null | undefined,
 ): param is RefObject<any> {

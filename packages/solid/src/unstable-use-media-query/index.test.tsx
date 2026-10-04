@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { flushMicrotasks, render, renderToString, screen } from '#test-utils';
 import { useMediaQuery } from '.';
 import { NoSsrTest, SsrMatchMediaTest } from './index.fixtures';

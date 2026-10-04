@@ -1,4 +1,5 @@
-import { type Accessor, type Setter, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
+import type { Accessor, Setter } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { NOOP } from '../../internals/noop';

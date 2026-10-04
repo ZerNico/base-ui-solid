@@ -1,8 +1,8 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
+import { describeConformance, fireEvent, isJSDOM, render, screen, waitFor } from '#test-utils';
 import { Button, ButtonDataAttributes } from '.';
 import { mergeProps } from '../merge-props';
-import { describeConformance, fireEvent, isJSDOM, render, screen, waitFor } from '#test-utils';
 
 describe('<Button />', () => {
   describeConformance(Button, {

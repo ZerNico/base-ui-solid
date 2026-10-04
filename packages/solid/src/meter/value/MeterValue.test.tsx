@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { Meter } from '..';
 import { render, describeConformance, screen } from '#test-utils';
+import { Meter } from '..';
 
 describe('<Meter.Value />', () => {
   describeConformance(Meter.Value, {

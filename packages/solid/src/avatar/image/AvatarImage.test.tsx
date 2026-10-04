@@ -1,7 +1,6 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemo, createSignal, flush, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { Avatar } from '..';
-import type { AvatarImageProps } from './AvatarImage';
 import {
   describeConformance,
   render,
@@ -12,6 +11,8 @@ import {
   screen,
   waitFor,
 } from '#test-utils';
+import { Avatar } from '..';
+import type { AvatarImageProps } from './AvatarImage';
 import { AvatarImageFixture } from './AvatarImage.fixtures';
 
 type MockImage = {
@@ -576,6 +577,7 @@ describe('<Avatar.Image />', () => {
       }
 
       const [className, setClassName] = createSignal('initial');
+      // eslint-disable-next-line solid/no-react-specific-props -- test-local component prop named like upstream's
       await render(() => <Test className={className()} />);
 
       await waitFor(() => {
@@ -804,6 +806,7 @@ describe('<Avatar.Image />', () => {
         }
 
         const [className, setClassName] = createSignal('initial');
+        // eslint-disable-next-line solid/no-react-specific-props -- test-local component prop named like upstream's
         await render(() => <Test className={className()} />);
 
         await waitFor(() => {

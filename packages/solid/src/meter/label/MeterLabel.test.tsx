@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
 import { createSignal, Show } from 'solid-js';
-import { Meter } from '..';
 import { render, describeConformance, fireEvent, flushMicrotasks, screen } from '#test-utils';
+import { Meter } from '..';
 
 describe('<Meter.Label />', () => {
   describeConformance(Meter.Label, {

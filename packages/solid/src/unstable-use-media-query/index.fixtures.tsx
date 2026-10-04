@@ -37,8 +37,8 @@ export function SsrMatchMediaTest(props: { query: string }) {
 export function NoSsrTest(props: {
   query: string;
   matches: boolean;
-  defaultMatches?: boolean;
-  noSsr?: boolean;
+  defaultMatches?: boolean | undefined;
+  noSsr?: boolean | undefined;
 }) {
   const matchMedia = createMatchMedia(props.matches);
   const matches = useMediaQuery(

@@ -1,4 +1,5 @@
-import { type Accessor, type Setter, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor, Setter } from 'solid-js';
 import type { ProgressRootState } from './ProgressRoot';
 
 export type ProgressRootContext = {

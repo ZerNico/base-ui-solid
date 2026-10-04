@@ -1,5 +1,6 @@
+import { describe } from 'vitest';
+import { describeConformance } from '#test-utils';
 import { Progress } from '..';
-import { render, describeConformance } from '#test-utils';
 
 describe('<Progress.Track />', () => {
   describeConformance(Progress.Track, {

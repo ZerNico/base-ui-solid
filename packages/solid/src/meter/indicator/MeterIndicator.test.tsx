@@ -1,5 +1,6 @@
-import { Meter } from '..';
+import { describe, it, expect } from 'vitest';
 import { render, describeConformance, isJSDOM, screen } from '#test-utils';
+import { Meter } from '..';
 
 describe('<Meter.Indicator />', () => {
   describeConformance(Meter.Indicator, {

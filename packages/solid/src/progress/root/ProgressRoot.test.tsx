@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { Progress } from '..';
 import { render, describeConformance, screen } from '#test-utils';
+import { Progress } from '..';
 import type { ProgressRoot } from './ProgressRoot';
 
 function formatPercent(value: number) {

@@ -1,5 +1,6 @@
-import { Progress } from '..';
+import { describe, it, expect } from 'vitest';
 import { render, describeConformance, screen } from '#test-utils';
+import { Progress } from '..';
 
 describe('<Progress.Value />', () => {
   describeConformance(Progress.Value, {

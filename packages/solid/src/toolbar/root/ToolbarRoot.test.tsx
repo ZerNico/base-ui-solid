@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
+import { render, screen, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
 import type { TextDirection } from '../../direction-provider';
-import { render, screen, describeConformance, isJSDOM } from '#test-utils';
 import { Toolbar } from '..';
 import type { Orientation } from '../../internals/types';
 import { useToolbarRootContext } from './ToolbarRootContext';

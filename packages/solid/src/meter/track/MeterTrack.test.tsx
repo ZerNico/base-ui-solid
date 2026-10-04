@@ -1,5 +1,6 @@
+import { describe } from 'vitest';
+import { describeConformance } from '#test-utils';
 import { Meter } from '..';
-import { render, describeConformance } from '#test-utils';
 
 describe('<Meter.Track />', () => {
   describeConformance(Meter.Track, {

@@ -1,4 +1,5 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { createContext, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 export interface TabsListContext {
   activateOnFocus: Accessor<boolean>;

@@ -108,6 +108,7 @@ describe('<Tabs.Panel />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml -- static test CSS, as upstream's dangerouslySetInnerHTML */}
           <style innerHTML={style} />
           <Tabs.Root defaultValue="one">
             <Tabs.List>
@@ -155,6 +156,7 @@ describe('<Tabs.Panel />', () => {
 
       const { user } = await render(() => (
         <div>
+          {/* eslint-disable-next-line solid/no-innerhtml -- static test CSS, as upstream's dangerouslySetInnerHTML */}
           <style innerHTML={style} />
           <Tabs.Root defaultValue="one">
             <Tabs.List>
