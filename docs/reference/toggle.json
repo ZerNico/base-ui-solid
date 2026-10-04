@@ -1,0 +1,88 @@
+{
+  "Toggle": {
+    "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "value",
+        "type": "string",
+        "default": "-",
+        "description": "A unique string that identifies the toggle when used\ninside a toggle group."
+      },
+      {
+        "name": "defaultPressed",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the toggle button is currently pressed.\nThis is the uncontrolled counterpart of `pressed`."
+      },
+      {
+        "name": "pressed",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the toggle button is currently pressed.\nThis is the controlled counterpart of `defaultPressed`."
+      },
+      {
+        "name": "onPressedChange",
+        "type": "((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when the pressed state is changed."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-pressed",
+        "type": "-",
+        "description": "Present when the toggle button is pressed."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the toggle button is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Toggle.State",
+        "source": "type ToggleState = {\n  /** Whether the toggle is currently pressed. */\n  pressed: boolean;\n  /** Whether the toggle should ignore user interaction. */\n  disabled: boolean;\n};"
+      },
+      {
+        "name": "Toggle.ChangeEventReason",
+        "source": "type ToggleChangeEventReason = 'none';"
+      },
+      {
+        "name": "Toggle.ChangeEventDetails",
+        "source": "type ToggleChangeEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  }
+}

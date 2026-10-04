@@ -1,0 +1,45 @@
+{
+  "Separator": {
+    "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "orientation",
+        "type": "Orientation",
+        "default": "`'horizontal'`",
+        "description": "The orientation of the separator."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the separator."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Separator.State",
+        "source": "type SeparatorState = {\n  /** The orientation of the separator. */\n  orientation: Orientation;\n};"
+      }
+    ]
+  }
+}

@@ -1,0 +1,629 @@
+{
+  "Root": {
+    "description": "Groups all parts of the preview card.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the preview card is initially open. To render a controlled preview card, use the `open` prop instead."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the preview card is currently open."
+      },
+      {
+        "name": "onOpenChange",
+        "type": "((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the preview card is opened or closed."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<PreviewCard.Root.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the preview card after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the preview card completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the preview card imperatively when called."
+      },
+      {
+        "name": "defaultTriggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the preview card is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open preview card."
+      },
+      {
+        "name": "handle",
+        "type": "PreviewCard.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the preview card with a trigger.\nIf specified, allows external triggers to control the card's open state.\nCan be created with the PreviewCard.createHandle() method."
+      },
+      {
+        "name": "onOpenChangeComplete",
+        "type": "((open: boolean) => void)",
+        "default": "-",
+        "description": "Event handler called after any animations complete when the preview card is opened or closed."
+      },
+      {
+        "name": "triggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the preview card is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled preview card.\nThere's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set)."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element | PayloadChildRenderFunction<Payload>",
+        "default": "-",
+        "description": "The content of the preview card.\nThis can be a regular Solid JSX or a render function that receives the `payload` of the active trigger."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type PreviewCardRootState = {};"
+      },
+      {
+        "name": "Root.Actions",
+        "source": "type PreviewCardRootActions = { unmount: () => void; close: () => void };"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type PreviewCardRootChangeEventReason =\n  | 'trigger-hover'\n  | 'trigger-focus'\n  | 'trigger-press'\n  | 'outside-press'\n  | 'escape-key'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type PreviewCardRootChangeEventDetails = (\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }\n  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      }
+    ]
+  },
+  "Trigger": {
+    "description": "A link that opens the preview card.\nRenders an `<a>` element.",
+    "props": [
+      {
+        "name": "handle",
+        "type": "PreviewCard.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the trigger with a preview card."
+      },
+      {
+        "name": "payload",
+        "type": "Payload",
+        "default": "-",
+        "description": "A payload to pass to the preview card when it is opened."
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "default": "`600`",
+        "description": "How long to wait before the preview card opens. Specified in milliseconds."
+      },
+      {
+        "name": "closeDelay",
+        "type": "number",
+        "default": "`300`",
+        "description": "How long to wait before closing the preview card. Specified in milliseconds."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-popup-open",
+        "type": "-",
+        "description": "Present when the corresponding preview card is open."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Trigger.State",
+        "source": "type PreviewCardTriggerState = {\n  /** Whether the preview card is currently open and was opened by this trigger. */\n  open: boolean;\n};"
+      }
+    ]
+  },
+  "Portal": {
+    "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "container",
+        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "default": "-",
+        "description": "A parent element to render the portal element into."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type PreviewCardPortalState = {};"
+      }
+    ]
+  },
+  "Backdrop": {
+    "description": "A presentational overlay displayed beneath the popup.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the preview card is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the preview card is closed."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the preview card begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the preview card is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Backdrop.State",
+        "source": "type PreviewCardBackdropState = {\n  /** Whether the preview card is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "Positioner": {
+    "description": "Positions the popup against the trigger.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "disableAnchorTracking",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to disable the popup from tracking any layout shift of its positioning anchor."
+      },
+      {
+        "name": "align",
+        "type": "Align",
+        "default": "`'center'`",
+        "description": "How to align the popup relative to the specified side."
+      },
+      {
+        "name": "alignOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "side",
+        "type": "Side",
+        "default": "`'bottom'`",
+        "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions."
+      },
+      {
+        "name": "sideOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "arrowPadding",
+        "type": "number",
+        "default": "`5`",
+        "description": "Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup."
+      },
+      {
+        "name": "anchor",
+        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "default": "-",
+        "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
+      },
+      {
+        "name": "collisionAvoidance",
+        "type": "CollisionAvoidance",
+        "default": "-",
+        "description": "Determines how to handle collisions when positioning the popup. `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`): `'flip'`: keep the requested side when it fits; otherwise try the opposite side\n(`top` and `bottom`, or `left` and `right`).`'shift'`: never change side; keep the requested side and move the popup within\nthe clipping boundary so it stays visible.`'none'`: do not correct side-axis overflow. `align` controls overflow on the alignment axis (`start`/`center`/`end`): `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.`'shift'`: keep side and requested alignment, then nudge the popup along the\nalignment axis to fit.`'none'`: do not correct alignment-axis overflow. `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the\npreferred axis cannot fit: `'start'`: allow perpendicular fallback and try the logical start side first\n(`top` before `bottom`, or `left` before `right` in LTR).`'end'`: allow perpendicular fallback and try the logical end side first\n(`bottom` before `top`, or `right` before `left` in LTR).`'none'`: do not fallback to the perpendicular axis. When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.\nIf `align` is omitted, it defaults to `'flip'`."
+      },
+      {
+        "name": "collisionBoundary",
+        "type": "Boundary",
+        "default": "`'clipping-ancestors'`",
+        "description": "An element or a rectangle that delimits the area that the popup is confined to."
+      },
+      {
+        "name": "collisionPadding",
+        "type": "Padding",
+        "default": "`5`",
+        "description": "Additional space to maintain from the edge of the collision boundary."
+      },
+      {
+        "name": "sticky",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to maintain the popup in the viewport after\nthe anchor element was scrolled out of view."
+      },
+      {
+        "name": "positionMethod",
+        "type": "'absolute' | 'fixed'",
+        "default": "`'absolute'`",
+        "description": "Determines which CSS `position` property to use."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the preview card is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the preview card is closed."
+      },
+      {
+        "name": "data-anchor-hidden",
+        "type": "-",
+        "description": "Present when the anchor is hidden."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the trigger."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--anchor-height",
+        "type": "number",
+        "description": "The anchor's height."
+      },
+      {
+        "name": "--anchor-width",
+        "type": "number",
+        "description": "The anchor's width."
+      },
+      {
+        "name": "--available-height",
+        "type": "number",
+        "description": "The available height between the trigger and the edge of the viewport."
+      },
+      {
+        "name": "--available-width",
+        "type": "number",
+        "description": "The available width between the trigger and the edge of the viewport."
+      },
+      {
+        "name": "--positioner-height",
+        "type": "number",
+        "description": "The height of the preview card's positioner.\nIt is important to set `height` to this value when using CSS to animate size changes."
+      },
+      {
+        "name": "--positioner-width",
+        "type": "number",
+        "description": "The width of the preview card's positioner.\nIt is important to set `width` to this value when using CSS to animate size changes."
+      },
+      {
+        "name": "--transform-origin",
+        "type": "string",
+        "description": "The coordinates that this element is anchored to. Used for animations and transitions."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Positioner.State",
+        "source": "type PreviewCardPositionerState = {\n  /** Whether the preview card is currently open. */\n  open: boolean;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the anchor element is hidden. */\n  anchorHidden: boolean;\n  /** Whether transitions should be skipped. */\n  instant: 'dismiss' | 'focus' | undefined;\n};"
+      }
+    ]
+  },
+  "Popup": {
+    "description": "A container for the preview card contents.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the preview card is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the preview card is closed."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the trigger."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the preview card begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the preview card is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Popup.State",
+        "source": "type PreviewCardPopupState = {\n  /** Whether the preview card is currently open. */\n  open: boolean;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether transitions should be skipped. */\n  instant: 'dismiss' | 'focus' | undefined;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "Arrow": {
+    "description": "Displays an element positioned against the preview card anchor.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the preview card is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the preview card is closed."
+      },
+      {
+        "name": "data-uncentered",
+        "type": "-",
+        "description": "Present when the preview card arrow is uncentered."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the trigger."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Arrow.State",
+        "source": "type PreviewCardArrowState = {\n  /** Whether the preview card is currently open. */\n  open: boolean;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the arrow cannot be centered on the anchor. */\n  uncentered: boolean;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content\nchanges based on the trigger, and switching between them is animated.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The content to render inside the transition container."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-activation-direction",
+        "type": "` `${'left' | 'right' | ''} ${'down' | 'up' | ''}` `",
+        "description": "Indicates the direction from which the popup was activated.\nThis can be used to create directional animations based on how the popup was triggered.\nContains space-separated values for both horizontal and vertical axes."
+      },
+      {
+        "name": "data-current",
+        "type": "-",
+        "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
+      },
+      {
+        "name": "data-instant",
+        "type": "'dismiss' | 'focus'",
+        "description": "Present if animations should be instant."
+      },
+      {
+        "name": "data-previous",
+        "type": "-",
+        "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+      },
+      {
+        "name": "data-transitioning",
+        "type": "-",
+        "description": "Indicates that the viewport is currently transitioning between old and new content."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--popup-height",
+        "type": "",
+        "description": "The height of the parent popup.\nThis variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+      },
+      {
+        "name": "--popup-width",
+        "type": "",
+        "description": "The width of the parent popup.\nThis variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type PreviewCardViewportState = {\n  /** The activation direction of the transitioned content. */\n  activationDirection: string | undefined;\n  /** Whether the viewport is currently transitioning between contents. */\n  transitioning: boolean;\n  /** Present if animations should be instant. */\n  instant: 'dismiss' | 'focus' | undefined;\n};"
+      }
+    ]
+  },
+  "createHandle": {
+    "description": "Creates a new handle to connect a PreviewCard.Root with detached PreviewCard.Trigger components.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "createHandle",
+        "source": "type ReturnValue = PreviewCard.Handle<Payload>;"
+      }
+    ]
+  },
+  "Handle": {
+    "description": "Controls a PreviewCard imperatively and associates detached `PreviewCard.Trigger` components with\na `PreviewCard.Root`. Create one with `PreviewCard.createHandle()` and pass it to the `handle`\nprop of the root and of any triggers rendered outside of it.\n\nThe imperative methods take effect only while a root using this handle is mounted; calls made\nbefore a root attaches (or after it unmounts) are ignored.\n\n\n\n\n\n\nOpens the preview card and associates it with the trigger with the given id.\n\nThis method should only be called in an event handler or an effect (not during rendering).\n\n\n\nCloses the preview card.\n\nThis method should only be called in an event handler or an effect (not during rendering).",
+    "props": [
+      {
+        "name": "isOpen",
+        "type": "boolean",
+        "description": "Whether the preview card is currently open. Returns false while no root is attached to the handle."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Handle.1",
+        "source": "function open(triggerId: string): void;"
+      },
+      {
+        "name": "Handle.2",
+        "source": "function close(): void;"
+      }
+    ]
+  }
+}

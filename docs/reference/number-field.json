@@ -1,0 +1,754 @@
+{
+  "Root": {
+    "description": "Groups all parts of the number field and manages its state.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "name",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the field when a form is submitted."
+      },
+      {
+        "name": "defaultValue",
+        "type": "number",
+        "default": "-",
+        "description": "The uncontrolled value of the field when it's initially rendered. To render a controlled number field, use the `value` prop instead."
+      },
+      {
+        "name": "value",
+        "type": "number | null",
+        "default": "-",
+        "description": "The raw numeric value of the field."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when the number value changes. The `eventDetails.reason` indicates what triggered the change: `'input-change'` for parseable typing or programmatic text updates`'input-clear'` when the field becomes empty`'input-blur'` when formatting (and clamping, if enabled) occurs on blur`'input-paste'` for paste interactions`'keyboard'` for arrow-key/Home/End stepping (typing digits uses `'input-change'`/`'input-clear'`)`'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls`'wheel'` for wheel-based scrubbing`'scrub'` for scrub area drags"
+      },
+      {
+        "name": "onValueCommitted",
+        "type": "((value: number | null, eventDetails: NumberField.Root.CommitEventDetails) => void)",
+        "default": "-",
+        "description": "Callback function that is fired when the value is committed.\nIt runs later than `onValueChange`, when: The input is blurred after typing a value.The pointer is released after scrubbing or pressing the increment/decrement buttons. It runs simultaneously with `onValueChange` when interacting with the keyboard or the\nmouse wheel. **Warning**: This is a generic event not a change event."
+      },
+      {
+        "name": "allowOutOfRange",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When true, direct text entry may be outside the `min`/`max` range without clamping,\nso native range underflow/overflow validation can occur.\nStep-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp."
+      },
+      {
+        "name": "form",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the form that owns the hidden input.\nUseful when the number field is rendered outside the form."
+      },
+      {
+        "name": "locale",
+        "type": "Intl.LocalesArgument",
+        "default": "-",
+        "description": "The locale of the input element.\nDefaults to the user's runtime locale."
+      },
+      {
+        "name": "snapOnStep",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the value should snap to the nearest step when incrementing or decrementing."
+      },
+      {
+        "name": "step",
+        "type": "number | 'any'",
+        "default": "`1`",
+        "description": "Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.\nTo always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.\nSpecify `step=\"any\"` to always disable step validation; interactive stepping then uses a base amount of `1`, while the alt and shift keys still step by `smallStep` and `largeStep`."
+      },
+      {
+        "name": "smallStep",
+        "type": "number",
+        "default": "`0.1`",
+        "description": "The small step value of the input element when incrementing while the alt key is held.\nSnaps to multiples of this value when `snapOnStep` is enabled."
+      },
+      {
+        "name": "largeStep",
+        "type": "number",
+        "default": "`10`",
+        "description": "The large step value of the input element when incrementing while the shift key is held.\nSnaps to multiples of this value when `snapOnStep` is enabled."
+      },
+      {
+        "name": "min",
+        "type": "number",
+        "default": "-",
+        "description": "The minimum value of the input element."
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "default": "-",
+        "description": "The maximum value of the input element."
+      },
+      {
+        "name": "allowWheelScrub",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to allow the user to scrub the input value with the mouse wheel while focused and\nhovering over the input."
+      },
+      {
+        "name": "format",
+        "type": "Intl.NumberFormatOptions",
+        "default": "-",
+        "description": "Options to format the input value."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user should be unable to change the field value."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user must enter a value before submitting a form."
+      },
+      {
+        "name": "inputRef",
+        "type": "Ref<HTMLInputElement>",
+        "default": "-",
+        "description": "A ref to access the hidden input element."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "default": "-",
+        "description": "The id of the input element."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type NumberFieldRootState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type NumberFieldRootChangeEventReason =\n  | 'input-change'\n  | 'input-clear'\n  | 'input-blur'\n  | 'input-paste'\n  | 'keyboard'\n  | 'increment-press'\n  | 'decrement-press'\n  | 'wheel'\n  | 'scrub'\n  | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type NumberFieldRootChangeEventDetails = (\n  | { reason: 'input-change'; event: InputEvent | Event }\n  | { reason: 'input-clear'; event: InputEvent | Event | FocusEvent }\n  | { reason: 'input-blur'; event: FocusEvent }\n  | { reason: 'input-paste'; event: ClipboardEvent }\n  | { reason: 'keyboard'; event: KeyboardEvent }\n  | { reason: 'increment-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'decrement-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'wheel'; event: WheelEvent }\n  | { reason: 'scrub'; event: PointerEvent }\n  | { reason: 'none'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  direction?: Direction;\n};"
+      },
+      {
+        "name": "Root.CommitEventReason",
+        "source": "type NumberFieldRootCommitEventReason =\n  | 'input-blur'\n  | 'input-clear'\n  | 'keyboard'\n  | 'increment-press'\n  | 'decrement-press'\n  | 'wheel'\n  | 'scrub'\n  | 'none';"
+      },
+      {
+        "name": "Root.CommitEventDetails",
+        "source": "type NumberFieldRootCommitEventDetails =\n  | { reason: 'input-clear'; event: InputEvent | Event | FocusEvent }\n  | { reason: 'input-blur'; event: FocusEvent }\n  | { reason: 'keyboard'; event: KeyboardEvent }\n  | { reason: 'increment-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'decrement-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'wheel'; event: WheelEvent }\n  | { reason: 'scrub'; event: PointerEvent }\n  | { reason: 'none'; event: Event };"
+      }
+    ]
+  },
+  "Input": {
+    "description": "The native input control in the number field.\nRenders an `<input>` element.",
+    "props": [
+      {
+        "name": "aria-roledescription",
+        "type": "string",
+        "default": "`'Number field'`",
+        "description": "A user-friendly description of the input's role for assistive tech. This is a role\ndescription, not an accessible name \u2014 use `Field.Label` or `aria-label` to name the control."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Input.State",
+        "source": "type NumberFieldInputState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Group": {
+    "description": "Groups the input with the increment and decrement buttons.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Group.State",
+        "source": "type NumberFieldGroupState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "ScrubArea": {
+    "description": "An interactive area where the user can click and drag to change the field value.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "direction",
+        "type": "'horizontal' | 'vertical'",
+        "default": "`'horizontal'`",
+        "description": "Cursor movement direction in the scrub area."
+      },
+      {
+        "name": "pixelSensitivity",
+        "type": "number",
+        "default": "`2`",
+        "description": "Determines how many pixels the cursor must move before the value changes.\nA higher value will make scrubbing less sensitive."
+      },
+      {
+        "name": "teleportDistance",
+        "type": "number",
+        "default": "-",
+        "description": "If specified, determines the distance that the cursor may move from the center\nof the scrub area before it will loop back around."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ScrubArea.State",
+        "source": "type NumberFieldScrubAreaState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "ScrubAreaCursor": {
+    "description": "A custom element to display instead of the native cursor while using the scrub area.\nRenders a `<span>` element.\n\nThis component uses the [Pointer Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API), which may prompt the browser to display a related notification. It is disabled\nin Safari to avoid a layout shift that this notification causes there.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ScrubAreaCursor.State",
+        "source": "type NumberFieldScrubAreaCursorState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Decrement": {
+    "description": "A stepper button that decreases the field value when clicked.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Decrement.State",
+        "source": "type NumberFieldDecrementState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Increment": {
+    "description": "A stepper button that increases the field value when clicked.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the number field is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the number field is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the number field is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the number field is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the number field is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the number field's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the number field has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the number field is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the number field is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-scrubbing",
+        "type": "-",
+        "description": "Present while scrubbing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Increment.State",
+        "source": "type NumberFieldIncrementState = {\n  /** The raw numeric value of the field. */\n  value: number | null;\n  /** The formatted string value presented in the input element. */\n  inputValue: string;\n  /** Whether the user must enter a value before submitting a form. */\n  required: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to change the field value. */\n  readOnly: boolean;\n  /** Whether the user is currently scrubbing the field. */\n  scrubbing: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  }
+}

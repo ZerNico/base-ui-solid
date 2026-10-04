@@ -1,0 +1,654 @@
+{
+  "Root": {
+    "description": "Groups all parts of the slider.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "name",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the field when a form is submitted."
+      },
+      {
+        "name": "defaultValue",
+        "type": "number | number[]",
+        "default": "-",
+        "description": "The uncontrolled value of the slider when it's initially rendered. To render a controlled slider, use the `value` prop instead."
+      },
+      {
+        "name": "value",
+        "type": "number | number[]",
+        "default": "-",
+        "description": "The value of the slider.\nFor range sliders, provide an array with one value per thumb."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: number | number[], eventDetails: Slider.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback function that is fired when the slider's value changed.\nReceives the new value as the first argument; the originating event is\navailable as `eventDetails.event`. The value is also reflected on\n`eventDetails.event.target.value` for form integration. The `eventDetails.reason` indicates what triggered the change: `'input-change'` when the hidden range input emits a change event (for example, via form integration)`'track-press'` when the control track is pressed`'drag'` while dragging a thumb`'keyboard'` for keyboard input`'none'` when the change is triggered without a specific interaction"
+      },
+      {
+        "name": "onValueCommitted",
+        "type": "((value: number | number[], eventDetails: Slider.Root.CommitEventDetails) => void)",
+        "default": "-",
+        "description": "Callback function that is fired when a value change is committed.\nDoes not fire if the value did not change, or if the change was canceled.\n**Warning**: This is a generic event, not a change event. The `eventDetails.reason` indicates what triggered the commit: `'drag'` while dragging a thumb`'track-press'` when the control track is pressed`'keyboard'` for keyboard input`'input-change'` when the hidden range input emits a change event (for example, via form integration)`'none'` when the commit occurs without a specific interaction"
+      },
+      {
+        "name": "form",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the form that owns the slider inputs.\nUseful when the slider is rendered outside the form."
+      },
+      {
+        "name": "locale",
+        "type": "Intl.LocalesArgument",
+        "default": "-",
+        "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+      },
+      {
+        "name": "thumbAlignment",
+        "type": "'center' | 'edge' | 'edge-client-only'",
+        "default": "`'center'`",
+        "description": "How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`: `center`: The center of the thumb is aligned with the control edge`edge`: The thumb is inset within the control such that its edge is aligned with the control edge`edge-client-only`: Same as `edge` but renders after Solid hydration on the client, reducing bundle size in return"
+      },
+      {
+        "name": "thumbCollisionBehavior",
+        "type": "'push' | 'swap' | 'none'",
+        "default": "`'push'`",
+        "description": "Controls how thumbs behave when they collide during pointer interactions. `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.`'swap'`: Thumbs swap places when dragged past each other.`'none'`: Thumbs cannot move past each other; excess movement is ignored."
+      },
+      {
+        "name": "step",
+        "type": "number",
+        "default": "`1`",
+        "description": "The granularity with which the slider can step through values. (A \"discrete\" slider.)\nThe `min` prop serves as the origin for the valid values.\nWe recommend (max - min) to be evenly divisible by the step."
+      },
+      {
+        "name": "largeStep",
+        "type": "number",
+        "default": "`10`",
+        "description": "The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down."
+      },
+      {
+        "name": "minStepsBetweenValues",
+        "type": "number",
+        "default": "`0`",
+        "description": "The minimum steps between values in a range slider."
+      },
+      {
+        "name": "min",
+        "type": "number",
+        "default": "`0`",
+        "description": "The minimum allowed value of the slider.\nShould not be equal to max."
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "default": "`100`",
+        "description": "The maximum allowed value of the slider.\nShould not be equal to min."
+      },
+      {
+        "name": "format",
+        "type": "Intl.NumberFormatOptions",
+        "default": "-",
+        "description": "Options to format the value."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the slider should ignore user interaction."
+      },
+      {
+        "name": "orientation",
+        "type": "Orientation",
+        "default": "`'horizontal'`",
+        "description": "The component orientation."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type SliderRootState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type SliderRootChangeEventReason = 'input-change' | 'track-press' | 'drag' | 'keyboard' | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type SliderRootChangeEventDetails = (\n  | { reason: 'none'; event: Event }\n  | { reason: 'input-change'; event: Event | InputEvent }\n  | { reason: 'track-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'drag'; event: PointerEvent | TouchEvent }\n  | { reason: 'keyboard'; event: KeyboardEvent }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** The index of the active thumb at the time of the change. */\n  activeThumbIndex: number;\n};"
+      },
+      {
+        "name": "Root.CommitEventReason",
+        "source": "type SliderRootCommitEventReason = 'input-change' | 'track-press' | 'drag' | 'keyboard' | 'none';"
+      },
+      {
+        "name": "Root.CommitEventDetails",
+        "source": "type SliderRootCommitEventDetails =\n  | { reason: 'none'; event: Event }\n  | { reason: 'input-change'; event: Event | InputEvent }\n  | { reason: 'track-press'; event: PointerEvent | MouseEvent | TouchEvent }\n  | { reason: 'drag'; event: PointerEvent | TouchEvent }\n  | { reason: 'keyboard'; event: KeyboardEvent };"
+      }
+    ]
+  },
+  "Value": {
+    "description": "Displays the current value of the slider as text.\nRenders an `<output>` element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "((formattedValues: string[], values: number[]) => JSX.Element) | null",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Value.State",
+        "source": "type SliderValueState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Indicator": {
+    "description": "Visualizes the current value of the slider.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Indicator.State",
+        "source": "type SliderIndicatorState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Track": {
+    "description": "Contains the slider indicator and represents the entire range of the slider.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Track.State",
+        "source": "type SliderTrackState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Thumb": {
+    "description": "The draggable part of the slider at the tip of the indicator.\nRenders a `<div>` element and a nested `<input type=\"range\">`.",
+    "props": [
+      {
+        "name": "aria-valuetext",
+        "type": "string",
+        "default": "-",
+        "description": "A string value forwarded to the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.\nIgnored when `getAriaValueText` is provided."
+      },
+      {
+        "name": "getAriaLabel",
+        "type": "((index: number) => string) | null",
+        "default": "-",
+        "description": "A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`."
+      },
+      {
+        "name": "getAriaValueText",
+        "type": "((formattedValue: string, value: number, index: number) => string) | null",
+        "default": "-",
+        "description": "A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.\nThis is important for screen reader users."
+      },
+      {
+        "name": "index",
+        "type": "number",
+        "default": "-",
+        "description": "The index of the thumb which corresponds to the index of its value in the\n`value` or `defaultValue` array.\nThis prop is required to support server-side rendering for range sliders\nwith multiple thumbs."
+      },
+      {
+        "name": "onBlur",
+        "type": "FocusEventHandler<HTMLInputElement>",
+        "default": "-",
+        "description": "A blur handler forwarded to the `input`."
+      },
+      {
+        "name": "onFocus",
+        "type": "FocusEventHandler<HTMLInputElement>",
+        "default": "-",
+        "description": "A focus handler forwarded to the `input`."
+      },
+      {
+        "name": "onKeyDown",
+        "type": "KeyboardEventHandler<HTMLInputElement>",
+        "default": "-",
+        "description": "A keydown handler forwarded to the `input`."
+      },
+      {
+        "name": "tabIndex",
+        "type": "number",
+        "default": "-",
+        "description": "Optional tab index attribute forwarded to the `input`."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the thumb should ignore user interaction."
+      },
+      {
+        "name": "inputRef",
+        "type": "Ref<HTMLInputElement>",
+        "default": "-",
+        "description": "A ref to access the nested input element."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-index",
+        "type": "-",
+        "description": "Indicates the index of the thumb in range sliders."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Thumb.State",
+        "source": "type SliderThumbState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Control": {
+    "description": "The clickable, interactive part of the slider.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-dragging",
+        "type": "-",
+        "description": "Present while the user is dragging."
+      },
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the slider."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the slider is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the slider is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the slider is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the slider's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the slider has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the slider is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Control.State",
+        "source": "type SliderControlState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  },
+  "Label": {
+    "description": "An accessible label that is automatically associated with the slider thumbs.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Label.State",
+        "source": "type SliderLabelState = {\n  /** The index of the active thumb. */\n  activeThumbIndex: number;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the thumb is currently being dragged. */\n  dragging: boolean;\n  /** The maximum value. */\n  max: number;\n  /** The minimum value. */\n  min: number;\n  /**\n   * The minimum steps between values in a range slider.\n   * @default 0\n   */\n  minStepsBetweenValues: number;\n  /** The component orientation. */\n  orientation: Orientation;\n  /**\n   * The step increment of the slider when incrementing or decrementing. It will snap\n   * to multiples of this value. Decimal values are supported.\n   * @default 1\n   */\n  step: number;\n  /** The raw number value of the slider. */\n  values: number[];\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  }
+}

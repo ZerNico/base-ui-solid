@@ -1,0 +1,262 @@
+{
+  "Root": {
+    "description": "Represents the switch itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
+    "props": [
+      {
+        "name": "name",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the field when a form is submitted."
+      },
+      {
+        "name": "defaultChecked",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the switch is initially active. To render a controlled switch, use the `checked` prop instead."
+      },
+      {
+        "name": "checked",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the switch is currently active. To render an uncontrolled switch, use the `defaultChecked` prop instead."
+      },
+      {
+        "name": "onCheckedChange",
+        "type": "((checked: boolean, eventDetails: Switch.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the switch is activated or deactivated."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "default": "-",
+        "description": "The value submitted with the form when the switch is on.\nBy default, switch submits the \"on\" value, matching native checkbox behavior."
+      },
+      {
+        "name": "form",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the form that owns the hidden input.\nUseful when the switch is rendered outside the form."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "uncheckedValue",
+        "type": "string",
+        "default": "-",
+        "description": "The value submitted with the form when the switch is off.\nBy default, unchecked switches do not submit any value, matching native checkbox behavior."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user should be unable to activate or deactivate the switch."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user must activate the switch before submitting a form."
+      },
+      {
+        "name": "inputRef",
+        "type": "Ref<HTMLInputElement>",
+        "default": "-",
+        "description": "A ref to access the hidden `<input>` element."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "default": "-",
+        "description": "The id of the hidden input element. When `nativeButton` is `true`, the id is applied to the root element."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the switch is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the switch is not checked."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the switch is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the switch is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the switch is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the switch is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the switch is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the switch's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the switch has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the switch is active (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the switch is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type SwitchRootState = {\n  /** Whether the switch is currently active. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to activate or deactivate the switch. */\n  readOnly: boolean;\n  /** Whether the user must activate the switch before submitting a form. */\n  required: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type SwitchRootChangeEventReason = 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type SwitchRootChangeEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  },
+  "Thumb": {
+    "description": "The movable part of the switch that indicates whether the switch is on or off.\nRenders a `<span>`.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the switch is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the switch is not checked."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the switch is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the switch is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the switch is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the switch is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the switch is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the switch's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the switch has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the switch is active (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the switch is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Thumb.State",
+        "source": "type SwitchThumbState = {\n  /** Whether the switch is currently active. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to activate or deactivate the switch. */\n  readOnly: boolean;\n  /** Whether the user must activate the switch before submitting a form. */\n  required: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  }
+}

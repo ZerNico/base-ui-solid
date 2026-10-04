@@ -1,0 +1,414 @@
+{
+  "Root": {
+    "description": "Groups all parts of the scroll area.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "overflowEdgeThreshold",
+        "type": "number | Partial<{ xStart: number; xEnd: number; yStart: number; yEnd: number }>",
+        "default": "`0`",
+        "description": "The threshold in pixels that must be passed before the overflow edge attributes are applied.\nAccepts a single number for all edges or an object to configure them individually."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-has-overflow-x",
+        "type": "-",
+        "description": "Present when the scroll area content is wider than the viewport."
+      },
+      {
+        "name": "data-has-overflow-y",
+        "type": "-",
+        "description": "Present when the scroll area content is taller than the viewport."
+      },
+      {
+        "name": "data-overflow-x-end",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal end side."
+      },
+      {
+        "name": "data-overflow-x-start",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal start side."
+      },
+      {
+        "name": "data-overflow-y-end",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical end side."
+      },
+      {
+        "name": "data-overflow-y-start",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical start side."
+      },
+      {
+        "name": "data-scrolling",
+        "type": "-",
+        "description": "Present when the user scrolls inside the scroll area."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--scroll-area-corner-height",
+        "type": "number",
+        "description": "The scroll area's corner height."
+      },
+      {
+        "name": "--scroll-area-corner-width",
+        "type": "number",
+        "description": "The scroll area's corner width."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type ScrollAreaRootState = {\n  /** Whether the scroll area is being scrolled. */\n  scrolling: boolean;\n  /** Whether horizontal overflow is present. */\n  hasOverflowX: boolean;\n  /** Whether vertical overflow is present. */\n  hasOverflowY: boolean;\n  /** Whether there is overflow on the inline start side for the horizontal axis. */\n  overflowXStart: boolean;\n  /** Whether there is overflow on the inline end side for the horizontal axis. */\n  overflowXEnd: boolean;\n  /** Whether there is overflow on the block start side. */\n  overflowYStart: boolean;\n  /** Whether there is overflow on the block end side. */\n  overflowYEnd: boolean;\n  /** Whether the scrollbar corner is hidden. */\n  cornerHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Content": {
+    "description": "A container for the content of the scroll area.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-has-overflow-x",
+        "type": "-",
+        "description": "Present when the scroll area content is wider than the viewport."
+      },
+      {
+        "name": "data-has-overflow-y",
+        "type": "-",
+        "description": "Present when the scroll area content is taller than the viewport."
+      },
+      {
+        "name": "data-overflow-x-end",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal end side."
+      },
+      {
+        "name": "data-overflow-x-start",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal start side."
+      },
+      {
+        "name": "data-overflow-y-end",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical end side."
+      },
+      {
+        "name": "data-overflow-y-start",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical start side."
+      },
+      {
+        "name": "data-scrolling",
+        "type": "-",
+        "description": "Present when the user scrolls inside the scroll area."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Content.State",
+        "source": "type ScrollAreaContentState = {\n  /** Whether the scroll area is being scrolled. */\n  scrolling: boolean;\n  /** Whether horizontal overflow is present. */\n  hasOverflowX: boolean;\n  /** Whether vertical overflow is present. */\n  hasOverflowY: boolean;\n  /** Whether there is overflow on the inline start side for the horizontal axis. */\n  overflowXStart: boolean;\n  /** Whether there is overflow on the inline end side for the horizontal axis. */\n  overflowXEnd: boolean;\n  /** Whether there is overflow on the block start side. */\n  overflowYStart: boolean;\n  /** Whether there is overflow on the block end side. */\n  overflowYEnd: boolean;\n  /** Whether the scrollbar corner is hidden. */\n  cornerHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "The actual scrollable container of the scroll area.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-has-overflow-x",
+        "type": "-",
+        "description": "Present when the scroll area content is wider than the viewport."
+      },
+      {
+        "name": "data-has-overflow-y",
+        "type": "-",
+        "description": "Present when the scroll area content is taller than the viewport."
+      },
+      {
+        "name": "data-overflow-x-end",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal end side."
+      },
+      {
+        "name": "data-overflow-x-start",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal start side."
+      },
+      {
+        "name": "data-overflow-y-end",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical end side."
+      },
+      {
+        "name": "data-overflow-y-start",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical start side."
+      },
+      {
+        "name": "data-scrolling",
+        "type": "-",
+        "description": "Present when the user scrolls inside the scroll area."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--scroll-area-overflow-x-end",
+        "type": "number",
+        "description": "The distance from the horizontal end edge in pixels."
+      },
+      {
+        "name": "--scroll-area-overflow-x-start",
+        "type": "number",
+        "description": "The distance from the horizontal start edge in pixels."
+      },
+      {
+        "name": "--scroll-area-overflow-y-end",
+        "type": "number",
+        "description": "The distance from the vertical end edge in pixels."
+      },
+      {
+        "name": "--scroll-area-overflow-y-start",
+        "type": "number",
+        "description": "The distance from the vertical start edge in pixels."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type ScrollAreaViewportState = {\n  /** Whether the scroll area is being scrolled. */\n  scrolling: boolean;\n  /** Whether horizontal overflow is present. */\n  hasOverflowX: boolean;\n  /** Whether vertical overflow is present. */\n  hasOverflowY: boolean;\n  /** Whether there is overflow on the inline start side for the horizontal axis. */\n  overflowXStart: boolean;\n  /** Whether there is overflow on the inline end side for the horizontal axis. */\n  overflowXEnd: boolean;\n  /** Whether there is overflow on the block start side. */\n  overflowYStart: boolean;\n  /** Whether there is overflow on the block end side. */\n  overflowYEnd: boolean;\n  /** Whether the scrollbar corner is hidden. */\n  cornerHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Thumb": {
+    "description": "The draggable part of the scrollbar that indicates the current scroll position.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the scrollbar."
+      },
+      {
+        "name": "data-scrolling",
+        "type": "-",
+        "description": "Present when the user scrolls inside the scroll area."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Thumb.State",
+        "source": "type ScrollAreaThumbState = {\n  /** Whether the scroll area is being scrolled. */\n  scrolling: boolean;\n  /** The component orientation. */\n  orientation: 'horizontal' | 'vertical';\n};"
+      }
+    ]
+  },
+  "Scrollbar": {
+    "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "orientation",
+        "type": "'vertical' | 'horizontal'",
+        "default": "`'vertical'`",
+        "description": "Whether the scrollbar controls vertical or horizontal scroll."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the HTML element in the DOM when the viewport isn't scrollable."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the scrollbar."
+      },
+      {
+        "name": "data-has-overflow-x",
+        "type": "-",
+        "description": "Present when the scroll area content is wider than the viewport."
+      },
+      {
+        "name": "data-has-overflow-y",
+        "type": "-",
+        "description": "Present when the scroll area content is taller than the viewport."
+      },
+      {
+        "name": "data-hovering",
+        "type": "-",
+        "description": "Present when the pointer is over the scroll area."
+      },
+      {
+        "name": "data-overflow-x-end",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal end side."
+      },
+      {
+        "name": "data-overflow-x-start",
+        "type": "-",
+        "description": "Present when there is overflow on the horizontal start side."
+      },
+      {
+        "name": "data-overflow-y-end",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical end side."
+      },
+      {
+        "name": "data-overflow-y-start",
+        "type": "-",
+        "description": "Present when there is overflow on the vertical start side."
+      },
+      {
+        "name": "data-scrolling",
+        "type": "-",
+        "description": "Present when the user scrolls inside the scroll area."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--scroll-area-thumb-height",
+        "type": "number",
+        "description": "The scroll area thumb's height."
+      },
+      {
+        "name": "--scroll-area-thumb-width",
+        "type": "number",
+        "description": "The scroll area thumb's width."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Scrollbar.State",
+        "source": "type ScrollAreaScrollbarState = {\n  /** Whether the scroll area is being hovered. */\n  hovering: boolean;\n  /** Whether the scroll area is being scrolled. */\n  scrolling: boolean;\n  /** The orientation of the scrollbar. */\n  orientation: 'vertical' | 'horizontal';\n  /** Whether horizontal overflow is present. */\n  hasOverflowX: boolean;\n  /** Whether vertical overflow is present. */\n  hasOverflowY: boolean;\n  /** Whether there is overflow on the inline start side for the horizontal axis. */\n  overflowXStart: boolean;\n  /** Whether there is overflow on the inline end side for the horizontal axis. */\n  overflowXEnd: boolean;\n  /** Whether there is overflow on the block start side. */\n  overflowYStart: boolean;\n  /** Whether there is overflow on the block end side. */\n  overflowYEnd: boolean;\n  /** Whether the scrollbar corner is hidden. */\n  cornerHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Corner": {
+    "description": "A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Corner.State",
+        "source": "type ScrollAreaCornerState = {};"
+      }
+    ]
+  }
+}

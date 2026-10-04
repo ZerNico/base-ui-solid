@@ -1,0 +1,381 @@
+{
+  "Root": {
+    "description": "Groups the tabs and the corresponding panels.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "Tabs.Tab.Value",
+        "default": "`0`",
+        "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be active."
+      },
+      {
+        "name": "value",
+        "type": "Tabs.Tab.Value",
+        "default": "-",
+        "description": "The value of the currently active `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be active."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback invoked when new value is being set. The event `reason` is `'none'` for user-initiated changes, such as a click\nor keyboard navigation; `'initial'` for the first automatic selection or\nfallback in uncontrolled roots when `defaultValue` is omitted or\n`undefined`, including when the implicit initial value is disabled or\nmissing; `'disabled'` for automatic fallback when the selected tab becomes\ndisabled in uncontrolled roots; or `'missing'` for automatic fallback when\nthe selected tab is removed, or when an explicit `defaultValue` never\nmatches a mounted tab in uncontrolled roots. For automatic changes, the selected value can be `null` when no enabled Tab\nis available as a fallback. Automatic changes cannot be canceled; calling `eventDetails.cancel()` for\n`'initial'`, `'disabled'`, or `'missing'` has no effect."
+      },
+      {
+        "name": "orientation",
+        "type": "Tabs.Root.Orientation",
+        "default": "`'horizontal'`",
+        "description": "The component orientation (layout flow direction)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the tabs."
+      },
+      {
+        "name": "data-activation-direction",
+        "type": "'left' | 'right' | 'up' | 'down' | 'none'",
+        "description": "Indicates the direction of the activation (based on the previous active tab)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type TabsRootState = {\n  /** The component orientation. */\n  orientation: Tabs.Root.Orientation;\n  /** The direction used for tab activation. */\n  tabActivationDirection: Tabs.Tab.ActivationDirection;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type TabsRootChangeEventReason = 'none' | 'disabled' | 'missing' | 'initial';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type TabsRootChangeEventDetails = (\n  { reason: 'none' } | { reason: 'disabled' } | { reason: 'missing' } | { reason: 'initial' }\n) & {\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  activationDirection: Tabs.Tab.ActivationDirection;\n};"
+      },
+      {
+        "name": "Root.Orientation",
+        "source": "type TabsRootOrientation = 'horizontal' | 'vertical';"
+      }
+    ]
+  },
+  "List": {
+    "description": "Groups the individual tab buttons.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "activateOnFocus",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to automatically change the active tab on arrow key focus.\nOtherwise, tabs will be activated using Enter or Space key press."
+      },
+      {
+        "name": "loopFocus",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the tabs."
+      },
+      {
+        "name": "data-activation-direction",
+        "type": "'left' | 'right' | 'up' | 'down' | 'none'",
+        "description": "Indicates the direction of the activation (based on the previous active tab)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "List.State",
+        "source": "type TabsListState = {\n  /** The component orientation. */\n  orientation: Tabs.Root.Orientation;\n  /** The direction used for tab activation. */\n  tabActivationDirection: Tabs.Tab.ActivationDirection;\n};"
+      }
+    ]
+  },
+  "Panel": {
+    "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "value*",
+        "type": "Tabs.Tab.Value",
+        "default": "-",
+        "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is active."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the HTML element in the DOM while the panel is hidden."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the tabs."
+      },
+      {
+        "name": "data-activation-direction",
+        "type": "'left' | 'right' | 'up' | 'down' | 'none'",
+        "description": "Indicates the direction of the activation (based on the previous active tab)."
+      },
+      {
+        "name": "data-hidden",
+        "type": "-",
+        "description": "Present when the panel is hidden."
+      },
+      {
+        "name": "data-index",
+        "type": "-",
+        "description": "Indicates the index of the tab panel."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the panel begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the panel is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Panel.State",
+        "source": "type TabsPanelState = {\n  /** Whether the component is hidden. */\n  hidden: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** The component orientation. */\n  orientation: Tabs.Root.Orientation;\n  /** The direction used for tab activation. */\n  tabActivationDirection: Tabs.Tab.ActivationDirection;\n};"
+      },
+      {
+        "name": "Panel.Metadata",
+        "source": "type TabsPanelMetadata = { id?: string; value: Tabs.Tab.Value };"
+      }
+    ]
+  },
+  "Indicator": {
+    "description": "A visual indicator that can be styled to match the position of the currently active tab.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "renderBeforeHydration",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to render itself before Solid hydrates.\nThis minimizes the time that the indicator isn't visible after server-side rendering."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the tabs."
+      },
+      {
+        "name": "data-activation-direction",
+        "type": "'left' | 'right' | 'up' | 'down' | 'none'",
+        "description": "Indicates the direction of the activation (based on the previous active tab)."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--active-tab-bottom",
+        "type": "number",
+        "description": "Indicates the distance on the bottom side from the parent's container if the tab is active."
+      },
+      {
+        "name": "--active-tab-height",
+        "type": "number",
+        "description": "Indicates the height of the tab if it is active."
+      },
+      {
+        "name": "--active-tab-left",
+        "type": "number",
+        "description": "Indicates the distance on the left side from the parent's container if the tab is active."
+      },
+      {
+        "name": "--active-tab-right",
+        "type": "number",
+        "description": "Indicates the distance on the right side from the parent's container if the tab is active."
+      },
+      {
+        "name": "--active-tab-top",
+        "type": "number",
+        "description": "Indicates the distance on the top side from the parent's container if the tab is active."
+      },
+      {
+        "name": "--active-tab-width",
+        "type": "number",
+        "description": "Indicates the width of the tab if it is active."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Indicator.State",
+        "source": "type TabsIndicatorState = {\n  /** The active tab position. */\n  activeTabPosition: Tabs.Tab.Position | null;\n  /** The active tab size. */\n  activeTabSize: Tabs.Tab.Size | null;\n  /** The component orientation. */\n  orientation: Tabs.Root.Orientation;\n  /** The direction used for tab activation. */\n  tabActivationDirection: Tabs.Tab.ActivationDirection;\n};"
+      }
+    ]
+  },
+  "Tab": {
+    "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "value*",
+        "type": "Tabs.Tab.Value",
+        "default": "-",
+        "description": "The value of the Tab."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the Tab is disabled. If a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.\nInstead, the next enabled Tab will be selected.\nHowever, it does not work like this during server-side rendering, as it is not known\nduring pre-rendering which Tabs are disabled.\nTo work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the tabs."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the tab is disabled."
+      },
+      {
+        "name": "data-activation-direction",
+        "type": "'left' | 'right' | 'up' | 'down' | 'none'",
+        "description": "Indicates the direction of the activation (based on the previous active tab)."
+      },
+      {
+        "name": "data-active",
+        "type": "-",
+        "description": "Present when the tab is active."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Tab.State",
+        "source": "type TabsTabState = {\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the component is active. */\n  active: boolean;\n  /** The component orientation. */\n  orientation: Tabs.Root.Orientation;\n  /** The direction used for tab activation. */\n  tabActivationDirection: Tabs.Tab.ActivationDirection;\n};"
+      },
+      {
+        "name": "Tab.Value",
+        "source": "type TabsTabValue = Tabs.Tab.Value;"
+      },
+      {
+        "name": "Tab.ActivationDirection",
+        "source": "type TabsTabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';"
+      },
+      {
+        "name": "Tab.Metadata",
+        "source": "type TabsTabMetadata = {\n  disabled: boolean;\n  id: string | undefined;\n  value: Tabs.Tab.Value | undefined;\n};"
+      },
+      {
+        "name": "Tab.Position",
+        "source": "type TabsTabPosition = { left: number; right: number; top: number; bottom: number };"
+      },
+      {
+        "name": "Tab.Size",
+        "source": "type TabsTabSize = { width: number; height: number };"
+      }
+    ]
+  }
+}

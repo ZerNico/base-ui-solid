@@ -1,0 +1,1766 @@
+{
+  "Root": {
+    "description": "Groups all parts of the menu.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the menu is initially open. To render a controlled menu, use the `open` prop instead."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the menu is currently open."
+      },
+      {
+        "name": "onOpenChange",
+        "type": "((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the menu is opened or closed."
+      },
+      {
+        "name": "highlightItemOnHover",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<Menu.Root.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+      },
+      {
+        "name": "closeParentOnEsc",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+      },
+      {
+        "name": "defaultTriggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the menu is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open menu."
+      },
+      {
+        "name": "handle",
+        "type": "Menu.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the menu with a trigger.\nIf specified, allows external triggers to control the menu's open state."
+      },
+      {
+        "name": "loopFocus",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      },
+      {
+        "name": "modal",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Determines if the menu enters a modal state when open. `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. Nested menus ignore this prop, and menus opened by hover are never modal."
+      },
+      {
+        "name": "onItemHighlighted",
+        "type": "((highlightedItem: HTMLElement | undefined, eventDetails: Menu.Root.HighlightEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+      },
+      {
+        "name": "onOpenChangeComplete",
+        "type": "((open: boolean) => void)",
+        "default": "-",
+        "description": "Event handler called after any animations complete when the menu is opened or closed."
+      },
+      {
+        "name": "triggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the menu is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled menu.\nThere's no need to specify this prop when the menu is uncontrolled (that is, when the `open` prop is not set)."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "orientation",
+        "type": "Menu.Root.Orientation",
+        "default": "`'vertical'`",
+        "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element | PayloadChildRenderFunction<Payload>",
+        "default": "-",
+        "description": "The content of the menu.\nThis can be a regular Solid JSX or a render function that receives the `payload` of the active trigger."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type MenuRootState = {};"
+      },
+      {
+        "name": "Root.Actions",
+        "source": "type MenuRootActions = {\n  unmount: () => void;\n  close: () => void;\n  highlightItem: (target: Menu.Root.HighlightItemTarget) => void;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type MenuRootChangeEventReason =\n  | 'trigger-hover'\n  | 'trigger-focus'\n  | 'trigger-press'\n  | 'outside-press'\n  | 'focus-out'\n  | 'list-navigation'\n  | 'escape-key'\n  | 'item-press'\n  | 'close-press'\n  | 'sibling-open'\n  | 'cancel-open'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type MenuRootChangeEventDetails = (\n  | { reason: 'none'; event: Event }\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'item-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'sibling-open'; event: Event }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      },
+      {
+        "name": "Root.HighlightEventReason",
+        "source": "type MenuRootHighlightEventReason = 'keyboard' | 'pointer' | 'imperative-action' | 'none';"
+      },
+      {
+        "name": "Root.HighlightEventDetails",
+        "source": "type MenuRootHighlightEventDetails =\n  | { reason: 'none'; event: Event; label: string | undefined }\n  | { reason: 'keyboard'; event: KeyboardEvent; label: string | undefined }\n  | { reason: 'imperative-action'; event: Event; label: string | undefined }\n  | { reason: 'pointer'; event: MouseEvent | PointerEvent; label: string | undefined };"
+      },
+      {
+        "name": "Root.Orientation",
+        "source": "type MenuRootOrientation = 'horizontal' | 'vertical';"
+      },
+      {
+        "name": "Root.HighlightItemTarget",
+        "source": "type MenuRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';"
+      }
+    ]
+  },
+  "Trigger": {
+    "description": "A button that opens the menu.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "handle",
+        "type": "Menu.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the trigger with a menu."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "payload",
+        "type": "Payload",
+        "default": "-",
+        "description": "A payload to pass to the menu when it is opened."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "openOnHover",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the menu should also open when the trigger is hovered."
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "default": "`100`",
+        "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds. Requires the `openOnHover` prop."
+      },
+      {
+        "name": "closeDelay",
+        "type": "number",
+        "default": "`0`",
+        "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds. Requires the `openOnHover` prop."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-popup-open",
+        "type": "-",
+        "description": "Present when the corresponding menu is open."
+      },
+      {
+        "name": "data-pressed",
+        "type": "-",
+        "description": "Present when the trigger is pressed."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the trigger is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Trigger.State",
+        "source": "type MenuTriggerState = {\n  /** Whether the menu is currently open and was opened by this trigger. */\n  open: boolean;\n  /** Whether the trigger is disabled. */\n  disabled: boolean;\n};"
+      }
+    ]
+  },
+  "Input": {
+    "description": "A search field that filters the menu items.\nRequires the menu to be wrapped in `Menu.FilterProvider`.\nRenders an `<input>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present while the input shows its focus ring.\nCleared when keyboard navigation highlights an item."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Input.State",
+        "source": "type MenuInputState = {\n  /**\n   * Whether the input shows its focus ring.\n   * Cleared when keyboard navigation highlights an item.\n   */\n  highlighted: boolean;\n};"
+      }
+    ]
+  },
+  "Clear": {
+    "description": "A button that clears the input text.\nRequires the menu to be wrapped in `Menu.FilterProvider`.\nRenders a `<button>` element when the input has text.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the button is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Clear.State",
+        "source": "type MenuClearState = {\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n};"
+      }
+    ]
+  },
+  "List": {
+    "description": "Groups menu items so other content, such as a filter input, can share the popup.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "List.State",
+        "source": "type MenuListState = {};"
+      }
+    ]
+  },
+  "Portal": {
+    "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "container",
+        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "default": "-",
+        "description": "A parent element to render the portal element into."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type MenuPortalState = {};"
+      }
+    ]
+  },
+  "Backdrop": {
+    "description": "An overlay displayed beneath the menu popup.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the menu is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the menu is closed."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the menu begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the menu is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Backdrop.State",
+        "source": "type MenuBackdropState = {\n  /** Whether the menu is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "Positioner": {
+    "description": "Positions the menu popup against the trigger.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "disableAnchorTracking",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to disable the popup from tracking any layout shift of its positioning anchor."
+      },
+      {
+        "name": "align",
+        "type": "Align",
+        "default": "`'center'`",
+        "description": "How to align the popup relative to the specified side. Submenus and menubars default to `'start'`."
+      },
+      {
+        "name": "alignOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "side",
+        "type": "Side",
+        "default": "`'bottom'`",
+        "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions. Submenus and vertical menubars default to `'inline-end'`."
+      },
+      {
+        "name": "sideOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "arrowPadding",
+        "type": "number",
+        "default": "`5`",
+        "description": "Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup."
+      },
+      {
+        "name": "anchor",
+        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "default": "-",
+        "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
+      },
+      {
+        "name": "collisionAvoidance",
+        "type": "CollisionAvoidance",
+        "default": "-",
+        "description": "Determines how to handle collisions when positioning the popup. `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`): `'flip'`: keep the requested side when it fits; otherwise try the opposite side\n(`top` and `bottom`, or `left` and `right`).`'shift'`: never change side; keep the requested side and move the popup within\nthe clipping boundary so it stays visible.`'none'`: do not correct side-axis overflow. `align` controls overflow on the alignment axis (`start`/`center`/`end`): `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.`'shift'`: keep side and requested alignment, then nudge the popup along the\nalignment axis to fit.`'none'`: do not correct alignment-axis overflow. `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the\npreferred axis cannot fit: `'start'`: allow perpendicular fallback and try the logical start side first\n(`top` before `bottom`, or `left` before `right` in LTR).`'end'`: allow perpendicular fallback and try the logical end side first\n(`bottom` before `top`, or `right` before `left` in LTR).`'none'`: do not fallback to the perpendicular axis. When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.\nIf `align` is omitted, it defaults to `'flip'`."
+      },
+      {
+        "name": "collisionBoundary",
+        "type": "Boundary",
+        "default": "`'clipping-ancestors'`",
+        "description": "An element or a rectangle that delimits the area that the popup is confined to."
+      },
+      {
+        "name": "collisionPadding",
+        "type": "Padding",
+        "default": "`5`",
+        "description": "Additional space to maintain from the edge of the collision boundary."
+      },
+      {
+        "name": "sticky",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to maintain the popup in the viewport after\nthe anchor element was scrolled out of view."
+      },
+      {
+        "name": "positionMethod",
+        "type": "'absolute' | 'fixed'",
+        "default": "`'absolute'`",
+        "description": "Determines which CSS `position` property to use."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the menu popup is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the menu popup is closed."
+      },
+      {
+        "name": "data-anchor-hidden",
+        "type": "-",
+        "description": "Present when the anchor is hidden."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to the specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the anchor."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--anchor-height",
+        "type": "number",
+        "description": "The anchor's height."
+      },
+      {
+        "name": "--anchor-width",
+        "type": "number",
+        "description": "The anchor's width."
+      },
+      {
+        "name": "--available-height",
+        "type": "number",
+        "description": "The available height between the anchor and the edge of the viewport."
+      },
+      {
+        "name": "--available-width",
+        "type": "number",
+        "description": "The available width between the anchor and the edge of the viewport."
+      },
+      {
+        "name": "--positioner-height",
+        "type": "number",
+        "description": "The height of the menu's positioner.\nIt is important to set `height` to this value when using CSS to animate size changes."
+      },
+      {
+        "name": "--positioner-width",
+        "type": "number",
+        "description": "The width of the menu's positioner.\nIt is important to set `width` to this value when using CSS to animate size changes."
+      },
+      {
+        "name": "--transform-origin",
+        "type": "string",
+        "description": "The coordinates that this element is anchored to. Used for animations and transitions."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Positioner.State",
+        "source": "type MenuPositionerState = {\n  /** Whether the menu is currently open. */\n  open: boolean;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the anchor element is hidden. */\n  anchorHidden: boolean;\n  /** Whether the component is nested. */\n  nested: boolean;\n  /** Whether CSS transitions should be disabled. */\n  instant: string | undefined;\n};"
+      }
+    ]
+  },
+  "Popup": {
+    "description": "A container for the menu items.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "finalFocus",
+        "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "default": "-",
+        "description": "Determines the element to focus when the menu is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the menu is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the menu is closed."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to specified side."
+      },
+      {
+        "name": "data-instant",
+        "type": "'click' | 'dismiss' | 'group' | 'trigger-change'",
+        "description": "Present if animations should be instant."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the anchor."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the menu begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the menu is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Popup.State",
+        "source": "type MenuPopupState = {\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the menu is currently open. */\n  open: boolean;\n  /** Whether the component is nested. */\n  nested: boolean;\n  /** Whether transitions should be skipped. */\n  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;\n};"
+      }
+    ]
+  },
+  "Arrow": {
+    "description": "Displays an element positioned against the menu anchor.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the menu popup is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the menu popup is closed."
+      },
+      {
+        "name": "data-uncentered",
+        "type": "-",
+        "description": "Present when the menu arrow is uncentered."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the popup is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the popup is positioned relative to the anchor."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Arrow.State",
+        "source": "type MenuArrowState = {\n  /** Whether the menu is currently open. */\n  open: boolean;\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the arrow cannot be centered on the anchor. */\n  uncentered: boolean;\n};"
+      }
+    ]
+  },
+  "Item": {
+    "description": "An individual interactive item in the menu.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "default": "-",
+        "description": "Overrides the text used for keyboard text navigation and filtering.\nFalls back to the rendered text when not provided."
+      },
+      {
+        "name": "onClick",
+        "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "default": "-",
+        "description": "The click handler for the menu item."
+      },
+      {
+        "name": "closeOnClick",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether to close the menu when the item is clicked."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the menu item is highlighted."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu item is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Item.State",
+        "source": "type MenuItemState = {\n  /** Whether the item should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the item is highlighted. */\n  highlighted: boolean;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content\nchanges based on the trigger, and switching between them is animated.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The content to render inside the transition container."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-activation-direction",
+        "type": "` `${'left' | 'right' | ''} ${'down' | 'up' | ''}` `",
+        "description": "Indicates the direction from which the popup was activated.\nThis can be used to create directional animations based on how the popup was triggered.\nContains space-separated values for both horizontal and vertical axes."
+      },
+      {
+        "name": "data-current",
+        "type": "-",
+        "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
+      },
+      {
+        "name": "data-instant",
+        "type": "'click' | 'dismiss' | 'group' | 'trigger-change'",
+        "description": "Present if animations should be instant."
+      },
+      {
+        "name": "data-previous",
+        "type": "-",
+        "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+      },
+      {
+        "name": "data-transitioning",
+        "type": "-",
+        "description": "Indicates that the viewport is currently transitioning between old and new content."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--popup-height",
+        "type": "",
+        "description": "The height of the parent popup.\nThis variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+      },
+      {
+        "name": "--popup-width",
+        "type": "",
+        "description": "The width of the parent popup.\nThis variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type MenuViewportState = {\n  /** The activation direction of the transitioned content. */\n  activationDirection: string | undefined;\n  /** Whether the viewport is currently transitioning between contents. */\n  transitioning: boolean;\n  /** Present if animations should be instant. */\n  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;\n};"
+      }
+    ]
+  },
+  "Group": {
+    "description": "Groups related menu items with the corresponding label.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The content of the component."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Group.State",
+        "source": "type MenuGroupState = {};"
+      }
+    ]
+  },
+  "GroupLabel": {
+    "description": "An accessible label that is automatically associated with its parent group.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "GroupLabel.State",
+        "source": "type MenuGroupLabelState = {};"
+      }
+    ]
+  },
+  "Separator": {
+    "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "orientation",
+        "type": "Orientation",
+        "default": "`'horizontal'`",
+        "description": "The orientation of the separator."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the separator."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Separator.State",
+        "source": "type MenuSeparatorState = {\n  /** The orientation of the separator. */\n  orientation: Orientation;\n};"
+      }
+    ]
+  },
+  "Empty": {
+    "description": "A message shown when the menu has no matching items.\nRequires the menu to be wrapped in `Menu.FilterProvider`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Empty.State",
+        "source": "type MenuEmptyState = {};"
+      }
+    ]
+  },
+  "SubmenuRoot": {
+    "description": "Groups all parts of a submenu.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the menu is initially open. To render a controlled menu, use the `open` prop instead."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the menu is currently open."
+      },
+      {
+        "name": "onOpenChange",
+        "type": "((open: boolean, eventDetails: Menu.SubmenuRoot.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the menu is opened or closed."
+      },
+      {
+        "name": "highlightItemOnHover",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<Menu.Root.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+      },
+      {
+        "name": "closeParentOnEsc",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu."
+      },
+      {
+        "name": "loopFocus",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      },
+      {
+        "name": "onItemHighlighted",
+        "type": "((highlightedItem: HTMLElement | undefined, eventDetails: Menu.Root.HighlightEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+      },
+      {
+        "name": "onOpenChangeComplete",
+        "type": "((open: boolean) => void)",
+        "default": "-",
+        "description": "Event handler called after any animations complete when the menu is opened or closed."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "orientation",
+        "type": "Menu.Root.Orientation",
+        "default": "`'vertical'`",
+        "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The content of the submenu."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "SubmenuRoot.State",
+        "source": "type MenuSubmenuRootState = {};"
+      },
+      {
+        "name": "SubmenuRoot.ChangeEventReason",
+        "source": "type MenuSubmenuRootChangeEventReason =\n  | 'trigger-hover'\n  | 'trigger-focus'\n  | 'trigger-press'\n  | 'outside-press'\n  | 'focus-out'\n  | 'list-navigation'\n  | 'escape-key'\n  | 'item-press'\n  | 'close-press'\n  | 'sibling-open'\n  | 'cancel-open'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "SubmenuRoot.ChangeEventDetails",
+        "source": "type MenuSubmenuRootChangeEventDetails = (\n  | { reason: 'none'; event: Event }\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'item-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'sibling-open'; event: Event }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      }
+    ]
+  },
+  "SubmenuTrigger": {
+    "description": "A menu item that opens a submenu.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "default": "-",
+        "description": "Overrides the text used for keyboard text navigation and filtering.\nFalls back to the rendered text when not provided."
+      },
+      {
+        "name": "onClick",
+        "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "openOnHover",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the menu should also open when the trigger is hovered."
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "default": "`100`",
+        "description": "How long to wait before the menu may be opened on hover. Specified in milliseconds. Requires the `openOnHover` prop."
+      },
+      {
+        "name": "closeDelay",
+        "type": "number",
+        "default": "`0`",
+        "description": "How long to wait before closing the menu that was opened on hover.\nSpecified in milliseconds. Requires the `openOnHover` prop."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-popup-open",
+        "type": "-",
+        "description": "Present when the corresponding submenu is open."
+      },
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the submenu trigger is highlighted."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the submenu trigger is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "SubmenuTrigger.State",
+        "source": "type MenuSubmenuTriggerState = {\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the item is highlighted. */\n  highlighted: boolean;\n  /** Whether the menu is currently open. */\n  open: boolean;\n};"
+      }
+    ]
+  },
+  "RadioGroup": {
+    "description": "Groups related radio items.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "any",
+        "default": "-",
+        "description": "The uncontrolled value of the radio item that should be initially selected. To render a controlled radio group, use the `value` prop instead."
+      },
+      {
+        "name": "value",
+        "type": "any",
+        "default": "-",
+        "description": "The controlled value of the radio item that should be currently selected. To render an uncontrolled radio group, use the `defaultValue` prop instead."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: any, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Function called when the selected value changes."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The content of the component."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "RadioGroup.State",
+        "source": "type MenuRadioGroupState = {\n  /** Whether the component is disabled. */\n  disabled: boolean;\n};"
+      },
+      {
+        "name": "RadioGroup.ChangeEventReason",
+        "source": "type MenuRadioGroupChangeEventReason =\n  | 'trigger-hover'\n  | 'trigger-focus'\n  | 'trigger-press'\n  | 'outside-press'\n  | 'focus-out'\n  | 'list-navigation'\n  | 'escape-key'\n  | 'item-press'\n  | 'close-press'\n  | 'sibling-open'\n  | 'cancel-open'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "RadioGroup.ChangeEventDetails",
+        "source": "type MenuRadioGroupChangeEventDetails = (\n  | { reason: 'none'; event: Event }\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'item-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'sibling-open'; event: Event }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      }
+    ]
+  },
+  "RadioItem": {
+    "description": "A menu item that works like a radio button in a given group.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "default": "-",
+        "description": "Overrides the text used for keyboard text navigation and filtering.\nFalls back to the rendered text when not provided."
+      },
+      {
+        "name": "value*",
+        "type": "any",
+        "default": "-",
+        "description": "Value of the radio item.\nThis is the value that will be set in the Menu.RadioGroup when the item is selected."
+      },
+      {
+        "name": "onClick",
+        "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "default": "-",
+        "description": "The click handler for the menu item."
+      },
+      {
+        "name": "closeOnClick",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to close the menu when the item is clicked."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the menu radio item is selected."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the menu radio item is not selected."
+      },
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the menu radio item is highlighted."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu radio item is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "RadioItem.State",
+        "source": "type MenuRadioItemState = {\n  /** Whether the radio item should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the radio item is currently highlighted. */\n  highlighted: boolean;\n  /** Whether the radio item is currently selected. */\n  checked: boolean;\n};"
+      }
+    ]
+  },
+  "RadioItemIndicator": {
+    "description": "Indicates whether the radio item is selected.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the HTML element in the DOM when the radio item is inactive."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the menu radio item is selected."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the menu radio item is not selected."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu radio item is disabled."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the radio indicator begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the radio indicator is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "RadioItemIndicator.State",
+        "source": "type MenuRadioItemIndicatorState = {\n  /** Whether the radio item is currently selected. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the item is highlighted. */\n  highlighted: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "CheckboxItem": {
+    "description": "A menu item that toggles a setting on or off.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "default": "-",
+        "description": "Overrides the text used for keyboard text navigation and filtering.\nFalls back to the rendered text when not provided."
+      },
+      {
+        "name": "defaultChecked",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the checkbox item is initially ticked. To render a controlled checkbox item, use the `checked` prop instead."
+      },
+      {
+        "name": "checked",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the checkbox item is currently ticked. To render an uncontrolled checkbox item, use the `defaultChecked` prop instead."
+      },
+      {
+        "name": "onCheckedChange",
+        "type": "((checked: boolean, eventDetails: Menu.CheckboxItem.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the checkbox item is ticked or unticked."
+      },
+      {
+        "name": "onClick",
+        "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "default": "-",
+        "description": "The click handler for the menu item."
+      },
+      {
+        "name": "closeOnClick",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to close the menu when the item is clicked."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the menu checkbox item is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the menu checkbox item is not checked."
+      },
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the menu checkbox item is highlighted."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu checkbox item is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "CheckboxItem.State",
+        "source": "type MenuCheckboxItemState = {\n  /** Whether the checkbox item should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the checkbox item is currently highlighted. */\n  highlighted: boolean;\n  /** Whether the checkbox item is currently ticked. */\n  checked: boolean;\n};"
+      },
+      {
+        "name": "CheckboxItem.ChangeEventReason",
+        "source": "type MenuCheckboxItemChangeEventReason =\n  | 'trigger-hover'\n  | 'trigger-focus'\n  | 'trigger-press'\n  | 'outside-press'\n  | 'focus-out'\n  | 'list-navigation'\n  | 'escape-key'\n  | 'item-press'\n  | 'close-press'\n  | 'sibling-open'\n  | 'cancel-open'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "CheckboxItem.ChangeEventDetails",
+        "source": "type MenuCheckboxItemChangeEventDetails = (\n  | { reason: 'none'; event: Event }\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'item-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'sibling-open'; event: Event }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      }
+    ]
+  },
+  "CheckboxItemIndicator": {
+    "description": "Indicates whether the checkbox item is ticked.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the HTML element in the DOM when the checkbox item is not checked."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the menu checkbox item is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the menu checkbox item is not checked."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu checkbox item is disabled."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the indicator begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the indicator is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "CheckboxItemIndicator.State",
+        "source": "type MenuCheckboxItemIndicatorState = {\n  /** Whether the checkbox item is currently ticked. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the item is highlighted. */\n  highlighted: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "FilterProvider": {
+    "description": "Enables filtering for the menu or submenu it wraps. Add `Menu.Input` to the popup and place\nits items in `Menu.List`.\nWrap each searchable submenu in its own provider.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "string",
+        "default": "-",
+        "description": "The uncontrolled filter query when the menu is initially rendered.\nTo render a controlled query, use the `value` prop instead."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "default": "-",
+        "description": "The filter query. Use when controlled.\nWhen the popup closes, `onValueChange` is called with an empty query. The controlled\nvalue changes only when the consumer updates this prop."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: string, eventDetails: Menu.FilterProvider.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the filter query changes."
+      },
+      {
+        "name": "autoHighlight",
+        "type": "boolean | 'always'",
+        "default": "`false`",
+        "description": "Whether filtering highlights the first matching item automatically. `true`: highlight it while the query is not empty.`'always'`: highlight it even when the query is empty. Opening the menu from the keyboard highlights the first item either way, and the arrow keys\ncan move the highlight to another item. With either value, the arrow keys wrap within the\nlist rather than returning to the input, and with `'always'` a pointer highlight stays when\nthe pointer leaves."
+      },
+      {
+        "name": "filter",
+        "type": "((text: string, query: string) => boolean) | null",
+        "default": "-",
+        "description": "MenuFilter function used to match items against the query. Receives each item's `label` (or its\nrendered text) and the trimmed query, and keeps the item when it returns `true`.\nBy default, items match when they contain the query, ignoring case, accents, and punctuation.\nPass `null` when rendering filtered items yourself."
+      },
+      {
+        "name": "locale",
+        "type": "Intl.LocalesArgument",
+        "default": "-",
+        "description": "The locale the default `filter` uses for string comparison.\nDefaults to the user's runtime locale."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "The `<Menu.Root>` or `<Menu.SubmenuRoot>` to make filterable."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "FilterProvider.State",
+        "source": "type MenuFilterProviderState = {};"
+      },
+      {
+        "name": "FilterProvider.ChangeEventReason",
+        "source": "type MenuFilterProviderChangeEventReason =\n  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';"
+      },
+      {
+        "name": "FilterProvider.ChangeEventDetails",
+        "source": "type MenuFilterProviderChangeEventDetails = (\n  | { reason: 'clear-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'input-change'; event: Event | InputEvent }\n  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }\n  | { reason: 'popup-close'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  },
+  "LinkItem": {
+    "description": "A link in the menu that can be used to navigate to a different page or section.\nRenders an `<a>` element.",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "default": "-",
+        "description": "Overrides the text used for keyboard text navigation and filtering.\nFalls back to the rendered text when not provided."
+      },
+      {
+        "name": "closeOnClick",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to close the menu when the item is clicked."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the link is highlighted."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "LinkItem.State",
+        "source": "type MenuLinkItemState = {\n  /** Whether the item is highlighted. */\n  highlighted: boolean;\n};"
+      }
+    ]
+  },
+  "useFilter": {
+    "description": "**Parameters:**\n\n| Parameter | Type                | Default | Description |\n| :-------- | :------------------ | :------ | :---------- |\n| options?  | `MenuFilterOptions` | `{}`    | -           |\n\n**Return Value:**",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "useFilter",
+        "source": "type ReturnValue = MenuFilter;"
+      }
+    ]
+  },
+  "createHandle": {
+    "description": "Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "createHandle",
+        "source": "type ReturnValue = Menu.Handle<Payload>;"
+      }
+    ]
+  },
+  "Handle": {
+    "description": "Controls a Menu imperatively and associates detached `Menu.Trigger` components with a `Menu.Root`.\nCreate one with `Menu.createHandle()` and pass it to the `handle` prop of the root and of any\ntriggers rendered outside of it.\n\nThe imperative methods take effect only while a root using this handle is mounted; calls made\nbefore a root attaches (or after it unmounts) are ignored.\n\n\n\n\n\n\nOpens the menu and associates it with the trigger with the given id.\n\nThis method should only be called in an event handler or an effect (not during rendering).\n\n\n\nCloses the menu.\n\nThis method should only be called in an event handler or an effect (not during rendering).",
+    "props": [
+      {
+        "name": "isOpen",
+        "type": "boolean",
+        "description": "Whether the menu is currently open. Returns false while no root is attached to the handle."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Handle.1",
+        "source": "function open(triggerId: string): void;"
+      },
+      {
+        "name": "Handle.2",
+        "source": "function close(): void;"
+      }
+    ]
+  }
+}

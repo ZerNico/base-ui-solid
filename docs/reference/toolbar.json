@@ -1,0 +1,328 @@
+{
+  "Root": {
+    "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "loopFocus",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "orientation",
+        "type": "Toolbar.Root.Orientation",
+        "default": "`'horizontal'`",
+        "description": "The orientation of the toolbar."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the toolbar."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the toolbar is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type ToolbarRootState = {\n  /** Whether the component is disabled. */\n  disabled: boolean;\n  /** The component orientation. */\n  orientation: Toolbar.Root.Orientation;\n};"
+      },
+      {
+        "name": "Root.Orientation",
+        "source": "type ToolbarRootOrientation = 'horizontal' | 'vertical';"
+      },
+      {
+        "name": "Root.ItemMetadata",
+        "source": "type ToolbarRootItemMetadata = { disabled: boolean; focusableWhenDisabled: boolean };"
+      }
+    ]
+  },
+  "Input": {
+    "description": "A native input element that integrates with Toolbar keyboard navigation.\nRenders an `<input>` element.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "string | number | string[]",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "focusableWhenDisabled",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "When `true` the item remains focusable when disabled."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When `true` the item is disabled."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the toolbar."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the input is disabled."
+      },
+      {
+        "name": "data-focusable",
+        "type": "-",
+        "description": "Present when the input remains focusable when disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Input.State",
+        "source": "type ToolbarInputState = {\n  /** Whether the component is disabled. */\n  disabled: boolean;\n  /** Whether the component remains focusable when disabled. */\n  focusable: boolean;\n  /** The component orientation. */\n  orientation: Toolbar.Root.Orientation;\n};"
+      }
+    ]
+  },
+  "Group": {
+    "description": "Groups several toolbar items or toggles.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When `true` all toolbar items in the group are disabled."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the toolbar."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the group is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Group.State",
+        "source": "type ToolbarGroupState = {\n  /** Whether the component is disabled. */\n  disabled: boolean;\n  /** The component orientation. */\n  orientation: Toolbar.Root.Orientation;\n};"
+      }
+    ]
+  },
+  "Separator": {
+    "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "orientation",
+        "type": "Orientation",
+        "default": "-",
+        "description": "The orientation of the separator. Defaults to the opposite of the toolbar's\norientation, so a horizontal toolbar renders vertical separators."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the separator, which is perpendicular to the toolbar."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Separator.State",
+        "source": "type ToolbarSeparatorState = {\n  /** The orientation of the separator. */\n  orientation: Orientation;\n};"
+      }
+    ]
+  },
+  "Button": {
+    "description": "A button that can be used as-is or as a trigger for other components.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "focusableWhenDisabled",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "When `true` the item remains focusable when disabled."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "When `true` the item is disabled."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the toolbar."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the button is disabled."
+      },
+      {
+        "name": "data-focusable",
+        "type": "-",
+        "description": "Present when the button remains focusable when disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Button.State",
+        "source": "type ToolbarButtonState = {\n  /** Whether the component is disabled. */\n  disabled: boolean;\n  /** Whether the component remains focusable when disabled. */\n  focusable: boolean;\n  /** The component orientation. */\n  orientation: Toolbar.Root.Orientation;\n};"
+      }
+    ]
+  },
+  "Link": {
+    "description": "A link component.\nRenders an `<a>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Indicates the orientation of the toolbar."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Link.State",
+        "source": "type ToolbarLinkState = {\n  /** The component orientation. */\n  orientation: Toolbar.Root.Orientation;\n};"
+      }
+    ]
+  }
+}

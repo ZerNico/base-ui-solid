@@ -1,0 +1,285 @@
+{
+  "Root": {
+    "description": "Groups all parts of the progress bar and provides the task completion status to screen readers.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "value*",
+        "type": "number | null",
+        "default": "-",
+        "description": "The current value. The component is indeterminate when value is `null`."
+      },
+      {
+        "name": "aria-valuetext",
+        "type": "string",
+        "default": "-",
+        "description": "A string value that provides a user-friendly name for `aria-valuenow`, the current value of the progress bar."
+      },
+      {
+        "name": "getAriaValueText",
+        "type": "((formattedValue: string, value: number | null) => string)",
+        "default": "-",
+        "description": "Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar."
+      },
+      {
+        "name": "locale",
+        "type": "Intl.LocalesArgument",
+        "default": "-",
+        "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+      },
+      {
+        "name": "min",
+        "type": "number",
+        "default": "`0`",
+        "description": "The minimum value."
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "default": "`100`",
+        "description": "The maximum value."
+      },
+      {
+        "name": "format",
+        "type": "Intl.NumberFormatOptions",
+        "default": "-",
+        "description": "Options to format the value."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-complete",
+        "type": "-",
+        "description": "Present when the progress has completed."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the progress is in indeterminate state."
+      },
+      {
+        "name": "data-progressing",
+        "type": "-",
+        "description": "Present while the progress is progressing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type ProgressRootState = {\n  /** The current status. */\n  status: Progress.Status;\n};"
+      }
+    ]
+  },
+  "Value": {
+    "description": "A text element displaying the current value.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "((formattedValue: string | null, value: number | null) => JSX.Element) | null",
+        "default": "-",
+        "description": "-"
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-complete",
+        "type": "-",
+        "description": "Present when the progress has completed."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the progress is in indeterminate state."
+      },
+      {
+        "name": "data-progressing",
+        "type": "-",
+        "description": "Present while the progress is progressing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Value.State",
+        "source": "type ProgressValueState = {\n  /** The current status. */\n  status: Progress.Status;\n};"
+      }
+    ]
+  },
+  "Indicator": {
+    "description": "Visualizes the completion status of the task.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-complete",
+        "type": "-",
+        "description": "Present when the progress has completed."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the progress is in indeterminate state."
+      },
+      {
+        "name": "data-progressing",
+        "type": "-",
+        "description": "Present while the progress is progressing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Indicator.State",
+        "source": "type ProgressIndicatorState = {\n  /** The current status. */\n  status: Progress.Status;\n};"
+      }
+    ]
+  },
+  "Track": {
+    "description": "Contains the progress bar indicator.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-complete",
+        "type": "-",
+        "description": "Present when the progress has completed."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the progress is in indeterminate state."
+      },
+      {
+        "name": "data-progressing",
+        "type": "-",
+        "description": "Present while the progress is progressing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Track.State",
+        "source": "type ProgressTrackState = {\n  /** The current status. */\n  status: Progress.Status;\n};"
+      }
+    ]
+  },
+  "Label": {
+    "description": "An accessible label for the progress bar.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-complete",
+        "type": "-",
+        "description": "Present when the progress has completed."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the progress is in indeterminate state."
+      },
+      {
+        "name": "data-progressing",
+        "type": "-",
+        "description": "Present while the progress is progressing."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Label.State",
+        "source": "type ProgressLabelState = {\n  /** The current status. */\n  status: Progress.Status;\n};"
+      }
+    ]
+  }
+}

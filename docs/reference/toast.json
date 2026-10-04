@@ -1,0 +1,1084 @@
+{
+  "Root": {
+    "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "swipeDirection",
+        "type": "'up' | 'down' | 'left' | 'right' | ('left' | 'right' | 'up' | 'down')[]",
+        "default": "`['down', 'right']`",
+        "description": "Direction(s) in which the toast can be swiped to dismiss."
+      },
+      {
+        "name": "toast*",
+        "type": "Toast.Root.ToastObject",
+        "default": "-",
+        "description": "The toast to render."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-expanded",
+        "type": "boolean",
+        "description": "Present when the toast is expanded in the viewport."
+      },
+      {
+        "name": "data-limited",
+        "type": "boolean",
+        "description": "Present when the toast was limited because the toast limit was exceeded."
+      },
+      {
+        "name": "data-swipe-direction",
+        "type": "'up' | 'down' | 'left' | 'right'",
+        "description": "The direction the toast was swiped."
+      },
+      {
+        "name": "data-swiping",
+        "type": "boolean",
+        "description": "Present when the toast is being swiped."
+      },
+      {
+        "name": "data-type",
+        "type": "string",
+        "description": "The type of the toast."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the toast begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the toast is animating out."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--toast-height",
+        "type": "number",
+        "description": "Indicates the measured natural height of the toast in pixels."
+      },
+      {
+        "name": "--toast-index",
+        "type": "number",
+        "description": "Indicates the index of the toast in the list."
+      },
+      {
+        "name": "--toast-offset-y",
+        "type": "number",
+        "description": "Indicates the vertical pixels offset of the toast in the list when expanded."
+      },
+      {
+        "name": "--toast-swipe-movement-x",
+        "type": "number",
+        "description": "Indicates the horizontal swipe movement of the toast."
+      },
+      {
+        "name": "--toast-swipe-movement-y",
+        "type": "number",
+        "description": "Indicates the vertical swipe movement of the toast."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type ToastRootState = {\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the toasts in the viewport are expanded. */\n  expanded: boolean;\n  /** Whether the toast was limited because the toast limit was exceeded. */\n  limited: boolean;\n  /** The type of the toast. */\n  type: string | undefined;\n  /** Whether the toast is being swiped. */\n  swiping: boolean;\n  /** The direction the toast is being swiped. */\n  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;\n};"
+      },
+      {
+        "name": "Root.ToastObject",
+        "source": "type ToastRootToastObject<Data extends {} = any> = {\n  /** The unique identifier for the toast. */\n  id: string;\n  /** The ref for the toast. */\n  ref?: RefObject<HTMLElement | null>;\n  /** The title of the toast. */\n  title?: JSX.Element;\n  /**\n   * The type of the toast. Used to conditionally style the toast,\n   * including conditionally rendering elements based on the type.\n   */\n  type?: string;\n  /** The description of the toast. */\n  description?: JSX.Element;\n  /**\n   * The amount of time (in ms) before the toast is auto dismissed.\n   * A value of `0` will prevent the toast from being dismissed automatically.\n   * @default 5000\n   */\n  timeout?: number;\n  /**\n   * The priority of the toast.\n   * - `low` - The toast will be announced politely.\n   * - `high` - The toast will be announced urgently.\n   * @default 'low'\n   */\n  priority?: 'low' | 'high';\n  /** The transition status of the toast. */\n  transitionStatus?: 'starting' | 'ending';\n  /** A counter that increments whenever the toast is updated or upserted. */\n  updateKey?: number;\n  /** Determines if the toast was limited because the toast limit was exceeded. */\n  limited?: boolean;\n  /** The height of the toast. */\n  height?: number;\n  /** Callback function to be called when the toast is closed. */\n  onClose?: () => void;\n  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */\n  onRemove?: () => void;\n  /** The props for the action button. */\n  actionProps?: Omit<\n    JSX.IntrinsicElements['button'],\n    'ref'\n  >;\n  /** The props forwarded to the toast positioner element when rendering anchored toasts. */\n  positionerProps?: ToastManagerPositionerProps;\n  /** Custom data for the toast. */\n  data?: Data;\n};"
+      }
+    ]
+  },
+  "Provider": {
+    "description": "Provides a context for creating and managing toasts.",
+    "props": [
+      {
+        "name": "limit",
+        "type": "number",
+        "default": "`3`",
+        "description": "The maximum number of toasts that can be displayed at once.\nWhen the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`\nattribute) rather than removed, so they can be hidden or animated out."
+      },
+      {
+        "name": "toastManager",
+        "type": "ToastManager",
+        "default": "-",
+        "description": "A global manager for toasts to use outside of a Solid component."
+      },
+      {
+        "name": "timeout",
+        "type": "number",
+        "default": "`5000`",
+        "description": "The default amount of time (in ms) before a toast is auto dismissed.\nA value of `0` will prevent the toast from being dismissed automatically."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Provider.State",
+        "source": "type ToastProviderState = {};"
+      }
+    ]
+  },
+  "Portal": {
+    "description": "A portal element that moves the viewport to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "container",
+        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "default": "-",
+        "description": "A parent element to render the portal element into."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type ToastPortalState = {};"
+      }
+    ]
+  },
+  "Positioner": {
+    "description": "Positions the toast against the anchor.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "disableAnchorTracking",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to disable the popup from tracking any layout shift of its positioning anchor."
+      },
+      {
+        "name": "toast*",
+        "type": "ToastObject<any>",
+        "default": "-",
+        "description": "The toast object associated with the positioner."
+      },
+      {
+        "name": "align",
+        "type": "Align",
+        "default": "`'center'`",
+        "description": "How to align the popup relative to the specified side."
+      },
+      {
+        "name": "alignOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Additional offset along the alignment axis in pixels.\nAlso accepts a function that returns the offset to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "side",
+        "type": "Side",
+        "default": "`'top'`",
+        "description": "Which side of the anchor element to align the toast against.\nMay automatically change to avoid collisions."
+      },
+      {
+        "name": "sideOffset",
+        "type": "number | OffsetFunction",
+        "default": "`0`",
+        "description": "Distance between the anchor and the popup in pixels.\nAlso accepts a function that returns the distance to read the dimensions of the anchor\nand positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side."
+      },
+      {
+        "name": "arrowPadding",
+        "type": "number",
+        "default": "`5`",
+        "description": "Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup."
+      },
+      {
+        "name": "anchor",
+        "type": "Element | null",
+        "default": "-",
+        "description": "An element to position the toast against."
+      },
+      {
+        "name": "collisionAvoidance",
+        "type": "CollisionAvoidance",
+        "default": "-",
+        "description": "Determines how to handle collisions when positioning the popup. `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`): `'flip'`: keep the requested side when it fits; otherwise try the opposite side\n(`top` and `bottom`, or `left` and `right`).`'shift'`: never change side; keep the requested side and move the popup within\nthe clipping boundary so it stays visible.`'none'`: do not correct side-axis overflow. `align` controls overflow on the alignment axis (`start`/`center`/`end`): `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.`'shift'`: keep side and requested alignment, then nudge the popup along the\nalignment axis to fit.`'none'`: do not correct alignment-axis overflow. `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the\npreferred axis cannot fit: `'start'`: allow perpendicular fallback and try the logical start side first\n(`top` before `bottom`, or `left` before `right` in LTR).`'end'`: allow perpendicular fallback and try the logical end side first\n(`bottom` before `top`, or `right` before `left` in LTR).`'none'`: do not fallback to the perpendicular axis. When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.\nIf `align` is omitted, it defaults to `'flip'`."
+      },
+      {
+        "name": "collisionBoundary",
+        "type": "Boundary",
+        "default": "`'clipping-ancestors'`",
+        "description": "An element or a rectangle that delimits the area that the popup is confined to."
+      },
+      {
+        "name": "collisionPadding",
+        "type": "Padding",
+        "default": "`5`",
+        "description": "Additional space to maintain from the edge of the collision boundary."
+      },
+      {
+        "name": "sticky",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to maintain the popup in the viewport after\nthe anchor element was scrolled out of view."
+      },
+      {
+        "name": "positionMethod",
+        "type": "'absolute' | 'fixed'",
+        "default": "`'absolute'`",
+        "description": "Determines which CSS `position` property to use."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-anchor-hidden",
+        "type": "-",
+        "description": "Present when the anchor is hidden."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the toast is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the toast is positioned relative to the trigger."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--anchor-height",
+        "type": "number",
+        "description": "The anchor's height."
+      },
+      {
+        "name": "--anchor-width",
+        "type": "number",
+        "description": "The anchor's width."
+      },
+      {
+        "name": "--available-height",
+        "type": "number",
+        "description": "The available height between the anchor and the edge of the viewport."
+      },
+      {
+        "name": "--available-width",
+        "type": "number",
+        "description": "The available width between the anchor and the edge of the viewport."
+      },
+      {
+        "name": "--transform-origin",
+        "type": "string",
+        "description": "The coordinates that this element is anchored to. Used for animations and transitions."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Positioner.State",
+        "source": "type ToastPositionerState = {\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the anchor element is hidden. */\n  anchorHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Arrow": {
+    "description": "Displays an element positioned against the toast anchor.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-uncentered",
+        "type": "-",
+        "description": "Present when the toast arrow is uncentered."
+      },
+      {
+        "name": "data-align",
+        "type": "'start' | 'center' | 'end'",
+        "description": "Indicates how the toast is aligned relative to specified side."
+      },
+      {
+        "name": "data-side",
+        "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
+        "description": "Indicates which side the toast is positioned relative to the anchor."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Arrow.State",
+        "source": "type ToastArrowState = {\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the arrow cannot be centered on the anchor. */\n  uncentered: boolean;\n};"
+      }
+    ]
+  },
+  "Content": {
+    "description": "A container for the contents of a toast.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-behind",
+        "type": "boolean",
+        "description": "Present when the toast is behind the frontmost toast in the stack."
+      },
+      {
+        "name": "data-expanded",
+        "type": "boolean",
+        "description": "Present when the toast viewport is expanded."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Content.State",
+        "source": "type ToastContentState = {\n  /** Whether the toast viewport is expanded. */\n  expanded: boolean;\n  /** Whether the toast is behind the frontmost toast in the stack. */\n  behind: boolean;\n};"
+      }
+    ]
+  },
+  "Title": {
+    "description": "A title that labels the toast.\nRenders an `<h2>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-type",
+        "type": "string",
+        "description": "The type of the toast."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Title.State",
+        "source": "type ToastTitleState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Description": {
+    "description": "A description that describes the toast.\nCan be used as the default message for the toast when no title is provided.\nRenders a `<p>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-type",
+        "type": "string",
+        "description": "The type of the toast."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Description.State",
+        "source": "type ToastDescriptionState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Close": {
+    "description": "Closes the toast when clicked.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-type",
+        "type": "string",
+        "description": "The type of the toast."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Close.State",
+        "source": "type ToastCloseState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Action": {
+    "description": "Performs an action when clicked.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-type",
+        "type": "string",
+        "description": "The type of the toast."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Action.State",
+        "source": "type ToastActionState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "A container viewport for toasts.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-expanded",
+        "type": "boolean",
+        "description": "Indicates toasts are expanded in the viewport."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--toast-frontmost-height",
+        "type": "number",
+        "description": "Indicates the height of the frontmost toast."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type ToastViewportState = {\n  /** Whether toasts are expanded in the viewport. */\n  expanded: boolean;\n};"
+      }
+    ]
+  },
+  "useToastManager": {
+    "description": "Returns the array of toasts and methods to manage them.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "useToastManager",
+        "source": "type ReturnValue = UseToastManagerReturnValue<{}>;"
+      }
+    ]
+  },
+  "Root.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type ToastRootState = {\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the toasts in the viewport are expanded. */\n  expanded: boolean;\n  /** Whether the toast was limited because the toast limit was exceeded. */\n  limited: boolean;\n  /** The type of the toast. */\n  type: string | undefined;\n  /** Whether the toast is being swiped. */\n  swiping: boolean;\n  /** The direction the toast is being swiped. */\n  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;\n};"
+      }
+    ]
+  },
+  "Root.ToastObject": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.ToastObject",
+        "source": "type ToastRootToastObject<Data extends {} = any> = {\n  /** The unique identifier for the toast. */\n  id: string;\n  /** The ref for the toast. */\n  ref?: RefObject<HTMLElement | null>;\n  /** The title of the toast. */\n  title?: JSX.Element;\n  /**\n   * The type of the toast. Used to conditionally style the toast,\n   * including conditionally rendering elements based on the type.\n   */\n  type?: string;\n  /** The description of the toast. */\n  description?: JSX.Element;\n  /**\n   * The amount of time (in ms) before the toast is auto dismissed.\n   * A value of `0` will prevent the toast from being dismissed automatically.\n   * @default 5000\n   */\n  timeout?: number;\n  /**\n   * The priority of the toast.\n   * - `low` - The toast will be announced politely.\n   * - `high` - The toast will be announced urgently.\n   * @default 'low'\n   */\n  priority?: 'low' | 'high';\n  /** The transition status of the toast. */\n  transitionStatus?: 'starting' | 'ending';\n  /** A counter that increments whenever the toast is updated or upserted. */\n  updateKey?: number;\n  /** Determines if the toast was limited because the toast limit was exceeded. */\n  limited?: boolean;\n  /** The height of the toast. */\n  height?: number;\n  /** Callback function to be called when the toast is closed. */\n  onClose?: () => void;\n  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */\n  onRemove?: () => void;\n  /** The props for the action button. */\n  actionProps?: Omit<\n    JSX.IntrinsicElements['button'],\n    'ref'\n  >;\n  /** The props forwarded to the toast positioner element when rendering anchored toasts. */\n  positionerProps?: ToastManagerPositionerProps;\n  /** Custom data for the toast. */\n  data?: Data;\n};"
+      }
+    ]
+  },
+  "Provider.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Provider.State",
+        "source": "type ToastProviderState = {};"
+      }
+    ]
+  },
+  "Portal.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type ToastPortalState = {};"
+      }
+    ]
+  },
+  "Positioner.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Positioner.State",
+        "source": "type ToastPositionerState = {\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the anchor element is hidden. */\n  anchorHidden: boolean;\n};"
+      }
+    ]
+  },
+  "Arrow.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Arrow.State",
+        "source": "type ToastArrowState = {\n  /** The side of the anchor the component is placed on. */\n  side: Side;\n  /** The alignment of the component relative to the anchor. */\n  align: Align;\n  /** Whether the arrow cannot be centered on the anchor. */\n  uncentered: boolean;\n};"
+      }
+    ]
+  },
+  "Content.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Content.State",
+        "source": "type ToastContentState = {\n  /** Whether the toast viewport is expanded. */\n  expanded: boolean;\n  /** Whether the toast is behind the frontmost toast in the stack. */\n  behind: boolean;\n};"
+      }
+    ]
+  },
+  "Title.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Title.State",
+        "source": "type ToastTitleState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Description.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Description.State",
+        "source": "type ToastDescriptionState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Close.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Close.State",
+        "source": "type ToastCloseState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Action.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Action.State",
+        "source": "type ToastActionState = {\n  /** The type of the toast. */\n  type: string | undefined;\n};"
+      }
+    ]
+  },
+  "Viewport.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type ToastViewportState = {\n  /** Whether toasts are expanded in the viewport. */\n  expanded: boolean;\n};"
+      }
+    ]
+  },
+  "createToastManager": {
+    "description": "Creates a new toast manager.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "createToastManager",
+        "source": "type ReturnValue = ToastManager<{}>;"
+      }
+    ]
+  },
+  "ToastObject": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastObject",
+        "source": "type ToastObject<Data extends {}> = {\n  /** The unique identifier for the toast. */\n  id: string;\n  /** The ref for the toast. */\n  ref?: RefObject<HTMLElement | null>;\n  /** The title of the toast. */\n  title?: JSX.Element;\n  /**\n   * The type of the toast. Used to conditionally style the toast,\n   * including conditionally rendering elements based on the type.\n   */\n  type?: string;\n  /** The description of the toast. */\n  description?: JSX.Element;\n  /**\n   * The amount of time (in ms) before the toast is auto dismissed.\n   * A value of `0` will prevent the toast from being dismissed automatically.\n   * @default 5000\n   */\n  timeout?: number;\n  /**\n   * The priority of the toast.\n   * - `low` - The toast will be announced politely.\n   * - `high` - The toast will be announced urgently.\n   * @default 'low'\n   */\n  priority?: 'low' | 'high';\n  /** The transition status of the toast. */\n  transitionStatus?: 'starting' | 'ending';\n  /** A counter that increments whenever the toast is updated or upserted. */\n  updateKey?: number;\n  /** Determines if the toast was limited because the toast limit was exceeded. */\n  limited?: boolean;\n  /** The height of the toast. */\n  height?: number;\n  /** Callback function to be called when the toast is closed. */\n  onClose?: () => void;\n  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */\n  onRemove?: () => void;\n  /** The props for the action button. */\n  actionProps?: Omit<\n    JSX.IntrinsicElements['button'],\n    'ref'\n  >;\n  /** The props forwarded to the toast positioner element when rendering anchored toasts. */\n  positionerProps?: ToastManagerPositionerProps;\n  /** Custom data for the toast. */\n  data?: Data;\n};"
+      }
+    ]
+  },
+  "ToastActionDataAttributes": {
+    "description": "Data attributes of [Action](#action).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastActionDataAttributes",
+        "source": "declare namespace ToastActionDataAttributes {\n  /**\n   * The type of the toast.\n   * @type string\n   */\n  const type: 'data-type';\n}"
+      }
+    ]
+  },
+  "ToastArrowDataAttributes": {
+    "description": "Data attributes of [Arrow](#arrow).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastArrowDataAttributes",
+        "source": "declare namespace ToastArrowDataAttributes {\n  /**\n   * Indicates which side the toast is positioned relative to the anchor.\n   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'\n   */\n  const side: 'data-side';\n  /**\n   * Indicates how the toast is aligned relative to specified side.\n   * @type 'start' | 'center' | 'end'\n   */\n  const align: 'data-align';\n  /** Present when the toast arrow is uncentered. */\n  const uncentered: 'data-uncentered';\n}"
+      }
+    ]
+  },
+  "ToastCloseDataAttributes": {
+    "description": "Data attributes of [Close](#close).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastCloseDataAttributes",
+        "source": "declare namespace ToastCloseDataAttributes {\n  /**\n   * The type of the toast.\n   * @type string\n   */\n  const type: 'data-type';\n}"
+      }
+    ]
+  },
+  "ToastContentDataAttributes": {
+    "description": "Data attributes of [Content](#content).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastContentDataAttributes",
+        "source": "declare namespace ToastContentDataAttributes {\n  /**\n   * Present when the toast viewport is expanded.\n   * @type boolean\n   */\n  const expanded: 'data-expanded';\n  /**\n   * Present when the toast is behind the frontmost toast in the stack.\n   * @type boolean\n   */\n  const behind: 'data-behind';\n}"
+      }
+    ]
+  },
+  "ToastDescriptionDataAttributes": {
+    "description": "Data attributes of [Description](#description).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastDescriptionDataAttributes",
+        "source": "declare namespace ToastDescriptionDataAttributes {\n  /**\n   * The type of the toast.\n   * @type string\n   */\n  const type: 'data-type';\n}"
+      }
+    ]
+  },
+  "ToastManager": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManager",
+        "source": "type ToastManager<Data extends {} = any> = {\n  ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;\n  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;\n  close: (id?: string) => void;\n  update: <T extends Data = Data>(\n    id: string,\n    updates:\n      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),\n  ) => void;\n  promise: <Value, T extends Data = Data>(\n    promiseValue: Promise<Value>,\n    options: ToastManagerPromiseOptions<Value, T>,\n  ) => Promise<Value>;\n};"
+      }
+    ]
+  },
+  "ToastManagerAddOptions": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManagerAddOptions",
+        "source": "type ToastManagerAddOptions<Data extends {}> = {\n  /**\n   * The unique identifier for the toast. Adding a toast with an existing ID\n   * updates it in place and refreshes its auto-dismiss timer.\n   */\n  id?: string;\n  /** The title of the toast. */\n  title?: JSX.Element;\n  /**\n   * The type of the toast. Used to conditionally style the toast,\n   * including conditionally rendering elements based on the type.\n   */\n  type?: string;\n  /** The description of the toast. */\n  description?: JSX.Element;\n  /**\n   * The amount of time (in ms) before the toast is auto dismissed.\n   * A value of `0` will prevent the toast from being dismissed automatically.\n   * @default 5000\n   */\n  timeout?: number;\n  /**\n   * The priority of the toast.\n   * - `low` - The toast will be announced politely.\n   * - `high` - The toast will be announced urgently.\n   * @default 'low'\n   */\n  priority?: 'low' | 'high';\n  /** The transition status of the toast. */\n  transitionStatus?: 'starting' | 'ending';\n  /** Callback function to be called when the toast is closed. */\n  onClose?: () => void;\n  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */\n  onRemove?: () => void;\n  /** The props for the action button. */\n  actionProps?: Omit<\n    JSX.IntrinsicElements['button'],\n    'ref'\n  >;\n  /** The props forwarded to the toast positioner element when rendering anchored toasts. */\n  positionerProps?: ToastManagerPositionerProps;\n  /** Custom data for the toast. */\n  data?: Data;\n};"
+      }
+    ]
+  },
+  "ToastManagerEvent": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManagerEvent",
+        "source": "type ToastManagerEvent = { action: 'add' | 'close' | 'update' | 'promise'; options: any };"
+      }
+    ]
+  },
+  "ToastManagerPositionerProps": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManagerPositionerProps",
+        "source": "type ToastManagerPositionerProps = {\n  /** An element to position the toast against. */\n  anchor?: Element | null;\n  /**\n   * Style applied to the element, or a function that\n   * returns a style object based on the component's state.\n   */\n  style?:\n    JSX.CSSProperties | ((state: Toast.Positioner.State) => JSX.CSSProperties | undefined);\n  /**\n   * CSS class applied to the element, or a function that\n   * returns a class based on the component's state.\n   */\n  class?: string | ((state: Toast.Positioner.State) => string | undefined);\n  /**\n   * Which side of the anchor element to align the toast against.\n   * May automatically change to avoid collisions.\n   * @default 'top'\n   */\n  side?: Side;\n  /**\n   * Determines which CSS `position` property to use.\n   * @default 'absolute'\n   */\n  positionMethod?: 'absolute' | 'fixed';\n  /**\n   * Distance between the anchor and the popup in pixels.\n   * Also accepts a function that returns the distance to read the dimensions of the anchor\n   * and positioner elements, along with its side and alignment.\n   *\n   * The function takes a `data` object parameter with the following properties:\n   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n   * - `data.side`: which side of the anchor element the positioner is aligned against.\n   * - `data.align`: how the positioner is aligned relative to the specified side.\n   * @default 0\n   * @example\n   *"
+      },
+      {
+        "name": "ToastManagerPositionerProps",
+        "source": "*/\n  sideOffset?: number | OffsetFunction;\n  /**\n   * How to align the popup relative to the specified side.\n   * @default 'center'\n   */\n  align?: Align;\n  /**\n   * Additional offset along the alignment axis in pixels.\n   * Also accepts a function that returns the offset to read the dimensions of the anchor\n   * and positioner elements, along with its side and alignment.\n   *\n   * The function takes a `data` object parameter with the following properties:\n   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.\n   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.\n   * - `data.side`: which side of the anchor element the positioner is aligned against.\n   * - `data.align`: how the positioner is aligned relative to the specified side.\n   * @default 0\n   * @example\n   *"
+      },
+      {
+        "name": "ToastManagerPositionerProps",
+        "source": "*/\n  alignOffset?: number | OffsetFunction;\n  /**\n   * An element or a rectangle that delimits the area that the popup is confined to.\n   * @default 'clipping-ancestors'\n   */\n  collisionBoundary?: Boundary;\n  /**\n   * Additional space to maintain from the edge of the collision boundary.\n   * @default 5\n   */\n  collisionPadding?: Padding;\n  /**\n   * Whether to maintain the popup in the viewport after\n   * the anchor element was scrolled out of view.\n   * @default false\n   */\n  sticky?: boolean;\n  /**\n   * Minimum distance to maintain between the arrow and the edges of the popup.\n   *\n   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.\n   * @default 5\n   */\n  arrowPadding?: number;\n  /**\n   * Whether to disable the popup from tracking any layout shift of its positioning anchor.\n   * @default false\n   */\n  disableAnchorTracking?: boolean;\n  /**\n   * Determines how to handle collisions when positioning the popup.\n   *\n   * `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`):\n   * - `'flip'`: keep the requested side when it fits; otherwise try the opposite side\n   *   (`top` and `bottom`, or `left` and `right`).\n   * - `'shift'`: never change side; keep the requested side and move the popup within\n   *   the clipping boundary so it stays visible.\n   * - `'none'`: do not correct side-axis overflow.\n   *\n   * `align` controls overflow on the alignment axis (`start`/`center`/`end`):\n   * - `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.\n   * - `'shift'`: keep side and requested alignment, then nudge the popup along the\n   *   alignment axis to fit.\n   * - `'none'`: do not correct alignment-axis overflow.\n   *\n   * `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the\n   * preferred axis cannot fit:\n   * - `'start'`: allow perpendicular fallback and try the logical start side first\n   *   (`top` before `bottom`, or `left` before `right` in LTR).\n   * - `'end'`: allow perpendicular fallback and try the logical end side first\n   *   (`bottom` before `top`, or `right` before `left` in LTR).\n   * - `'none'`: do not fallback to the perpendicular axis.\n   *\n   * When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.\n   * If `align` is omitted, it defaults to `'flip'`.\n   * @example\n   *"
+      },
+      {
+        "name": "ToastManagerPositionerProps",
+        "source": "*/\n  collisionAvoidance?: CollisionAvoidance;\n  /**\n   * Allows you to replace the component's HTML element\n   * with a different tag, or compose it with another component.\n   *\n   * Accepts a `JSX.Element` or a function that returns the element to render.\n   */\n  render?: JSX.Element | ((props: HTMLProps, state: Toast.Positioner.State) => JSX.Element);\n};"
+      }
+    ]
+  },
+  "ToastManagerPromiseOptions": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManagerPromiseOptions",
+        "source": "type ToastManagerPromiseOptions<Value, Data extends {}> = {\n  loading: string | ToastManagerUpdateOptions<Data>;\n  success:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((result: Value) => string | ToastManagerUpdateOptions<Data>);\n  error:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((error: any) => string | ToastManagerUpdateOptions<Data>);\n};"
+      }
+    ]
+  },
+  "ToastManagerUpdateOptions": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastManagerUpdateOptions",
+        "source": "type ToastManagerUpdateOptions<Data extends {}> = {\n  /** The title of the toast. */\n  title?: JSX.Element;\n  /**\n   * The type of the toast. Used to conditionally style the toast,\n   * including conditionally rendering elements based on the type.\n   */\n  type?: string;\n  /** The description of the toast. */\n  description?: JSX.Element;\n  /**\n   * The amount of time (in ms) before the toast is auto dismissed.\n   * A value of `0` will prevent the toast from being dismissed automatically.\n   * @default 5000\n   */\n  timeout?: number;\n  /**\n   * The priority of the toast.\n   * - `low` - The toast will be announced politely.\n   * - `high` - The toast will be announced urgently.\n   * @default 'low'\n   */\n  priority?: 'low' | 'high';\n  /** Callback function to be called when the toast is closed. */\n  onClose?: () => void;\n  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */\n  onRemove?: () => void;\n  /** The props for the action button. */\n  actionProps?: Omit<\n    JSX.IntrinsicElements['button'],\n    'ref'\n  >;\n  /** The props forwarded to the toast positioner element when rendering anchored toasts. */\n  positionerProps?: ToastManagerPositionerProps;\n  /** Custom data for the toast. */\n  data?: Data;\n};"
+      }
+    ]
+  },
+  "ToastPositionerCssVariables": {
+    "description": "CSS variables of [Positioner](#positioner).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastPositionerCssVariables",
+        "source": "declare namespace ToastPositionerCssVariables {\n  /**\n   * The available width between the anchor and the edge of the viewport.\n   * @type number\n   */\n  const availableWidth: '--available-width';\n  /**\n   * The available height between the anchor and the edge of the viewport.\n   * @type number\n   */\n  const availableHeight: '--available-height';\n  /**\n   * The anchor's width.\n   * @type number\n   */\n  const anchorWidth: '--anchor-width';\n  /**\n   * The anchor's height.\n   * @type number\n   */\n  const anchorHeight: '--anchor-height';\n  /**\n   * The coordinates that this element is anchored to. Used for animations and transitions.\n   * @type string\n   */\n  const transformOrigin: '--transform-origin';\n}"
+      }
+    ]
+  },
+  "ToastPositionerDataAttributes": {
+    "description": "Data attributes of [Positioner](#positioner).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastPositionerDataAttributes",
+        "source": "declare namespace ToastPositionerDataAttributes {\n  /** Present when the anchor is hidden. */\n  const anchorHidden: 'data-anchor-hidden';\n  /**\n   * Indicates which side the toast is positioned relative to the trigger.\n   * @type 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'\n   */\n  const side: 'data-side';\n  /**\n   * Indicates how the toast is aligned relative to specified side.\n   * @type 'start' | 'center' | 'end'\n   */\n  const align: 'data-align';\n}"
+      }
+    ]
+  },
+  "ToastRootCssVariables": {
+    "description": "CSS variables of [Root](#root).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastRootCssVariables",
+        "source": "declare namespace ToastRootCssVariables {\n  /**\n   * Indicates the index of the toast in the list.\n   * @type number\n   */\n  const index: '--toast-index';\n  /**\n   * Indicates the vertical pixels offset of the toast in the list when expanded.\n   * @type number\n   */\n  const offsetY: '--toast-offset-y';\n  /**\n   * Indicates the measured natural height of the toast in pixels.\n   * @type number\n   */\n  const height: '--toast-height';\n  /**\n   * Indicates the horizontal swipe movement of the toast.\n   * @type number\n   */\n  const swipeMovementX: '--toast-swipe-movement-x';\n  /**\n   * Indicates the vertical swipe movement of the toast.\n   * @type number\n   */\n  const swipeMovementY: '--toast-swipe-movement-y';\n}"
+      }
+    ]
+  },
+  "ToastRootDataAttributes": {
+    "description": "Data attributes of [Root](#root).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastRootDataAttributes",
+        "source": "declare namespace ToastRootDataAttributes {\n  /**\n   * Present when the toast is expanded in the viewport.\n   * @type boolean\n   */\n  const expanded: 'data-expanded';\n  /**\n   * Present when the toast was limited because the toast limit was exceeded.\n   * @type boolean\n   */\n  const limited: 'data-limited';\n  /**\n   * The type of the toast.\n   * @type string\n   */\n  const type: 'data-type';\n  /**\n   * Present when the toast is being swiped.\n   * @type boolean\n   */\n  const swiping: 'data-swiping';\n  /**\n   * The direction the toast was swiped.\n   * @type 'up' | 'down' | 'left' | 'right'\n   */\n  const swipeDirection: 'data-swipe-direction';\n  /** Present when the toast begins animating in. */\n  const startingStyle: 'data-starting-style';\n  /** Present when the toast is animating out. */\n  const endingStyle: 'data-ending-style';\n}"
+      }
+    ]
+  },
+  "ToastTitleDataAttributes": {
+    "description": "Data attributes of [Title](#title).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastTitleDataAttributes",
+        "source": "declare namespace ToastTitleDataAttributes {\n  /**\n   * The type of the toast.\n   * @type string\n   */\n  const type: 'data-type';\n}"
+      }
+    ]
+  },
+  "ToastViewportCssVariables": {
+    "description": "CSS variables of [Viewport](#viewport).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastViewportCssVariables",
+        "source": "declare namespace ToastViewportCssVariables {\n  /**\n   * Indicates the height of the frontmost toast.\n   * @type number\n   */\n  const frontmostHeight: '--toast-frontmost-height';\n}"
+      }
+    ]
+  },
+  "ToastViewportDataAttributes": {
+    "description": "Data attributes of [Viewport](#viewport).",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ToastViewportDataAttributes",
+        "source": "declare namespace ToastViewportDataAttributes {\n  /**\n   * Indicates toasts are expanded in the viewport.\n   * @type boolean\n   */\n  const expanded: 'data-expanded';\n}"
+      }
+    ]
+  },
+  "UseToastManagerReturnValue": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "UseToastManagerReturnValue",
+        "source": "type UseToastManagerReturnValue<Data extends {} = any> = {\n  toasts: ToastObject<Data>[];\n  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;\n  close: (toastId?: string) => void;\n  update: <T extends Data = Data>(\n    toastId: string,\n    options:\n      ToastManagerUpdateOptions<T> | ((prevToast: ToastObject<T>) => ToastManagerUpdateOptions<T>),\n  ) => void;\n  promise: <Value, T extends Data = Data>(\n    promise: Promise<Value>,\n    options: ToastManagerPromiseOptions<Value, T>,\n  ) => Promise<Value>;\n};"
+      }
+    ]
+  },
+  "Side": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Side",
+        "source": "type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';"
+      }
+    ]
+  },
+  "Align": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Align",
+        "source": "type Align = 'start' | 'center' | 'end';"
+      }
+    ]
+  },
+  "OffsetFunction": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "OffsetFunction",
+        "source": "type OffsetFunction = (data: {\n  side: 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';\n  align: 'start' | 'center' | 'end';\n  anchor: { width: number; height: number };\n  positioner: { width: number; height: number };\n}) => number;"
+      }
+    ]
+  }
+}
