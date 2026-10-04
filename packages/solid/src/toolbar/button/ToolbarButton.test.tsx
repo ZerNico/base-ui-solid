@@ -1,8 +1,10 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
 import { render, screen, waitFor, describeConformance, isJSDOM } from '#test-utils';
+import { Select } from '../../select';
 import { Toolbar } from '..';
 import { Popover } from '../../popover';
+import { Menu } from '../../menu';
 import { Dialog } from '../../dialog';
 import { AlertDialog } from '../../alert-dialog';
 import { Switch } from '../../switch';
@@ -351,25 +353,293 @@ describe('<Toolbar.Button />', () => {
     });
 
     describe('Menu', () => {
-      // TODO(port): needs <Menu>
-      it.skip('renders a menu trigger', () => {});
+      // Port note: React element render props become Solid render functions.
+      it('renders a menu trigger', async () => {
+        await render(() => (
+          <Toolbar.Root>
+            <Menu.Root>
+              <Toolbar.Button
+                data-testid="button"
+                render={(props) => (
+                  <Menu.Trigger {...(props as Menu.Trigger.Props)}>Toggle</Menu.Trigger>
+                )}
+              />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <Menu>
-      it.skip('handles interactions', () => {});
+        expect(screen.getByTestId('button')).toHaveAttribute('aria-haspopup', 'menu');
+      });
 
-      // TODO(port): needs <Menu>
-      it.skip('disabled state', () => {});
+      it('handles interactions', async () => {
+        const handleOpenChange = vi.fn();
+        const handleClick = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Menu.Root onOpenChange={handleOpenChange}>
+              <Toolbar.Button
+                data-testid="button"
+                onClick={handleClick}
+                render={(props) => (
+                  <Menu.Trigger {...(props as Menu.Trigger.Props)}>Toggle</Menu.Trigger>
+                )}
+              />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByRole('menu')).toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+        expect(handleClick).toHaveBeenCalledTimes(1);
+        expect(handleOpenChange).toHaveBeenCalledTimes(1);
+        expect(screen.queryByRole('menu')).not.toBe(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('item-1')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-3')).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowUp]');
+        await waitFor(() => {
+          expect(screen.getByTestId('item-2')).toHaveFocus();
+        });
+
+        await user.keyboard('[Escape]');
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+
+        expect(handleOpenChange).toHaveBeenCalledTimes(2);
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const handleOpenChange = vi.fn();
+        const handleClick = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Menu.Root onOpenChange={handleOpenChange}>
+              <Toolbar.Button
+                data-testid="button"
+                disabled
+                onClick={handleClick}
+                render={(props) => (
+                  <Menu.Trigger {...(props as Menu.Trigger.Props)}>Toggle</Menu.Trigger>
+                )}
+              />
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item data-testid="item-1">1</Menu.Item>
+                    <Menu.Item data-testid="item-2">2</Menu.Item>
+                    <Menu.Item data-testid="item-3">3</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Toolbar.Root>
+        ));
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+        expect(screen.queryByRole('menu')).toBe(null);
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+
+        expect(handleClick).toHaveBeenCalledTimes(0);
+        expect(handleOpenChange).toHaveBeenCalledTimes(0);
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
     });
 
     describe('Select', () => {
-      // TODO(port): needs <Select>
-      it.skip('renders a select trigger', () => {});
+      it('renders a select trigger', async () => {
+        await render(() => (
+          <Toolbar.Root>
+            <Select.Root defaultValue="a">
+              <Toolbar.Button
+                data-testid="button"
+                render={(props) => <Select.Trigger {...(props as Select.Trigger.Props)} />}
+              />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <Select>
-      it.skip('handles interactions', () => {});
+        const trigger = screen.getByTestId('button');
+        expect(trigger).toBe(screen.getByRole('combobox'));
+        expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+      });
 
-      // TODO(port): needs <Select>
-      it.skip('disabled state', () => {});
+      it.skipIf(!isJSDOM)('handles interactions', async () => {
+        const handleValueChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Select.Root defaultValue="a" onValueChange={handleValueChange}>
+              <Toolbar.Button
+                data-testid="button"
+                render={(props) => <Select.Trigger {...(props as Select.Trigger.Props)} />}
+              />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup">
+                    <Select.Item value="a" data-testid="item-a">
+                      a
+                    </Select.Item>
+                    <Select.Item value="b" data-testid="item-b">
+                      b
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByRole('listbox')).toBe(null);
+
+        const trigger = screen.getByTestId('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard('[ArrowDown]');
+        expect(screen.queryByRole('listbox')).toBe(screen.getByTestId('popup'));
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        expect(handleValueChange).toHaveBeenCalledTimes(1);
+        expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
+      });
+
+      it('disabled state', async () => {
+        // Port note: assert the warning with a Vitest spy instead of React's toErrorDev.
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        try {
+          const onValueChange = vi.fn();
+          const onOpenChange = vi.fn();
+          const { user } = await render(() => (
+            <Toolbar.Root>
+              <Select.Root
+                defaultValue="a"
+                onValueChange={onValueChange}
+                onOpenChange={onOpenChange}
+              >
+                <Toolbar.Button
+                  disabled
+                  render={(props) => (
+                    <Select.Trigger {...(props as Select.Trigger.Props)} nativeButton={false} />
+                  )}
+                />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="a" />
+                      <Select.Item value="b" />
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Toolbar.Root>
+          ));
+
+          expect(screen.queryByRole('listbox')).toBe(null);
+
+          const trigger = screen.getByRole('combobox');
+          expect(trigger).not.toHaveAttribute('disabled');
+          expect(trigger).toHaveAttribute('data-disabled');
+          expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+          await user.keyboard('[Tab]');
+          expect(trigger).toHaveFocus();
+
+          expect(onOpenChange).toHaveBeenCalledTimes(0);
+          expect(onValueChange).toHaveBeenCalledTimes(0);
+
+          await user.keyboard('[ArrowUp]');
+          await user.keyboard('[ArrowDown]');
+          await user.keyboard('[Enter]');
+          await user.keyboard('[Space]');
+
+          expect(onOpenChange).toHaveBeenCalledTimes(0);
+          expect(onValueChange).toHaveBeenCalledTimes(0);
+          expect(errorSpy).toHaveBeenCalledWith(
+            'Base UI: A component that acts as a button expected a non-<button> because ' +
+              'the `nativeButton` prop is false. Rendering a <button> keeps native behavior while Base UI ' +
+              'applies non-native attributes and handlers, which can add unintended extra attributes ' +
+              '(such as `role` or `aria-disabled`). Use a non-<button> in the `render` prop, or set ' +
+              '`nativeButton` to `true`.',
+          );
+        } finally {
+          errorSpy.mockRestore();
+        }
+      });
     });
 
     // Port note: React element render props become render functions.
