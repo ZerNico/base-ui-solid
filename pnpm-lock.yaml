@@ -56,6 +56,9 @@ importers:
       playwright:
         specifier: ^1.63.0
         version: 1.63.0
+      postcss-value-parser:
+        specifier: ^4.2.0
+        version: 4.2.0
       prettier:
         specifier: 3.9.9
         version: 3.9.9
@@ -71,6 +74,9 @@ importers:
       stylelint:
         specifier: 17.15.0
         version: 17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2)
+      stylelint-config-tailwindcss:
+        specifier: 1.0.1
+        version: 1.0.1(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2))(tailwindcss@4.3.3)
       terser:
         specifier: 5.51.2
         version: 5.51.2
@@ -6123,6 +6129,12 @@ packages:
     engines: {node: '>=20.19.0'}
     peerDependencies:
       stylelint: ^17.0.0
+
+  stylelint-config-tailwindcss@1.0.1:
+    resolution: {integrity: sha512-IeIMivgaB1kxPBgllMzBqyv0g61IwFxxZKo/fDDelfZ/JtPPlSBT04VuOCslk6PIaq5GQvdRnHOP1K3HpxSkeg==}
+    peerDependencies:
+      stylelint: '>=13.13.1'
+      tailwindcss: '>=2.2.16'
 
   stylelint@17.15.0:
     resolution: {integrity: sha512-mWIkesYQvQjf4Kvdeu9ns0IL8/K/wtjaGxPqsPd6DlLZvaQxGysJsocxUDrBcyHQ5VleAk4uSMat4yMrVED7PA==}
@@ -13477,6 +13489,11 @@ snapshots:
     dependencies:
       stylelint: 17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2)
       stylelint-config-recommended: 18.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2))
+
+  stylelint-config-tailwindcss@1.0.1(stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2))(tailwindcss@4.3.3):
+    dependencies:
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2)
+      tailwindcss: 4.3.3
 
   stylelint@17.15.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2):
     dependencies:

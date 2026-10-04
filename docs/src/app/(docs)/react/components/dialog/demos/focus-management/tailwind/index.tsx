@@ -39,7 +39,7 @@ export default function ExampleDialog() {
                 <Field.Label class="text-sm font-normal">Feedback</Field.Label>
                 <Field.Control
                   ref={(element) => {
-                    initialFocusRef.current = element;
+                    initialFocusRef.current = element as HTMLInputElement;
                   }}
                   required
                   placeholder="Enter your feedback"
