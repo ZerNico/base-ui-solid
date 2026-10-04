@@ -8,6 +8,7 @@ import './Search.css';
 import '../GhostButton.css';
 import '../SearchTrigger.css';
 import '../MobileNav.css';
+import { RouterLink } from '../RouterLink';
 
 type Group = { group: string; items: SearchResult[] };
 type Engine = {
@@ -141,7 +142,7 @@ export function SearchDialog(props: { mobileTriggerClass?: string } = {}) {
                                       value={result}
                                       class="SearchOptionItem"
                                       render={(itemProps) => (
-                                        <a
+                                        <RouterLink
                                           {...itemProps}
                                           href={engine?.buildResultUrl(result)}
                                           tabindex="-1"

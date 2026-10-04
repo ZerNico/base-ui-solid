@@ -3,6 +3,7 @@ import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useLocation } from '@tanstack/solid-router';
 import { ScrollArea } from 'base-ui-solid/scroll-area';
 import './SideNav.css';
+import { RouterLink } from './RouterLink';
 
 export function Root(props: JSX.IntrinsicElements['div']) {
   return (
@@ -55,14 +56,14 @@ export function Item(props: { href: string; children?: JSX.Element }) {
         item = element;
       }}
     >
-      <a
+      <RouterLink
         class="SideNavLink"
         href={props.href}
         data-active={location().pathname === props.href || undefined}
         aria-current={location().pathname === props.href ? 'page' : undefined}
       >
         {props.children}
-      </a>
+      </RouterLink>
     </li>
   );
 }

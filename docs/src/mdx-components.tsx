@@ -4,6 +4,7 @@ import './components/Link.css';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { CodeBlock } from './components/CodeBlock/CodeBlock';
 import * as QuickNav from './components/QuickNav/QuickNav';
+import { RouterLink } from './components/RouterLink';
 
 function Heading(props: {
   as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -39,7 +40,7 @@ export const mdxComponents = {
   h5: (props: JSX.IntrinsicElements['h5']) => <Heading {...props} as="h5" />,
   h6: (props: JSX.IntrinsicElements['h6']) => <Heading {...props} as="h6" />,
   p: (props: JSX.IntrinsicElements['p']) => <p {...props} class="MdP" />,
-  a: (props: JSX.IntrinsicElements['a']) => <a {...props} class="Link MdLink" />,
+  a: (props: JSX.IntrinsicElements['a']) => <RouterLink {...props} class="Link MdLink" />,
   code: (props: JSX.IntrinsicElements['code']) => (
     <code {...props} class={['Code', 'MdCode', props.class]} />
   ),

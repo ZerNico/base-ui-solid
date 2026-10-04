@@ -2,6 +2,7 @@ import { SearchDialog } from './Search/SearchDialog';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
 import './Header.css';
+import { RouterLink } from './RouterLink';
 
 export const HEADER_HEIGHT_DESKTOP = 64;
 export function Header() {
@@ -9,9 +10,9 @@ export function Header() {
     <header class="Header">
       <div class="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
-        <a class="HeaderLogoLink" href="/" aria-label="Go to the homepage">
+        <RouterLink class="HeaderLogoLink" href="/" aria-label="Go to the homepage">
           <Logo aria-label="Base UI Solid" />
-        </a>
+        </RouterLink>
         <div class="HeaderSearch">
           <SearchDialog />
         </div>

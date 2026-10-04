@@ -1,10 +1,11 @@
 import type { JSX } from '@solidjs/web';
 import '../../components/Link.css';
 import { omit, Show } from 'solid-js';
-// Port note: native links preserve upstream hrefs without Next.js routing.
+import { RouterLink } from '../../components/RouterLink';
+
 export function Link(props: JSX.IntrinsicElements['a'] & { withArrow?: boolean }) {
   return (
-    <a {...omit(props, 'withArrow', 'children', 'class')} class={['Link', props.class]}>
+    <RouterLink {...omit(props, 'withArrow', 'children', 'class')} class={['Link', props.class]}>
       {props.children}
       <Show when={props.withArrow}>
         <svg
@@ -22,6 +23,6 @@ export function Link(props: JSX.IntrinsicElements['a'] & { withArrow?: boolean }
           <path class="LinkArrowLine" d="M2 8L13 8" />
         </svg>
       </Show>
-    </a>
+    </RouterLink>
   );
 }
