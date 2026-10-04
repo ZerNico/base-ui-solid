@@ -2,7 +2,8 @@ import { createSignal, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../internals/useImperativeHandle';
 import { createGenericEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIGenericEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
@@ -108,21 +109,7 @@ export function Form<FormValues extends Record<string, any> = Record<string, any
       }
     },
   };
-  // Port note: React's `useImperativeHandle` assigns the handle before ancestors' effects run.
-  // Solid runs ancestors' effects first, so also assign it synchronously on setup.
-  const initialActionsRef = untrack(() => componentProps.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (actionsRef) {
-        actionsRef.current = actions;
-      }
-    },
-    () => [componentProps.actionsRef],
-  );
+  useImperativeHandle(() => componentProps.actionsRef, actions);
 
   const clearErrors = (name: string | undefined) => {
     if (!name) {
@@ -207,7 +194,7 @@ export interface FormState {}
 
 export interface FormProps<
   FormValues extends Record<string, any> = Record<string, any>,
-> extends Omit<BaseUIComponentProps<'form', FormState>, 'onSubmit'> {
+> extends Omit<BaseUIComponentProps<'form', FormState, JSX.IntrinsicElements['form']>, 'onSubmit'> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.

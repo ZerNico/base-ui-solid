@@ -132,7 +132,10 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
 
   const [value, setValueUnwrapped] = useControlled<number | null>({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue) ?? null,
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue ?? null;
+    },
     name: 'NumberField',
     state: 'value',
   });

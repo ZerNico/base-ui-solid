@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import {
   FloatingNode,
   FloatingTree,
@@ -259,20 +260,7 @@ export function NavigationMenuRoot<Value = any>(
     unmount: handleUnmount,
     close: () => setValue(null, createChangeEventDetails(REASONS.imperativeAction)),
   };
-  // Port note: React's `useImperativeHandle` assigns the handle before ancestors' effects run.
-  // Solid runs ancestors' effects first, so also assign it synchronously on setup.
-  const initialActionsRef = untrack(() => componentProps.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (actionsRef) {
-        actionsRef.current = actions;
-      }
-    },
-    () => [componentProps.actionsRef],
-  );
+  useImperativeHandle(() => componentProps.actionsRef, actions);
 
   const contextActivationDirection = () => (open() ? activationDirection() : null);
 

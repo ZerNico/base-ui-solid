@@ -21,3 +21,4 @@ export { useTestInteractions } from './useTestInteractions';
 export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
 export { describeGregorianAdapter } from './describeGregorianAdapter';
+export { renderWithErrorBoundary } from './renderWithErrorBoundary';

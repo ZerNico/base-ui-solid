@@ -1,6 +1,5 @@
-import { expect, vi, describe, it } from 'vitest';
-import { Show, createSignal, flush } from 'solid-js';
 import {
+  renderWithErrorBoundary,
   createRenderer,
   describeConformance,
   fireEvent,
@@ -9,6 +8,8 @@ import {
   screen,
   waitFor,
 } from '#test-utils';
+import { expect, vi, describe, it } from 'vitest';
+import { Show, createSignal, flush } from 'solid-js';
 import { ScrollArea } from '..';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
@@ -29,19 +30,9 @@ describe('<ScrollArea.Thumb />', () => {
 
   it('throws a descriptive error when rendered outside <ScrollArea.Scrollbar>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Port note: when a part throws below another part's element, Solid rethrows the error that
-    // `render` rejects with once more as an uncaught error (the browser reports it through
-    // `window`'s `error` event). Swallow that duplicate report only.
-    const handleWindowError = (event: ErrorEvent) => {
-      if (event.message.includes('ScrollAreaScrollbarContext is missing')) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('error', handleWindowError);
-
     try {
       await expect(
-        render(() => (
+        renderWithErrorBoundary(render, () => (
           <ScrollArea.Root>
             <ScrollArea.Thumb />
           </ScrollArea.Root>
@@ -49,11 +40,7 @@ describe('<ScrollArea.Thumb />', () => {
       ).rejects.toThrow(
         'Base UI: ScrollAreaScrollbarContext is missing. ScrollAreaScrollbar parts must be placed within <ScrollArea.Scrollbar>.',
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve);
-      });
     } finally {
-      window.removeEventListener('error', handleWindowError);
       errorSpy.mockRestore();
     }
   });

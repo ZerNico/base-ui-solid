@@ -71,7 +71,10 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
 
   const [checkedValue, setCheckedValueUnwrapped] = useControlled<Value | undefined>({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue),
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue;
+    },
     name: 'RadioGroup',
     state: 'value',
   });

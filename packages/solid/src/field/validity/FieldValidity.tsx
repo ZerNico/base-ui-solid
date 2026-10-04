@@ -31,7 +31,12 @@ export function FieldValidity(props: FieldValidity.Props): JSX.Element {
 
   const stateView = merge(fieldValidityState) as FieldValidityState;
 
-  return <>{untrack(() => props.children(stateView))}</>;
+  // Port note: track callback replacement while its state proxy keeps JSX reads reactive.
+  const rendered = createMemo(() => {
+    const callback = props.children;
+    return untrack(() => callback(stateView));
+  });
+  return <>{rendered()}</>;
 }
 
 export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {

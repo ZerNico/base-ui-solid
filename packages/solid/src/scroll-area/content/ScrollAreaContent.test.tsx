@@ -1,7 +1,14 @@
+import {
+  renderWithErrorBoundary,
+  describeConformance,
+  isJSDOM,
+  render,
+  screen,
+  waitFor,
+} from '#test-utils';
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal, flush, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { describeConformance, isJSDOM, render, screen, waitFor } from '#test-utils';
 import { ScrollArea } from '..';
 
 // Port note: Solid doesn't append `px` to numeric style values, so sizes are passed as strings.
@@ -19,19 +26,9 @@ describe('<ScrollArea.Content />', () => {
 
   it('throws a descriptive error when rendered outside <ScrollArea.Viewport>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Port note: when a part throws below another part's element, Solid rethrows the error that
-    // `render` rejects with once more as an uncaught error (the browser reports it through
-    // `window`'s `error` event). Swallow that duplicate report only.
-    const handleWindowError = (event: ErrorEvent) => {
-      if (event.message.includes('ScrollAreaViewportContext missing')) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('error', handleWindowError);
-
     try {
       await expect(
-        render(() => (
+        renderWithErrorBoundary(render, () => (
           <ScrollArea.Root>
             <ScrollArea.Content />
           </ScrollArea.Root>
@@ -39,11 +36,7 @@ describe('<ScrollArea.Content />', () => {
       ).rejects.toThrow(
         'Base UI: ScrollAreaViewportContext missing. ScrollAreaViewport parts must be placed within <ScrollArea.Viewport>.',
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve);
-      });
     } finally {
-      window.removeEventListener('error', handleWindowError);
       errorSpy.mockRestore();
     }
   });

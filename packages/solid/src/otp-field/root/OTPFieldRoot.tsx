@@ -104,7 +104,10 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<string>({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue) ?? '',
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue ?? '';
+    },
     name: 'OTPField',
     state: 'value',
   });

@@ -164,7 +164,10 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
         ? currentGroupValue.includes(currentValue)
         : groupChecked();
     },
-    default: untrack(() => componentProps.defaultChecked) ?? false,
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultChecked ?? false;
+    },
     name: 'Checkbox',
     state: 'checked',
   });

@@ -63,7 +63,10 @@ export function AccordionRoot<Value = any>(
 
   const [value, setValue] = useControlled<AccordionRoot.Value<Value>>({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue) ?? (EMPTY_ARRAY as Value[]),
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue ?? (EMPTY_ARRAY as Value[]);
+    },
     name: 'Accordion',
     state: 'value',
   });

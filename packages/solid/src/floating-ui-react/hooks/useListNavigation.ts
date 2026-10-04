@@ -273,7 +273,7 @@ export function useListNavigation(
   props: UseListNavigationProps,
 ): UseListNavigationReturn {
   // Port note: the options are read lazily (see `UseListNavigationProps`).
-  const listRef = props.listRef;
+  const listRef = () => props.listRef;
   const activeIndex = () => props.activeIndex;
   const onNavigateProp = (
     index: number | null,
@@ -378,7 +378,7 @@ export function useListNavigation(
       }
     }
 
-    const initialItem = listRef.current[indexRef];
+    const initialItem = listRef().current[indexRef];
     const forceScrollIntoView = forceScrollIntoViewRef;
 
     if (initialItem) {
@@ -390,7 +390,7 @@ export function useListNavigation(
       : (callback: () => void) => focusFrame.request(callback);
 
     scheduler(() => {
-      const waitedItem = listRef.current[indexRef] || initialItem;
+      const waitedItem = listRef().current[indexRef] || initialItem;
 
       if (!waitedItem) {
         return;
@@ -504,7 +504,7 @@ export function useListNavigation(
         ) {
           let runs = 0;
           const waitForListPopulated = () => {
-            if (listRef.current[0] == null) {
+            if (listRef().current[0] == null) {
               // Avoid letting the browser paint if possible on the first try,
               // otherwise use rAF. Don't try more than twice, since something
               // is wrong otherwise.
@@ -525,8 +525,8 @@ export function useListNavigation(
                 keyRef == null ||
                 isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
                 nestedValue
-                  ? getMinListIndex(listRef)
-                  : getMaxListIndex(listRef);
+                  ? getMinListIndex(listRef())
+                  : getMaxListIndex(listRef());
               keyRef = null;
               onNavigate();
             }
@@ -534,7 +534,7 @@ export function useListNavigation(
 
           waitForListPopulated();
         }
-      } else if (!isIndexOutOfListBounds(listRef.current, activeIndexValue)) {
+      } else if (!isIndexOutOfListBounds(listRef().current, activeIndexValue)) {
         indexRef = activeIndexValue;
         focusItem();
         forceScrollIntoViewRef = false;
@@ -548,6 +548,7 @@ export function useListNavigation(
       nested(),
       triggerOrientation(),
       rtl(),
+      listRef(),
     ],
   );
 
@@ -598,7 +599,7 @@ export function useListNavigation(
       return;
     }
 
-    const index = listRef.current.indexOf(event.currentTarget as HTMLElement);
+    const index = listRef().current.indexOf(event.currentTarget as HTMLElement);
     if (index !== -1 && (indexRef !== index || activeIndex() !== index)) {
       indexRef = index;
       onNavigate(event);
@@ -614,7 +615,7 @@ export function useListNavigation(
   };
 
   const getMinEnabledIndex = () => {
-    return getMinListIndex(listRef, disabledIndicesRef.current);
+    return getMinListIndex(listRef(), disabledIndicesRef.current);
   };
 
   const commonOnKeyDown = (event: KeyboardEvent) => {
@@ -666,14 +667,14 @@ export function useListNavigation(
     if (
       activeIndexValue != null &&
       activeIndexValue !== indexRef &&
-      !isIndexOutOfListBounds(listRef.current, activeIndexValue)
+      !isIndexOutOfListBounds(listRef().current, activeIndexValue)
     ) {
       indexRef = activeIndexValue;
     }
 
     const currentIndex = indexRef;
-    const minIndex = getMinListIndex(listRef, disabledIndicesValue);
-    const maxIndex = getMaxListIndex(listRef, disabledIndicesValue);
+    const minIndex = getMinListIndex(listRef(), disabledIndicesValue);
+    const maxIndex = getMaxListIndex(listRef(), disabledIndicesValue);
 
     if (!typeableComboboxReference()) {
       if (event.key === 'Home') {
@@ -696,7 +697,7 @@ export function useListNavigation(
       const index = navigateGridValue(
         event,
         indexRef,
-        listRef,
+        listRef(),
         orientationValue,
         loopFocusValue,
         rtlValue,
@@ -729,7 +730,7 @@ export function useListNavigation(
         open() &&
         !virtual() &&
         contains(currentTarget, focusedElement) &&
-        !listRef.current.some((item) => item != null && contains(item, focusedElement))
+        !listRef().current.some((item) => item != null && contains(item, focusedElement))
       ) {
         indexRef = isMainOrientationToEndKey(event.key, orientationValue, rtlValue)
           ? minIndex
@@ -738,7 +739,7 @@ export function useListNavigation(
         return;
       }
 
-      const { index, wrapped } = getNextListIndex(listRef.current, currentIndex, {
+      const { index, wrapped } = getNextListIndex(listRef().current, currentIndex, {
         decrement: !isMainOrientationToEndKey(event.key, orientationValue, rtlValue),
         loopFocus: loopFocusValue,
         allowEscape: allowEscape(),
@@ -768,7 +769,7 @@ export function useListNavigation(
       return;
     }
 
-    const list = listRef.current;
+    const list = listRef().current;
 
     if (target === 'none') {
       // A focus move from an earlier call may still be queued for the next frame. Cancel it
@@ -802,8 +803,8 @@ export function useListNavigation(
     }
 
     const disabled = disabledIndicesRef.current;
-    const minIndex = getMinListIndex(listRef, disabled);
-    const maxIndex = getMaxListIndex(listRef, disabled);
+    const minIndex = getMinListIndex(listRef(), disabled);
+    const maxIndex = getMaxListIndex(listRef(), disabled);
     const currentIndex = indexRef;
     const decrement = target === 'previous';
 
@@ -873,7 +874,7 @@ export function useListNavigation(
 
       const relatedTarget = event.relatedTarget as HTMLElement | null;
 
-      if (!focusItemOnHover() || listRef.current.includes(relatedTarget)) {
+      if (!focusItemOnHover() || listRef().current.includes(relatedTarget)) {
         return;
       }
 

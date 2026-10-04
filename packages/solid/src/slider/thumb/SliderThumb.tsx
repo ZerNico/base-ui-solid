@@ -121,8 +121,8 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
     'style',
   );
 
-  // Port note: upstream re-derives the id from `idProp` on every render; it's read once here.
-  const id = useBaseUiId(untrack(() => componentProps.id) as string | undefined);
+  const generatedId = useBaseUiId();
+  const id = () => componentProps.id ?? generatedId;
 
   const {
     active: activeIndex,
@@ -568,7 +568,7 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
       thumbChildren,
       {
         [SliderThumbDataAttributes.index]: index(),
-        id,
+        id: id(),
         onPointerDown(event: PointerEvent) {
           // Keep disabled thumbs from writing transient pointer state.
           if (untrack(disabled)) {

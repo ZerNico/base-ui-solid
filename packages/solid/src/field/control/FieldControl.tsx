@@ -74,7 +74,10 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
 
   const [valueUnwrapped] = useControlled({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue),
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue;
+    },
     name: 'FieldControl',
     state: 'value',
   });
@@ -176,10 +179,10 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
             validation.change(inputValue);
           }
         },
-        onFocus() {
+        onFocusIn() {
           setFocused(true);
         },
-        onBlur(event: FocusEvent) {
+        onFocusOut(event: FocusEvent) {
           setTouched(true);
           setFocused(false);
 
@@ -232,17 +235,27 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
   });
 }
 
+// Port note: React refs are bivariant. Keep custom HTMLElement callback refs compatible while
+// retaining Solid's element and composed-ref forms, without allowing arbitrary ref values.
+type FieldControlRef =
+  | HTMLElement
+  | { bivarianceHack(element: HTMLElement): void }['bivarianceHack']
+  | FieldControlRef[];
+
 export interface FieldControlState extends FieldRootState {}
 
 export interface FieldControlProps extends Omit<
   BaseUIComponentProps<'input', FieldControlState>,
-  'value'
+  'value' | 'ref'
 > {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?:
     ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void) | undefined;
+  // Port note: upstream forwards HTMLElement refs, including custom textarea controls. Solid's
+  // native input ref type is narrower, so allow the custom render's element here too.
+  ref?: FieldControlRef | undefined;
   defaultValue?: string | number | string[] | undefined;
   value?: string | number | string[] | undefined;
 }

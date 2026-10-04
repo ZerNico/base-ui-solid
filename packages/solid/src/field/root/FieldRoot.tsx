@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import {
   DEFAULT_VALIDITY_STATE,
@@ -157,21 +158,7 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
   });
 
   const actions: FieldRoot.Actions = { validate: validateFieldControl };
-  // Port note: React's `useImperativeHandle` assigns the handle before ancestors' effects run.
-  // Solid runs ancestors' effects first, so also assign it synchronously on setup.
-  const initialActionsRef = untrack(() => componentProps.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (actionsRef) {
-        actionsRef.current = actions;
-      }
-    },
-    () => [componentProps.actionsRef],
-  );
+  useImperativeHandle(() => componentProps.actionsRef, actions);
 
   const contextValue: FieldRootContext = {
     invalid,

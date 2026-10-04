@@ -1,8 +1,8 @@
+import { renderWithErrorBoundary, createRenderer, describeConformance, screen } from '#test-utils';
 import { createSignal, flush } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
 import { Toast } from 'base-ui-solid/toast';
-import { createRenderer, describeConformance, screen } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
 
 const toast = {
@@ -26,19 +26,9 @@ describe('<Toast.Title />', () => {
 
   it('throws a descriptive error when rendered outside <Toast.Root>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Port note: when a part throws below another element, Solid rethrows the error that `render`
-    // rejects with once more as an uncaught error (reported through `window`'s `error` event).
-    // Swallow that duplicate report only.
-    const handleWindowError = (event: ErrorEvent) => {
-      if (event.message.includes('ToastRootContext is missing')) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('error', handleWindowError);
-
     try {
       await expect(
-        render(() => (
+        renderWithErrorBoundary(render, () => (
           <Toast.Provider>
             <Toast.Viewport>
               <Toast.Title />
@@ -48,11 +38,7 @@ describe('<Toast.Title />', () => {
       ).rejects.toThrow(
         'Base UI: ToastRootContext is missing. Toast parts must be used within <Toast.Root>.',
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve);
-      });
     } finally {
-      window.removeEventListener('error', handleWindowError);
       errorSpy.mockRestore();
     }
   });

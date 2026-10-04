@@ -11,11 +11,14 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen = false, onOpenChange, disabled } = parameters;
+  const { open: openParam, onOpenChange, disabled } = parameters;
 
   const [open, setOpen] = useControlled({
     controlled: openParam,
-    default: defaultOpen,
+    // Port note: forward the reactive default for upstream's warning without resetting state.
+    get default() {
+      return parameters.defaultOpen ?? false;
+    },
     name: 'Collapsible',
     state: 'open',
   });

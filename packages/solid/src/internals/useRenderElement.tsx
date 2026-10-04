@@ -2,6 +2,7 @@ import { createMemo, merge, onCleanup, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { dynamic, isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
+import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
@@ -41,7 +42,11 @@ export function useRenderElement<
   // Port note: `element` may be an accessor (used by `useRender`'s `defaultTagName`), in which case
   // the element is recreated when it changes and no `render` prop is provided.
   const readElement: Accessor<TagName> = typeof element === 'function' ? element : () => element;
-  const { ref } = params;
+  // Port note: internal refs reconcile replacements and detach with React semantics.
+  const internalRef = useMergedRefs<Element>(
+    () => params.ref,
+    () => undefined,
+  );
   const stateParam = params.state;
 
   const readState: () => State =
@@ -70,7 +75,7 @@ export function useRenderElement<
   const refCallback = (node: Element) =>
     untrack(() => {
       applyRefs(computed().ref, node);
-      applyRefs(ref, node);
+      internalRef(node);
     });
 
   const outProps = merge(() => computed().props, {
@@ -103,12 +108,12 @@ export function useRenderElement<
     // neither does this cleanup (it would write signals during the server render's disposal).
     // When the element is recreated, the previous run's cleanup only runs after the new element
     // has attached its refs, so it skips its `null` call then: it would detach the new element.
-    if (ref && !isServer) {
+    if (!isServer) {
       renderCount += 1;
       const currentRender = renderCount;
       onCleanup(() => {
         if (currentRender === renderCount) {
-          untrack(() => applyRefs(ref, null));
+          untrack(() => internalRef(null));
         }
       });
     }

@@ -62,7 +62,10 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
   const [pressed, setPressedState] = useControlled({
     controlled: () =>
       groupContext ? groupContext.value().indexOf(value()) > -1 : componentProps.pressed,
-    default: untrack(() => componentProps.defaultPressed) ?? false,
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultPressed ?? false;
+    },
     name: 'Toggle',
     state: 'pressed',
   });

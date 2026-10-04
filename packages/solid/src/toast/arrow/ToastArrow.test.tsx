@@ -1,7 +1,14 @@
+import {
+  renderWithErrorBoundary,
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  screen,
+  waitFor,
+} from '#test-utils';
 import { For } from 'solid-js';
 import { expect, vi, describe, it } from 'vitest';
 import { Toast } from 'base-ui-solid/toast';
-import { createRenderer, describeConformance, isJSDOM, screen, waitFor } from '#test-utils';
 
 const toast: Toast.Root.ToastObject = {
   id: 'test',
@@ -78,19 +85,9 @@ describe('<Toast.Arrow />', () => {
 
   it('throws a descriptive error when rendered outside <Toast.Positioner>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Port note: when a part throws below another element, Solid rethrows the error that `render`
-    // rejects with once more as an uncaught error (reported through `window`'s `error` event).
-    // Swallow that duplicate report only.
-    const handleWindowError = (event: ErrorEvent) => {
-      if (event.message.includes('ToastPositionerContext is missing')) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('error', handleWindowError);
-
     try {
       await expect(
-        render(() => (
+        renderWithErrorBoundary(render, () => (
           <Toast.Provider>
             <Toast.Arrow />
           </Toast.Provider>
@@ -98,11 +95,7 @@ describe('<Toast.Arrow />', () => {
       ).rejects.toThrow(
         'Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>.',
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve);
-      });
     } finally {
-      window.removeEventListener('error', handleWindowError);
       errorSpy.mockRestore();
     }
   });

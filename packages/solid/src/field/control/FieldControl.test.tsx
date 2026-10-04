@@ -202,7 +202,9 @@ describe('<Field.Control />', () => {
 
     const control = screen.getByRole('textbox');
     await change(control, 'foo ');
+    // Port note: React blur bubbles; dispatch its native focusout counterpart as well.
     fireEvent.blur(control);
+    fireEvent.focusOut(control);
 
     await flushMicrotasks();
 
@@ -237,7 +239,9 @@ describe('<Field.Control />', () => {
 
     const control = screen.getByRole('textbox');
     await change(control, 'foo ');
+    // Port note: React blur bubbles; dispatch its native focusout counterpart as well.
     fireEvent.blur(control);
+    fireEvent.focusOut(control);
 
     await flushMicrotasks();
 
@@ -275,7 +279,9 @@ describe('<Field.Control />', () => {
 
     const control = screen.getByRole('textbox');
     await change(control, 'foo');
+    // Port note: React blur bubbles; dispatch its native focusout counterpart as well.
     fireEvent.blur(control);
+    fireEvent.focusOut(control);
 
     await flushMicrotasks();
 

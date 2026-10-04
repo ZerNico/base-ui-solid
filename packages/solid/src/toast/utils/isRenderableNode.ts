@@ -15,16 +15,28 @@ export function isRenderableNode(node: JSX.Element): boolean {
 }
 
 /**
- * Port note: upstream inspects the `children` prop of the evaluated React element. Solid renders
- * the element directly, so this inspects the rendered DOM element's child nodes instead (elements
- * and non-empty text count as content).
+ * Port note: Solid resolves custom renders to DOM nodes, fragment arrays, or server markup.
+ * Inspect the children of each root, preserving childless styling renders on both platforms.
  */
 export function hasRenderableChildren(element: JSX.Element): boolean {
-  return (
-    typeof Element !== 'undefined' &&
-    element instanceof Element &&
-    Array.from(element.childNodes).some(
-      (child) => child instanceof Element || (child instanceof Text && child.data !== ''),
-    )
-  );
+  if (Array.isArray(element)) {
+    return element.some(hasRenderableChildren);
+  }
+  if (typeof Element !== 'undefined' && element instanceof Element) {
+    return Array.from(element.childNodes).some(
+      (child) => child.nodeType === 1 || (child.nodeType === 3 && child.textContent !== ''),
+    );
+  }
+  // Port note: server JSX is Solid's serialized `{ t }` representation. Remove hydration
+  // comments before inspecting root contents; no DOM globals are available during SSR.
+  if (element && typeof element === 'object' && 't' in element) {
+    const template = (element as { t: string | string[] }).t;
+    const html = (Array.isArray(template) ? template.join('') : template).replace(
+      /<!--[\s\S]*?-->/g,
+      '',
+    );
+    const roots = html.matchAll(/<([\w:-]+)\b[^>]*>([\s\S]*?)<\/\1\s*>/g);
+    return Array.from(roots).some((root) => root[2] !== '');
+  }
+  return false;
 }

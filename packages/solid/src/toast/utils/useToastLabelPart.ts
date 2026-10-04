@@ -1,4 +1,4 @@
-import { children as resolveChildren, createMemo } from 'solid-js';
+import { children as resolveChildren, createMemo, createSignal } from 'solid-js';
 import type { Accessor, Setter } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useId } from '@base-ui-solid/utils/useId';
@@ -81,7 +81,30 @@ export function useRenderableContent(
   content: Accessor<JSX.Element>,
   render: Accessor<unknown>,
 ): Accessor<boolean> {
+  // Port note: DOM children can update without changing the custom render's root identity.
+  // Observe even detached roots so empty content can become visible again.
+  const [revision, setRevision] = createSignal(0);
+  useIsoLayoutEffect(
+    ([node, renderValue]) => {
+      if (typeof renderValue !== 'function' || typeof MutationObserver === 'undefined') {
+        return undefined;
+      }
+      const observer = new MutationObserver(() => setRevision((value) => value + 1));
+      const observe = (value: JSX.Element) => {
+        if (Array.isArray(value)) {
+          value.forEach(observe);
+        } else if (typeof Node !== 'undefined' && value instanceof Node) {
+          observer.observe(value, { childList: true, characterData: true, subtree: true });
+        }
+      };
+      observe(node);
+      setRevision((value) => value + 1);
+      return () => observer.disconnect();
+    },
+    () => [resolvedElement(), render()],
+  );
   return createMemo(() => {
+    revision();
     const contentValue = content();
     const node = resolvedElement();
     if (typeof render() !== 'function') {

@@ -91,7 +91,10 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
 
   const [checked, setCheckedState] = useControlled({
     controlled: () => componentProps.checked,
-    default: Boolean(untrack(() => componentProps.defaultChecked)),
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return Boolean(componentProps.defaultChecked);
+    },
     name: 'Switch',
     state: 'checked',
   });

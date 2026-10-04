@@ -28,12 +28,16 @@ import { Switch } from '../../switch';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 
 async function focus(element: HTMLElement) {
+  // Port note: React focus bubbles; dispatch its native focusin counterpart as well.
   fireEvent.focus(element);
+  fireEvent.focusIn(element);
   await flushMicrotasks();
 }
 
 async function blur(element: HTMLElement) {
+  // Port note: React blur bubbles; dispatch its native focusout counterpart as well.
   fireEvent.blur(element);
+  fireEvent.focusOut(element);
   await flushMicrotasks();
 }
 

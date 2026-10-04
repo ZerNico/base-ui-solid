@@ -13,7 +13,9 @@ async function focus(element: HTMLElement) {
 }
 
 async function blur(element: HTMLElement) {
+  // Port note: React blur bubbles; dispatch its native focusout counterpart as well.
   fireEvent.blur(element);
+  fireEvent.focusOut(element);
   await flushMicrotasks();
 }
 

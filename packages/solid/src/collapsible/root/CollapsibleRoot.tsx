@@ -1,4 +1,4 @@
-import { createMemo, omit, untrack } from 'solid-js';
+import { createMemo, omit } from 'solid-js';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
@@ -32,7 +32,9 @@ export function CollapsibleRoot(componentProps: CollapsibleRoot.Props) {
 
   const collapsible = useCollapsibleRoot({
     open: () => componentProps.open,
-    defaultOpen: untrack(() => componentProps.defaultOpen) ?? false,
+    get defaultOpen() {
+      return componentProps.defaultOpen ?? false;
+    },
     onOpenChange,
     disabled: () => componentProps.disabled ?? false,
   });

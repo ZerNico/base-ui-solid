@@ -1,8 +1,5 @@
-import { expect, vi, describe, it } from 'vitest';
-import { createEffect, createSignal, flush, omit } from 'solid-js';
-import type { JSX } from '@solidjs/web';
-import { Tabs } from 'base-ui-solid/tabs';
 import {
+  renderWithErrorBoundary,
   describeConformance,
   fireEvent,
   flushMicrotasks,
@@ -10,6 +7,10 @@ import {
   render,
   screen,
 } from '#test-utils';
+import { expect, vi, describe, it } from 'vitest';
+import { createEffect, createSignal, flush, omit } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Tabs } from 'base-ui-solid/tabs';
 
 // Port note: upstream recreates a merged host ref on every React render. Solid components don't
 // re-render, so this component composes the forwarded ref with an internal one once.
@@ -104,19 +105,9 @@ describe('<Tabs.Tab />', () => {
 
   it('throws a descriptive error when rendered outside <Tabs.List>', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    // Port note: when a part throws below another part's element, Solid rethrows the error that
-    // `render` rejects with once more as an uncaught error (the browser reports it through
-    // `window`'s `error` event). Swallow that duplicate report only.
-    const handleWindowError = (event: ErrorEvent) => {
-      if (event.message.includes('TabsListContext is missing')) {
-        event.preventDefault();
-      }
-    };
-    window.addEventListener('error', handleWindowError);
-
     try {
       await expect(
-        render(() => (
+        renderWithErrorBoundary(render, () => (
           <Tabs.Root>
             <Tabs.Tab value="1" />
           </Tabs.Root>
@@ -124,11 +115,7 @@ describe('<Tabs.Tab />', () => {
       ).rejects.toThrow(
         'Base UI: TabsListContext is missing. TabsList parts must be placed within <Tabs.List>.',
       );
-      await new Promise((resolve) => {
-        setTimeout(resolve);
-      });
     } finally {
-      window.removeEventListener('error', handleWindowError);
       errorSpy.mockRestore();
     }
   });

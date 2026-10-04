@@ -57,7 +57,10 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
 
   const [value, setValueUnwrapped] = useControlled<string[]>({
     controlled: () => componentProps.value,
-    default: untrack(() => componentProps.defaultValue) ?? EMPTY_ARRAY,
+    // Port note: keep the default reactive for upstream's development warning; state initializes once.
+    get default() {
+      return componentProps.defaultValue ?? EMPTY_ARRAY;
+    },
     name: 'CheckboxGroup',
     state: 'value',
   });
