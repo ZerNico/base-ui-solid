@@ -532,8 +532,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
           // Restore focus to the previously focused tabbable element to prevent
           // focus from being lost outside the floating tree.
+          // Port note: WebKit blurs the focused element when a kept-mounted popup is hidden on
+          // close. Restoring focus into the closed popup is meaningless, and its deferred
+          // re-focus would land after a quick reopen and steal the initial focus.
           if (
             restoreFocusValue &&
+            openRef.current &&
             currentTarget !== domReferenceValue &&
             !isElementVisible(target) &&
             activeElement(doc) === doc.body
