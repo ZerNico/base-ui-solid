@@ -1,3 +1,4 @@
+import { createEvent } from '@solidjs/testing-library';
 import {
   act,
   createRenderer,
@@ -49,6 +50,23 @@ describe('<Drawer.Viewport />', () => {
       });
     }
     return point;
+  }
+  // Port note: these upstream gestures rely on fast-swipe velocity. React's fireEvent
+  // flushes act work between events; Solid's synchronous dispatch can give every event the
+  // same timestamp, making useSwipeDismiss correctly report zero velocity. Give the synthetic
+  // gesture a fixed fast timeline without changing its coordinates or assertions.
+  function fireTimedTouch(
+    type: 'touchStart' | 'touchMove' | 'touchEnd',
+    target: HTMLElement,
+    init: {
+      touches?: ReturnType<typeof createTouch>[];
+      changedTouches?: ReturnType<typeof createTouch>[];
+    },
+    timeStamp: number,
+  ) {
+    const event = createEvent[type](target, init);
+    Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+    return fireEvent(target, event);
   }
   function setHeight(element: HTMLElement | null, value: number) {
     if (element) {
@@ -563,18 +581,28 @@ describe('<Drawer.Viewport />', () => {
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => target;
       try {
-        fireEvent.touchStart(target, {
-          touches: [createTouch(target, { clientX: 100, clientY: 100 })],
-        });
-        return points.map((point) =>
-          fireEvent.touchMove(target, { touches: [createTouch(target, point)] }),
+        fireTimedTouch(
+          'touchStart',
+          target,
+          {
+            touches: [createTouch(target, { clientX: 100, clientY: 100 })],
+          },
+          1000,
+        );
+        return points.map((point, index) =>
+          fireTimedTouch(
+            'touchMove',
+            target,
+            { touches: [createTouch(target, point)] },
+            1010 + index * 10,
+          ),
         );
       } finally {
         document.elementFromPoint = originalElementFromPoint;
       }
     }
     function endSwipe(target: HTMLElement, point: Point) {
-      fireEvent.touchEnd(target, { changedTouches: [createTouch(target, point)] });
+      fireTimedTouch('touchEnd', target, { changedTouches: [createTouch(target, point)] }, 1040);
     }
     it.each([
       ['down', 'y', { clientX: 100, clientY: 140 }],
@@ -1015,38 +1043,58 @@ describe('<Drawer.Viewport />', () => {
     const originalElementFromPoint = document.elementFromPoint;
     document.elementFromPoint = (drawerX, y) => (y < 100 ? viewport : popup);
     try {
-      fireEvent.touchStart(viewport, {
-        touches: [
-          createTouch(viewport, {
-            clientX: 0,
-            clientY: 0,
-          }),
-        ],
-      });
-      fireEvent.touchMove(viewport, {
-        touches: [
-          createTouch(viewport, {
-            clientX: 0,
-            clientY: 120,
-          }),
-        ],
-      });
-      fireEvent.touchMove(viewport, {
-        touches: [
-          createTouch(viewport, {
-            clientX: 0,
-            clientY: 170,
-          }),
-        ],
-      });
-      fireEvent.touchEnd(viewport, {
-        changedTouches: [
-          createTouch(viewport, {
-            clientX: 0,
-            clientY: 170,
-          }),
-        ],
-      });
+      fireTimedTouch(
+        'touchStart',
+        viewport,
+        {
+          touches: [
+            createTouch(viewport, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        },
+        1000,
+      );
+      fireTimedTouch(
+        'touchMove',
+        viewport,
+        {
+          touches: [
+            createTouch(viewport, {
+              clientX: 0,
+              clientY: 120,
+            }),
+          ],
+        },
+        1010,
+      );
+      fireTimedTouch(
+        'touchMove',
+        viewport,
+        {
+          touches: [
+            createTouch(viewport, {
+              clientX: 0,
+              clientY: 170,
+            }),
+          ],
+        },
+        1020,
+      );
+      fireTimedTouch(
+        'touchEnd',
+        viewport,
+        {
+          changedTouches: [
+            createTouch(viewport, {
+              clientX: 0,
+              clientY: 170,
+            }),
+          ],
+        },
+        1030,
+      );
       await flushMicrotasks();
     } finally {
       document.elementFromPoint = originalElementFromPoint;
