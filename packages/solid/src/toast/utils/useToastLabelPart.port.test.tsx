@@ -43,11 +43,36 @@ describe('custom toast render content', () => {
     expect(container.querySelector('h2')).toHaveTextContent('title');
   });
 
-  it('omits childless styling renders during SSR', async () => {
-    const { container } = await renderToString(CustomToastParts, { empty: true });
-    expect(container.querySelector('h2')).toBeNull();
-    expect(container.querySelector('p')).toBeNull();
-    expect(container.querySelector('button')).toBeNull();
-  });
+  it.each([false, true])(
+    'hydrates initially empty custom SSR content with fragment=%s',
+    async (fragment) => {
+      const { container, hydrate } = await renderToString(CustomToastParts, {
+        empty: true,
+        fragment,
+      });
+      expect(container.querySelector('h2')).toBeNull();
+      expect(container.querySelector('p')).toBeNull();
+      expect(container.querySelector('button')).toBeNull();
+      const { setProps } = await hydrate();
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+      expect(container.querySelector('h2')).toBeNull();
+      expect(container.querySelector('p')).toBeNull();
+      expect(container.querySelector('button')).toBeNull();
+      setProps({ empty: false });
+      await waitFor(() => expect(container.querySelector('h2')).toHaveTextContent('title'));
+      await waitFor(() => expect(container.querySelector('p')).toHaveTextContent('description'));
+      await waitFor(() => expect(container.querySelector('button')).toHaveTextContent('action'));
+      expect(container.querySelector('[data-testid="root"]')).toHaveAttribute(
+        'aria-labelledby',
+        container.querySelector('h2')!.id,
+      );
+      expect(container.querySelector('[data-testid="root"]')).toHaveAttribute(
+        'aria-describedby',
+        container.querySelector('p')!.id,
+      );
+    },
+  );
   /* eslint-enable testing-library/no-container */
 });

@@ -1,7 +1,11 @@
 import { createMemo, omit } from 'solid-js';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useToastLabelElement, useToastLabelPart } from '../utils/useToastLabelPart';
+import {
+  useToastLabelElement,
+  useToastLabelPart,
+  useToastRenderedElement,
+} from '../utils/useToastLabelPart';
 
 /**
  * A title that labels the toast.
@@ -22,10 +26,12 @@ export function ToastTitle(componentProps: ToastTitle.Props) {
     },
   };
 
-  const element = useRenderElement('h2', componentProps, {
-    state,
-    props: () => [elementProps, { id: id() }, childrenProps],
-  });
+  const element = useToastRenderedElement(() =>
+    useRenderElement('h2', componentProps, {
+      state,
+      props: () => [elementProps, { id: id() }, childrenProps],
+    }),
+  );
 
   return useToastLabelElement(element, children, () => componentProps.render, id, setId);
 }

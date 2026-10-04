@@ -1,5 +1,6 @@
-import { children as resolveChildren, createMemo, createSignal } from 'solid-js';
+import { children as resolveChildren, createMemo, createSignal, createUniqueId } from 'solid-js';
 import type { Accessor, Setter } from 'solid-js';
+import { getHydrationWriter, isServer, takeHydrationValue } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -37,6 +38,35 @@ export function useToastLabelPart(
 }
 
 /**
+ * Port note: custom renders must be evaluated to inspect their content, but omitted server
+ * elements have no hydration keys to claim. Share the server decision and defer those factories
+ * until hydration finishes; their detached DOM can then be observed for later content changes.
+ */
+export function useToastRenderedElement(factory: () => JSX.Element): Accessor<JSX.Element> {
+  const key = createUniqueId();
+  const writer = getHydrationWriter();
+  const serverContent = takeHydrationValue<boolean>(key);
+  const omitted = serverContent?.status === 'resolved' && serverContent.value === false;
+  const [ready, setReady] = createSignal(!omitted);
+  useIsoLayoutEffect(
+    () => {
+      if (isServer || !omitted) {
+        return undefined;
+      }
+      const timeout = setTimeout(() => setReady(true));
+      return () => clearTimeout(timeout);
+    },
+    () => [],
+  );
+  const element = resolveChildren(() => (ready() ? factory() : null));
+  return createMemo(() => {
+    const node = element();
+    writer?.write(key, hasRenderableChildren(node));
+    return node;
+  });
+}
+
+/**
  * Mounts the evaluated label element only when it carries renderable content (so a `render` prop's
  * own children count, while a childless styling-only `render` stays conditional), registering the
  * generated id with the root while the part renders.
@@ -46,14 +76,12 @@ export function useToastLabelPart(
  * `hasRenderableChildren`); otherwise the resolved content decides, like upstream.
  */
 export function useToastLabelElement(
-  element: JSX.Element,
+  resolvedElement: Accessor<JSX.Element>,
   content: Accessor<JSX.Element>,
   render: Accessor<unknown>,
   id: Accessor<string | undefined>,
   setId: Setter<string | undefined>,
 ): JSX.Element {
-  const resolvedElement = resolveChildren(() => element);
-
   const shouldRender = useRenderableContent(resolvedElement, content, render);
 
   useIsoLayoutEffect(

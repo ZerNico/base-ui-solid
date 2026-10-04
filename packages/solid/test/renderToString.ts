@@ -77,6 +77,16 @@ export async function renderToString<P extends Record<string, any>>(
   const container = document.createElement('div');
   container.innerHTML = html;
   document.body.appendChild(container);
+  // Port note: innerHTML does not execute the serialized hydration values that a browser
+  // normally runs while parsing server output. Replay them after the bootstrap.
+  container.querySelectorAll('script').forEach((script) => {
+    if (!script.textContent?.includes('_$HY.r')) {
+      return;
+    }
+    // eslint-disable-next-line no-new-func
+    new Function(script.textContent ?? '')();
+    script.remove();
+  });
 
   let dispose: (() => void) | undefined;
   onTestFinished(async () => {

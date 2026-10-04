@@ -5,7 +5,7 @@ import { omitProps } from '../../merge-props/mergeProps';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useRenderableContent } from '../utils/useToastLabelPart';
+import { useRenderableContent, useToastRenderedElement } from '../utils/useToastLabelPart';
 
 /**
  * Performs an action when clicked.
@@ -46,19 +46,18 @@ export function ToastAction(componentProps: ToastAction.Props) {
     },
   };
 
-  const element = useRenderElement('button', componentProps, {
-    ref: buttonRef,
-    state,
-    props: () => [
-      elementProps,
-      toast().actionProps && omitProps(toast().actionProps!, ['children']),
-      getButtonProps,
-      childrenProps,
-    ],
-  });
-
-  // Port note: Solid renders the element once; it's inserted only while it has content.
-  const resolvedElement = resolveChildren(() => element);
+  const resolvedElement = useToastRenderedElement(() =>
+    useRenderElement('button', componentProps, {
+      ref: buttonRef,
+      state,
+      props: () => [
+        elementProps,
+        toast().actionProps && omitProps(toast().actionProps!, ['children']),
+        getButtonProps,
+        childrenProps,
+      ],
+    }),
+  );
   const shouldRender = useRenderableContent(
     resolvedElement,
     computedChildren,
