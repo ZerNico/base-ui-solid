@@ -1,5 +1,4 @@
 import { createSignal, onSettled } from 'solid-js';
-// Port note: reactive feedback values are accessors in Solid.
 
 export function useInvalidFeedback() {
   const [focusedIndex, setFocusedIndex] = createSignal(0);

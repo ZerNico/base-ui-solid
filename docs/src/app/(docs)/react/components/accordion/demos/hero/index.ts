@@ -1,4 +1,3 @@
-/* Port note: Vite source imports replace the upstream demo loader. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';
@@ -12,11 +11,11 @@ export const DemoAccordionHero = createDemoWithVariants([
   {
     name: 'CSS Modules',
     component: CssModules,
-    files: { '_index.module.css': SupportingSource0, 'index.tsx': CssModulesSource0 },
+    files: { 'index.tsx': CssModulesSource0, 'index.module.css': SupportingSource0 },
   },
   {
     name: 'Tailwind',
     component: Tailwind,
-    files: { '_index.module.css': SupportingSource0, 'index.tsx': TailwindSource0 },
+    files: { 'index.tsx': TailwindSource0, 'index.module.css': SupportingSource0 },
   },
 ]);

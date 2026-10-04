@@ -1,4 +1,3 @@
-/* Port note: live variants and displayed source share the Solid files. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';

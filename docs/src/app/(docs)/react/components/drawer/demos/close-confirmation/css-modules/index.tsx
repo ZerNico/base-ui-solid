@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal, createUniqueId } from 'solid-js';
 import { AlertDialog } from 'base-ui-solid/alert-dialog';
 import { Drawer } from 'base-ui-solid/drawer';

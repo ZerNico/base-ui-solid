@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { createSignal, onSettled } from 'solid-js';
 import { Progress } from 'base-ui-solid/progress';
 

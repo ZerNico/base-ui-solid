@@ -1,5 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
-
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import { matchSorter } from 'match-sorter';

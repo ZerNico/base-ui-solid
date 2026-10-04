@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal } from 'solid-js';
 import { Field } from 'base-ui-solid/field';
 import { Form } from 'base-ui-solid/form';
@@ -9,7 +8,6 @@ interface FormState {
 }
 
 export default function ActionStateForm() {
-  // Port note: native submission replaces React's action-state hook.
   const [state, setState] = createSignal<FormState>({});
   const [loading, setLoading] = createSignal(false);
   async function formAction(event: SubmitEvent) {

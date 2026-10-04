@@ -1,4 +1,3 @@
-/* Port note: Vite raw imports need the extension and refer to the same module as the live import. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';

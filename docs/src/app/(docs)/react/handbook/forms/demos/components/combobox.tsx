@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import type { JSX } from '@solidjs/web';
 import { omit } from 'solid-js';
 import { Combobox } from 'base-ui-solid/combobox';

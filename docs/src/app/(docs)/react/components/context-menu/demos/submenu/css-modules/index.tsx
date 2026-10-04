@@ -44,7 +44,6 @@ export default function ExampleContextMenu() {
   );
 }
 
-// Port note: merging native SVG props preserves string/object styles; the cast restores native event types.
 function CaretRightIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg

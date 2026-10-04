@@ -1,4 +1,3 @@
-// Port note: Solid represents sibling JSX nodes as arrays.
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';

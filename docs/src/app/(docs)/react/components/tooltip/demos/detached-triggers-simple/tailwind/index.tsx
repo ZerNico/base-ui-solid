@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Tooltip } from 'base-ui-solid/tooltip';
 import { TrashIcon } from '../../icons-tw';
 

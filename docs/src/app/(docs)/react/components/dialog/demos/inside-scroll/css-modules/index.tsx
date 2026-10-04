@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { For } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
 import { ScrollArea } from 'base-ui-solid/scroll-area';

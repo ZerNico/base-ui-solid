@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { createUniqueId } from 'solid-js';
 import { OTPField } from 'base-ui-solid/otp-field';
 

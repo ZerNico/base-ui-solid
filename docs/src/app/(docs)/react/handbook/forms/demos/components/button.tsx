@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { omit } from 'solid-js';
 import { Button as BaseButton } from 'base-ui-solid/button';
 

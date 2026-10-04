@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Toast } from 'base-ui-solid/toast';

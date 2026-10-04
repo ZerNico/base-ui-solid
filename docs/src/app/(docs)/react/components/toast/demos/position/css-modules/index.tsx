@@ -1,5 +1,3 @@
-// Port note: keyed toast rows receive accessors and retain their DOM when measurements update.
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { For } from 'solid-js';
 import { Toast } from 'base-ui-solid/toast';
 import styles from './index.module.css';

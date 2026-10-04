@@ -17,8 +17,6 @@ type FieldModel = {
     error?: { message: string };
   };
 };
-// Port note: React form adapters have no Solid 2 renderer. Keep this example's
-// controlled field behavior explicit, using native Solid signals and getters.
 export function createControlledForm<T extends Record<string, any>>(options: {
   defaultValues: T;
   onSubmit?: (data: { value: T }) => void;

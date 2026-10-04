@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';

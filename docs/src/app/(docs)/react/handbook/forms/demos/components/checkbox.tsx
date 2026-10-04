@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { omit } from 'solid-js';
 import { Checkbox } from 'base-ui-solid/checkbox';
 

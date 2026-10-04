@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Tabs } from 'base-ui-solid/tabs';
 
 export default function ExampleAnimatedTabs() {

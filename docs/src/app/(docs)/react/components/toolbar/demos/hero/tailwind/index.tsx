@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import type { JSX } from '@solidjs/web';
 import { Toolbar } from 'base-ui-solid/toolbar';
 import { ToggleGroup } from 'base-ui-solid/toggle-group';

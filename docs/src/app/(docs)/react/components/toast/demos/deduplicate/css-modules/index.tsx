@@ -1,4 +1,3 @@
-// Port note: keyed toast rows receive accessors and retain their DOM when measurements update.
 import { For } from 'solid-js';
 import { Toast } from 'base-ui-solid/toast';
 import styles from './index.module.css';
@@ -45,7 +44,6 @@ function PulseToastItem(props: { toast: Toast.Root.ToastObject }) {
     }
     return props.toast.updateKey % 2 === 0 ? styles.PulseEven : styles.PulseOdd;
   };
-  // Port note: read the updated toast reactively so repeated adds replay the pulse.
   return (
     <Toast.Root toast={props.toast} class={[styles.Toast, pulseClass()]}>
       <Toast.Content class={styles.Content}>

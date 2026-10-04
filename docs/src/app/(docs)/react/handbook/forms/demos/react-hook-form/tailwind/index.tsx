@@ -1,4 +1,3 @@
-// Port note: React Hook Form is React-only. This Solid controller demonstrates
 import { For } from 'solid-js';
 // the same controlled values, validation, touched/dirty flags, and submission.
 import type { JSX } from '@solidjs/web';

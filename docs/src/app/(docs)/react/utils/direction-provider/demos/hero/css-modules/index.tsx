@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Slider } from 'base-ui-solid/slider';
 import styles from './index.module.css';

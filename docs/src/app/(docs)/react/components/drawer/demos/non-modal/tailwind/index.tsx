@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { Drawer } from 'base-ui-solid/drawer';
 
 export default function ExampleDrawer() {

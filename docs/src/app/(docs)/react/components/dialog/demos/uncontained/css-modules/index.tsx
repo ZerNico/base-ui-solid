@@ -1,5 +1,4 @@
 import type { JSX } from '@solidjs/web';
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { Dialog } from 'base-ui-solid/dialog';
 import styles from './index.module.css';
 

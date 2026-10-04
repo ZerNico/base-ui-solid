@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal, createMemo } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
@@ -8,7 +7,6 @@ export default function ExampleAsyncAutocomplete() {
   const [searchResults, setSearchResults] = createSignal<Movie[]>([]);
   const [error, setError] = createSignal<string | null>(null);
 
-  // Port note: track asynchronous work explicitly; Solid has no useTransition hook.
   const [isPending, setPending] = createSignal(false);
   let pendingCount = 0;
   async function startTransition(work: () => unknown) {

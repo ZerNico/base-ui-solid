@@ -1,4 +1,3 @@
-// Port note: Solid uses class and its native SVG props; the icon has no React style spread.
 import type { JSX } from '@solidjs/web';
 import { Collapsible } from 'base-ui-solid/collapsible';
 import styles from './index.module.css';

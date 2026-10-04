@@ -1,4 +1,3 @@
-/* Port note: Vite imports share live Solid demos and displayed sources. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import Variant0 from './css-modules';
@@ -11,7 +10,7 @@ export const DemoDirectionProviderHero = createDemoWithVariants([
   {
     name: 'CSS Modules',
     component: Variant0,
-    files: { 'index.module.css': source0_0, 'index.tsx': source0_1 },
+    files: { 'index.tsx': source0_1, 'index.module.css': source0_0 },
   },
   { name: 'Tailwind', component: Variant1, files: { 'index.tsx': source1_0 } },
 ]);

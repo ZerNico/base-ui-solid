@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { For } from 'solid-js';
 import { Slider } from 'base-ui-solid/slider';
 

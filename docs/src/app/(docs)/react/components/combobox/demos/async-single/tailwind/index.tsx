@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal, createMemo, createUniqueId } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -10,7 +9,6 @@ export default function ExampleAsyncSingleCombobox() {
   const [selectedValue, setSelectedValue] = createSignal<DirectoryUser | null>(null);
   const [searchValue, setSearchValue] = createSignal('');
   const [error, setError] = createSignal<string | null>(null);
-  // Port note: track asynchronous work explicitly; Solid has no useTransition hook.
   const [isPending, setPending] = createSignal(false);
   let pendingCount = 0;
   async function startTransition(work: () => unknown) {

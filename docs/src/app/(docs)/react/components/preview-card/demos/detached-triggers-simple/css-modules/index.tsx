@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { PreviewCard } from 'base-ui-solid/preview-card';
 import styles from '../../index.module.css';
 

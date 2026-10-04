@@ -1,4 +1,3 @@
-// Port note: the React TanStack adapter cannot run in Solid 2. This local
 import { For } from 'solid-js';
 // Solid controller preserves this example's field API and validation flow.
 import type { JSX } from '@solidjs/web';

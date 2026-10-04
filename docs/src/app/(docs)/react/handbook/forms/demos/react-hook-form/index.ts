@@ -1,4 +1,3 @@
-/* Port note: Vite highlight imports supply a default export even for named-export helper modules. */
 /* eslint-disable import/extensions, import/no-duplicates, import/default */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import Variant1 from './tailwind';
@@ -27,22 +26,22 @@ export const DemoReactHookForm = createDemoWithVariants([
     component: Variant1,
     files: {
       'index.tsx': source1_0,
-      '../components/slider.tsx': helperSource0,
-      '../components/radio.tsx': helperSource1,
-      '../components/field.tsx': helperSource2,
-      '../components/combobox.tsx': helperSource3,
-      '../components/switch.tsx': helperSource4,
-      '../components/radio-group.tsx': helperSource5,
-      '../components/checkbox-group.tsx': helperSource6,
-      '../components/number-field.tsx': helperSource7,
-      '../components/button.tsx': helperSource8,
-      '../components/toast.tsx': helperSource9,
-      '../components/checkbox.tsx': helperSource10,
-      '../components/fieldset.tsx': helperSource11,
-      '../components/select.tsx': helperSource12,
-      '../components/autocomplete.tsx': helperSource13,
-      '../components/form.tsx': helperSource14,
-      '../solid-controller.tsx': helperSource15,
+      'solid-controller.tsx': helperSource15,
+      'button.tsx': helperSource8,
+      'checkbox-group.tsx': helperSource6,
+      'form.tsx': helperSource14,
+      'radio-group.tsx': helperSource5,
+      'toast.tsx': helperSource9,
+      'autocomplete.tsx': helperSource13,
+      'checkbox.tsx': helperSource10,
+      'combobox.tsx': helperSource3,
+      'field.tsx': helperSource2,
+      'fieldset.tsx': helperSource11,
+      'number-field.tsx': helperSource7,
+      'radio.tsx': helperSource1,
+      'select.tsx': helperSource12,
+      'slider.tsx': helperSource0,
+      'switch.tsx': helperSource4,
     },
   },
 ]);

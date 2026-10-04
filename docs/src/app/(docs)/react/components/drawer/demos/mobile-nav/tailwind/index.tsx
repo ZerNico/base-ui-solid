@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Drawer } from 'base-ui-solid/drawer';

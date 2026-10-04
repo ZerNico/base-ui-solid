@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { Input } from 'base-ui-solid/input';
 import styles from './index.module.css';
 

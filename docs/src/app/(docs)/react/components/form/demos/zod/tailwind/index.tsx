@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal } from 'solid-js';
 import { z } from 'zod';
 import { Field } from 'base-ui-solid/field';

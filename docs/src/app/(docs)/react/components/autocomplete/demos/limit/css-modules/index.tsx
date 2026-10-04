@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal, createMemo } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';

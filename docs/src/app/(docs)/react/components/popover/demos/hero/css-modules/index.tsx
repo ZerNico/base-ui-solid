@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Popover } from 'base-ui-solid/popover';
 import styles from '../../_index.module.css';
 

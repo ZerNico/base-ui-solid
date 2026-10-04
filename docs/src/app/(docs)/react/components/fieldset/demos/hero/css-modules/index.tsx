@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { Field } from 'base-ui-solid/field';
 import { Fieldset } from 'base-ui-solid/fieldset';
 import styles from './index.module.css';

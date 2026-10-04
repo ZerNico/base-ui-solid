@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { createSignal } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { mergeProps } from 'base-ui-solid/merge-props';

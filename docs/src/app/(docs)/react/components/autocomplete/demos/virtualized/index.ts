@@ -1,4 +1,3 @@
-/* Port note: Vite source imports replace the upstream demo loader. */
 /* eslint-disable import/extensions, import/no-duplicates, import/default */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';
@@ -14,14 +13,14 @@ export const DemoAutocompleteVirtualized = createDemoWithVariants([
     name: 'CSS Modules',
     component: CssModules,
     files: {
+      'index.tsx': CssModulesSource1,
       'useVirtualizer.ts': SupportingSource0,
       'index.module.css': CssModulesSource0,
-      'index.tsx': CssModulesSource1,
     },
   },
   {
     name: 'Tailwind',
     component: Tailwind,
-    files: { 'useVirtualizer.ts': SupportingSource0, 'index.tsx': TailwindSource0 },
+    files: { 'index.tsx': TailwindSource0, 'useVirtualizer.ts': SupportingSource0 },
   },
 ]);

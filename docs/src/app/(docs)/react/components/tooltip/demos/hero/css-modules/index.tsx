@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import type { JSX } from '@solidjs/web';
 import { Tooltip } from 'base-ui-solid/tooltip';
 import styles from './index.module.css';

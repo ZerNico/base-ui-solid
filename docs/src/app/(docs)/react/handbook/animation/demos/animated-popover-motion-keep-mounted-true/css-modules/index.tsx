@@ -3,8 +3,6 @@ import { Popover } from 'base-ui-solid/popover';
 import styles from './index.module.css';
 import { AnimatedPopup } from '../../animated-popup';
 
-// Port note: Motion's React renderer cannot run in Solid; the Web Animations API
-// preserves the opacity/scale animation and Base UI's closing lifecycle.
 export default function AnimatedPopoverDemo() {
   const [open, setOpen] = createSignal(false);
   return (

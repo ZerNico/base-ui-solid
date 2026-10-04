@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { ScrollArea } from 'base-ui-solid/scroll-area';
 import styles from './index.module.css';
 

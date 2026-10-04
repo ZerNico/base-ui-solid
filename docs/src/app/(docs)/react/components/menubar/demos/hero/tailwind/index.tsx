@@ -182,7 +182,6 @@ function handleClick(event: MouseEvent) {
   console.log(`${(event.currentTarget as HTMLElement).textContent} clicked`);
 }
 
-// Port note: merging native SVG props preserves string/object styles; the cast restores native event types.
 function CaretRightIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg

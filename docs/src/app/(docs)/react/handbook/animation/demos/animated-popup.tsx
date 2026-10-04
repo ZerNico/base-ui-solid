@@ -1,8 +1,6 @@
 import { createEffect, onCleanup, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 
-// Port note: framework-independent animation replaces motion/react. The render
-// callback's reactive state drives the same opacity/scale targets.
 export function AnimatedPopup(props: JSX.IntrinsicElements['div'] & { open: boolean }) {
   let element: HTMLDivElement | undefined;
   let animation: Animation | undefined;

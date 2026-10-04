@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Meter } from 'base-ui-solid/meter';
 
 export default function ExampleMeter() {

@@ -1,5 +1,4 @@
 import { For } from 'solid-js';
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { Drawer } from 'base-ui-solid/drawer';
 import styles from './index.module.css';
 

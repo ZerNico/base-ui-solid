@@ -1,6 +1,4 @@
-/* Port note: TanStack exposes lifecycle methods with underscore names. */
 /* eslint-disable no-underscore-dangle */
-// Port note: adapt TanStack's framework-neutral virtualizer lifecycle to Solid 2.
 import { createSignal, onSettled, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import {

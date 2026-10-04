@@ -1,4 +1,3 @@
-// Port note: Solid represents sibling JSX nodes as arrays.
 import { For } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
 

@@ -1,4 +1,3 @@
-// Port note: Solid represents sibling JSX nodes as arrays.
 import { createSignal } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
 import styles from '../../_index.module.css';

@@ -1,5 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
-
 import type { JSX } from '@solidjs/web';
 import { Accordion } from 'base-ui-solid/accordion';
 import styles from '../../_index.module.css';

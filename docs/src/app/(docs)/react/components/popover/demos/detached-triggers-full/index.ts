@@ -1,4 +1,3 @@
-/* Port note: source imports mirror each live Solid variant and its supporting files. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';
@@ -12,11 +11,7 @@ export const DemoPopoverDetachedTriggersFull = createDemoWithVariants([
   {
     name: 'CSS Modules',
     component: CssModules,
-    files: {
-      'index.tsx': source0,
-      '../../_index.module.css': source1,
-      'index.module.css': source2,
-    },
+    files: { 'index.tsx': source0, 'opt/index.module.css': source2, 'index.module.css': source1 },
   },
   { name: 'Tailwind', component: Tailwind, files: { 'index.tsx': source3 } },
 ]);

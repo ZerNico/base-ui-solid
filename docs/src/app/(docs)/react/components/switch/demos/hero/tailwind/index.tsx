@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Switch } from 'base-ui-solid/switch';
 
 export default function ExampleSwitch() {

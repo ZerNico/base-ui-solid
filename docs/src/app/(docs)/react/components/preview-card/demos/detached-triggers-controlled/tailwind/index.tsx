@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { Dynamic } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import type { Component } from 'solid-js';

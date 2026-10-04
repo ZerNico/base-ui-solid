@@ -1,4 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
 import { createSignal, createUniqueId } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Dialog } from 'base-ui-solid/dialog';

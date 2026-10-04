@@ -1,4 +1,3 @@
-// Port note: Solid represents sibling JSX nodes as arrays.
 import { Popover } from 'base-ui-solid/popover';
 import styles from '../../_index.module.css';
 

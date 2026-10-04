@@ -1,4 +1,3 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { createUniqueId } from 'solid-js';
 import { Radio } from 'base-ui-solid/radio';
 import { RadioGroup } from 'base-ui-solid/radio-group';

@@ -1,4 +1,3 @@
-/* Port note: Vite source imports replace the upstream demo loader. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';
@@ -11,7 +10,7 @@ export const DemoComboboxInputInsidePopup = createDemoWithVariants([
   {
     name: 'CSS Modules',
     component: CssModules,
-    files: { 'index.module.css': CssModulesSource0, 'index.tsx': CssModulesSource1 },
+    files: { 'index.tsx': CssModulesSource1, 'index.module.css': CssModulesSource0 },
   },
   { name: 'Tailwind', component: Tailwind, files: { 'index.tsx': TailwindSource0 } },
 ]);

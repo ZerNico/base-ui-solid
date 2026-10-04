@@ -1,5 +1,3 @@
-// Port note: Solid primitives, native attributes/events, and reactive accessors replace React APIs.
-
 import { Button } from 'base-ui-solid/button';
 
 export default function ExampleButton() {

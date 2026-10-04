@@ -1,8 +1,8 @@
-// Port note: Solid uses native attributes and reactive props; render functions replace cloned elements.
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { NavigationMenu } from 'base-ui-solid/navigation-menu';
 import { useMediaQuery } from 'base-ui-solid/unstable-use-media-query';
+import { REPO_URL } from '../../../../../../../../config';
 import { audienceMenus, guideLinks, guidesPanel } from '../data';
 
 export default function ExampleNavigationMenu() {
@@ -114,7 +114,7 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Item>
 
         <NavigationMenu.Item>
-          <Link class={triggerClassName} href="https://github.com/mui/base-ui">
+          <Link class={triggerClassName} href={REPO_URL}>
             GitHub
           </Link>
         </NavigationMenu.Item>

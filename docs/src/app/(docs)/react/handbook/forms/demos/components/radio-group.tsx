@@ -1,4 +1,3 @@
-// Port note: native Solid props, ref callbacks, and accessors replace React rendering.
 import { omit } from 'solid-js';
 import { RadioGroup as BaseRadioGroup } from 'base-ui-solid/radio-group';
 

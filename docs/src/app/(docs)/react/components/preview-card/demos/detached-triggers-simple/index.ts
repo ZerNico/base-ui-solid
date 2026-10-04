@@ -1,4 +1,3 @@
-/* Port note: source imports mirror each live Solid variant and its supporting files. */
 /* eslint-disable import/extensions, import/no-duplicates */
 import { createDemoWithVariants } from '../../../../../../../utils/createDemo';
 import CssModules from './css-modules';
@@ -11,7 +10,7 @@ export const DemoPreviewCardDetachedTriggersSimple = createDemoWithVariants([
   {
     name: 'CSS Modules',
     component: CssModules,
-    files: { 'index.tsx': source0, '../../index.module.css': source1 },
+    files: { 'index.tsx': source0, 'demos.module.css': source1 },
   },
   { name: 'Tailwind', component: Tailwind, files: { 'index.tsx': source2 } },
 ]);
