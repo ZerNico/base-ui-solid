@@ -1,4 +1,4 @@
-import { createMemo, createRoot, createSignal, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, createRoot, createSignal, flatten, omit, onCleanup, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -329,6 +329,9 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
     rootTriggerProps(),
     {
       'aria-haspopup': 'menu' as const,
+      // Port note: read this trigger's open state directly so dynamically remounted demos
+      // cannot retain the inactive trigger props while the menu is already open.
+      'aria-expanded': isOpenedByThisTrigger(),
       'aria-controls': controlsId(),
       id: thisTriggerId(),
       onMouseDown: (event: MouseEvent) => {
@@ -388,14 +391,19 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
         return undefined;
       }
       return createRoot((dispose) => {
-        const before = TriggerFocusGuard({
-          guardRef: currentStore.context.beforeTriggerFocusGuardRef,
-          onFocus: handlePreFocusGuardFocus,
-        }) as HTMLElement;
-        const after = TriggerFocusGuard({
-          guardRef: currentStore.context.triggerFocusTargetRef,
-          onFocus: handleFocusTargetFocus,
-        }) as HTMLElement;
+        // Port note: dev/HMR JSX can be accessor-backed; resolve it before native DOM insertion.
+        const before = flatten(
+          TriggerFocusGuard({
+            guardRef: currentStore.context.beforeTriggerFocusGuardRef,
+            onFocus: handlePreFocusGuardFocus,
+          }),
+        ) as HTMLElement;
+        const after = flatten(
+          TriggerFocusGuard({
+            guardRef: currentStore.context.triggerFocusTargetRef,
+            onFocus: handleFocusTargetFocus,
+          }),
+        ) as HTMLElement;
         parentNode.insertBefore(before, triggerNode);
         parentNode.insertBefore(after, triggerNode.nextSibling);
         return () => {

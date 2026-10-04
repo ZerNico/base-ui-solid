@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { toHtml } from 'hast-util-to-html';
 import { highlightSource } from './highlightCode.mjs';
 // Port note: a Vite import query replaces the upstream precomputed webpack demo loader.
 export function sourcePlugin() {
@@ -23,7 +24,7 @@ export function sourcePlugin() {
       this.addWatchFile(file);
       const source = await readFile(file, 'utf8');
       const tree = await highlightSource(source, file.split('/').at(-1));
-      return `export default ${JSON.stringify(tree)};`;
+      return `export default ${JSON.stringify({ type: 'html', value: toHtml(tree) })};`;
     },
   };
 }

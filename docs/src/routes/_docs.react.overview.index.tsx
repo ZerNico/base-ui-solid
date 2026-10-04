@@ -1,13 +1,11 @@
 import { createFileRoute } from '@tanstack/solid-router';
-import Content, { metadata } from '../app/(docs)/react/overview/page.mdx';
+import Content from '../app/(docs)/react/overview/page.mdx';
 import { mdxComponents } from '../mdx-components';
 
 export const Route = createFileRoute('/_docs/react/overview/')({
+  // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
-    meta: [
-      { title: metadata.title ?? 'Overview' },
-      { name: 'description', content: metadata.description ?? 'Overview' },
-    ],
+    meta: [{ title: 'Overview' }, { name: 'description', content: 'Overview' }],
   }),
   component: () => <Content components={mdxComponents} />,
 });

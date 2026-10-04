@@ -226,7 +226,7 @@ import { Form } from 'base-ui-solid/form';
 Base UI form components support native HTML validation attributes for many validation rules:
 
 - `required` specifies a required field.
-- `minlength` and `maxLength` specify a valid length for text fields.
+- `minlength` and `maxlength` specify a valid length for text fields.
 - `pattern` specifies a regular expression that the field value must match.
 - `step` specifies an increment that numeric field values must be an integral multiple of.
 
@@ -378,6 +378,84 @@ import { DemoReactHookForm } from './demos/react-hook-form';
 
 <DemoReactHookForm />
 
+### Initialize the form
+
+Create a controller with initial values for each field. This example uses the local Solid controller included in the demo source.
+
+```tsx title="Initialize a form instance"
+import { createControlledForm } from './solid-controller';
+
+const form = createControlledForm({
+  defaultValues: { username: '', email: '' },
+});
+```
+
+### Integrate components
+
+Forward the controller's reactive field values and state to Base UI. Keep the object intact so its getters remain reactive. Forward `ref` to the input so the controller can focus invalid fields.
+
+```tsx title="Integrating a controlled field with Base UI components"
+import { Controller } from './solid-controller';
+import { Field } from 'base-ui-solid/field';
+
+<Controller
+  name="username"
+  control={form.control}
+  render={(model) => (
+    <Field.Root
+      name={model.field.name}
+      invalid={model.fieldState.invalid}
+      touched={model.fieldState.isTouched}
+      dirty={model.fieldState.isDirty}
+    >
+      <Field.Label>Username</Field.Label>
+      <Field.Control
+        value={model.field.value}
+        onValueChange={model.field.onChange}
+        onFocusOut={model.field.onFocusOut}
+        ref={model.field.ref}
+      />
+      <Field.Error match={model.fieldState.invalid}>{model.fieldState.error?.message}</Field.Error>
+    </Field.Root>
+  )}
+/>;
+```
+
+### Field validation
+
+Assign validation rules to the controller. The example controller validates on submission and revalidates when an invalid field changes.
+
+```tsx title="Defining validation rules and displaying errors"
+<Controller
+  name="username"
+  control={form.control}
+  rules={{
+    required: 'This is a required field',
+    minlength: { value: 2, message: 'Too short' },
+  }}
+  render={(model) => (
+    <Field.Root name={model.field.name} invalid={model.fieldState.invalid}>
+      <Field.Control value={model.field.value} onValueChange={model.field.onChange} />
+      <Field.Error match={model.fieldState.invalid}>{model.fieldState.error?.message}</Field.Error>
+    </Field.Root>
+  )}
+/>
+```
+
+### Submitting data
+
+Wrap a submit handler with `handleSubmit` to validate the fields before receiving the form values.
+
+```tsx title="Form submission handler"
+import { Form } from 'base-ui-solid/form';
+
+<Form
+  onSubmit={form.handleSubmit(async (values) => {
+    await fetch('/api/account', { method: 'POST', body: JSON.stringify(values) });
+  })}
+/>;
+```
+
 ## TanStack Form
 
 Port note: the upstream example uses TanStack Form's React adapter. This Solid 2.0 demo uses a local controller preserving the field API and form validation flow. Do not import `@tanstack/react-form` in Solid. An external Solid adapter must support Solid 2.0 before it can replace this controller.
@@ -385,6 +463,103 @@ Port note: the upstream example uses TanStack Form's React adapter. This Solid 2
 import { DemoTanstackForm } from './demos/tanstack-form';
 
 <DemoTanstackForm />
+
+### Initialize the form
+
+Create a form instance with initial values and a submission callback. This example retains the upstream field API through the local Solid controller.
+
+```tsx title="Initialize a form instance"
+import { createControlledForm } from './solid-controller';
+
+const form = createControlledForm({
+  defaultValues: { username: '', email: '' },
+  onSubmit: async ({ value }) => {
+    await fetch('/api/account', { method: 'POST', body: JSON.stringify(value) });
+  },
+});
+```
+
+### Integrate components
+
+Use `<form.Field>` to connect each control. Read its reactive state in JSX and forward the change and focus-out handlers.
+
+```tsx title="Integrating form fields with Base UI components"
+import { Field } from 'base-ui-solid/field';
+
+<form.Field name="username">
+  {(field) => (
+    <Field.Root
+      name={field.name}
+      invalid={!field.state.meta.isValid}
+      dirty={field.state.meta.isDirty}
+      touched={field.state.meta.isTouched}
+    >
+      <Field.Label>Username</Field.Label>
+      <Field.Control
+        value={field.state.value}
+        onValueChange={field.handleChange}
+        onFocusOut={field.handleBlur}
+      />
+      <Field.Error match={!field.state.meta.isValid}>
+        {field.state.meta.errors.join(', ')}
+      </Field.Error>
+    </Field.Root>
+  )}
+</form.Field>;
+```
+
+### Form validation
+
+Return field errors from the form-level validator. After the first submit attempt, changes revalidate the form.
+
+```tsx title="Form-level validators"
+const form = createControlledForm({
+  defaultValues: { username: '', email: '' },
+  validators: {
+    onDynamic: ({ value }) => ({
+      fields: {
+        ...(!value.username ? { username: 'This field is required.' } : {}),
+        ...(!value.email.includes('@') ? { email: 'Enter a valid email.' } : {}),
+      },
+    }),
+  },
+});
+```
+
+### Field validation
+
+The local controller supports synchronous validation. For asynchronous checks, use Base UI's `validate` prop and `validationDebounceTime` as described in [Custom validation](#custom-validation).
+
+```tsx title="Text input using custom asynchronous validation"
+<Field.Root
+  name="username"
+  validationMode="onChange"
+  validationDebounceTime={300}
+  validate={async (value) => {
+    const response = await fetch(`/api/username?value=${encodeURIComponent(String(value))}`);
+    const result = await response.json();
+    return result.available ? null : 'This username is not available.';
+  }}
+>
+  <Field.Control />
+  <Field.Error />
+</Field.Root>
+```
+
+### Submitting data
+
+Prevent the native navigation and call the form's submission method. The controller validates before invoking `onSubmit`.
+
+```tsx title="Form submission handler"
+<form
+  onSubmit={(event) => {
+    event.preventDefault();
+    form.handleSubmitForm();
+  }}
+>
+  <button type="submit">Submit</button>
+</form>
+```
 
 export const metadata = {
   keywords: [

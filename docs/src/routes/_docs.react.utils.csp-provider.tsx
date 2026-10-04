@@ -1,13 +1,11 @@
 import { createFileRoute } from '@tanstack/solid-router';
-import Content, { metadata } from '../app/(docs)/react/utils/csp-provider/page.mdx';
+import Content from '../app/(docs)/react/utils/csp-provider/page.mdx';
 import { mdxComponents } from '../mdx-components';
 
 export const Route = createFileRoute('/_docs/react/utils/csp-provider')({
+  // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
-    meta: [
-      { title: metadata.title ?? 'CSP Provider' },
-      { name: 'description', content: metadata.description ?? 'CSP Provider' },
-    ],
+    meta: [{ title: 'CSP Provider' }, { name: 'description', content: 'CSP Provider' }],
   }),
   component: () => <Content components={mdxComponents} />,
 });

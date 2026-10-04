@@ -14,6 +14,11 @@ export interface CodeNode {
 export function Hast(props: { node: CodeNode }): JSX.Element {
   // Port note: precomputed HAST is immutable; snapshot this node once per component.
   const node = untrack(() => props.node);
+  if (node.type === 'html') {
+    // Port note: build-time escaped syntax HTML is immutable; skip thousands of token owners during hydration.
+    // eslint-disable-next-line solid/no-innerhtml
+    return <span style={{ display: 'contents' }} innerHTML={node.value} />;
+  }
   if (node.type === 'text') {
     return node.value;
   }

@@ -1,11 +1,13 @@
 import { createSignal, For, Show } from 'solid-js';
 import { Dynamic } from '@solidjs/web';
+import { Select } from 'base-ui-solid/select';
 import type { Component } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { CodeNode } from '../CodeBlock/Hast';
 import { Hast } from '../CodeBlock/Hast';
 import './Demo.css';
 import '../GhostButton.css';
+import '../Select.css';
 import { CopyIcon } from '../../icons/CopyIcon';
 
 export interface DemoVariant {
@@ -38,7 +40,10 @@ export function Demo(props: { variants: DemoVariant[] }) {
   return (
     <section class="DemoRoot" aria-label="Live demo">
       <div class="DemoPlayground DemoPreview">
-        <div class="DemoPlaygroundInner" data-demo={variant() === 0 ? 'css-modules' : 'tailwind'}>
+        <div
+          class="DemoPlaygroundInner"
+          data-demo={props.variants[variant()].name === 'Tailwind' ? 'tailwind' : 'css-modules'}
+        >
           <Dynamic component={props.variants[variant()].component} />
         </div>
       </div>
@@ -52,7 +57,11 @@ export function Demo(props: { variants: DemoVariant[] }) {
               aria-label="Source files"
               onKeyDown={handleTabKeys as JSX.EventHandler<HTMLDivElement, KeyboardEvent>}
             >
-              <For each={Object.keys(props.variants[variant()].files)}>
+              <For
+                each={Object.keys(props.variants[variant()].files).sort(
+                  (a, b) => Number(b === 'index.tsx') - Number(a === 'index.tsx'),
+                )}
+              >
                 {(name) => (
                   <button
                     class="DemoTab"
@@ -69,29 +78,60 @@ export function Demo(props: { variants: DemoVariant[] }) {
             </div>
           </div>
         </div>
-        <div
-          class="DemoToolbarActions"
-          tabindex="-1"
-          role="tablist"
-          aria-label="Styling variant"
-          onKeyDown={handleTabKeys as JSX.EventHandler<HTMLDivElement, KeyboardEvent>}
-        >
-          <For each={props.variants}>
-            {(item, index) => (
-              <button
-                class="DemoVariant"
-                role="tab"
-                tabindex={variant() === index() ? 0 : -1}
-                aria-selected={variant() === index() ? 'true' : 'false'}
-                onClick={() => {
-                  setVariant(index());
+        <div class="DemoToolbarActions">
+          <Show when={props.variants.length > 1}>
+            {/* Port note: Solid's Select preserves the upstream styling-method selector behavior. */}
+            <Select.Root
+              value={variant()}
+              items={props.variants.map((item, index) => ({ label: item.name, value: index }))}
+              onValueChange={(value) => {
+                if (value !== null) {
+                  setVariant(value);
                   setFile('index.tsx');
-                }}
-              >
-                {item.name}
-              </button>
-            )}
-          </For>
+                  setShowCode(true);
+                }
+              }}
+            >
+              <Select.Trigger class="GhostButton" data-layout="text" aria-label="Styling method">
+                <Select.Value />
+                <Select.Icon>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
+                  </svg>
+                </Select.Icon>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner class="SelectPositioner" align="center" sideOffset={7}>
+                  <Select.Popup class="SelectPopup">
+                    <For each={props.variants}>
+                      {(item, index) => (
+                        <Select.Item class="SelectItem" value={index()}>
+                          <Select.ItemIndicator class="SelectItemIndicator">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              aria-hidden="true"
+                            >
+                              <path d="m2.5 8.5 4 4 7-9" stroke="currentColor" />
+                            </svg>
+                          </Select.ItemIndicator>
+                          <Select.ItemText class="SelectItemText">{item.name}</Select.ItemText>
+                        </Select.Item>
+                      )}
+                    </For>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Show>
         </div>
       </div>
       <div class="DemoCodeBlockCollapsible">

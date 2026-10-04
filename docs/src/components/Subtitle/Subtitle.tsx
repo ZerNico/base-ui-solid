@@ -18,15 +18,22 @@ export function Subtitle(props: { children?: JSX.Element; skipLinks?: boolean })
               View as Markdown
             </span>
           </a>
-          <a
-            class="SubtitleLink"
-            href={`https://github.com/mui/base-ui/blob/master/docs/src/app/(docs)${location().pathname}/page.mdx`}
+          <Show
+            when={
+              location().pathname.includes('/components/') ||
+              location().pathname.includes('/utils/')
+            }
           >
-            <span class="SubtitleLinkText">
-              <GitHubIcon />
-              View source
-            </span>
-          </a>
+            <a
+              class="SubtitleLink"
+              href={`https://github.com/mui/base-ui/blob/master/docs/src/app/(docs)${location().pathname}/page.mdx`}
+            >
+              <span class="SubtitleLinkText">
+                <GitHubIcon />
+                View source
+              </span>
+            </a>
+          </Show>
         </div>
       </Show>
     </div>

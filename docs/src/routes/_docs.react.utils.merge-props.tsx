@@ -1,13 +1,11 @@
 import { createFileRoute } from '@tanstack/solid-router';
-import Content, { metadata } from '../app/(docs)/react/utils/merge-props/page.mdx';
+import Content from '../app/(docs)/react/utils/merge-props/page.mdx';
 import { mdxComponents } from '../mdx-components';
 
 export const Route = createFileRoute('/_docs/react/utils/merge-props')({
+  // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
-    meta: [
-      { title: metadata.title ?? 'mergeProps' },
-      { name: 'description', content: metadata.description ?? 'mergeProps' },
-    ],
+    meta: [{ title: 'mergeProps' }, { name: 'description', content: 'mergeProps' }],
   }),
   component: () => <Content components={mdxComponents} />,
 });

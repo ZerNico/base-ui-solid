@@ -33,7 +33,7 @@ export function DocsLayout(props: { children: JSX.Element }) {
                             {
                               section: 'Handbook',
                               title: 'llms.txt',
-                              href: 'https://base-ui.com/llms.txt',
+                              href: '/llms.txt',
                               description: '',
                             },
                           ]
@@ -59,7 +59,11 @@ export function DocsLayout(props: { children: JSX.Element }) {
                                     order.indexOf(b.title.replaceAll('\u00a0', ' '));
                             })}
                         >
-                          {(page) => <SideNav.Item href={page.href}>{page.title}</SideNav.Item>}
+                          {(page) => (
+                            <SideNav.Item href={page.href}>
+                              {page.title.replace(/^About Base[\s\u00a0]UI$/, 'About')}
+                            </SideNav.Item>
+                          )}
                         </For>
                       </SideNav.List>
                     </SideNav.Section>

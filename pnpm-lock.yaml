@@ -113,6 +113,15 @@ importers:
       '@mui/internal-docs-infra':
         specifier: 0.13.1-canary.5
         version: 0.13.1-canary.5(prettier@3.9.9)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)
+      '@orama/orama':
+        specifier: ^3.1.18
+        version: 3.1.18
+      '@orama/plugin-qps':
+        specifier: ^3.1.18
+        version: 3.1.18
+      '@orama/stemmers':
+        specifier: ^3.1.18
+        version: 3.1.18
       '@solidjs/web':
         specifier: 2.0.0-rc.13
         version: 2.0.0-rc.13(solid-js@2.0.0-rc.13)
@@ -149,6 +158,9 @@ importers:
       hast-util-heading-rank:
         specifier: ^3.0.0
         version: 3.0.0
+      hast-util-to-html:
+        specifier: ^9.0.5
+        version: 9.0.5
       hast-util-to-string:
         specifier: ^3.0.1
         version: 3.0.1

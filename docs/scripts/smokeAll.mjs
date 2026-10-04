@@ -10,7 +10,7 @@ for (const filename of await readdir(new URL('../src/routes/', import.meta.url))
     continue;
   }
   const source = await readFile(new URL(`../src/routes/${filename}`, import.meta.url), 'utf8');
-  const content = source.match(/import Content,.*from '([^']+)'/);
+  const content = source.match(/import Content(?:,.*?)? from '([^']+)'/);
   const path = source.match(/createFileRoute\('([^']+)'\)/);
   if (!content || !path) {
     continue;
@@ -30,6 +30,12 @@ try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     page.setDefaultTimeout(8000);
     const errors = [];
+    const failedRequests = [];
+    page.on('response', (response) => {
+      if (response.status() >= 400) {
+        failedRequests.push(`${response.status()} ${response.url()}`);
+      }
+    });
     page.on('pageerror', (error) => errors.push(error.message));
     page.on('console', (message) => {
       if (['warning', 'error'].includes(message.type())) {
@@ -52,11 +58,15 @@ try {
         assert.equal(await demo.locator('.DemoSourceToggle').getAttribute('aria-expanded'), 'true');
         assert.ok(await demo.locator('pre').innerText());
         await demo.locator('.DemoSourceToggle').click();
-        const variant = demo.getByRole('tab', { name: 'Tailwind', exact: true });
+        const variant = demo.getByRole('combobox', { name: 'Styling method', exact: true });
         if (await variant.count()) {
           await variant.click();
-          assert.equal(await variant.getAttribute('aria-selected'), 'true');
-          await demo.locator('.DemoToolbar [role=tab]').first().click();
+          await page.getByRole('option', { name: 'Tailwind', exact: true }).click();
+          assert.match(await variant.innerText(), /Tailwind/);
+          await variant.click();
+          await page.getByRole('option', { name: 'CSS Modules', exact: true }).click();
+          assert.match(await variant.innerText(), /CSS Modules/);
+          await demo.locator('.DemoSourceToggle').click();
         }
         result.interaction = 'source + variant';
         const preview = demo.locator('.DemoPreview');
@@ -142,7 +152,12 @@ try {
         await page.keyboard.press('Escape');
       }
       await page.waitForTimeout(150);
-      assert.deepEqual(errors, [], 'Console errors, hydration warnings, or Solid diagnostics');
+      assert.deepEqual(
+        errors,
+        [],
+        'Console errors, notFound warnings, hydration warnings, or Solid diagnostics',
+      );
+      assert.deepEqual(failedRequests, [], 'Failed request URLs');
       result.passed = true;
     } catch (error) {
       result.passed = false;
@@ -169,4 +184,10 @@ process.stdout.write(
 );
 if (results.some((result) => !result.passed)) {
   process.exitCode = 1;
+}
+
+// Port note: optional server-log coverage catches SSR notFound warnings absent from browser console.
+if (process.env.DOCS_SERVER_LOG) {
+  const log = await readFile(process.env.DOCS_SERVER_LOG, 'utf8');
+  assert.doesNotMatch(log, /Warning: A notFoundError|notFoundComponent option was not configured/);
 }

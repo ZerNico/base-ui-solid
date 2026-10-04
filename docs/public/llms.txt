@@ -1,0 +1,76 @@
+# Base UI for Solid
+
+> Accessible, unstyled UI components for Solid 2.0 RC.
+
+This documentation describes base-ui-solid. Use Solid 2 and @solidjs/web; React APIs and Solid 1 APIs do not apply. Components use native HTML attributes and events, reactive accessors, and function-based render props.
+
+## Overview
+
+- [About Base UI](/react/overview/about): An open-source Solid component library for building accessible user interfaces.
+- [Accessibility](/react/overview/accessibility): Learn how to make the most of Base UI's accessibility features and guidelines.
+- [Community](/react/overview/community): The Base UI ecosystem, support channels, and ways to stay up to date.
+- [Quick start](/react/overview/quick-start): A quick guide to getting started with Base UI.
+
+## Handbook
+
+- [Animation](/react/handbook/animation): A guide to animating Base UI components.
+- [Composition](/react/handbook/composition): A guide to composing Base UI components with your own Solid components.
+- [Customization](/react/handbook/customization): A guide to customizing the behavior of Base UI components.
+- [Forms](/react/handbook/forms): A guide to building forms with Base UI components.
+- [Styling](/react/handbook/styling): A guide to styling Base UI components with your preferred styling engine.
+- [TypeScript](/react/handbook/typescript): A guide to using TypeScript with Base UI.
+
+## Components
+
+- [Accordion](/react/components/accordion): A set of collapsible panels with headings.
+- [Alert Dialog](/react/components/alert-dialog): A dialog that requires a user response to proceed.
+- [Autocomplete](/react/components/autocomplete): An input that suggests options as you type.
+- [Avatar](/react/components/avatar): An easily stylable avatar component.
+- [Button](/react/components/button): 
+  A button component that can be rendered as another tag or focusable when disabled.
+
+- [Checkbox Group](/react/components/checkbox-group): Provides shared state to a series of checkboxes.
+- [Checkbox](/react/components/checkbox): An easily stylable checkbox component.
+- [Collapsible](/react/components/collapsible): A collapsible panel controlled by a button.
+- [Combobox](/react/components/combobox): An input combined with a list of predefined items to select.
+- [Context Menu](/react/components/context-menu): A menu that appears at the pointer on right click or long press.
+- [Dialog](/react/components/dialog): A popup that opens on top of the entire page.
+- [Drawer](/react/components/drawer): A panel that slides in from the edge of the screen.
+- [Field](/react/components/field): A component that provides labeling and validation for form controls.
+- [Fieldset](/react/components/fieldset): A native fieldset element with an easily stylable legend.
+- [Form](/react/components/form): A native form element with consolidated error handling.
+- [Input](/react/components/input): 
+  A native input element that automatically works with [Field](/react/components/field).
+
+- [Menu](/react/components/menu): A list of actions in a dropdown, enhanced with keyboard navigation.
+- [Menubar](/react/components/menubar): A menu bar providing commands and options for your application.
+- [Meter](/react/components/meter): A graphical display of a numeric value within a range.
+- [Navigation Menu](/react/components/navigation-menu): A collection of links and menus for website navigation.
+- [Number Field](/react/components/number-field): A numeric input element with increment and decrement buttons, and a scrub area.
+- [OTP Field](/react/components/otp-field): A one-time password input composed of individual character slots.
+- [Popover](/react/components/popover): An accessible popup anchored to a button.
+- [Preview Card](/react/components/preview-card): 
+  A link that shows a destination preview without interrupting keyboard or screen reader navigation.
+
+- [Progress](/react/components/progress): Displays the status of a task that takes a long time.
+- [Radio Group](/react/components/radio-group): Provides shared state to a series of radio buttons.
+- [Scroll Area](/react/components/scroll-area): A native scroll container with custom scrollbars.
+- [Select](/react/components/select): A common form component for choosing a predefined value in a dropdown menu.
+- [Separator](/react/components/separator): A separator element accessible to screen readers.
+- [Slider](/react/components/slider): An easily stylable range input.
+- [Switch](/react/components/switch): A control that indicates whether a setting is on or off.
+- [Tabs](/react/components/tabs): A component for toggling between related panels on the same page.
+- [Toast](/react/components/toast): Generates toast notifications.
+- [Toggle Group](/react/components/toggle-group): Provides a shared state to a series of toggle buttons.
+- [Toggle](/react/components/toggle): A two-state button that can be on or off.
+- [Toolbar](/react/components/toolbar): A container for grouping a set of buttons and controls.
+- [Tooltip](/react/components/tooltip): 
+  A popup that appears when an element is hovered or focused, showing a hint for sighted users.
+
+
+## Utils
+
+- [CSP Provider](/react/utils/csp-provider): Configures CSP-related behavior for inline tags rendered by Base UI components.
+- [Direction Provider](/react/utils/direction-provider): Enables RTL behavior for Base UI components.
+- [mergeProps](/react/utils/merge-props): A utility to merge multiple sets of Solid props.
+- [useRender](/react/utils/use-render): Hook for enabling a render prop in custom components.

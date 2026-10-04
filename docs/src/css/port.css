@@ -28,30 +28,6 @@
     font-family: monospace;
     overflow-wrap: anywhere;
   }
-  .SearchBackdrop {
-    position: fixed;
-    inset: 0;
-    background: #0006;
-    z-index: 10;
-  }
-  .SearchPopup {
-    position: fixed;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(32rem, 90vw);
-    padding: 1.5rem;
-    background: var(--color-content);
-    color: var(--color-foreground);
-    z-index: 11;
-    box-shadow: var(--shadow-4);
-  }
-  .SearchPopup input {
-    width: 100%;
-    margin-block: 1rem;
-    padding: 0.75rem;
-    border: 1px solid var(--color-border);
-  }
   .Landing {
     max-width: 48rem;
     margin: 6rem auto;

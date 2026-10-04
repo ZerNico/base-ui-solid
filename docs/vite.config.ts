@@ -4,6 +4,8 @@ import solid from 'vite-plugin-solid';
 import mdx from '@mdx-js/rollup';
 import tailwind from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/solid-start/plugin/vite';
+import { requestPathsPlugin } from './src/mdx/requestPathsPlugin.mjs';
+import { searchIndexPlugin } from './src/mdx/searchIndexPlugin.mjs';
 import { sourcePlugin } from './src/mdx/sourcePlugin.mjs';
 import { mdxOptions } from './src/mdx/options.mjs';
 
@@ -15,9 +17,21 @@ export default defineConfig({
     dedupe: ['solid-js', '@solidjs/web'],
     alias: { docs: fileURLToPath(new URL('.', import.meta.url)) },
   },
+  // Port note: prebundle the deferred search dependencies before the first query.
+  optimizeDeps: {
+    include: [
+      'solid-js/refresh',
+      '@mui/internal-docs-infra/resolvePageUrl',
+      '@orama/orama',
+      '@orama/plugin-qps',
+      '@orama/stemmers/english',
+    ],
+  },
   ssr: { noExternal: ['solid-js', '@solidjs/web', 'base-ui-solid', '@base-ui-solid/utils'] },
   plugins: [
+    requestPathsPlugin(),
     sourcePlugin(),
+    searchIndexPlugin(),
     { ...mdx(mdxOptions), enforce: 'pre' },
     tanstackStart({ prerender: { enabled: true, crawlLinks: false, failOnError: true } }),
     solid({ ssr: true, extensions: ['.mdx'], solid: { hydratable: true } }),

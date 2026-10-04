@@ -6,7 +6,12 @@ import { createStartHandler, defaultStreamHandler } from '@tanstack/solid-start-
 // request-event scope, and has no server functions. Remove this entry when the barrel is fixed.
 const handle = createStartHandler(defaultStreamHandler);
 export default {
-  fetch(request: Request) {
-    return provideRequestEvent({ request, locals: {} }, () => handle(request));
+  async fetch(request: Request) {
+    const response = await provideRequestEvent({ request, locals: {} }, () => handle(request));
+    if (response.status === 404) {
+      // eslint-disable-next-line no-console -- Log missing request URLs without a warning flood.
+      console.info(`[docs:not-found] ${request.method} ${request.url}`);
+    }
+    return response;
   },
 };
