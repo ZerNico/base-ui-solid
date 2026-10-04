@@ -114,6 +114,23 @@ export function PopupHandleAttachment<Store>(props: {
 }
 
 /**
+ * Port note: hook counterpart of `<PopupHandleAttachment>` for a handle that may be absent. Call it
+ * in the Root body (before rendering children): Solid creates a component's JSX children after its
+ * later siblings, so an effect created by a child component would run after those siblings'
+ * effects, while an effect created in the Root body runs before every descendant's and later
+ * sibling's effect, like upstream's first-child layout effect.
+ */
+export function usePopupHandleAttachment<Store>(
+  handle: Accessor<PopupRootStoreHandle<Store> | undefined>,
+  store: Store,
+) {
+  useIsoLayoutEffect(
+    ([handleValue]) => handleValue?.attachStore(store),
+    () => [handle()] as const,
+  );
+}
+
+/**
  * A value, or an accessor returning it.
  * Port note: trigger hooks accept accessors for values that upstream reads on every render (a
  * detached trigger follows its handle's store pointer, and its id may come from props).

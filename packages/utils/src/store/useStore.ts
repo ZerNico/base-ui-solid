@@ -1,5 +1,6 @@
 import { createMemo, createSignal, onCleanup } from 'solid-js';
 import type { Accessor } from 'solid-js';
+import { isServer } from '@solidjs/web';
 import type { ReadonlyStore } from './Store';
 
 /**
@@ -70,6 +71,12 @@ export function useStore(
  */
 export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'>) {
   const [track, trigger] = createSignal(undefined, { equals: false, ownedWrite: true });
+  if (isServer) {
+    // Server rendering is a single pass: nothing re-renders, and writing the signal from a store
+    // update (e.g. a Root seeding its store while rendering) triggers Solid's `SERVER_WRITE`
+    // diagnostic. So don't subscribe.
+    return track;
+  }
   const unsubscribe = store.subscribe(() => {
     trigger(undefined);
   });

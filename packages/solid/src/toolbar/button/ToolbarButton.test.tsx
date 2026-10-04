@@ -2,6 +2,9 @@ import { expect, vi, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
 import { render, screen, waitFor, describeConformance, isJSDOM } from '#test-utils';
 import { Toolbar } from '..';
+import { Popover } from '../../popover';
+import { Dialog } from '../../dialog';
+import { AlertDialog } from '../../alert-dialog';
 import { Switch } from '../../switch';
 import { Toggle } from '../../toggle';
 import { ToggleGroup } from '../../toggle-group';
@@ -369,43 +372,376 @@ describe('<Toolbar.Button />', () => {
       it.skip('disabled state', () => {});
     });
 
+    // Port note: React element render props become render functions.
     describe('Dialog', () => {
-      // TODO(port): needs <Dialog>
-      it.skip('renders a dialog trigger', () => {});
+      it('renders a dialog trigger', async () => {
+        await render(() => (
+          <Toolbar.Root>
+            <Dialog.Root modal={false}>
+              <Toolbar.Button
+                render={(props) => (
+                  <Dialog.Trigger {...(props as Dialog.Trigger.Props)} data-testid="trigger" />
+                )}
+              />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <Dialog>
-      it.skip('handles interactions', () => {});
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
+      });
 
-      // TODO(port): needs <Dialog>
-      it.skip('disabled state', () => {});
+      it('handles interactions', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                render={(props) => <Dialog.Trigger {...(props as Dialog.Trigger.Props)} />}
+              />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <Dialog>
-      it.skip('prevents composite keydowns from escaping', () => {});
+        expect(screen.queryByText('title text')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('title text')).not.toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByText('title text')).toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(2);
+        expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                disabled
+                render={(props) => <Dialog.Trigger {...(props as Dialog.Trigger.Props)} />}
+              />
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>title text</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByText('title text')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+      });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Dialog.Root modal={false} onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                render={(props) => <Dialog.Trigger {...(props as Dialog.Trigger.Props)} />}
+              >
+                dialog
+              </Toolbar.Button>
+              <Dialog.Portal>
+                <Dialog.Popup />
+              </Dialog.Portal>
+            </Dialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+      });
     });
 
     describe('AlertDialog', () => {
-      // TODO(port): needs <AlertDialog>
-      it.skip('renders an alert dialog trigger', () => {});
+      it('renders an alert dialog trigger', async () => {
+        await render(() => (
+          <Toolbar.Root>
+            <AlertDialog.Root>
+              <Toolbar.Button
+                render={(props) => (
+                  <AlertDialog.Trigger
+                    {...(props as AlertDialog.Trigger.Props)}
+                    data-testid="trigger"
+                  />
+                )}
+              />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <AlertDialog>
-      it.skip('handles interactions', () => {});
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
+      });
 
-      // TODO(port): needs <AlertDialog>
-      it.skip('disabled state', () => {});
+      it('handles interactions', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                render={(props) => (
+                  <AlertDialog.Trigger {...(props as AlertDialog.Trigger.Props)} />
+                )}
+              />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <AlertDialog>
-      it.skip('prevents composite keydowns from escaping', () => {});
+        expect(screen.queryByText('title text')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('title text')).not.toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
+
+        await user.keyboard('[Escape]');
+        expect(screen.queryByText('title text')).toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(2);
+        expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                disabled
+                render={(props) => (
+                  <AlertDialog.Trigger {...(props as AlertDialog.Trigger.Props)} />
+                )}
+              />
+              <AlertDialog.Portal>
+                <AlertDialog.Backdrop />
+                <AlertDialog.Popup>
+                  <AlertDialog.Title>title text</AlertDialog.Title>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByText('title text')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+      });
+
+      it('prevents composite keydowns from escaping', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <AlertDialog.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                render={(props) => (
+                  <AlertDialog.Trigger {...(props as AlertDialog.Trigger.Props)} />
+                )}
+              >
+                dialog
+              </Toolbar.Button>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+
+            <Toolbar.Button>empty</Toolbar.Button>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'dialog' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('alertdialog')).toHaveFocus();
+        });
+
+        await user.keyboard('{ArrowRight}');
+
+        expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+      });
     });
 
     describe('Popover', () => {
-      // TODO(port): needs <Popover>
-      it.skip('renders a popover trigger', () => {});
+      // Port note: `render={<Popover.Trigger />}` (React element) becomes a render function.
+      it('renders a popover trigger', async () => {
+        await render(() => (
+          <Toolbar.Root>
+            <Popover.Root>
+              <Toolbar.Button
+                render={(props) => <Popover.Trigger {...(props as any)} data-testid="trigger" />}
+              />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>
+        ));
 
-      // TODO(port): needs <Popover>
-      it.skip('handles interactions', () => {});
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
+        expect(screen.getByRole('button')).toHaveAttribute('aria-haspopup', 'dialog');
+      });
 
-      // TODO(port): needs <Popover>
-      it.skip('disabled state', () => {});
+      it('handles interactions', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Popover.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button render={(props) => <Popover.Trigger {...(props as any)} />} />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        expect(screen.queryByText('Content')).not.toBe(null);
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
+
+        await user.keyboard('[Escape]');
+        expect(onOpenChange).toHaveBeenCalledTimes(2);
+        expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+      });
+
+      it('disabled state', async () => {
+        const onOpenChange = vi.fn();
+        const { user } = await render(() => (
+          <Toolbar.Root>
+            <Popover.Root onOpenChange={onOpenChange}>
+              <Toolbar.Button
+                disabled
+                render={(props) => <Popover.Trigger {...(props as any)} />}
+              />
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </Toolbar.Root>
+        ));
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        const trigger = screen.getByRole('button');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+
+        await user.keyboard('[Enter]');
+        await user.keyboard('[Space]');
+        await user.keyboard('[ArrowUp]');
+        await user.keyboard('[ArrowDown]');
+        expect(onOpenChange).toHaveBeenCalledTimes(0);
+      });
     });
 
     describe('Toggle and ToggleGroup', () => {
