@@ -66,13 +66,12 @@ export function useRenderElement<
   // so they're read lazily through the (stable) object that provided them.
   const childrenSource = createMemo(() => computed().childrenSource);
 
-  const refCallback = (node: Element) => {
-    applyRefs(
-      untrack(() => computed().ref),
-      node,
-    );
-    applyRefs(ref, node);
-  };
+  // Port note: ref attachment reads current props imperatively, outside dependency tracking.
+  const refCallback = (node: Element) =>
+    untrack(() => {
+      applyRefs(computed().ref, node);
+      applyRefs(ref, node);
+    });
 
   const outProps = merge(() => computed().props, {
     get children() {
@@ -109,7 +108,7 @@ export function useRenderElement<
       const currentRender = renderCount;
       onCleanup(() => {
         if (currentRender === renderCount) {
-          applyRefs(ref, null);
+          untrack(() => applyRefs(ref, null));
         }
       });
     }

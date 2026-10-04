@@ -920,7 +920,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
         events.off('openchange', onOpenChangeLocal);
 
         const activeEl = activeElement(doc);
-        const insideElements = getResolvedInsideElements();
+        // Port note: cleanup observes the latest inside elements without establishing dependencies.
+        const insideElements = untrack(getResolvedInsideElements);
         const isFocusInsideFloatingTree =
           contains(floatingValue, activeEl) ||
           insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||

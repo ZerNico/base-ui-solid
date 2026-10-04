@@ -55,7 +55,10 @@ export function useRenderedId(
       if (!currentElement) {
         return undefined;
       }
-      setId?.(currentRegisteredId);
+      // Port note: Solid render callbacks are opaque before mount. Read their actual DOM
+      // id after attributes commit, preserving explicit empty ids and callback overrides.
+      const renderedId = currentElement.getAttribute('id');
+      setId?.(renderedId === defaultId() ? undefined : (renderedId ?? currentRegisteredId));
       return () => {
         setId?.(undefined);
       };
