@@ -5,8 +5,8 @@
 @import '../components/SideNav.css';
 @import '../components/QuickNav/QuickNav.css';
 @import '../components/Subtitle/Subtitle.css';
+@import '../components/GhostButton.css';
 @import '../components/Demo/Demo.css';
 @import '../components/CodeBlock/CodeBlock.css';
-@import '../components/GhostButton.css';
 @import '../components/MobileNav.css';
 @import '../components/SearchTrigger.css';
