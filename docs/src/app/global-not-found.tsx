@@ -11,7 +11,7 @@ export default function NotFoundPage() {
         <div class="bui-gcs-1 bui-gce-9">
           <p class="Text sz-2">
             This page couldn't be found. Please return to the{' '}
-            <Link href="/react/overview/quick-start">docs</Link> or create a corresponding issue on{' '}
+            <Link href="/solid/overview/quick-start">docs</Link> or create a corresponding issue on{' '}
             <Link href={REPO_URL}>GitHub</Link>.
           </p>
         </div>

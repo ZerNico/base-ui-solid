@@ -8,7 +8,7 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 // eslint-disable-next-line import/extensions
-import { releases } from '../../src/app/(docs)/react/overview/releases/releases.ts';
+import { releases } from '../../src/app/(docs)/solid/overview/releases/releases.ts';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -52,7 +52,7 @@ export function processReleaseTimeline() {
 
   for (const release of releases) {
     // Heading with version linked to release page
-    const url = `/react/overview/releases/${release.versionSlug}`;
+    const url = `/solid/overview/releases/${release.versionSlug}`;
     const headingChildren = [{ type: 'link', url, children: [mdx.text(release.version)] }];
     if (release.latest) {
       headingChildren.push(mdx.text(' (Latest)'));

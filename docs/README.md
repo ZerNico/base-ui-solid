@@ -8,12 +8,15 @@ TanStack Start + Solid 2.0, with upstream MDX, CSS, and MUI docs infrastructure.
 - `pnpm --filter docs serve`: serve the static export on port **3010**.
 - `pnpm --filter docs typescript`: docs TypeScript checks.
 - `pnpm --filter docs test`: all copied upstream docs plugin tests.
+- `pnpm --filter docs redirects`: verify every legacy HTML/Markdown URL returns 301.
 - `pnpm --filter docs smoke`: Playwright check against the running dev or static server.
 
-Port note: URL paths intentionally keep `/react/` for compatibility. Components, demos,
+Port note: Documentation URLs use `/solid/`. Legacy `/react/*` URLs permanently redirect
+to `/solid/*` in dev, SSR, and static hosting. Components, demos,
 package imports, and runtime are Solid. The build generates per-page `.md`, `llms.txt`,
 `llms-full.txt`, `index.md`, `sitemap.xml`, and `robots.txt` into `public` and the static export.
-Development regenerates Markdown when source or reference files change.
+Netlify applies `public/_redirects`; `pnpm serve` applies the shared redirect middleware with the same 301 migration.
+Deploy the host redirect rules with the export. Development regenerates Markdown when source or reference files change.
 
 Set `SITE_URL`, `REPO_URL`, and `REPO_BRANCH` in [src/config.ts](./src/config.ts) before
 publishing. The defaults `https://base-ui-solid.example` and

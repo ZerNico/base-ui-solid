@@ -36,7 +36,7 @@
         "name": "value",
         "type": "string",
         "default": "-",
-        "description": "The checkbox's value. Identifies it within a [Checkbox Group](/react/components/checkbox-group), falling back to `name` when omitted.\nWhen submitting a form, a checked box submits `value`; with no `value`, it submits the native \"on\"."
+        "description": "The checkbox's value. Identifies it within a [Checkbox Group](/solid/components/checkbox-group), falling back to `name` when omitted.\nWhen submitting a form, a checked box submits `value`; with no `value`, it submits the native \"on\"."
       },
       {
         "name": "form",
@@ -54,7 +54,7 @@
         "name": "parent",
         "type": "boolean",
         "default": "`false`",
-        "description": "Whether the checkbox controls a group of child checkboxes. Must be used in a [Checkbox Group](/react/components/checkbox-group)."
+        "description": "Whether the checkbox controls a group of child checkboxes. Must be used in a [Checkbox Group](/solid/components/checkbox-group)."
       },
       {
         "name": "uncheckedValue",

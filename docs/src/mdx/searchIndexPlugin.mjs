@@ -20,7 +20,7 @@ export function searchIndexPlugin() {
         const routeFile = new URL(filename, routes);
         const route = await readFile(routeFile, 'utf8');
         const match = route.match(/import Content from '([^']+\.mdx)'/);
-        const path = route.match(/createFileRoute\('\/_docs\/react\/([^']+)'\)/)?.[1];
+        const path = route.match(/createFileRoute\('\/_docs\/solid\/([^']+)'\)/)?.[1];
         if (
           !match ||
           !path ||
@@ -55,7 +55,7 @@ export function searchIndexPlugin() {
         const page = {
           title: heading,
           slug: path.split('/').filter(Boolean).at(-1),
-          path: `/react/${path}`,
+          path: `/solid/${path}`,
           description: source.match(/<Subtitle>(.*?)<\/Subtitle>/s)?.[1] ?? '',
           sections,
           keywords: [

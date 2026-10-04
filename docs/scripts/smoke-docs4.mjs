@@ -24,10 +24,10 @@ async function pages(directory, prefix) {
   return result;
 }
 const urls = [
-  '/react',
-  ...(await pages(new URL('react/overview/', app), '/react/overview')),
-  ...(await pages(new URL('react/handbook/', app), '/react/handbook')),
-  ...(await pages(new URL('react/utils/', app), '/react/utils')),
+  '/solid',
+  ...(await pages(new URL('solid/overview/', app), '/solid/overview')),
+  ...(await pages(new URL('solid/handbook/', app), '/solid/handbook')),
+  ...(await pages(new URL('solid/utils/', app), '/solid/utils')),
   '/production-error',
   '/',
   '/careers/design-engineer',

@@ -110,14 +110,14 @@ try {
     try {
       if (process.env.DOCS_STATIC_ROOT) {
         const html = await readFile(
-          `${process.env.DOCS_STATIC_ROOT}/react/components/${name}/index.html`,
+          `${process.env.DOCS_STATIC_ROOT}/solid/components/${name}/index.html`,
           'utf8',
         );
         assert.match(html, /API reference/);
         assert.doesNotMatch(html, /Something went wrong/);
       }
       const response = await page.goto(
-        `${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/components/${name}`,
+        `${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/components/${name}`,
       );
       assert.equal(response.status(), 200);
       const title =

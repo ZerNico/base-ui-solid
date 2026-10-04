@@ -12,7 +12,7 @@ export function markdownPlugin() {
     // Keep the package independent of docs deployment configuration.
     transform(code, id) {
       if (id.includes('/packages/solid/src/')) {
-        return code.replaceAll('https://base-ui.com/react/', '/react/');
+        return code.replaceAll('https://base-ui.com/react/', '/solid/');
       }
       return undefined;
     },

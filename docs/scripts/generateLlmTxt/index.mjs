@@ -17,9 +17,9 @@ import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 import { SITE_URL } from '../../src/config.ts'; // eslint-disable-line import/extensions
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
-const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(docs)/react');
+const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(docs)/solid');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
-const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
+const OUTPUT_SOLID_DIR = path.join(OUTPUT_BASE_DIR, 'solid');
 
 // Port note: Markdown stays portable; canonical metadata uses the configured origin.
 const BASE_URL = '/';
@@ -104,7 +104,7 @@ async function generateLlmsTxt() {
   try {
     // Create output directories if they don't exist
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
-    await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
+    await fs.mkdir(OUTPUT_SOLID_DIR, { recursive: true });
 
     const metadataByUrl = new Map();
     // Store metadata for each section as objects indexed by ID
@@ -132,8 +132,8 @@ async function generateLlmsTxt() {
     const mdxFilesInfo = mdxFiles.map((mdxFile) => {
       const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
       const dirPath = path.dirname(relativePath);
-      const urlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
-      const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
+      const urlPath = `/${path.join('solid', dirPath).replace(/\\/g, '/')}`;
+      const outputFilePath = path.join(OUTPUT_SOLID_DIR, `${dirPath}.md`);
       return { urlPath, mdxFile, outputFilePath };
     });
 
@@ -154,7 +154,7 @@ async function generateLlmsTxt() {
       console.log(`Processing ${sectionName} section...`);
 
       for (const { urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
-        if (urlPath !== `/react/${sectionName}` && !urlPath.startsWith(`/react/${sectionName}/`)) {
+        if (urlPath !== `/solid/${sectionName}` && !urlPath.startsWith(`/solid/${sectionName}/`)) {
           continue;
         }
 
@@ -195,7 +195,7 @@ async function generateLlmsTxt() {
         await writeFileAtomic(outputFilePath, content);
 
         // Extract the filename without extension to use as id
-        const fileId = urlPath.slice(`/react/${sectionName}/`.length);
+        const fileId = urlPath.slice(`/solid/${sectionName}/`.length);
 
         const pageMeta = {
           id: fileId,

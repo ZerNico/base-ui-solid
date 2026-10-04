@@ -9,9 +9,9 @@ try {
   for (const origin of process.argv.slice(2)) {
     const page = await browser.newPage();
     for (const route of [
-      '/react/components/collapsible',
-      '/react/components/accordion',
-      '/react/overview/quick-start',
+      '/solid/components/collapsible',
+      '/solid/components/accordion',
+      '/solid/overview/quick-start',
     ]) {
       await page.goto(`${origin}${route}`);
       const link = page.getByRole('link', { name: 'View as Markdown', exact: true });
@@ -39,7 +39,7 @@ try {
     const links = [...text.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]);
     assert.ok(links.length >= 80);
     for (const link of links) {
-      assert.match(link, /^\/react\/.*\.md$/);
+      assert.match(link, /^\/solid\/.*\.md$/);
       const response = await page.request.get(new URL(link, origin).href);
       assert.equal(response.status(), 200, link);
       assert.match(await response.text(), /^---\ntitle:/);

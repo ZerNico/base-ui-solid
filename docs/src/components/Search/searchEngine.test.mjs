@@ -25,12 +25,12 @@ describe('docs search', () => {
     expect(
       result.results
         .find((group) => group.group === 'API Reference')
-        .items.some((item) => buildResultUrl(item) === '/react/components/select#root'),
+        .items.some((item) => buildResultUrl(item) === '/solid/components/select#root'),
     ).toBe(true);
     expect(
       result.results
         .find((group) => group.group === 'Sections')
-        .items.some((item) => buildResultUrl(item).startsWith('/react/components/select#')),
+        .items.some((item) => buildResultUrl(item).startsWith('/solid/components/select#')),
     ).toBe(true);
     expect(result.results.every((group) => group.items.length <= 5)).toBe(true);
   });
@@ -45,7 +45,7 @@ describe('docs search', () => {
     const engine = await loadSearch();
     const result = await engine.search('Initialize the form');
     const urls = result.results.flatMap((group) => group.items.map(buildResultUrl));
-    expect(urls).toContain('/react/handbook/forms#react-hook-form-initialize-the-form');
-    expect(urls).toContain('/react/handbook/forms#tanstack-form-initialize-the-form');
+    expect(urls).toContain('/solid/handbook/forms#react-hook-form-initialize-the-form');
+    expect(urls).toContain('/solid/handbook/forms#tanstack-form-initialize-the-form');
   });
 });

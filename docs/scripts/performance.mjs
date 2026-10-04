@@ -11,7 +11,7 @@ try {
   for (const origin of (
     process.env.DOCS_PERF_ORIGINS ?? 'http://localhost:3005,https://base-ui.com'
   ).split(',')) {
-    for (const path of ['/react/handbook/forms', '/react/components/select', '/']) {
+    for (const path of ['/solid/handbook/forms', '/solid/components/select', '/']) {
       for (let run = 0; run < Number(process.env.DOCS_PERF_RUNS ?? 3); run += 1) {
         const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
         const errors = [];
@@ -54,7 +54,10 @@ try {
             );
           }).observe({ type: 'longtask', buffered: true });
         });
-        await page.goto(origin + path, { waitUntil: 'domcontentloaded', timeout: 120000 });
+        // Port note: upstream comparison pages retain their React URL segment.
+        const requestPath =
+          origin === 'https://base-ui.com' ? path.replace(/^\/solid(?=\/|$)/, '/react') : path;
+        await page.goto(origin + requestPath, { waitUntil: 'domcontentloaded', timeout: 120000 });
         const interactive = await page.evaluate(async () => {
           const trigger =
             document.querySelector('.HeaderSearchDesktopTrigger') ??

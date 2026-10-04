@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 // eslint-disable-next-line import/extensions
-import { releases } from '../../src/app/(docs)/react/overview/releases/releases.ts';
+import { releases } from '../../src/app/(docs)/solid/overview/releases/releases.ts';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
 describe('mdxToMarkdown', () => {
@@ -12,7 +12,7 @@ describe('mdxToMarkdown', () => {
     // Read the actual Accordion MDX file
     const accordionMdxPath = path.resolve(
       import.meta.dirname,
-      '../../src/app/(docs)/react/components/accordion/page.mdx',
+      '../../src/app/(docs)/solid/components/accordion/page.mdx',
     );
     const accordionMdxContent = fs.readFileSync(accordionMdxPath, 'utf-8');
 
@@ -44,7 +44,7 @@ describe('mdxToMarkdown', () => {
     // Read the actual Direcrion Provider MDX file
     const directionProviderMdxPath = path.resolve(
       import.meta.dirname,
-      '../../src/app/(docs)/react/utils/direction-provider/page.mdx',
+      '../../src/app/(docs)/solid/utils/direction-provider/page.mdx',
     );
     const directionProviderMdxContent = fs.readFileSync(directionProviderMdxPath, 'utf-8');
 
@@ -72,14 +72,14 @@ describe('mdxToMarkdown', () => {
   it('should include all releases from releases.ts', async () => {
     const releasesMdxPath = path.resolve(
       import.meta.dirname,
-      '../../src/app/(docs)/react/overview/releases/page.mdx',
+      '../../src/app/(docs)/solid/overview/releases/page.mdx',
     );
     const releasesMdxContent = fs.readFileSync(releasesMdxPath, 'utf-8');
 
-    const urlPath = '/react/overview/releases';
+    const urlPath = '/solid/overview/releases';
     const urlsWithMdVersion = new Set([
       urlPath,
-      ...releases.map((r) => `/react/overview/releases/${r.versionSlug}`),
+      ...releases.map((r) => `/solid/overview/releases/${r.versionSlug}`),
     ]);
     const result = await mdxToMarkdown(releasesMdxContent, releasesMdxPath, {
       urlPath,
@@ -92,7 +92,7 @@ describe('mdxToMarkdown', () => {
     const sections = normalized.split(/(?=^### )/m);
 
     for (const release of releases) {
-      const heading = `### [${release.version}](/react/overview/releases/${release.versionSlug}.md)`;
+      const heading = `### [${release.version}](/solid/overview/releases/${release.versionSlug}.md)`;
       expect(result.markdown).toContain(heading);
 
       const section = sections.find((s) => s.startsWith(heading));

@@ -5,10 +5,10 @@ import { chromium } from 'playwright';
 
 const routes = [
   '/',
-  '/react/overview/quick-start',
-  '/react/components/menubar',
-  '/react/components/select',
-  '/react/handbook/styling',
+  '/solid/overview/quick-start',
+  '/solid/components/menubar',
+  '/solid/components/select',
+  '/solid/handbook/styling',
 ];
 const browser = await chromium.launch();
 try {
@@ -65,7 +65,7 @@ try {
               colorScheme === 'dark' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)',
             );
           }
-          if (javaScriptEnabled && route === '/react/overview/quick-start') {
+          if (javaScriptEnabled && route === '/solid/overview/quick-start') {
             const installation = page.locator('.InstallationBlock');
             await installation.getByRole('tab', { name: 'yarn', exact: true }).click();
             assert.match(

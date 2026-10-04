@@ -7,7 +7,7 @@
 
 # For links that we can't edit later on, for example hosted in the code published on npm
 /r/discord https://discord.com/invite/g6C3hUtuxz 302
-/r/invalid-render-prop /react/handbook/composition 302
+/r/invalid-render-prop /solid/handbook/composition 302
 
 # Legacy redirection
 # Added in chronological order (the last line is the most recent one)
@@ -23,4 +23,9 @@
 
 # 2026
 
-/react/components/radio /react/components/radio-group 301
+/solid/components/radio /solid/components/radio-group 301
+
+# Permanent Solid framework URL migration (upstream Netlify host format).
+/react/components/radio /solid/components/radio-group 301!
+/react /solid 301!
+/react/* /solid/:splat 301!

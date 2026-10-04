@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const html = await readFile(
-  new URL('../export/react/components/collapsible/index.html', import.meta.url),
+  new URL('../export/solid/components/collapsible/index.html', import.meta.url),
   'utf8',
 );
 assert.match(html, /Recovery keys/);
@@ -23,7 +23,7 @@ try {
     }
   });
   const response = await page.goto(
-    `${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/components/collapsible`,
+    `${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/components/collapsible`,
   );
   assert.equal(response.status(), 200);
   await page.getByRole('heading', { name: 'Collapsible', exact: true }).waitFor();
@@ -86,7 +86,7 @@ try {
   const result = page.getByRole('dialog').getByRole('option', { name: 'Collapsible', exact: true });
   await result.waitFor({ state: 'visible' });
   assert.ok(await result.isVisible());
-  assert.equal(await result.getAttribute('href'), '/react/components/collapsible');
+  assert.equal(await result.getAttribute('href'), '/solid/components/collapsible');
   await search.fill('missing-component');
   await page.getByText('No results found.').waitFor();
   await page.keyboard.press('Escape');

@@ -265,7 +265,7 @@
     ]
   },
   "Control": {
-    "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base\u00a0UI input component instead. For example,\n[Input](/react/components/input), [Checkbox](/react/components/checkbox),\nor [Select](/react/components/select), among others, will work with Field out of the box.",
+    "description": "The form control to label and validate.\nRenders an `<input>` element.\n\nYou can omit this part and use any Base\u00a0UI input component instead. For example,\n[Input](/solid/components/input), [Checkbox](/solid/components/checkbox),\nor [Select](/solid/components/select), among others, will work with Field out of the box.",
     "props": [
       {
         "name": "defaultValue",

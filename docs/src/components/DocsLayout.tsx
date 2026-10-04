@@ -27,7 +27,7 @@ export function DocsLayout(props: { children: JSX.Element }) {
                             {
                               section: 'Overview',
                               title: 'Releases',
-                              href: '/react/overview/releases',
+                              href: '/solid/overview/releases',
                               description: '',
                             },
                             {

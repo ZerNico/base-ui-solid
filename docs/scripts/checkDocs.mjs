@@ -26,7 +26,7 @@ for (const asset of [
   );
   assert.equal(response.status(), 200, `Public entry point ${asset}`);
 }
-await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/handbook/forms`, {
+await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/handbook/forms`, {
   waitUntil: 'networkidle',
 });
 await p.keyboard.press('Control+k');
@@ -50,14 +50,14 @@ await p.getByText('No results found.').waitFor();
 await input.fill('select');
 await p.waitForTimeout(200);
 await input.press('Enter');
-await p.waitForURL('**/react/components/select');
+await p.waitForURL('**/solid/components/select');
 await p.waitForLoadState('networkidle');
 await p.keyboard.press('Control+k');
 await p.locator('#search-input').waitFor({ state: 'visible' });
 assert.equal(await p.locator('#search-input').inputValue(), '');
 await p.keyboard.press('Escape');
 await p.locator('.SearchPopup').waitFor({ state: 'hidden' });
-await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/handbook/forms`, {
+await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/handbook/forms`, {
   waitUntil: 'networkidle',
 });
 assert.equal(await p.locator('.DemoRoot').count(), 3);
@@ -79,7 +79,7 @@ await p.evaluate(() => scrollTo(0, 0));
 await p.screenshot({ path: `${evidence}/after-local-_react_handbook_forms.png` });
 await writeFile(`${evidence}/interaction.json`, JSON.stringify({ errors, formResults }, null, 2));
 assert.deepEqual(errors, []);
-await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/components/select#root`, {
+await p.goto(`${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/components/select#root`, {
   waitUntil: 'networkidle',
 });
 const row = p.locator('.ReferenceAccordionRoot details').first();

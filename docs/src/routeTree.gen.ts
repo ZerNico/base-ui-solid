@@ -13,97 +13,97 @@ import { Route as DocsRouteImport } from './routes/_docs'
 import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as WebsiteRouteImport } from './routes/_website'
 import { Route as DocsProductionErrorRouteImport } from './routes/_docs.production-error'
-import { Route as DocsReactRouteImport } from './routes/_docs.react'
+import { Route as DocsSolidRouteImport } from './routes/_docs.solid'
 import { Route as PrivatePlaygroundRouteImport } from './routes/_private.playground'
 import { Route as WebsiteIndexRouteImport } from './routes/_website.index'
-import { Route as DocsReactIndexRouteImport } from './routes/_docs.react.index'
-import { Route as DocsReactHandbookRouteImport } from './routes/_docs.react.handbook'
-import { Route as DocsReactOverviewRouteImport } from './routes/_docs.react.overview'
-import { Route as DocsReactUtilsRouteImport } from './routes/_docs.react.utils'
+import { Route as DocsSolidIndexRouteImport } from './routes/_docs.solid.index'
+import { Route as DocsSolidHandbookRouteImport } from './routes/_docs.solid.handbook'
+import { Route as DocsSolidOverviewRouteImport } from './routes/_docs.solid.overview'
+import { Route as DocsSolidUtilsRouteImport } from './routes/_docs.solid.utils'
 import { Route as WebsiteCareersDesignEngineerRouteImport } from './routes/_website.careers.design-engineer'
-import { Route as DocsReactComponentsIndexRouteImport } from './routes/_docs.react.components.index'
-import { Route as DocsReactComponentsAccordionRouteImport } from './routes/_docs.react.components.accordion'
-import { Route as DocsReactComponentsAlertDialogRouteImport } from './routes/_docs.react.components.alert-dialog'
-import { Route as DocsReactComponentsAutocompleteRouteImport } from './routes/_docs.react.components.autocomplete'
-import { Route as DocsReactComponentsAvatarRouteImport } from './routes/_docs.react.components.avatar'
-import { Route as DocsReactComponentsButtonRouteImport } from './routes/_docs.react.components.button'
-import { Route as DocsReactComponentsCheckboxRouteImport } from './routes/_docs.react.components.checkbox'
-import { Route as DocsReactComponentsCheckboxGroupRouteImport } from './routes/_docs.react.components.checkbox-group'
-import { Route as DocsReactComponentsCollapsibleRouteImport } from './routes/_docs.react.components.collapsible'
-import { Route as DocsReactComponentsComboboxRouteImport } from './routes/_docs.react.components.combobox'
-import { Route as DocsReactComponentsContextMenuRouteImport } from './routes/_docs.react.components.context-menu'
-import { Route as DocsReactComponentsDialogRouteImport } from './routes/_docs.react.components.dialog'
-import { Route as DocsReactComponentsDrawerRouteImport } from './routes/_docs.react.components.drawer'
-import { Route as DocsReactComponentsFieldRouteImport } from './routes/_docs.react.components.field'
-import { Route as DocsReactComponentsFieldsetRouteImport } from './routes/_docs.react.components.fieldset'
-import { Route as DocsReactComponentsFormRouteImport } from './routes/_docs.react.components.form'
-import { Route as DocsReactComponentsInputRouteImport } from './routes/_docs.react.components.input'
-import { Route as DocsReactComponentsMenuRouteImport } from './routes/_docs.react.components.menu'
-import { Route as DocsReactComponentsMenubarRouteImport } from './routes/_docs.react.components.menubar'
-import { Route as DocsReactComponentsMeterRouteImport } from './routes/_docs.react.components.meter'
-import { Route as DocsReactComponentsNavigationMenuRouteImport } from './routes/_docs.react.components.navigation-menu'
-import { Route as DocsReactComponentsNumberFieldRouteImport } from './routes/_docs.react.components.number-field'
-import { Route as DocsReactComponentsOtpFieldRouteImport } from './routes/_docs.react.components.otp-field'
-import { Route as DocsReactComponentsPopoverRouteImport } from './routes/_docs.react.components.popover'
-import { Route as DocsReactComponentsPreviewCardRouteImport } from './routes/_docs.react.components.preview-card'
-import { Route as DocsReactComponentsProgressRouteImport } from './routes/_docs.react.components.progress'
-import { Route as DocsReactComponentsRadioGroupRouteImport } from './routes/_docs.react.components.radio-group'
-import { Route as DocsReactComponentsScrollAreaRouteImport } from './routes/_docs.react.components.scroll-area'
-import { Route as DocsReactComponentsSelectRouteImport } from './routes/_docs.react.components.select'
-import { Route as DocsReactComponentsSeparatorRouteImport } from './routes/_docs.react.components.separator'
-import { Route as DocsReactComponentsSliderRouteImport } from './routes/_docs.react.components.slider'
-import { Route as DocsReactComponentsSwitchRouteImport } from './routes/_docs.react.components.switch'
-import { Route as DocsReactComponentsTabsRouteImport } from './routes/_docs.react.components.tabs'
-import { Route as DocsReactComponentsToastRouteImport } from './routes/_docs.react.components.toast'
-import { Route as DocsReactComponentsToggleRouteImport } from './routes/_docs.react.components.toggle'
-import { Route as DocsReactComponentsToggleGroupRouteImport } from './routes/_docs.react.components.toggle-group'
-import { Route as DocsReactComponentsToolbarRouteImport } from './routes/_docs.react.components.toolbar'
-import { Route as DocsReactComponentsTooltipRouteImport } from './routes/_docs.react.components.tooltip'
-import { Route as DocsReactHandbookIndexRouteImport } from './routes/_docs.react.handbook.index'
-import { Route as DocsReactHandbookAnimationRouteImport } from './routes/_docs.react.handbook.animation'
-import { Route as DocsReactHandbookCompositionRouteImport } from './routes/_docs.react.handbook.composition'
-import { Route as DocsReactHandbookCustomizationRouteImport } from './routes/_docs.react.handbook.customization'
-import { Route as DocsReactHandbookFormsRouteImport } from './routes/_docs.react.handbook.forms'
-import { Route as DocsReactHandbookStylingRouteImport } from './routes/_docs.react.handbook.styling'
-import { Route as DocsReactHandbookTypescriptRouteImport } from './routes/_docs.react.handbook.typescript'
-import { Route as DocsReactOverviewIndexRouteImport } from './routes/_docs.react.overview.index'
-import { Route as DocsReactOverviewAboutRouteImport } from './routes/_docs.react.overview.about'
-import { Route as DocsReactOverviewAccessibilityRouteImport } from './routes/_docs.react.overview.accessibility'
-import { Route as DocsReactOverviewCommunityRouteImport } from './routes/_docs.react.overview.community'
-import { Route as DocsReactOverviewQuickStartRouteImport } from './routes/_docs.react.overview.quick-start'
-import { Route as DocsReactOverviewReleasesRouteImport } from './routes/_docs.react.overview.releases'
-import { Route as DocsReactUtilsIndexRouteImport } from './routes/_docs.react.utils.index'
-import { Route as DocsReactUtilsCspProviderRouteImport } from './routes/_docs.react.utils.csp-provider'
-import { Route as DocsReactUtilsDirectionProviderRouteImport } from './routes/_docs.react.utils.direction-provider'
-import { Route as DocsReactUtilsMergePropsRouteImport } from './routes/_docs.react.utils.merge-props'
-import { Route as DocsReactUtilsUseRenderRouteImport } from './routes/_docs.react.utils.use-render'
-import { Route as DocsReactOverviewReleasesIndexRouteImport } from './routes/_docs.react.overview.releases.index'
-import { Route as DocsReactOverviewReleasesV100RouteImport } from './routes/_docs.react.overview.releases.v1-0-0'
-import { Route as DocsReactOverviewReleasesV100Alpha4RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-4'
-import { Route as DocsReactOverviewReleasesV100Alpha5RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-5'
-import { Route as DocsReactOverviewReleasesV100Alpha6RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-6'
-import { Route as DocsReactOverviewReleasesV100Alpha7RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-7'
-import { Route as DocsReactOverviewReleasesV100Alpha8RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-alpha-8'
-import { Route as DocsReactOverviewReleasesV100Beta0RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-0'
-import { Route as DocsReactOverviewReleasesV100Beta1RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-1'
-import { Route as DocsReactOverviewReleasesV100Beta2RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-2'
-import { Route as DocsReactOverviewReleasesV100Beta3RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-3'
-import { Route as DocsReactOverviewReleasesV100Beta4RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-4'
-import { Route as DocsReactOverviewReleasesV100Beta5RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-5'
-import { Route as DocsReactOverviewReleasesV100Beta6RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-6'
-import { Route as DocsReactOverviewReleasesV100Beta7RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-beta-7'
-import { Route as DocsReactOverviewReleasesV100Rc0RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-rc-0'
-import { Route as DocsReactOverviewReleasesV100Rc1RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-rc-1'
-import { Route as DocsReactOverviewReleasesV100Rc2RouteImport } from './routes/_docs.react.overview.releases.v1-0-0-rc-2'
-import { Route as DocsReactOverviewReleasesV110RouteImport } from './routes/_docs.react.overview.releases.v1-1-0'
-import { Route as DocsReactOverviewReleasesV120RouteImport } from './routes/_docs.react.overview.releases.v1-2-0'
-import { Route as DocsReactOverviewReleasesV130RouteImport } from './routes/_docs.react.overview.releases.v1-3-0'
-import { Route as DocsReactOverviewReleasesV140RouteImport } from './routes/_docs.react.overview.releases.v1-4-0'
-import { Route as DocsReactOverviewReleasesV141RouteImport } from './routes/_docs.react.overview.releases.v1-4-1'
-import { Route as DocsReactOverviewReleasesV150RouteImport } from './routes/_docs.react.overview.releases.v1-5-0'
-import { Route as DocsReactOverviewReleasesV160RouteImport } from './routes/_docs.react.overview.releases.v1-6-0'
-import { Route as DocsReactOverviewReleasesV170RouteImport } from './routes/_docs.react.overview.releases.v1-7-0'
-import { Route as DocsReactOverviewReleasesV180RouteImport } from './routes/_docs.react.overview.releases.v1-8-0'
+import { Route as DocsSolidComponentsIndexRouteImport } from './routes/_docs.solid.components.index'
+import { Route as DocsSolidComponentsAccordionRouteImport } from './routes/_docs.solid.components.accordion'
+import { Route as DocsSolidComponentsAlertDialogRouteImport } from './routes/_docs.solid.components.alert-dialog'
+import { Route as DocsSolidComponentsAutocompleteRouteImport } from './routes/_docs.solid.components.autocomplete'
+import { Route as DocsSolidComponentsAvatarRouteImport } from './routes/_docs.solid.components.avatar'
+import { Route as DocsSolidComponentsButtonRouteImport } from './routes/_docs.solid.components.button'
+import { Route as DocsSolidComponentsCheckboxRouteImport } from './routes/_docs.solid.components.checkbox'
+import { Route as DocsSolidComponentsCheckboxGroupRouteImport } from './routes/_docs.solid.components.checkbox-group'
+import { Route as DocsSolidComponentsCollapsibleRouteImport } from './routes/_docs.solid.components.collapsible'
+import { Route as DocsSolidComponentsComboboxRouteImport } from './routes/_docs.solid.components.combobox'
+import { Route as DocsSolidComponentsContextMenuRouteImport } from './routes/_docs.solid.components.context-menu'
+import { Route as DocsSolidComponentsDialogRouteImport } from './routes/_docs.solid.components.dialog'
+import { Route as DocsSolidComponentsDrawerRouteImport } from './routes/_docs.solid.components.drawer'
+import { Route as DocsSolidComponentsFieldRouteImport } from './routes/_docs.solid.components.field'
+import { Route as DocsSolidComponentsFieldsetRouteImport } from './routes/_docs.solid.components.fieldset'
+import { Route as DocsSolidComponentsFormRouteImport } from './routes/_docs.solid.components.form'
+import { Route as DocsSolidComponentsInputRouteImport } from './routes/_docs.solid.components.input'
+import { Route as DocsSolidComponentsMenuRouteImport } from './routes/_docs.solid.components.menu'
+import { Route as DocsSolidComponentsMenubarRouteImport } from './routes/_docs.solid.components.menubar'
+import { Route as DocsSolidComponentsMeterRouteImport } from './routes/_docs.solid.components.meter'
+import { Route as DocsSolidComponentsNavigationMenuRouteImport } from './routes/_docs.solid.components.navigation-menu'
+import { Route as DocsSolidComponentsNumberFieldRouteImport } from './routes/_docs.solid.components.number-field'
+import { Route as DocsSolidComponentsOtpFieldRouteImport } from './routes/_docs.solid.components.otp-field'
+import { Route as DocsSolidComponentsPopoverRouteImport } from './routes/_docs.solid.components.popover'
+import { Route as DocsSolidComponentsPreviewCardRouteImport } from './routes/_docs.solid.components.preview-card'
+import { Route as DocsSolidComponentsProgressRouteImport } from './routes/_docs.solid.components.progress'
+import { Route as DocsSolidComponentsRadioGroupRouteImport } from './routes/_docs.solid.components.radio-group'
+import { Route as DocsSolidComponentsScrollAreaRouteImport } from './routes/_docs.solid.components.scroll-area'
+import { Route as DocsSolidComponentsSelectRouteImport } from './routes/_docs.solid.components.select'
+import { Route as DocsSolidComponentsSeparatorRouteImport } from './routes/_docs.solid.components.separator'
+import { Route as DocsSolidComponentsSliderRouteImport } from './routes/_docs.solid.components.slider'
+import { Route as DocsSolidComponentsSwitchRouteImport } from './routes/_docs.solid.components.switch'
+import { Route as DocsSolidComponentsTabsRouteImport } from './routes/_docs.solid.components.tabs'
+import { Route as DocsSolidComponentsToastRouteImport } from './routes/_docs.solid.components.toast'
+import { Route as DocsSolidComponentsToggleRouteImport } from './routes/_docs.solid.components.toggle'
+import { Route as DocsSolidComponentsToggleGroupRouteImport } from './routes/_docs.solid.components.toggle-group'
+import { Route as DocsSolidComponentsToolbarRouteImport } from './routes/_docs.solid.components.toolbar'
+import { Route as DocsSolidComponentsTooltipRouteImport } from './routes/_docs.solid.components.tooltip'
+import { Route as DocsSolidHandbookIndexRouteImport } from './routes/_docs.solid.handbook.index'
+import { Route as DocsSolidHandbookAnimationRouteImport } from './routes/_docs.solid.handbook.animation'
+import { Route as DocsSolidHandbookCompositionRouteImport } from './routes/_docs.solid.handbook.composition'
+import { Route as DocsSolidHandbookCustomizationRouteImport } from './routes/_docs.solid.handbook.customization'
+import { Route as DocsSolidHandbookFormsRouteImport } from './routes/_docs.solid.handbook.forms'
+import { Route as DocsSolidHandbookStylingRouteImport } from './routes/_docs.solid.handbook.styling'
+import { Route as DocsSolidHandbookTypescriptRouteImport } from './routes/_docs.solid.handbook.typescript'
+import { Route as DocsSolidOverviewIndexRouteImport } from './routes/_docs.solid.overview.index'
+import { Route as DocsSolidOverviewAboutRouteImport } from './routes/_docs.solid.overview.about'
+import { Route as DocsSolidOverviewAccessibilityRouteImport } from './routes/_docs.solid.overview.accessibility'
+import { Route as DocsSolidOverviewCommunityRouteImport } from './routes/_docs.solid.overview.community'
+import { Route as DocsSolidOverviewQuickStartRouteImport } from './routes/_docs.solid.overview.quick-start'
+import { Route as DocsSolidOverviewReleasesRouteImport } from './routes/_docs.solid.overview.releases'
+import { Route as DocsSolidUtilsIndexRouteImport } from './routes/_docs.solid.utils.index'
+import { Route as DocsSolidUtilsCspProviderRouteImport } from './routes/_docs.solid.utils.csp-provider'
+import { Route as DocsSolidUtilsDirectionProviderRouteImport } from './routes/_docs.solid.utils.direction-provider'
+import { Route as DocsSolidUtilsMergePropsRouteImport } from './routes/_docs.solid.utils.merge-props'
+import { Route as DocsSolidUtilsUseRenderRouteImport } from './routes/_docs.solid.utils.use-render'
+import { Route as DocsSolidOverviewReleasesIndexRouteImport } from './routes/_docs.solid.overview.releases.index'
+import { Route as DocsSolidOverviewReleasesV100RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0'
+import { Route as DocsSolidOverviewReleasesV100Alpha4RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-4'
+import { Route as DocsSolidOverviewReleasesV100Alpha5RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-5'
+import { Route as DocsSolidOverviewReleasesV100Alpha6RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-6'
+import { Route as DocsSolidOverviewReleasesV100Alpha7RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-7'
+import { Route as DocsSolidOverviewReleasesV100Alpha8RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-alpha-8'
+import { Route as DocsSolidOverviewReleasesV100Beta0RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-0'
+import { Route as DocsSolidOverviewReleasesV100Beta1RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-1'
+import { Route as DocsSolidOverviewReleasesV100Beta2RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-2'
+import { Route as DocsSolidOverviewReleasesV100Beta3RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-3'
+import { Route as DocsSolidOverviewReleasesV100Beta4RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-4'
+import { Route as DocsSolidOverviewReleasesV100Beta5RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-5'
+import { Route as DocsSolidOverviewReleasesV100Beta6RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-6'
+import { Route as DocsSolidOverviewReleasesV100Beta7RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-beta-7'
+import { Route as DocsSolidOverviewReleasesV100Rc0RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-0'
+import { Route as DocsSolidOverviewReleasesV100Rc1RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-1'
+import { Route as DocsSolidOverviewReleasesV100Rc2RouteImport } from './routes/_docs.solid.overview.releases.v1-0-0-rc-2'
+import { Route as DocsSolidOverviewReleasesV110RouteImport } from './routes/_docs.solid.overview.releases.v1-1-0'
+import { Route as DocsSolidOverviewReleasesV120RouteImport } from './routes/_docs.solid.overview.releases.v1-2-0'
+import { Route as DocsSolidOverviewReleasesV130RouteImport } from './routes/_docs.solid.overview.releases.v1-3-0'
+import { Route as DocsSolidOverviewReleasesV140RouteImport } from './routes/_docs.solid.overview.releases.v1-4-0'
+import { Route as DocsSolidOverviewReleasesV141RouteImport } from './routes/_docs.solid.overview.releases.v1-4-1'
+import { Route as DocsSolidOverviewReleasesV150RouteImport } from './routes/_docs.solid.overview.releases.v1-5-0'
+import { Route as DocsSolidOverviewReleasesV160RouteImport } from './routes/_docs.solid.overview.releases.v1-6-0'
+import { Route as DocsSolidOverviewReleasesV170RouteImport } from './routes/_docs.solid.overview.releases.v1-7-0'
+import { Route as DocsSolidOverviewReleasesV180RouteImport } from './routes/_docs.solid.overview.releases.v1-8-0'
 
 const DocsRoute = DocsRouteImport.update({
   id: '/_docs',
@@ -122,9 +122,9 @@ const DocsProductionErrorRoute = DocsProductionErrorRouteImport.update({
   path: '/production-error',
   getParentRoute: () => DocsRoute,
 } as any)
-const DocsReactRoute = DocsReactRouteImport.update({
-  id: '/react',
-  path: '/react',
+const DocsSolidRoute = DocsSolidRouteImport.update({
+  id: '/solid',
+  path: '/solid',
   getParentRoute: () => DocsRoute,
 } as any)
 const PrivatePlaygroundRoute = PrivatePlaygroundRouteImport.update({
@@ -137,25 +137,25 @@ const WebsiteIndexRoute = WebsiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => WebsiteRoute,
 } as any)
-const DocsReactIndexRoute = DocsReactIndexRouteImport.update({
+const DocsSolidIndexRoute = DocsSolidIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactHandbookRoute = DocsReactHandbookRouteImport.update({
+const DocsSolidHandbookRoute = DocsSolidHandbookRouteImport.update({
   id: '/handbook',
   path: '/handbook',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactOverviewRoute = DocsReactOverviewRouteImport.update({
+const DocsSolidOverviewRoute = DocsSolidOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactUtilsRoute = DocsReactUtilsRouteImport.update({
+const DocsSolidUtilsRoute = DocsSolidUtilsRouteImport.update({
   id: '/utils',
   path: '/utils',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
 const WebsiteCareersDesignEngineerRoute =
   WebsiteCareersDesignEngineerRouteImport.update({
@@ -163,678 +163,678 @@ const WebsiteCareersDesignEngineerRoute =
     path: '/careers/design-engineer',
     getParentRoute: () => WebsiteRoute,
   } as any)
-const DocsReactComponentsIndexRoute =
-  DocsReactComponentsIndexRouteImport.update({
+const DocsSolidComponentsIndexRoute =
+  DocsSolidComponentsIndexRouteImport.update({
     id: '/components/',
     path: '/components/',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsAccordionRoute =
-  DocsReactComponentsAccordionRouteImport.update({
+const DocsSolidComponentsAccordionRoute =
+  DocsSolidComponentsAccordionRouteImport.update({
     id: '/components/accordion',
     path: '/components/accordion',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsAlertDialogRoute =
-  DocsReactComponentsAlertDialogRouteImport.update({
+const DocsSolidComponentsAlertDialogRoute =
+  DocsSolidComponentsAlertDialogRouteImport.update({
     id: '/components/alert-dialog',
     path: '/components/alert-dialog',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsAutocompleteRoute =
-  DocsReactComponentsAutocompleteRouteImport.update({
+const DocsSolidComponentsAutocompleteRoute =
+  DocsSolidComponentsAutocompleteRouteImport.update({
     id: '/components/autocomplete',
     path: '/components/autocomplete',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsAvatarRoute =
-  DocsReactComponentsAvatarRouteImport.update({
+const DocsSolidComponentsAvatarRoute =
+  DocsSolidComponentsAvatarRouteImport.update({
     id: '/components/avatar',
     path: '/components/avatar',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsButtonRoute =
-  DocsReactComponentsButtonRouteImport.update({
+const DocsSolidComponentsButtonRoute =
+  DocsSolidComponentsButtonRouteImport.update({
     id: '/components/button',
     path: '/components/button',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsCheckboxRoute =
-  DocsReactComponentsCheckboxRouteImport.update({
+const DocsSolidComponentsCheckboxRoute =
+  DocsSolidComponentsCheckboxRouteImport.update({
     id: '/components/checkbox',
     path: '/components/checkbox',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsCheckboxGroupRoute =
-  DocsReactComponentsCheckboxGroupRouteImport.update({
+const DocsSolidComponentsCheckboxGroupRoute =
+  DocsSolidComponentsCheckboxGroupRouteImport.update({
     id: '/components/checkbox-group',
     path: '/components/checkbox-group',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsCollapsibleRoute =
-  DocsReactComponentsCollapsibleRouteImport.update({
+const DocsSolidComponentsCollapsibleRoute =
+  DocsSolidComponentsCollapsibleRouteImport.update({
     id: '/components/collapsible',
     path: '/components/collapsible',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsComboboxRoute =
-  DocsReactComponentsComboboxRouteImport.update({
+const DocsSolidComponentsComboboxRoute =
+  DocsSolidComponentsComboboxRouteImport.update({
     id: '/components/combobox',
     path: '/components/combobox',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsContextMenuRoute =
-  DocsReactComponentsContextMenuRouteImport.update({
+const DocsSolidComponentsContextMenuRoute =
+  DocsSolidComponentsContextMenuRouteImport.update({
     id: '/components/context-menu',
     path: '/components/context-menu',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsDialogRoute =
-  DocsReactComponentsDialogRouteImport.update({
+const DocsSolidComponentsDialogRoute =
+  DocsSolidComponentsDialogRouteImport.update({
     id: '/components/dialog',
     path: '/components/dialog',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsDrawerRoute =
-  DocsReactComponentsDrawerRouteImport.update({
+const DocsSolidComponentsDrawerRoute =
+  DocsSolidComponentsDrawerRouteImport.update({
     id: '/components/drawer',
     path: '/components/drawer',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsFieldRoute =
-  DocsReactComponentsFieldRouteImport.update({
+const DocsSolidComponentsFieldRoute =
+  DocsSolidComponentsFieldRouteImport.update({
     id: '/components/field',
     path: '/components/field',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsFieldsetRoute =
-  DocsReactComponentsFieldsetRouteImport.update({
+const DocsSolidComponentsFieldsetRoute =
+  DocsSolidComponentsFieldsetRouteImport.update({
     id: '/components/fieldset',
     path: '/components/fieldset',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsFormRoute = DocsReactComponentsFormRouteImport.update({
+const DocsSolidComponentsFormRoute = DocsSolidComponentsFormRouteImport.update({
   id: '/components/form',
   path: '/components/form',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactComponentsInputRoute =
-  DocsReactComponentsInputRouteImport.update({
+const DocsSolidComponentsInputRoute =
+  DocsSolidComponentsInputRouteImport.update({
     id: '/components/input',
     path: '/components/input',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsMenuRoute = DocsReactComponentsMenuRouteImport.update({
+const DocsSolidComponentsMenuRoute = DocsSolidComponentsMenuRouteImport.update({
   id: '/components/menu',
   path: '/components/menu',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactComponentsMenubarRoute =
-  DocsReactComponentsMenubarRouteImport.update({
+const DocsSolidComponentsMenubarRoute =
+  DocsSolidComponentsMenubarRouteImport.update({
     id: '/components/menubar',
     path: '/components/menubar',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsMeterRoute =
-  DocsReactComponentsMeterRouteImport.update({
+const DocsSolidComponentsMeterRoute =
+  DocsSolidComponentsMeterRouteImport.update({
     id: '/components/meter',
     path: '/components/meter',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsNavigationMenuRoute =
-  DocsReactComponentsNavigationMenuRouteImport.update({
+const DocsSolidComponentsNavigationMenuRoute =
+  DocsSolidComponentsNavigationMenuRouteImport.update({
     id: '/components/navigation-menu',
     path: '/components/navigation-menu',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsNumberFieldRoute =
-  DocsReactComponentsNumberFieldRouteImport.update({
+const DocsSolidComponentsNumberFieldRoute =
+  DocsSolidComponentsNumberFieldRouteImport.update({
     id: '/components/number-field',
     path: '/components/number-field',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsOtpFieldRoute =
-  DocsReactComponentsOtpFieldRouteImport.update({
+const DocsSolidComponentsOtpFieldRoute =
+  DocsSolidComponentsOtpFieldRouteImport.update({
     id: '/components/otp-field',
     path: '/components/otp-field',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsPopoverRoute =
-  DocsReactComponentsPopoverRouteImport.update({
+const DocsSolidComponentsPopoverRoute =
+  DocsSolidComponentsPopoverRouteImport.update({
     id: '/components/popover',
     path: '/components/popover',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsPreviewCardRoute =
-  DocsReactComponentsPreviewCardRouteImport.update({
+const DocsSolidComponentsPreviewCardRoute =
+  DocsSolidComponentsPreviewCardRouteImport.update({
     id: '/components/preview-card',
     path: '/components/preview-card',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsProgressRoute =
-  DocsReactComponentsProgressRouteImport.update({
+const DocsSolidComponentsProgressRoute =
+  DocsSolidComponentsProgressRouteImport.update({
     id: '/components/progress',
     path: '/components/progress',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsRadioGroupRoute =
-  DocsReactComponentsRadioGroupRouteImport.update({
+const DocsSolidComponentsRadioGroupRoute =
+  DocsSolidComponentsRadioGroupRouteImport.update({
     id: '/components/radio-group',
     path: '/components/radio-group',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsScrollAreaRoute =
-  DocsReactComponentsScrollAreaRouteImport.update({
+const DocsSolidComponentsScrollAreaRoute =
+  DocsSolidComponentsScrollAreaRouteImport.update({
     id: '/components/scroll-area',
     path: '/components/scroll-area',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsSelectRoute =
-  DocsReactComponentsSelectRouteImport.update({
+const DocsSolidComponentsSelectRoute =
+  DocsSolidComponentsSelectRouteImport.update({
     id: '/components/select',
     path: '/components/select',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsSeparatorRoute =
-  DocsReactComponentsSeparatorRouteImport.update({
+const DocsSolidComponentsSeparatorRoute =
+  DocsSolidComponentsSeparatorRouteImport.update({
     id: '/components/separator',
     path: '/components/separator',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsSliderRoute =
-  DocsReactComponentsSliderRouteImport.update({
+const DocsSolidComponentsSliderRoute =
+  DocsSolidComponentsSliderRouteImport.update({
     id: '/components/slider',
     path: '/components/slider',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsSwitchRoute =
-  DocsReactComponentsSwitchRouteImport.update({
+const DocsSolidComponentsSwitchRoute =
+  DocsSolidComponentsSwitchRouteImport.update({
     id: '/components/switch',
     path: '/components/switch',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsTabsRoute = DocsReactComponentsTabsRouteImport.update({
+const DocsSolidComponentsTabsRoute = DocsSolidComponentsTabsRouteImport.update({
   id: '/components/tabs',
   path: '/components/tabs',
-  getParentRoute: () => DocsReactRoute,
+  getParentRoute: () => DocsSolidRoute,
 } as any)
-const DocsReactComponentsToastRoute =
-  DocsReactComponentsToastRouteImport.update({
+const DocsSolidComponentsToastRoute =
+  DocsSolidComponentsToastRouteImport.update({
     id: '/components/toast',
     path: '/components/toast',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsToggleRoute =
-  DocsReactComponentsToggleRouteImport.update({
+const DocsSolidComponentsToggleRoute =
+  DocsSolidComponentsToggleRouteImport.update({
     id: '/components/toggle',
     path: '/components/toggle',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsToggleGroupRoute =
-  DocsReactComponentsToggleGroupRouteImport.update({
+const DocsSolidComponentsToggleGroupRoute =
+  DocsSolidComponentsToggleGroupRouteImport.update({
     id: '/components/toggle-group',
     path: '/components/toggle-group',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsToolbarRoute =
-  DocsReactComponentsToolbarRouteImport.update({
+const DocsSolidComponentsToolbarRoute =
+  DocsSolidComponentsToolbarRouteImport.update({
     id: '/components/toolbar',
     path: '/components/toolbar',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactComponentsTooltipRoute =
-  DocsReactComponentsTooltipRouteImport.update({
+const DocsSolidComponentsTooltipRoute =
+  DocsSolidComponentsTooltipRouteImport.update({
     id: '/components/tooltip',
     path: '/components/tooltip',
-    getParentRoute: () => DocsReactRoute,
+    getParentRoute: () => DocsSolidRoute,
   } as any)
-const DocsReactHandbookIndexRoute = DocsReactHandbookIndexRouteImport.update({
+const DocsSolidHandbookIndexRoute = DocsSolidHandbookIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DocsReactHandbookRoute,
+  getParentRoute: () => DocsSolidHandbookRoute,
 } as any)
-const DocsReactHandbookAnimationRoute =
-  DocsReactHandbookAnimationRouteImport.update({
+const DocsSolidHandbookAnimationRoute =
+  DocsSolidHandbookAnimationRouteImport.update({
     id: '/animation',
     path: '/animation',
-    getParentRoute: () => DocsReactHandbookRoute,
+    getParentRoute: () => DocsSolidHandbookRoute,
   } as any)
-const DocsReactHandbookCompositionRoute =
-  DocsReactHandbookCompositionRouteImport.update({
+const DocsSolidHandbookCompositionRoute =
+  DocsSolidHandbookCompositionRouteImport.update({
     id: '/composition',
     path: '/composition',
-    getParentRoute: () => DocsReactHandbookRoute,
+    getParentRoute: () => DocsSolidHandbookRoute,
   } as any)
-const DocsReactHandbookCustomizationRoute =
-  DocsReactHandbookCustomizationRouteImport.update({
+const DocsSolidHandbookCustomizationRoute =
+  DocsSolidHandbookCustomizationRouteImport.update({
     id: '/customization',
     path: '/customization',
-    getParentRoute: () => DocsReactHandbookRoute,
+    getParentRoute: () => DocsSolidHandbookRoute,
   } as any)
-const DocsReactHandbookFormsRoute = DocsReactHandbookFormsRouteImport.update({
+const DocsSolidHandbookFormsRoute = DocsSolidHandbookFormsRouteImport.update({
   id: '/forms',
   path: '/forms',
-  getParentRoute: () => DocsReactHandbookRoute,
+  getParentRoute: () => DocsSolidHandbookRoute,
 } as any)
-const DocsReactHandbookStylingRoute =
-  DocsReactHandbookStylingRouteImport.update({
+const DocsSolidHandbookStylingRoute =
+  DocsSolidHandbookStylingRouteImport.update({
     id: '/styling',
     path: '/styling',
-    getParentRoute: () => DocsReactHandbookRoute,
+    getParentRoute: () => DocsSolidHandbookRoute,
   } as any)
-const DocsReactHandbookTypescriptRoute =
-  DocsReactHandbookTypescriptRouteImport.update({
+const DocsSolidHandbookTypescriptRoute =
+  DocsSolidHandbookTypescriptRouteImport.update({
     id: '/typescript',
     path: '/typescript',
-    getParentRoute: () => DocsReactHandbookRoute,
+    getParentRoute: () => DocsSolidHandbookRoute,
   } as any)
-const DocsReactOverviewIndexRoute = DocsReactOverviewIndexRouteImport.update({
+const DocsSolidOverviewIndexRoute = DocsSolidOverviewIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DocsReactOverviewRoute,
+  getParentRoute: () => DocsSolidOverviewRoute,
 } as any)
-const DocsReactOverviewAboutRoute = DocsReactOverviewAboutRouteImport.update({
+const DocsSolidOverviewAboutRoute = DocsSolidOverviewAboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => DocsReactOverviewRoute,
+  getParentRoute: () => DocsSolidOverviewRoute,
 } as any)
-const DocsReactOverviewAccessibilityRoute =
-  DocsReactOverviewAccessibilityRouteImport.update({
+const DocsSolidOverviewAccessibilityRoute =
+  DocsSolidOverviewAccessibilityRouteImport.update({
     id: '/accessibility',
     path: '/accessibility',
-    getParentRoute: () => DocsReactOverviewRoute,
+    getParentRoute: () => DocsSolidOverviewRoute,
   } as any)
-const DocsReactOverviewCommunityRoute =
-  DocsReactOverviewCommunityRouteImport.update({
+const DocsSolidOverviewCommunityRoute =
+  DocsSolidOverviewCommunityRouteImport.update({
     id: '/community',
     path: '/community',
-    getParentRoute: () => DocsReactOverviewRoute,
+    getParentRoute: () => DocsSolidOverviewRoute,
   } as any)
-const DocsReactOverviewQuickStartRoute =
-  DocsReactOverviewQuickStartRouteImport.update({
+const DocsSolidOverviewQuickStartRoute =
+  DocsSolidOverviewQuickStartRouteImport.update({
     id: '/quick-start',
     path: '/quick-start',
-    getParentRoute: () => DocsReactOverviewRoute,
+    getParentRoute: () => DocsSolidOverviewRoute,
   } as any)
-const DocsReactOverviewReleasesRoute =
-  DocsReactOverviewReleasesRouteImport.update({
+const DocsSolidOverviewReleasesRoute =
+  DocsSolidOverviewReleasesRouteImport.update({
     id: '/releases',
     path: '/releases',
-    getParentRoute: () => DocsReactOverviewRoute,
+    getParentRoute: () => DocsSolidOverviewRoute,
   } as any)
-const DocsReactUtilsIndexRoute = DocsReactUtilsIndexRouteImport.update({
+const DocsSolidUtilsIndexRoute = DocsSolidUtilsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DocsReactUtilsRoute,
+  getParentRoute: () => DocsSolidUtilsRoute,
 } as any)
-const DocsReactUtilsCspProviderRoute =
-  DocsReactUtilsCspProviderRouteImport.update({
+const DocsSolidUtilsCspProviderRoute =
+  DocsSolidUtilsCspProviderRouteImport.update({
     id: '/csp-provider',
     path: '/csp-provider',
-    getParentRoute: () => DocsReactUtilsRoute,
+    getParentRoute: () => DocsSolidUtilsRoute,
   } as any)
-const DocsReactUtilsDirectionProviderRoute =
-  DocsReactUtilsDirectionProviderRouteImport.update({
+const DocsSolidUtilsDirectionProviderRoute =
+  DocsSolidUtilsDirectionProviderRouteImport.update({
     id: '/direction-provider',
     path: '/direction-provider',
-    getParentRoute: () => DocsReactUtilsRoute,
+    getParentRoute: () => DocsSolidUtilsRoute,
   } as any)
-const DocsReactUtilsMergePropsRoute =
-  DocsReactUtilsMergePropsRouteImport.update({
+const DocsSolidUtilsMergePropsRoute =
+  DocsSolidUtilsMergePropsRouteImport.update({
     id: '/merge-props',
     path: '/merge-props',
-    getParentRoute: () => DocsReactUtilsRoute,
+    getParentRoute: () => DocsSolidUtilsRoute,
   } as any)
-const DocsReactUtilsUseRenderRoute = DocsReactUtilsUseRenderRouteImport.update({
+const DocsSolidUtilsUseRenderRoute = DocsSolidUtilsUseRenderRouteImport.update({
   id: '/use-render',
   path: '/use-render',
-  getParentRoute: () => DocsReactUtilsRoute,
+  getParentRoute: () => DocsSolidUtilsRoute,
 } as any)
-const DocsReactOverviewReleasesIndexRoute =
-  DocsReactOverviewReleasesIndexRouteImport.update({
+const DocsSolidOverviewReleasesIndexRoute =
+  DocsSolidOverviewReleasesIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Route =
-  DocsReactOverviewReleasesV100RouteImport.update({
+const DocsSolidOverviewReleasesV100Route =
+  DocsSolidOverviewReleasesV100RouteImport.update({
     id: '/v1-0-0',
     path: '/v1-0-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Alpha4Route =
-  DocsReactOverviewReleasesV100Alpha4RouteImport.update({
+const DocsSolidOverviewReleasesV100Alpha4Route =
+  DocsSolidOverviewReleasesV100Alpha4RouteImport.update({
     id: '/v1-0-0-alpha-4',
     path: '/v1-0-0-alpha-4',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Alpha5Route =
-  DocsReactOverviewReleasesV100Alpha5RouteImport.update({
+const DocsSolidOverviewReleasesV100Alpha5Route =
+  DocsSolidOverviewReleasesV100Alpha5RouteImport.update({
     id: '/v1-0-0-alpha-5',
     path: '/v1-0-0-alpha-5',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Alpha6Route =
-  DocsReactOverviewReleasesV100Alpha6RouteImport.update({
+const DocsSolidOverviewReleasesV100Alpha6Route =
+  DocsSolidOverviewReleasesV100Alpha6RouteImport.update({
     id: '/v1-0-0-alpha-6',
     path: '/v1-0-0-alpha-6',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Alpha7Route =
-  DocsReactOverviewReleasesV100Alpha7RouteImport.update({
+const DocsSolidOverviewReleasesV100Alpha7Route =
+  DocsSolidOverviewReleasesV100Alpha7RouteImport.update({
     id: '/v1-0-0-alpha-7',
     path: '/v1-0-0-alpha-7',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Alpha8Route =
-  DocsReactOverviewReleasesV100Alpha8RouteImport.update({
+const DocsSolidOverviewReleasesV100Alpha8Route =
+  DocsSolidOverviewReleasesV100Alpha8RouteImport.update({
     id: '/v1-0-0-alpha-8',
     path: '/v1-0-0-alpha-8',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta0Route =
-  DocsReactOverviewReleasesV100Beta0RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta0Route =
+  DocsSolidOverviewReleasesV100Beta0RouteImport.update({
     id: '/v1-0-0-beta-0',
     path: '/v1-0-0-beta-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta1Route =
-  DocsReactOverviewReleasesV100Beta1RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta1Route =
+  DocsSolidOverviewReleasesV100Beta1RouteImport.update({
     id: '/v1-0-0-beta-1',
     path: '/v1-0-0-beta-1',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta2Route =
-  DocsReactOverviewReleasesV100Beta2RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta2Route =
+  DocsSolidOverviewReleasesV100Beta2RouteImport.update({
     id: '/v1-0-0-beta-2',
     path: '/v1-0-0-beta-2',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta3Route =
-  DocsReactOverviewReleasesV100Beta3RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta3Route =
+  DocsSolidOverviewReleasesV100Beta3RouteImport.update({
     id: '/v1-0-0-beta-3',
     path: '/v1-0-0-beta-3',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta4Route =
-  DocsReactOverviewReleasesV100Beta4RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta4Route =
+  DocsSolidOverviewReleasesV100Beta4RouteImport.update({
     id: '/v1-0-0-beta-4',
     path: '/v1-0-0-beta-4',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta5Route =
-  DocsReactOverviewReleasesV100Beta5RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta5Route =
+  DocsSolidOverviewReleasesV100Beta5RouteImport.update({
     id: '/v1-0-0-beta-5',
     path: '/v1-0-0-beta-5',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta6Route =
-  DocsReactOverviewReleasesV100Beta6RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta6Route =
+  DocsSolidOverviewReleasesV100Beta6RouteImport.update({
     id: '/v1-0-0-beta-6',
     path: '/v1-0-0-beta-6',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Beta7Route =
-  DocsReactOverviewReleasesV100Beta7RouteImport.update({
+const DocsSolidOverviewReleasesV100Beta7Route =
+  DocsSolidOverviewReleasesV100Beta7RouteImport.update({
     id: '/v1-0-0-beta-7',
     path: '/v1-0-0-beta-7',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Rc0Route =
-  DocsReactOverviewReleasesV100Rc0RouteImport.update({
+const DocsSolidOverviewReleasesV100Rc0Route =
+  DocsSolidOverviewReleasesV100Rc0RouteImport.update({
     id: '/v1-0-0-rc-0',
     path: '/v1-0-0-rc-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Rc1Route =
-  DocsReactOverviewReleasesV100Rc1RouteImport.update({
+const DocsSolidOverviewReleasesV100Rc1Route =
+  DocsSolidOverviewReleasesV100Rc1RouteImport.update({
     id: '/v1-0-0-rc-1',
     path: '/v1-0-0-rc-1',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV100Rc2Route =
-  DocsReactOverviewReleasesV100Rc2RouteImport.update({
+const DocsSolidOverviewReleasesV100Rc2Route =
+  DocsSolidOverviewReleasesV100Rc2RouteImport.update({
     id: '/v1-0-0-rc-2',
     path: '/v1-0-0-rc-2',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV110Route =
-  DocsReactOverviewReleasesV110RouteImport.update({
+const DocsSolidOverviewReleasesV110Route =
+  DocsSolidOverviewReleasesV110RouteImport.update({
     id: '/v1-1-0',
     path: '/v1-1-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV120Route =
-  DocsReactOverviewReleasesV120RouteImport.update({
+const DocsSolidOverviewReleasesV120Route =
+  DocsSolidOverviewReleasesV120RouteImport.update({
     id: '/v1-2-0',
     path: '/v1-2-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV130Route =
-  DocsReactOverviewReleasesV130RouteImport.update({
+const DocsSolidOverviewReleasesV130Route =
+  DocsSolidOverviewReleasesV130RouteImport.update({
     id: '/v1-3-0',
     path: '/v1-3-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV140Route =
-  DocsReactOverviewReleasesV140RouteImport.update({
+const DocsSolidOverviewReleasesV140Route =
+  DocsSolidOverviewReleasesV140RouteImport.update({
     id: '/v1-4-0',
     path: '/v1-4-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV141Route =
-  DocsReactOverviewReleasesV141RouteImport.update({
+const DocsSolidOverviewReleasesV141Route =
+  DocsSolidOverviewReleasesV141RouteImport.update({
     id: '/v1-4-1',
     path: '/v1-4-1',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV150Route =
-  DocsReactOverviewReleasesV150RouteImport.update({
+const DocsSolidOverviewReleasesV150Route =
+  DocsSolidOverviewReleasesV150RouteImport.update({
     id: '/v1-5-0',
     path: '/v1-5-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV160Route =
-  DocsReactOverviewReleasesV160RouteImport.update({
+const DocsSolidOverviewReleasesV160Route =
+  DocsSolidOverviewReleasesV160RouteImport.update({
     id: '/v1-6-0',
     path: '/v1-6-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV170Route =
-  DocsReactOverviewReleasesV170RouteImport.update({
+const DocsSolidOverviewReleasesV170Route =
+  DocsSolidOverviewReleasesV170RouteImport.update({
     id: '/v1-7-0',
     path: '/v1-7-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
-const DocsReactOverviewReleasesV180Route =
-  DocsReactOverviewReleasesV180RouteImport.update({
+const DocsSolidOverviewReleasesV180Route =
+  DocsSolidOverviewReleasesV180RouteImport.update({
     id: '/v1-8-0',
     path: '/v1-8-0',
-    getParentRoute: () => DocsReactOverviewReleasesRoute,
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteIndexRoute
   '/production-error': typeof DocsProductionErrorRoute
-  '/react': typeof DocsReactRouteWithChildren
+  '/solid': typeof DocsSolidRouteWithChildren
   '/playground': typeof PrivatePlaygroundRoute
-  '/react/handbook': typeof DocsReactHandbookRouteWithChildren
-  '/react/overview': typeof DocsReactOverviewRouteWithChildren
-  '/react/utils': typeof DocsReactUtilsRouteWithChildren
+  '/solid/handbook': typeof DocsSolidHandbookRouteWithChildren
+  '/solid/overview': typeof DocsSolidOverviewRouteWithChildren
+  '/solid/utils': typeof DocsSolidUtilsRouteWithChildren
   '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
-  '/react/': typeof DocsReactIndexRoute
-  '/react/components/accordion': typeof DocsReactComponentsAccordionRoute
-  '/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
-  '/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
-  '/react/components/avatar': typeof DocsReactComponentsAvatarRoute
-  '/react/components/button': typeof DocsReactComponentsButtonRoute
-  '/react/components/checkbox': typeof DocsReactComponentsCheckboxRoute
-  '/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
-  '/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
-  '/react/components/combobox': typeof DocsReactComponentsComboboxRoute
-  '/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
-  '/react/components/dialog': typeof DocsReactComponentsDialogRoute
-  '/react/components/drawer': typeof DocsReactComponentsDrawerRoute
-  '/react/components/field': typeof DocsReactComponentsFieldRoute
-  '/react/components/fieldset': typeof DocsReactComponentsFieldsetRoute
-  '/react/components/form': typeof DocsReactComponentsFormRoute
-  '/react/components/input': typeof DocsReactComponentsInputRoute
-  '/react/components/menu': typeof DocsReactComponentsMenuRoute
-  '/react/components/menubar': typeof DocsReactComponentsMenubarRoute
-  '/react/components/meter': typeof DocsReactComponentsMeterRoute
-  '/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
-  '/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
-  '/react/components/otp-field': typeof DocsReactComponentsOtpFieldRoute
-  '/react/components/popover': typeof DocsReactComponentsPopoverRoute
-  '/react/components/preview-card': typeof DocsReactComponentsPreviewCardRoute
-  '/react/components/progress': typeof DocsReactComponentsProgressRoute
-  '/react/components/radio-group': typeof DocsReactComponentsRadioGroupRoute
-  '/react/components/scroll-area': typeof DocsReactComponentsScrollAreaRoute
-  '/react/components/select': typeof DocsReactComponentsSelectRoute
-  '/react/components/separator': typeof DocsReactComponentsSeparatorRoute
-  '/react/components/slider': typeof DocsReactComponentsSliderRoute
-  '/react/components/switch': typeof DocsReactComponentsSwitchRoute
-  '/react/components/tabs': typeof DocsReactComponentsTabsRoute
-  '/react/components/toast': typeof DocsReactComponentsToastRoute
-  '/react/components/toggle': typeof DocsReactComponentsToggleRoute
-  '/react/components/toggle-group': typeof DocsReactComponentsToggleGroupRoute
-  '/react/components/toolbar': typeof DocsReactComponentsToolbarRoute
-  '/react/components/tooltip': typeof DocsReactComponentsTooltipRoute
-  '/react/handbook/animation': typeof DocsReactHandbookAnimationRoute
-  '/react/handbook/composition': typeof DocsReactHandbookCompositionRoute
-  '/react/handbook/customization': typeof DocsReactHandbookCustomizationRoute
-  '/react/handbook/forms': typeof DocsReactHandbookFormsRoute
-  '/react/handbook/styling': typeof DocsReactHandbookStylingRoute
-  '/react/handbook/typescript': typeof DocsReactHandbookTypescriptRoute
-  '/react/overview/about': typeof DocsReactOverviewAboutRoute
-  '/react/overview/accessibility': typeof DocsReactOverviewAccessibilityRoute
-  '/react/overview/community': typeof DocsReactOverviewCommunityRoute
-  '/react/overview/quick-start': typeof DocsReactOverviewQuickStartRoute
-  '/react/overview/releases': typeof DocsReactOverviewReleasesRouteWithChildren
-  '/react/utils/csp-provider': typeof DocsReactUtilsCspProviderRoute
-  '/react/utils/direction-provider': typeof DocsReactUtilsDirectionProviderRoute
-  '/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
-  '/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
-  '/react/components/': typeof DocsReactComponentsIndexRoute
-  '/react/handbook/': typeof DocsReactHandbookIndexRoute
-  '/react/overview/': typeof DocsReactOverviewIndexRoute
-  '/react/utils/': typeof DocsReactUtilsIndexRoute
-  '/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
-  '/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
-  '/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
-  '/react/overview/releases/v1-0-0-alpha-6': typeof DocsReactOverviewReleasesV100Alpha6Route
-  '/react/overview/releases/v1-0-0-alpha-7': typeof DocsReactOverviewReleasesV100Alpha7Route
-  '/react/overview/releases/v1-0-0-alpha-8': typeof DocsReactOverviewReleasesV100Alpha8Route
-  '/react/overview/releases/v1-0-0-beta-0': typeof DocsReactOverviewReleasesV100Beta0Route
-  '/react/overview/releases/v1-0-0-beta-1': typeof DocsReactOverviewReleasesV100Beta1Route
-  '/react/overview/releases/v1-0-0-beta-2': typeof DocsReactOverviewReleasesV100Beta2Route
-  '/react/overview/releases/v1-0-0-beta-3': typeof DocsReactOverviewReleasesV100Beta3Route
-  '/react/overview/releases/v1-0-0-beta-4': typeof DocsReactOverviewReleasesV100Beta4Route
-  '/react/overview/releases/v1-0-0-beta-5': typeof DocsReactOverviewReleasesV100Beta5Route
-  '/react/overview/releases/v1-0-0-beta-6': typeof DocsReactOverviewReleasesV100Beta6Route
-  '/react/overview/releases/v1-0-0-beta-7': typeof DocsReactOverviewReleasesV100Beta7Route
-  '/react/overview/releases/v1-0-0-rc-0': typeof DocsReactOverviewReleasesV100Rc0Route
-  '/react/overview/releases/v1-0-0-rc-1': typeof DocsReactOverviewReleasesV100Rc1Route
-  '/react/overview/releases/v1-0-0-rc-2': typeof DocsReactOverviewReleasesV100Rc2Route
-  '/react/overview/releases/v1-1-0': typeof DocsReactOverviewReleasesV110Route
-  '/react/overview/releases/v1-2-0': typeof DocsReactOverviewReleasesV120Route
-  '/react/overview/releases/v1-3-0': typeof DocsReactOverviewReleasesV130Route
-  '/react/overview/releases/v1-4-0': typeof DocsReactOverviewReleasesV140Route
-  '/react/overview/releases/v1-4-1': typeof DocsReactOverviewReleasesV141Route
-  '/react/overview/releases/v1-5-0': typeof DocsReactOverviewReleasesV150Route
-  '/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
-  '/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
-  '/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
-  '/react/overview/releases/': typeof DocsReactOverviewReleasesIndexRoute
+  '/solid/': typeof DocsSolidIndexRoute
+  '/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
+  '/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
+  '/solid/components/autocomplete': typeof DocsSolidComponentsAutocompleteRoute
+  '/solid/components/avatar': typeof DocsSolidComponentsAvatarRoute
+  '/solid/components/button': typeof DocsSolidComponentsButtonRoute
+  '/solid/components/checkbox': typeof DocsSolidComponentsCheckboxRoute
+  '/solid/components/checkbox-group': typeof DocsSolidComponentsCheckboxGroupRoute
+  '/solid/components/collapsible': typeof DocsSolidComponentsCollapsibleRoute
+  '/solid/components/combobox': typeof DocsSolidComponentsComboboxRoute
+  '/solid/components/context-menu': typeof DocsSolidComponentsContextMenuRoute
+  '/solid/components/dialog': typeof DocsSolidComponentsDialogRoute
+  '/solid/components/drawer': typeof DocsSolidComponentsDrawerRoute
+  '/solid/components/field': typeof DocsSolidComponentsFieldRoute
+  '/solid/components/fieldset': typeof DocsSolidComponentsFieldsetRoute
+  '/solid/components/form': typeof DocsSolidComponentsFormRoute
+  '/solid/components/input': typeof DocsSolidComponentsInputRoute
+  '/solid/components/menu': typeof DocsSolidComponentsMenuRoute
+  '/solid/components/menubar': typeof DocsSolidComponentsMenubarRoute
+  '/solid/components/meter': typeof DocsSolidComponentsMeterRoute
+  '/solid/components/navigation-menu': typeof DocsSolidComponentsNavigationMenuRoute
+  '/solid/components/number-field': typeof DocsSolidComponentsNumberFieldRoute
+  '/solid/components/otp-field': typeof DocsSolidComponentsOtpFieldRoute
+  '/solid/components/popover': typeof DocsSolidComponentsPopoverRoute
+  '/solid/components/preview-card': typeof DocsSolidComponentsPreviewCardRoute
+  '/solid/components/progress': typeof DocsSolidComponentsProgressRoute
+  '/solid/components/radio-group': typeof DocsSolidComponentsRadioGroupRoute
+  '/solid/components/scroll-area': typeof DocsSolidComponentsScrollAreaRoute
+  '/solid/components/select': typeof DocsSolidComponentsSelectRoute
+  '/solid/components/separator': typeof DocsSolidComponentsSeparatorRoute
+  '/solid/components/slider': typeof DocsSolidComponentsSliderRoute
+  '/solid/components/switch': typeof DocsSolidComponentsSwitchRoute
+  '/solid/components/tabs': typeof DocsSolidComponentsTabsRoute
+  '/solid/components/toast': typeof DocsSolidComponentsToastRoute
+  '/solid/components/toggle': typeof DocsSolidComponentsToggleRoute
+  '/solid/components/toggle-group': typeof DocsSolidComponentsToggleGroupRoute
+  '/solid/components/toolbar': typeof DocsSolidComponentsToolbarRoute
+  '/solid/components/tooltip': typeof DocsSolidComponentsTooltipRoute
+  '/solid/handbook/animation': typeof DocsSolidHandbookAnimationRoute
+  '/solid/handbook/composition': typeof DocsSolidHandbookCompositionRoute
+  '/solid/handbook/customization': typeof DocsSolidHandbookCustomizationRoute
+  '/solid/handbook/forms': typeof DocsSolidHandbookFormsRoute
+  '/solid/handbook/styling': typeof DocsSolidHandbookStylingRoute
+  '/solid/handbook/typescript': typeof DocsSolidHandbookTypescriptRoute
+  '/solid/overview/about': typeof DocsSolidOverviewAboutRoute
+  '/solid/overview/accessibility': typeof DocsSolidOverviewAccessibilityRoute
+  '/solid/overview/community': typeof DocsSolidOverviewCommunityRoute
+  '/solid/overview/quick-start': typeof DocsSolidOverviewQuickStartRoute
+  '/solid/overview/releases': typeof DocsSolidOverviewReleasesRouteWithChildren
+  '/solid/utils/csp-provider': typeof DocsSolidUtilsCspProviderRoute
+  '/solid/utils/direction-provider': typeof DocsSolidUtilsDirectionProviderRoute
+  '/solid/utils/merge-props': typeof DocsSolidUtilsMergePropsRoute
+  '/solid/utils/use-render': typeof DocsSolidUtilsUseRenderRoute
+  '/solid/components/': typeof DocsSolidComponentsIndexRoute
+  '/solid/handbook/': typeof DocsSolidHandbookIndexRoute
+  '/solid/overview/': typeof DocsSolidOverviewIndexRoute
+  '/solid/utils/': typeof DocsSolidUtilsIndexRoute
+  '/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
+  '/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
+  '/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
+  '/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
+  '/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
+  '/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
+  '/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
+  '/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
+  '/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
+  '/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
+  '/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
+  '/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
+  '/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
+  '/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
+  '/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
+  '/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
+  '/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
+  '/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
+  '/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
+  '/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
+  '/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
+  '/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
+  '/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
+  '/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
+  '/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
+  '/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
+  '/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof WebsiteIndexRoute
   '/production-error': typeof DocsProductionErrorRoute
   '/playground': typeof PrivatePlaygroundRoute
   '/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
-  '/react': typeof DocsReactIndexRoute
-  '/react/components/accordion': typeof DocsReactComponentsAccordionRoute
-  '/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
-  '/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
-  '/react/components/avatar': typeof DocsReactComponentsAvatarRoute
-  '/react/components/button': typeof DocsReactComponentsButtonRoute
-  '/react/components/checkbox': typeof DocsReactComponentsCheckboxRoute
-  '/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
-  '/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
-  '/react/components/combobox': typeof DocsReactComponentsComboboxRoute
-  '/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
-  '/react/components/dialog': typeof DocsReactComponentsDialogRoute
-  '/react/components/drawer': typeof DocsReactComponentsDrawerRoute
-  '/react/components/field': typeof DocsReactComponentsFieldRoute
-  '/react/components/fieldset': typeof DocsReactComponentsFieldsetRoute
-  '/react/components/form': typeof DocsReactComponentsFormRoute
-  '/react/components/input': typeof DocsReactComponentsInputRoute
-  '/react/components/menu': typeof DocsReactComponentsMenuRoute
-  '/react/components/menubar': typeof DocsReactComponentsMenubarRoute
-  '/react/components/meter': typeof DocsReactComponentsMeterRoute
-  '/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
-  '/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
-  '/react/components/otp-field': typeof DocsReactComponentsOtpFieldRoute
-  '/react/components/popover': typeof DocsReactComponentsPopoverRoute
-  '/react/components/preview-card': typeof DocsReactComponentsPreviewCardRoute
-  '/react/components/progress': typeof DocsReactComponentsProgressRoute
-  '/react/components/radio-group': typeof DocsReactComponentsRadioGroupRoute
-  '/react/components/scroll-area': typeof DocsReactComponentsScrollAreaRoute
-  '/react/components/select': typeof DocsReactComponentsSelectRoute
-  '/react/components/separator': typeof DocsReactComponentsSeparatorRoute
-  '/react/components/slider': typeof DocsReactComponentsSliderRoute
-  '/react/components/switch': typeof DocsReactComponentsSwitchRoute
-  '/react/components/tabs': typeof DocsReactComponentsTabsRoute
-  '/react/components/toast': typeof DocsReactComponentsToastRoute
-  '/react/components/toggle': typeof DocsReactComponentsToggleRoute
-  '/react/components/toggle-group': typeof DocsReactComponentsToggleGroupRoute
-  '/react/components/toolbar': typeof DocsReactComponentsToolbarRoute
-  '/react/components/tooltip': typeof DocsReactComponentsTooltipRoute
-  '/react/handbook/animation': typeof DocsReactHandbookAnimationRoute
-  '/react/handbook/composition': typeof DocsReactHandbookCompositionRoute
-  '/react/handbook/customization': typeof DocsReactHandbookCustomizationRoute
-  '/react/handbook/forms': typeof DocsReactHandbookFormsRoute
-  '/react/handbook/styling': typeof DocsReactHandbookStylingRoute
-  '/react/handbook/typescript': typeof DocsReactHandbookTypescriptRoute
-  '/react/overview/about': typeof DocsReactOverviewAboutRoute
-  '/react/overview/accessibility': typeof DocsReactOverviewAccessibilityRoute
-  '/react/overview/community': typeof DocsReactOverviewCommunityRoute
-  '/react/overview/quick-start': typeof DocsReactOverviewQuickStartRoute
-  '/react/utils/csp-provider': typeof DocsReactUtilsCspProviderRoute
-  '/react/utils/direction-provider': typeof DocsReactUtilsDirectionProviderRoute
-  '/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
-  '/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
-  '/react/components': typeof DocsReactComponentsIndexRoute
-  '/react/handbook': typeof DocsReactHandbookIndexRoute
-  '/react/overview': typeof DocsReactOverviewIndexRoute
-  '/react/utils': typeof DocsReactUtilsIndexRoute
-  '/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
-  '/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
-  '/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
-  '/react/overview/releases/v1-0-0-alpha-6': typeof DocsReactOverviewReleasesV100Alpha6Route
-  '/react/overview/releases/v1-0-0-alpha-7': typeof DocsReactOverviewReleasesV100Alpha7Route
-  '/react/overview/releases/v1-0-0-alpha-8': typeof DocsReactOverviewReleasesV100Alpha8Route
-  '/react/overview/releases/v1-0-0-beta-0': typeof DocsReactOverviewReleasesV100Beta0Route
-  '/react/overview/releases/v1-0-0-beta-1': typeof DocsReactOverviewReleasesV100Beta1Route
-  '/react/overview/releases/v1-0-0-beta-2': typeof DocsReactOverviewReleasesV100Beta2Route
-  '/react/overview/releases/v1-0-0-beta-3': typeof DocsReactOverviewReleasesV100Beta3Route
-  '/react/overview/releases/v1-0-0-beta-4': typeof DocsReactOverviewReleasesV100Beta4Route
-  '/react/overview/releases/v1-0-0-beta-5': typeof DocsReactOverviewReleasesV100Beta5Route
-  '/react/overview/releases/v1-0-0-beta-6': typeof DocsReactOverviewReleasesV100Beta6Route
-  '/react/overview/releases/v1-0-0-beta-7': typeof DocsReactOverviewReleasesV100Beta7Route
-  '/react/overview/releases/v1-0-0-rc-0': typeof DocsReactOverviewReleasesV100Rc0Route
-  '/react/overview/releases/v1-0-0-rc-1': typeof DocsReactOverviewReleasesV100Rc1Route
-  '/react/overview/releases/v1-0-0-rc-2': typeof DocsReactOverviewReleasesV100Rc2Route
-  '/react/overview/releases/v1-1-0': typeof DocsReactOverviewReleasesV110Route
-  '/react/overview/releases/v1-2-0': typeof DocsReactOverviewReleasesV120Route
-  '/react/overview/releases/v1-3-0': typeof DocsReactOverviewReleasesV130Route
-  '/react/overview/releases/v1-4-0': typeof DocsReactOverviewReleasesV140Route
-  '/react/overview/releases/v1-4-1': typeof DocsReactOverviewReleasesV141Route
-  '/react/overview/releases/v1-5-0': typeof DocsReactOverviewReleasesV150Route
-  '/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
-  '/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
-  '/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
-  '/react/overview/releases': typeof DocsReactOverviewReleasesIndexRoute
+  '/solid': typeof DocsSolidIndexRoute
+  '/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
+  '/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
+  '/solid/components/autocomplete': typeof DocsSolidComponentsAutocompleteRoute
+  '/solid/components/avatar': typeof DocsSolidComponentsAvatarRoute
+  '/solid/components/button': typeof DocsSolidComponentsButtonRoute
+  '/solid/components/checkbox': typeof DocsSolidComponentsCheckboxRoute
+  '/solid/components/checkbox-group': typeof DocsSolidComponentsCheckboxGroupRoute
+  '/solid/components/collapsible': typeof DocsSolidComponentsCollapsibleRoute
+  '/solid/components/combobox': typeof DocsSolidComponentsComboboxRoute
+  '/solid/components/context-menu': typeof DocsSolidComponentsContextMenuRoute
+  '/solid/components/dialog': typeof DocsSolidComponentsDialogRoute
+  '/solid/components/drawer': typeof DocsSolidComponentsDrawerRoute
+  '/solid/components/field': typeof DocsSolidComponentsFieldRoute
+  '/solid/components/fieldset': typeof DocsSolidComponentsFieldsetRoute
+  '/solid/components/form': typeof DocsSolidComponentsFormRoute
+  '/solid/components/input': typeof DocsSolidComponentsInputRoute
+  '/solid/components/menu': typeof DocsSolidComponentsMenuRoute
+  '/solid/components/menubar': typeof DocsSolidComponentsMenubarRoute
+  '/solid/components/meter': typeof DocsSolidComponentsMeterRoute
+  '/solid/components/navigation-menu': typeof DocsSolidComponentsNavigationMenuRoute
+  '/solid/components/number-field': typeof DocsSolidComponentsNumberFieldRoute
+  '/solid/components/otp-field': typeof DocsSolidComponentsOtpFieldRoute
+  '/solid/components/popover': typeof DocsSolidComponentsPopoverRoute
+  '/solid/components/preview-card': typeof DocsSolidComponentsPreviewCardRoute
+  '/solid/components/progress': typeof DocsSolidComponentsProgressRoute
+  '/solid/components/radio-group': typeof DocsSolidComponentsRadioGroupRoute
+  '/solid/components/scroll-area': typeof DocsSolidComponentsScrollAreaRoute
+  '/solid/components/select': typeof DocsSolidComponentsSelectRoute
+  '/solid/components/separator': typeof DocsSolidComponentsSeparatorRoute
+  '/solid/components/slider': typeof DocsSolidComponentsSliderRoute
+  '/solid/components/switch': typeof DocsSolidComponentsSwitchRoute
+  '/solid/components/tabs': typeof DocsSolidComponentsTabsRoute
+  '/solid/components/toast': typeof DocsSolidComponentsToastRoute
+  '/solid/components/toggle': typeof DocsSolidComponentsToggleRoute
+  '/solid/components/toggle-group': typeof DocsSolidComponentsToggleGroupRoute
+  '/solid/components/toolbar': typeof DocsSolidComponentsToolbarRoute
+  '/solid/components/tooltip': typeof DocsSolidComponentsTooltipRoute
+  '/solid/handbook/animation': typeof DocsSolidHandbookAnimationRoute
+  '/solid/handbook/composition': typeof DocsSolidHandbookCompositionRoute
+  '/solid/handbook/customization': typeof DocsSolidHandbookCustomizationRoute
+  '/solid/handbook/forms': typeof DocsSolidHandbookFormsRoute
+  '/solid/handbook/styling': typeof DocsSolidHandbookStylingRoute
+  '/solid/handbook/typescript': typeof DocsSolidHandbookTypescriptRoute
+  '/solid/overview/about': typeof DocsSolidOverviewAboutRoute
+  '/solid/overview/accessibility': typeof DocsSolidOverviewAccessibilityRoute
+  '/solid/overview/community': typeof DocsSolidOverviewCommunityRoute
+  '/solid/overview/quick-start': typeof DocsSolidOverviewQuickStartRoute
+  '/solid/utils/csp-provider': typeof DocsSolidUtilsCspProviderRoute
+  '/solid/utils/direction-provider': typeof DocsSolidUtilsDirectionProviderRoute
+  '/solid/utils/merge-props': typeof DocsSolidUtilsMergePropsRoute
+  '/solid/utils/use-render': typeof DocsSolidUtilsUseRenderRoute
+  '/solid/components': typeof DocsSolidComponentsIndexRoute
+  '/solid/handbook': typeof DocsSolidHandbookIndexRoute
+  '/solid/overview': typeof DocsSolidOverviewIndexRoute
+  '/solid/utils': typeof DocsSolidUtilsIndexRoute
+  '/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
+  '/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
+  '/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
+  '/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
+  '/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
+  '/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
+  '/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
+  '/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
+  '/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
+  '/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
+  '/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
+  '/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
+  '/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
+  '/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
+  '/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
+  '/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
+  '/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
+  '/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
+  '/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
+  '/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
+  '/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
+  '/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
+  '/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
+  '/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
+  '/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
+  '/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
+  '/solid/overview/releases': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -842,379 +842,379 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteWithChildren
   '/_website': typeof WebsiteRouteWithChildren
   '/_docs/production-error': typeof DocsProductionErrorRoute
-  '/_docs/react': typeof DocsReactRouteWithChildren
+  '/_docs/solid': typeof DocsSolidRouteWithChildren
   '/_private/playground': typeof PrivatePlaygroundRoute
   '/_website/': typeof WebsiteIndexRoute
-  '/_docs/react/handbook': typeof DocsReactHandbookRouteWithChildren
-  '/_docs/react/overview': typeof DocsReactOverviewRouteWithChildren
-  '/_docs/react/utils': typeof DocsReactUtilsRouteWithChildren
+  '/_docs/solid/handbook': typeof DocsSolidHandbookRouteWithChildren
+  '/_docs/solid/overview': typeof DocsSolidOverviewRouteWithChildren
+  '/_docs/solid/utils': typeof DocsSolidUtilsRouteWithChildren
   '/_website/careers/design-engineer': typeof WebsiteCareersDesignEngineerRoute
-  '/_docs/react/': typeof DocsReactIndexRoute
-  '/_docs/react/components/accordion': typeof DocsReactComponentsAccordionRoute
-  '/_docs/react/components/alert-dialog': typeof DocsReactComponentsAlertDialogRoute
-  '/_docs/react/components/autocomplete': typeof DocsReactComponentsAutocompleteRoute
-  '/_docs/react/components/avatar': typeof DocsReactComponentsAvatarRoute
-  '/_docs/react/components/button': typeof DocsReactComponentsButtonRoute
-  '/_docs/react/components/checkbox': typeof DocsReactComponentsCheckboxRoute
-  '/_docs/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
-  '/_docs/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
-  '/_docs/react/components/combobox': typeof DocsReactComponentsComboboxRoute
-  '/_docs/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
-  '/_docs/react/components/dialog': typeof DocsReactComponentsDialogRoute
-  '/_docs/react/components/drawer': typeof DocsReactComponentsDrawerRoute
-  '/_docs/react/components/field': typeof DocsReactComponentsFieldRoute
-  '/_docs/react/components/fieldset': typeof DocsReactComponentsFieldsetRoute
-  '/_docs/react/components/form': typeof DocsReactComponentsFormRoute
-  '/_docs/react/components/input': typeof DocsReactComponentsInputRoute
-  '/_docs/react/components/menu': typeof DocsReactComponentsMenuRoute
-  '/_docs/react/components/menubar': typeof DocsReactComponentsMenubarRoute
-  '/_docs/react/components/meter': typeof DocsReactComponentsMeterRoute
-  '/_docs/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
-  '/_docs/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
-  '/_docs/react/components/otp-field': typeof DocsReactComponentsOtpFieldRoute
-  '/_docs/react/components/popover': typeof DocsReactComponentsPopoverRoute
-  '/_docs/react/components/preview-card': typeof DocsReactComponentsPreviewCardRoute
-  '/_docs/react/components/progress': typeof DocsReactComponentsProgressRoute
-  '/_docs/react/components/radio-group': typeof DocsReactComponentsRadioGroupRoute
-  '/_docs/react/components/scroll-area': typeof DocsReactComponentsScrollAreaRoute
-  '/_docs/react/components/select': typeof DocsReactComponentsSelectRoute
-  '/_docs/react/components/separator': typeof DocsReactComponentsSeparatorRoute
-  '/_docs/react/components/slider': typeof DocsReactComponentsSliderRoute
-  '/_docs/react/components/switch': typeof DocsReactComponentsSwitchRoute
-  '/_docs/react/components/tabs': typeof DocsReactComponentsTabsRoute
-  '/_docs/react/components/toast': typeof DocsReactComponentsToastRoute
-  '/_docs/react/components/toggle': typeof DocsReactComponentsToggleRoute
-  '/_docs/react/components/toggle-group': typeof DocsReactComponentsToggleGroupRoute
-  '/_docs/react/components/toolbar': typeof DocsReactComponentsToolbarRoute
-  '/_docs/react/components/tooltip': typeof DocsReactComponentsTooltipRoute
-  '/_docs/react/handbook/animation': typeof DocsReactHandbookAnimationRoute
-  '/_docs/react/handbook/composition': typeof DocsReactHandbookCompositionRoute
-  '/_docs/react/handbook/customization': typeof DocsReactHandbookCustomizationRoute
-  '/_docs/react/handbook/forms': typeof DocsReactHandbookFormsRoute
-  '/_docs/react/handbook/styling': typeof DocsReactHandbookStylingRoute
-  '/_docs/react/handbook/typescript': typeof DocsReactHandbookTypescriptRoute
-  '/_docs/react/overview/about': typeof DocsReactOverviewAboutRoute
-  '/_docs/react/overview/accessibility': typeof DocsReactOverviewAccessibilityRoute
-  '/_docs/react/overview/community': typeof DocsReactOverviewCommunityRoute
-  '/_docs/react/overview/quick-start': typeof DocsReactOverviewQuickStartRoute
-  '/_docs/react/overview/releases': typeof DocsReactOverviewReleasesRouteWithChildren
-  '/_docs/react/utils/csp-provider': typeof DocsReactUtilsCspProviderRoute
-  '/_docs/react/utils/direction-provider': typeof DocsReactUtilsDirectionProviderRoute
-  '/_docs/react/utils/merge-props': typeof DocsReactUtilsMergePropsRoute
-  '/_docs/react/utils/use-render': typeof DocsReactUtilsUseRenderRoute
-  '/_docs/react/components/': typeof DocsReactComponentsIndexRoute
-  '/_docs/react/handbook/': typeof DocsReactHandbookIndexRoute
-  '/_docs/react/overview/': typeof DocsReactOverviewIndexRoute
-  '/_docs/react/utils/': typeof DocsReactUtilsIndexRoute
-  '/_docs/react/overview/releases/v1-0-0': typeof DocsReactOverviewReleasesV100Route
-  '/_docs/react/overview/releases/v1-0-0-alpha-4': typeof DocsReactOverviewReleasesV100Alpha4Route
-  '/_docs/react/overview/releases/v1-0-0-alpha-5': typeof DocsReactOverviewReleasesV100Alpha5Route
-  '/_docs/react/overview/releases/v1-0-0-alpha-6': typeof DocsReactOverviewReleasesV100Alpha6Route
-  '/_docs/react/overview/releases/v1-0-0-alpha-7': typeof DocsReactOverviewReleasesV100Alpha7Route
-  '/_docs/react/overview/releases/v1-0-0-alpha-8': typeof DocsReactOverviewReleasesV100Alpha8Route
-  '/_docs/react/overview/releases/v1-0-0-beta-0': typeof DocsReactOverviewReleasesV100Beta0Route
-  '/_docs/react/overview/releases/v1-0-0-beta-1': typeof DocsReactOverviewReleasesV100Beta1Route
-  '/_docs/react/overview/releases/v1-0-0-beta-2': typeof DocsReactOverviewReleasesV100Beta2Route
-  '/_docs/react/overview/releases/v1-0-0-beta-3': typeof DocsReactOverviewReleasesV100Beta3Route
-  '/_docs/react/overview/releases/v1-0-0-beta-4': typeof DocsReactOverviewReleasesV100Beta4Route
-  '/_docs/react/overview/releases/v1-0-0-beta-5': typeof DocsReactOverviewReleasesV100Beta5Route
-  '/_docs/react/overview/releases/v1-0-0-beta-6': typeof DocsReactOverviewReleasesV100Beta6Route
-  '/_docs/react/overview/releases/v1-0-0-beta-7': typeof DocsReactOverviewReleasesV100Beta7Route
-  '/_docs/react/overview/releases/v1-0-0-rc-0': typeof DocsReactOverviewReleasesV100Rc0Route
-  '/_docs/react/overview/releases/v1-0-0-rc-1': typeof DocsReactOverviewReleasesV100Rc1Route
-  '/_docs/react/overview/releases/v1-0-0-rc-2': typeof DocsReactOverviewReleasesV100Rc2Route
-  '/_docs/react/overview/releases/v1-1-0': typeof DocsReactOverviewReleasesV110Route
-  '/_docs/react/overview/releases/v1-2-0': typeof DocsReactOverviewReleasesV120Route
-  '/_docs/react/overview/releases/v1-3-0': typeof DocsReactOverviewReleasesV130Route
-  '/_docs/react/overview/releases/v1-4-0': typeof DocsReactOverviewReleasesV140Route
-  '/_docs/react/overview/releases/v1-4-1': typeof DocsReactOverviewReleasesV141Route
-  '/_docs/react/overview/releases/v1-5-0': typeof DocsReactOverviewReleasesV150Route
-  '/_docs/react/overview/releases/v1-6-0': typeof DocsReactOverviewReleasesV160Route
-  '/_docs/react/overview/releases/v1-7-0': typeof DocsReactOverviewReleasesV170Route
-  '/_docs/react/overview/releases/v1-8-0': typeof DocsReactOverviewReleasesV180Route
-  '/_docs/react/overview/releases/': typeof DocsReactOverviewReleasesIndexRoute
+  '/_docs/solid/': typeof DocsSolidIndexRoute
+  '/_docs/solid/components/accordion': typeof DocsSolidComponentsAccordionRoute
+  '/_docs/solid/components/alert-dialog': typeof DocsSolidComponentsAlertDialogRoute
+  '/_docs/solid/components/autocomplete': typeof DocsSolidComponentsAutocompleteRoute
+  '/_docs/solid/components/avatar': typeof DocsSolidComponentsAvatarRoute
+  '/_docs/solid/components/button': typeof DocsSolidComponentsButtonRoute
+  '/_docs/solid/components/checkbox': typeof DocsSolidComponentsCheckboxRoute
+  '/_docs/solid/components/checkbox-group': typeof DocsSolidComponentsCheckboxGroupRoute
+  '/_docs/solid/components/collapsible': typeof DocsSolidComponentsCollapsibleRoute
+  '/_docs/solid/components/combobox': typeof DocsSolidComponentsComboboxRoute
+  '/_docs/solid/components/context-menu': typeof DocsSolidComponentsContextMenuRoute
+  '/_docs/solid/components/dialog': typeof DocsSolidComponentsDialogRoute
+  '/_docs/solid/components/drawer': typeof DocsSolidComponentsDrawerRoute
+  '/_docs/solid/components/field': typeof DocsSolidComponentsFieldRoute
+  '/_docs/solid/components/fieldset': typeof DocsSolidComponentsFieldsetRoute
+  '/_docs/solid/components/form': typeof DocsSolidComponentsFormRoute
+  '/_docs/solid/components/input': typeof DocsSolidComponentsInputRoute
+  '/_docs/solid/components/menu': typeof DocsSolidComponentsMenuRoute
+  '/_docs/solid/components/menubar': typeof DocsSolidComponentsMenubarRoute
+  '/_docs/solid/components/meter': typeof DocsSolidComponentsMeterRoute
+  '/_docs/solid/components/navigation-menu': typeof DocsSolidComponentsNavigationMenuRoute
+  '/_docs/solid/components/number-field': typeof DocsSolidComponentsNumberFieldRoute
+  '/_docs/solid/components/otp-field': typeof DocsSolidComponentsOtpFieldRoute
+  '/_docs/solid/components/popover': typeof DocsSolidComponentsPopoverRoute
+  '/_docs/solid/components/preview-card': typeof DocsSolidComponentsPreviewCardRoute
+  '/_docs/solid/components/progress': typeof DocsSolidComponentsProgressRoute
+  '/_docs/solid/components/radio-group': typeof DocsSolidComponentsRadioGroupRoute
+  '/_docs/solid/components/scroll-area': typeof DocsSolidComponentsScrollAreaRoute
+  '/_docs/solid/components/select': typeof DocsSolidComponentsSelectRoute
+  '/_docs/solid/components/separator': typeof DocsSolidComponentsSeparatorRoute
+  '/_docs/solid/components/slider': typeof DocsSolidComponentsSliderRoute
+  '/_docs/solid/components/switch': typeof DocsSolidComponentsSwitchRoute
+  '/_docs/solid/components/tabs': typeof DocsSolidComponentsTabsRoute
+  '/_docs/solid/components/toast': typeof DocsSolidComponentsToastRoute
+  '/_docs/solid/components/toggle': typeof DocsSolidComponentsToggleRoute
+  '/_docs/solid/components/toggle-group': typeof DocsSolidComponentsToggleGroupRoute
+  '/_docs/solid/components/toolbar': typeof DocsSolidComponentsToolbarRoute
+  '/_docs/solid/components/tooltip': typeof DocsSolidComponentsTooltipRoute
+  '/_docs/solid/handbook/animation': typeof DocsSolidHandbookAnimationRoute
+  '/_docs/solid/handbook/composition': typeof DocsSolidHandbookCompositionRoute
+  '/_docs/solid/handbook/customization': typeof DocsSolidHandbookCustomizationRoute
+  '/_docs/solid/handbook/forms': typeof DocsSolidHandbookFormsRoute
+  '/_docs/solid/handbook/styling': typeof DocsSolidHandbookStylingRoute
+  '/_docs/solid/handbook/typescript': typeof DocsSolidHandbookTypescriptRoute
+  '/_docs/solid/overview/about': typeof DocsSolidOverviewAboutRoute
+  '/_docs/solid/overview/accessibility': typeof DocsSolidOverviewAccessibilityRoute
+  '/_docs/solid/overview/community': typeof DocsSolidOverviewCommunityRoute
+  '/_docs/solid/overview/quick-start': typeof DocsSolidOverviewQuickStartRoute
+  '/_docs/solid/overview/releases': typeof DocsSolidOverviewReleasesRouteWithChildren
+  '/_docs/solid/utils/csp-provider': typeof DocsSolidUtilsCspProviderRoute
+  '/_docs/solid/utils/direction-provider': typeof DocsSolidUtilsDirectionProviderRoute
+  '/_docs/solid/utils/merge-props': typeof DocsSolidUtilsMergePropsRoute
+  '/_docs/solid/utils/use-render': typeof DocsSolidUtilsUseRenderRoute
+  '/_docs/solid/components/': typeof DocsSolidComponentsIndexRoute
+  '/_docs/solid/handbook/': typeof DocsSolidHandbookIndexRoute
+  '/_docs/solid/overview/': typeof DocsSolidOverviewIndexRoute
+  '/_docs/solid/utils/': typeof DocsSolidUtilsIndexRoute
+  '/_docs/solid/overview/releases/v1-0-0': typeof DocsSolidOverviewReleasesV100Route
+  '/_docs/solid/overview/releases/v1-0-0-alpha-4': typeof DocsSolidOverviewReleasesV100Alpha4Route
+  '/_docs/solid/overview/releases/v1-0-0-alpha-5': typeof DocsSolidOverviewReleasesV100Alpha5Route
+  '/_docs/solid/overview/releases/v1-0-0-alpha-6': typeof DocsSolidOverviewReleasesV100Alpha6Route
+  '/_docs/solid/overview/releases/v1-0-0-alpha-7': typeof DocsSolidOverviewReleasesV100Alpha7Route
+  '/_docs/solid/overview/releases/v1-0-0-alpha-8': typeof DocsSolidOverviewReleasesV100Alpha8Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-0': typeof DocsSolidOverviewReleasesV100Beta0Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-1': typeof DocsSolidOverviewReleasesV100Beta1Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-2': typeof DocsSolidOverviewReleasesV100Beta2Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-3': typeof DocsSolidOverviewReleasesV100Beta3Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-4': typeof DocsSolidOverviewReleasesV100Beta4Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-5': typeof DocsSolidOverviewReleasesV100Beta5Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-6': typeof DocsSolidOverviewReleasesV100Beta6Route
+  '/_docs/solid/overview/releases/v1-0-0-beta-7': typeof DocsSolidOverviewReleasesV100Beta7Route
+  '/_docs/solid/overview/releases/v1-0-0-rc-0': typeof DocsSolidOverviewReleasesV100Rc0Route
+  '/_docs/solid/overview/releases/v1-0-0-rc-1': typeof DocsSolidOverviewReleasesV100Rc1Route
+  '/_docs/solid/overview/releases/v1-0-0-rc-2': typeof DocsSolidOverviewReleasesV100Rc2Route
+  '/_docs/solid/overview/releases/v1-1-0': typeof DocsSolidOverviewReleasesV110Route
+  '/_docs/solid/overview/releases/v1-2-0': typeof DocsSolidOverviewReleasesV120Route
+  '/_docs/solid/overview/releases/v1-3-0': typeof DocsSolidOverviewReleasesV130Route
+  '/_docs/solid/overview/releases/v1-4-0': typeof DocsSolidOverviewReleasesV140Route
+  '/_docs/solid/overview/releases/v1-4-1': typeof DocsSolidOverviewReleasesV141Route
+  '/_docs/solid/overview/releases/v1-5-0': typeof DocsSolidOverviewReleasesV150Route
+  '/_docs/solid/overview/releases/v1-6-0': typeof DocsSolidOverviewReleasesV160Route
+  '/_docs/solid/overview/releases/v1-7-0': typeof DocsSolidOverviewReleasesV170Route
+  '/_docs/solid/overview/releases/v1-8-0': typeof DocsSolidOverviewReleasesV180Route
+  '/_docs/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/production-error'
-    | '/react'
+    | '/solid'
     | '/playground'
-    | '/react/handbook'
-    | '/react/overview'
-    | '/react/utils'
+    | '/solid/handbook'
+    | '/solid/overview'
+    | '/solid/utils'
     | '/careers/design-engineer'
-    | '/react/'
-    | '/react/components/accordion'
-    | '/react/components/alert-dialog'
-    | '/react/components/autocomplete'
-    | '/react/components/avatar'
-    | '/react/components/button'
-    | '/react/components/checkbox'
-    | '/react/components/checkbox-group'
-    | '/react/components/collapsible'
-    | '/react/components/combobox'
-    | '/react/components/context-menu'
-    | '/react/components/dialog'
-    | '/react/components/drawer'
-    | '/react/components/field'
-    | '/react/components/fieldset'
-    | '/react/components/form'
-    | '/react/components/input'
-    | '/react/components/menu'
-    | '/react/components/menubar'
-    | '/react/components/meter'
-    | '/react/components/navigation-menu'
-    | '/react/components/number-field'
-    | '/react/components/otp-field'
-    | '/react/components/popover'
-    | '/react/components/preview-card'
-    | '/react/components/progress'
-    | '/react/components/radio-group'
-    | '/react/components/scroll-area'
-    | '/react/components/select'
-    | '/react/components/separator'
-    | '/react/components/slider'
-    | '/react/components/switch'
-    | '/react/components/tabs'
-    | '/react/components/toast'
-    | '/react/components/toggle'
-    | '/react/components/toggle-group'
-    | '/react/components/toolbar'
-    | '/react/components/tooltip'
-    | '/react/handbook/animation'
-    | '/react/handbook/composition'
-    | '/react/handbook/customization'
-    | '/react/handbook/forms'
-    | '/react/handbook/styling'
-    | '/react/handbook/typescript'
-    | '/react/overview/about'
-    | '/react/overview/accessibility'
-    | '/react/overview/community'
-    | '/react/overview/quick-start'
-    | '/react/overview/releases'
-    | '/react/utils/csp-provider'
-    | '/react/utils/direction-provider'
-    | '/react/utils/merge-props'
-    | '/react/utils/use-render'
-    | '/react/components/'
-    | '/react/handbook/'
-    | '/react/overview/'
-    | '/react/utils/'
-    | '/react/overview/releases/v1-0-0'
-    | '/react/overview/releases/v1-0-0-alpha-4'
-    | '/react/overview/releases/v1-0-0-alpha-5'
-    | '/react/overview/releases/v1-0-0-alpha-6'
-    | '/react/overview/releases/v1-0-0-alpha-7'
-    | '/react/overview/releases/v1-0-0-alpha-8'
-    | '/react/overview/releases/v1-0-0-beta-0'
-    | '/react/overview/releases/v1-0-0-beta-1'
-    | '/react/overview/releases/v1-0-0-beta-2'
-    | '/react/overview/releases/v1-0-0-beta-3'
-    | '/react/overview/releases/v1-0-0-beta-4'
-    | '/react/overview/releases/v1-0-0-beta-5'
-    | '/react/overview/releases/v1-0-0-beta-6'
-    | '/react/overview/releases/v1-0-0-beta-7'
-    | '/react/overview/releases/v1-0-0-rc-0'
-    | '/react/overview/releases/v1-0-0-rc-1'
-    | '/react/overview/releases/v1-0-0-rc-2'
-    | '/react/overview/releases/v1-1-0'
-    | '/react/overview/releases/v1-2-0'
-    | '/react/overview/releases/v1-3-0'
-    | '/react/overview/releases/v1-4-0'
-    | '/react/overview/releases/v1-4-1'
-    | '/react/overview/releases/v1-5-0'
-    | '/react/overview/releases/v1-6-0'
-    | '/react/overview/releases/v1-7-0'
-    | '/react/overview/releases/v1-8-0'
-    | '/react/overview/releases/'
+    | '/solid/'
+    | '/solid/components/accordion'
+    | '/solid/components/alert-dialog'
+    | '/solid/components/autocomplete'
+    | '/solid/components/avatar'
+    | '/solid/components/button'
+    | '/solid/components/checkbox'
+    | '/solid/components/checkbox-group'
+    | '/solid/components/collapsible'
+    | '/solid/components/combobox'
+    | '/solid/components/context-menu'
+    | '/solid/components/dialog'
+    | '/solid/components/drawer'
+    | '/solid/components/field'
+    | '/solid/components/fieldset'
+    | '/solid/components/form'
+    | '/solid/components/input'
+    | '/solid/components/menu'
+    | '/solid/components/menubar'
+    | '/solid/components/meter'
+    | '/solid/components/navigation-menu'
+    | '/solid/components/number-field'
+    | '/solid/components/otp-field'
+    | '/solid/components/popover'
+    | '/solid/components/preview-card'
+    | '/solid/components/progress'
+    | '/solid/components/radio-group'
+    | '/solid/components/scroll-area'
+    | '/solid/components/select'
+    | '/solid/components/separator'
+    | '/solid/components/slider'
+    | '/solid/components/switch'
+    | '/solid/components/tabs'
+    | '/solid/components/toast'
+    | '/solid/components/toggle'
+    | '/solid/components/toggle-group'
+    | '/solid/components/toolbar'
+    | '/solid/components/tooltip'
+    | '/solid/handbook/animation'
+    | '/solid/handbook/composition'
+    | '/solid/handbook/customization'
+    | '/solid/handbook/forms'
+    | '/solid/handbook/styling'
+    | '/solid/handbook/typescript'
+    | '/solid/overview/about'
+    | '/solid/overview/accessibility'
+    | '/solid/overview/community'
+    | '/solid/overview/quick-start'
+    | '/solid/overview/releases'
+    | '/solid/utils/csp-provider'
+    | '/solid/utils/direction-provider'
+    | '/solid/utils/merge-props'
+    | '/solid/utils/use-render'
+    | '/solid/components/'
+    | '/solid/handbook/'
+    | '/solid/overview/'
+    | '/solid/utils/'
+    | '/solid/overview/releases/v1-0-0'
+    | '/solid/overview/releases/v1-0-0-alpha-4'
+    | '/solid/overview/releases/v1-0-0-alpha-5'
+    | '/solid/overview/releases/v1-0-0-alpha-6'
+    | '/solid/overview/releases/v1-0-0-alpha-7'
+    | '/solid/overview/releases/v1-0-0-alpha-8'
+    | '/solid/overview/releases/v1-0-0-beta-0'
+    | '/solid/overview/releases/v1-0-0-beta-1'
+    | '/solid/overview/releases/v1-0-0-beta-2'
+    | '/solid/overview/releases/v1-0-0-beta-3'
+    | '/solid/overview/releases/v1-0-0-beta-4'
+    | '/solid/overview/releases/v1-0-0-beta-5'
+    | '/solid/overview/releases/v1-0-0-beta-6'
+    | '/solid/overview/releases/v1-0-0-beta-7'
+    | '/solid/overview/releases/v1-0-0-rc-0'
+    | '/solid/overview/releases/v1-0-0-rc-1'
+    | '/solid/overview/releases/v1-0-0-rc-2'
+    | '/solid/overview/releases/v1-1-0'
+    | '/solid/overview/releases/v1-2-0'
+    | '/solid/overview/releases/v1-3-0'
+    | '/solid/overview/releases/v1-4-0'
+    | '/solid/overview/releases/v1-4-1'
+    | '/solid/overview/releases/v1-5-0'
+    | '/solid/overview/releases/v1-6-0'
+    | '/solid/overview/releases/v1-7-0'
+    | '/solid/overview/releases/v1-8-0'
+    | '/solid/overview/releases/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/production-error'
     | '/playground'
     | '/careers/design-engineer'
-    | '/react'
-    | '/react/components/accordion'
-    | '/react/components/alert-dialog'
-    | '/react/components/autocomplete'
-    | '/react/components/avatar'
-    | '/react/components/button'
-    | '/react/components/checkbox'
-    | '/react/components/checkbox-group'
-    | '/react/components/collapsible'
-    | '/react/components/combobox'
-    | '/react/components/context-menu'
-    | '/react/components/dialog'
-    | '/react/components/drawer'
-    | '/react/components/field'
-    | '/react/components/fieldset'
-    | '/react/components/form'
-    | '/react/components/input'
-    | '/react/components/menu'
-    | '/react/components/menubar'
-    | '/react/components/meter'
-    | '/react/components/navigation-menu'
-    | '/react/components/number-field'
-    | '/react/components/otp-field'
-    | '/react/components/popover'
-    | '/react/components/preview-card'
-    | '/react/components/progress'
-    | '/react/components/radio-group'
-    | '/react/components/scroll-area'
-    | '/react/components/select'
-    | '/react/components/separator'
-    | '/react/components/slider'
-    | '/react/components/switch'
-    | '/react/components/tabs'
-    | '/react/components/toast'
-    | '/react/components/toggle'
-    | '/react/components/toggle-group'
-    | '/react/components/toolbar'
-    | '/react/components/tooltip'
-    | '/react/handbook/animation'
-    | '/react/handbook/composition'
-    | '/react/handbook/customization'
-    | '/react/handbook/forms'
-    | '/react/handbook/styling'
-    | '/react/handbook/typescript'
-    | '/react/overview/about'
-    | '/react/overview/accessibility'
-    | '/react/overview/community'
-    | '/react/overview/quick-start'
-    | '/react/utils/csp-provider'
-    | '/react/utils/direction-provider'
-    | '/react/utils/merge-props'
-    | '/react/utils/use-render'
-    | '/react/components'
-    | '/react/handbook'
-    | '/react/overview'
-    | '/react/utils'
-    | '/react/overview/releases/v1-0-0'
-    | '/react/overview/releases/v1-0-0-alpha-4'
-    | '/react/overview/releases/v1-0-0-alpha-5'
-    | '/react/overview/releases/v1-0-0-alpha-6'
-    | '/react/overview/releases/v1-0-0-alpha-7'
-    | '/react/overview/releases/v1-0-0-alpha-8'
-    | '/react/overview/releases/v1-0-0-beta-0'
-    | '/react/overview/releases/v1-0-0-beta-1'
-    | '/react/overview/releases/v1-0-0-beta-2'
-    | '/react/overview/releases/v1-0-0-beta-3'
-    | '/react/overview/releases/v1-0-0-beta-4'
-    | '/react/overview/releases/v1-0-0-beta-5'
-    | '/react/overview/releases/v1-0-0-beta-6'
-    | '/react/overview/releases/v1-0-0-beta-7'
-    | '/react/overview/releases/v1-0-0-rc-0'
-    | '/react/overview/releases/v1-0-0-rc-1'
-    | '/react/overview/releases/v1-0-0-rc-2'
-    | '/react/overview/releases/v1-1-0'
-    | '/react/overview/releases/v1-2-0'
-    | '/react/overview/releases/v1-3-0'
-    | '/react/overview/releases/v1-4-0'
-    | '/react/overview/releases/v1-4-1'
-    | '/react/overview/releases/v1-5-0'
-    | '/react/overview/releases/v1-6-0'
-    | '/react/overview/releases/v1-7-0'
-    | '/react/overview/releases/v1-8-0'
-    | '/react/overview/releases'
+    | '/solid'
+    | '/solid/components/accordion'
+    | '/solid/components/alert-dialog'
+    | '/solid/components/autocomplete'
+    | '/solid/components/avatar'
+    | '/solid/components/button'
+    | '/solid/components/checkbox'
+    | '/solid/components/checkbox-group'
+    | '/solid/components/collapsible'
+    | '/solid/components/combobox'
+    | '/solid/components/context-menu'
+    | '/solid/components/dialog'
+    | '/solid/components/drawer'
+    | '/solid/components/field'
+    | '/solid/components/fieldset'
+    | '/solid/components/form'
+    | '/solid/components/input'
+    | '/solid/components/menu'
+    | '/solid/components/menubar'
+    | '/solid/components/meter'
+    | '/solid/components/navigation-menu'
+    | '/solid/components/number-field'
+    | '/solid/components/otp-field'
+    | '/solid/components/popover'
+    | '/solid/components/preview-card'
+    | '/solid/components/progress'
+    | '/solid/components/radio-group'
+    | '/solid/components/scroll-area'
+    | '/solid/components/select'
+    | '/solid/components/separator'
+    | '/solid/components/slider'
+    | '/solid/components/switch'
+    | '/solid/components/tabs'
+    | '/solid/components/toast'
+    | '/solid/components/toggle'
+    | '/solid/components/toggle-group'
+    | '/solid/components/toolbar'
+    | '/solid/components/tooltip'
+    | '/solid/handbook/animation'
+    | '/solid/handbook/composition'
+    | '/solid/handbook/customization'
+    | '/solid/handbook/forms'
+    | '/solid/handbook/styling'
+    | '/solid/handbook/typescript'
+    | '/solid/overview/about'
+    | '/solid/overview/accessibility'
+    | '/solid/overview/community'
+    | '/solid/overview/quick-start'
+    | '/solid/utils/csp-provider'
+    | '/solid/utils/direction-provider'
+    | '/solid/utils/merge-props'
+    | '/solid/utils/use-render'
+    | '/solid/components'
+    | '/solid/handbook'
+    | '/solid/overview'
+    | '/solid/utils'
+    | '/solid/overview/releases/v1-0-0'
+    | '/solid/overview/releases/v1-0-0-alpha-4'
+    | '/solid/overview/releases/v1-0-0-alpha-5'
+    | '/solid/overview/releases/v1-0-0-alpha-6'
+    | '/solid/overview/releases/v1-0-0-alpha-7'
+    | '/solid/overview/releases/v1-0-0-alpha-8'
+    | '/solid/overview/releases/v1-0-0-beta-0'
+    | '/solid/overview/releases/v1-0-0-beta-1'
+    | '/solid/overview/releases/v1-0-0-beta-2'
+    | '/solid/overview/releases/v1-0-0-beta-3'
+    | '/solid/overview/releases/v1-0-0-beta-4'
+    | '/solid/overview/releases/v1-0-0-beta-5'
+    | '/solid/overview/releases/v1-0-0-beta-6'
+    | '/solid/overview/releases/v1-0-0-beta-7'
+    | '/solid/overview/releases/v1-0-0-rc-0'
+    | '/solid/overview/releases/v1-0-0-rc-1'
+    | '/solid/overview/releases/v1-0-0-rc-2'
+    | '/solid/overview/releases/v1-1-0'
+    | '/solid/overview/releases/v1-2-0'
+    | '/solid/overview/releases/v1-3-0'
+    | '/solid/overview/releases/v1-4-0'
+    | '/solid/overview/releases/v1-4-1'
+    | '/solid/overview/releases/v1-5-0'
+    | '/solid/overview/releases/v1-6-0'
+    | '/solid/overview/releases/v1-7-0'
+    | '/solid/overview/releases/v1-8-0'
+    | '/solid/overview/releases'
   id:
     | '__root__'
     | '/_docs'
     | '/_private'
     | '/_website'
     | '/_docs/production-error'
-    | '/_docs/react'
+    | '/_docs/solid'
     | '/_private/playground'
     | '/_website/'
-    | '/_docs/react/handbook'
-    | '/_docs/react/overview'
-    | '/_docs/react/utils'
+    | '/_docs/solid/handbook'
+    | '/_docs/solid/overview'
+    | '/_docs/solid/utils'
     | '/_website/careers/design-engineer'
-    | '/_docs/react/'
-    | '/_docs/react/components/accordion'
-    | '/_docs/react/components/alert-dialog'
-    | '/_docs/react/components/autocomplete'
-    | '/_docs/react/components/avatar'
-    | '/_docs/react/components/button'
-    | '/_docs/react/components/checkbox'
-    | '/_docs/react/components/checkbox-group'
-    | '/_docs/react/components/collapsible'
-    | '/_docs/react/components/combobox'
-    | '/_docs/react/components/context-menu'
-    | '/_docs/react/components/dialog'
-    | '/_docs/react/components/drawer'
-    | '/_docs/react/components/field'
-    | '/_docs/react/components/fieldset'
-    | '/_docs/react/components/form'
-    | '/_docs/react/components/input'
-    | '/_docs/react/components/menu'
-    | '/_docs/react/components/menubar'
-    | '/_docs/react/components/meter'
-    | '/_docs/react/components/navigation-menu'
-    | '/_docs/react/components/number-field'
-    | '/_docs/react/components/otp-field'
-    | '/_docs/react/components/popover'
-    | '/_docs/react/components/preview-card'
-    | '/_docs/react/components/progress'
-    | '/_docs/react/components/radio-group'
-    | '/_docs/react/components/scroll-area'
-    | '/_docs/react/components/select'
-    | '/_docs/react/components/separator'
-    | '/_docs/react/components/slider'
-    | '/_docs/react/components/switch'
-    | '/_docs/react/components/tabs'
-    | '/_docs/react/components/toast'
-    | '/_docs/react/components/toggle'
-    | '/_docs/react/components/toggle-group'
-    | '/_docs/react/components/toolbar'
-    | '/_docs/react/components/tooltip'
-    | '/_docs/react/handbook/animation'
-    | '/_docs/react/handbook/composition'
-    | '/_docs/react/handbook/customization'
-    | '/_docs/react/handbook/forms'
-    | '/_docs/react/handbook/styling'
-    | '/_docs/react/handbook/typescript'
-    | '/_docs/react/overview/about'
-    | '/_docs/react/overview/accessibility'
-    | '/_docs/react/overview/community'
-    | '/_docs/react/overview/quick-start'
-    | '/_docs/react/overview/releases'
-    | '/_docs/react/utils/csp-provider'
-    | '/_docs/react/utils/direction-provider'
-    | '/_docs/react/utils/merge-props'
-    | '/_docs/react/utils/use-render'
-    | '/_docs/react/components/'
-    | '/_docs/react/handbook/'
-    | '/_docs/react/overview/'
-    | '/_docs/react/utils/'
-    | '/_docs/react/overview/releases/v1-0-0'
-    | '/_docs/react/overview/releases/v1-0-0-alpha-4'
-    | '/_docs/react/overview/releases/v1-0-0-alpha-5'
-    | '/_docs/react/overview/releases/v1-0-0-alpha-6'
-    | '/_docs/react/overview/releases/v1-0-0-alpha-7'
-    | '/_docs/react/overview/releases/v1-0-0-alpha-8'
-    | '/_docs/react/overview/releases/v1-0-0-beta-0'
-    | '/_docs/react/overview/releases/v1-0-0-beta-1'
-    | '/_docs/react/overview/releases/v1-0-0-beta-2'
-    | '/_docs/react/overview/releases/v1-0-0-beta-3'
-    | '/_docs/react/overview/releases/v1-0-0-beta-4'
-    | '/_docs/react/overview/releases/v1-0-0-beta-5'
-    | '/_docs/react/overview/releases/v1-0-0-beta-6'
-    | '/_docs/react/overview/releases/v1-0-0-beta-7'
-    | '/_docs/react/overview/releases/v1-0-0-rc-0'
-    | '/_docs/react/overview/releases/v1-0-0-rc-1'
-    | '/_docs/react/overview/releases/v1-0-0-rc-2'
-    | '/_docs/react/overview/releases/v1-1-0'
-    | '/_docs/react/overview/releases/v1-2-0'
-    | '/_docs/react/overview/releases/v1-3-0'
-    | '/_docs/react/overview/releases/v1-4-0'
-    | '/_docs/react/overview/releases/v1-4-1'
-    | '/_docs/react/overview/releases/v1-5-0'
-    | '/_docs/react/overview/releases/v1-6-0'
-    | '/_docs/react/overview/releases/v1-7-0'
-    | '/_docs/react/overview/releases/v1-8-0'
-    | '/_docs/react/overview/releases/'
+    | '/_docs/solid/'
+    | '/_docs/solid/components/accordion'
+    | '/_docs/solid/components/alert-dialog'
+    | '/_docs/solid/components/autocomplete'
+    | '/_docs/solid/components/avatar'
+    | '/_docs/solid/components/button'
+    | '/_docs/solid/components/checkbox'
+    | '/_docs/solid/components/checkbox-group'
+    | '/_docs/solid/components/collapsible'
+    | '/_docs/solid/components/combobox'
+    | '/_docs/solid/components/context-menu'
+    | '/_docs/solid/components/dialog'
+    | '/_docs/solid/components/drawer'
+    | '/_docs/solid/components/field'
+    | '/_docs/solid/components/fieldset'
+    | '/_docs/solid/components/form'
+    | '/_docs/solid/components/input'
+    | '/_docs/solid/components/menu'
+    | '/_docs/solid/components/menubar'
+    | '/_docs/solid/components/meter'
+    | '/_docs/solid/components/navigation-menu'
+    | '/_docs/solid/components/number-field'
+    | '/_docs/solid/components/otp-field'
+    | '/_docs/solid/components/popover'
+    | '/_docs/solid/components/preview-card'
+    | '/_docs/solid/components/progress'
+    | '/_docs/solid/components/radio-group'
+    | '/_docs/solid/components/scroll-area'
+    | '/_docs/solid/components/select'
+    | '/_docs/solid/components/separator'
+    | '/_docs/solid/components/slider'
+    | '/_docs/solid/components/switch'
+    | '/_docs/solid/components/tabs'
+    | '/_docs/solid/components/toast'
+    | '/_docs/solid/components/toggle'
+    | '/_docs/solid/components/toggle-group'
+    | '/_docs/solid/components/toolbar'
+    | '/_docs/solid/components/tooltip'
+    | '/_docs/solid/handbook/animation'
+    | '/_docs/solid/handbook/composition'
+    | '/_docs/solid/handbook/customization'
+    | '/_docs/solid/handbook/forms'
+    | '/_docs/solid/handbook/styling'
+    | '/_docs/solid/handbook/typescript'
+    | '/_docs/solid/overview/about'
+    | '/_docs/solid/overview/accessibility'
+    | '/_docs/solid/overview/community'
+    | '/_docs/solid/overview/quick-start'
+    | '/_docs/solid/overview/releases'
+    | '/_docs/solid/utils/csp-provider'
+    | '/_docs/solid/utils/direction-provider'
+    | '/_docs/solid/utils/merge-props'
+    | '/_docs/solid/utils/use-render'
+    | '/_docs/solid/components/'
+    | '/_docs/solid/handbook/'
+    | '/_docs/solid/overview/'
+    | '/_docs/solid/utils/'
+    | '/_docs/solid/overview/releases/v1-0-0'
+    | '/_docs/solid/overview/releases/v1-0-0-alpha-4'
+    | '/_docs/solid/overview/releases/v1-0-0-alpha-5'
+    | '/_docs/solid/overview/releases/v1-0-0-alpha-6'
+    | '/_docs/solid/overview/releases/v1-0-0-alpha-7'
+    | '/_docs/solid/overview/releases/v1-0-0-alpha-8'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-0'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-1'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-2'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-3'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-4'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-5'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-6'
+    | '/_docs/solid/overview/releases/v1-0-0-beta-7'
+    | '/_docs/solid/overview/releases/v1-0-0-rc-0'
+    | '/_docs/solid/overview/releases/v1-0-0-rc-1'
+    | '/_docs/solid/overview/releases/v1-0-0-rc-2'
+    | '/_docs/solid/overview/releases/v1-1-0'
+    | '/_docs/solid/overview/releases/v1-2-0'
+    | '/_docs/solid/overview/releases/v1-3-0'
+    | '/_docs/solid/overview/releases/v1-4-0'
+    | '/_docs/solid/overview/releases/v1-4-1'
+    | '/_docs/solid/overview/releases/v1-5-0'
+    | '/_docs/solid/overview/releases/v1-6-0'
+    | '/_docs/solid/overview/releases/v1-7-0'
+    | '/_docs/solid/overview/releases/v1-8-0'
+    | '/_docs/solid/overview/releases/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1253,11 +1253,11 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsProductionErrorRouteImport
       parentRoute: typeof DocsRoute
     }
-    '/_docs/react': {
-      id: '/_docs/react'
-      path: '/react'
-      fullPath: '/react'
-      preLoaderRoute: typeof DocsReactRouteImport
+    '/_docs/solid': {
+      id: '/_docs/solid'
+      path: '/solid'
+      fullPath: '/solid'
+      preLoaderRoute: typeof DocsSolidRouteImport
       parentRoute: typeof DocsRoute
     }
     '/_private/playground': {
@@ -1274,33 +1274,33 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteIndexRouteImport
       parentRoute: typeof WebsiteRoute
     }
-    '/_docs/react/': {
-      id: '/_docs/react/'
+    '/_docs/solid/': {
+      id: '/_docs/solid/'
       path: '/'
-      fullPath: '/react/'
-      preLoaderRoute: typeof DocsReactIndexRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/'
+      preLoaderRoute: typeof DocsSolidIndexRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/handbook': {
-      id: '/_docs/react/handbook'
+    '/_docs/solid/handbook': {
+      id: '/_docs/solid/handbook'
       path: '/handbook'
-      fullPath: '/react/handbook'
-      preLoaderRoute: typeof DocsReactHandbookRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/handbook'
+      preLoaderRoute: typeof DocsSolidHandbookRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/overview': {
-      id: '/_docs/react/overview'
+    '/_docs/solid/overview': {
+      id: '/_docs/solid/overview'
       path: '/overview'
-      fullPath: '/react/overview'
-      preLoaderRoute: typeof DocsReactOverviewRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/overview'
+      preLoaderRoute: typeof DocsSolidOverviewRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/utils': {
-      id: '/_docs/react/utils'
+    '/_docs/solid/utils': {
+      id: '/_docs/solid/utils'
       path: '/utils'
-      fullPath: '/react/utils'
-      preLoaderRoute: typeof DocsReactUtilsRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/utils'
+      preLoaderRoute: typeof DocsSolidUtilsRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
     '/_website/careers/design-engineer': {
       id: '/_website/careers/design-engineer'
@@ -1309,839 +1309,839 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof WebsiteCareersDesignEngineerRouteImport
       parentRoute: typeof WebsiteRoute
     }
-    '/_docs/react/components/': {
-      id: '/_docs/react/components/'
+    '/_docs/solid/components/': {
+      id: '/_docs/solid/components/'
       path: '/components'
-      fullPath: '/react/components/'
-      preLoaderRoute: typeof DocsReactComponentsIndexRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/'
+      preLoaderRoute: typeof DocsSolidComponentsIndexRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/accordion': {
-      id: '/_docs/react/components/accordion'
+    '/_docs/solid/components/accordion': {
+      id: '/_docs/solid/components/accordion'
       path: '/components/accordion'
-      fullPath: '/react/components/accordion'
-      preLoaderRoute: typeof DocsReactComponentsAccordionRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/accordion'
+      preLoaderRoute: typeof DocsSolidComponentsAccordionRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/alert-dialog': {
-      id: '/_docs/react/components/alert-dialog'
+    '/_docs/solid/components/alert-dialog': {
+      id: '/_docs/solid/components/alert-dialog'
       path: '/components/alert-dialog'
-      fullPath: '/react/components/alert-dialog'
-      preLoaderRoute: typeof DocsReactComponentsAlertDialogRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/alert-dialog'
+      preLoaderRoute: typeof DocsSolidComponentsAlertDialogRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/autocomplete': {
-      id: '/_docs/react/components/autocomplete'
+    '/_docs/solid/components/autocomplete': {
+      id: '/_docs/solid/components/autocomplete'
       path: '/components/autocomplete'
-      fullPath: '/react/components/autocomplete'
-      preLoaderRoute: typeof DocsReactComponentsAutocompleteRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/autocomplete'
+      preLoaderRoute: typeof DocsSolidComponentsAutocompleteRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/avatar': {
-      id: '/_docs/react/components/avatar'
+    '/_docs/solid/components/avatar': {
+      id: '/_docs/solid/components/avatar'
       path: '/components/avatar'
-      fullPath: '/react/components/avatar'
-      preLoaderRoute: typeof DocsReactComponentsAvatarRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/avatar'
+      preLoaderRoute: typeof DocsSolidComponentsAvatarRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/button': {
-      id: '/_docs/react/components/button'
+    '/_docs/solid/components/button': {
+      id: '/_docs/solid/components/button'
       path: '/components/button'
-      fullPath: '/react/components/button'
-      preLoaderRoute: typeof DocsReactComponentsButtonRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/button'
+      preLoaderRoute: typeof DocsSolidComponentsButtonRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/checkbox': {
-      id: '/_docs/react/components/checkbox'
+    '/_docs/solid/components/checkbox': {
+      id: '/_docs/solid/components/checkbox'
       path: '/components/checkbox'
-      fullPath: '/react/components/checkbox'
-      preLoaderRoute: typeof DocsReactComponentsCheckboxRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/checkbox'
+      preLoaderRoute: typeof DocsSolidComponentsCheckboxRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/checkbox-group': {
-      id: '/_docs/react/components/checkbox-group'
+    '/_docs/solid/components/checkbox-group': {
+      id: '/_docs/solid/components/checkbox-group'
       path: '/components/checkbox-group'
-      fullPath: '/react/components/checkbox-group'
-      preLoaderRoute: typeof DocsReactComponentsCheckboxGroupRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/checkbox-group'
+      preLoaderRoute: typeof DocsSolidComponentsCheckboxGroupRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/collapsible': {
-      id: '/_docs/react/components/collapsible'
+    '/_docs/solid/components/collapsible': {
+      id: '/_docs/solid/components/collapsible'
       path: '/components/collapsible'
-      fullPath: '/react/components/collapsible'
-      preLoaderRoute: typeof DocsReactComponentsCollapsibleRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/collapsible'
+      preLoaderRoute: typeof DocsSolidComponentsCollapsibleRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/combobox': {
-      id: '/_docs/react/components/combobox'
+    '/_docs/solid/components/combobox': {
+      id: '/_docs/solid/components/combobox'
       path: '/components/combobox'
-      fullPath: '/react/components/combobox'
-      preLoaderRoute: typeof DocsReactComponentsComboboxRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/combobox'
+      preLoaderRoute: typeof DocsSolidComponentsComboboxRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/context-menu': {
-      id: '/_docs/react/components/context-menu'
+    '/_docs/solid/components/context-menu': {
+      id: '/_docs/solid/components/context-menu'
       path: '/components/context-menu'
-      fullPath: '/react/components/context-menu'
-      preLoaderRoute: typeof DocsReactComponentsContextMenuRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/context-menu'
+      preLoaderRoute: typeof DocsSolidComponentsContextMenuRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/dialog': {
-      id: '/_docs/react/components/dialog'
+    '/_docs/solid/components/dialog': {
+      id: '/_docs/solid/components/dialog'
       path: '/components/dialog'
-      fullPath: '/react/components/dialog'
-      preLoaderRoute: typeof DocsReactComponentsDialogRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/dialog'
+      preLoaderRoute: typeof DocsSolidComponentsDialogRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/drawer': {
-      id: '/_docs/react/components/drawer'
+    '/_docs/solid/components/drawer': {
+      id: '/_docs/solid/components/drawer'
       path: '/components/drawer'
-      fullPath: '/react/components/drawer'
-      preLoaderRoute: typeof DocsReactComponentsDrawerRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/drawer'
+      preLoaderRoute: typeof DocsSolidComponentsDrawerRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/field': {
-      id: '/_docs/react/components/field'
+    '/_docs/solid/components/field': {
+      id: '/_docs/solid/components/field'
       path: '/components/field'
-      fullPath: '/react/components/field'
-      preLoaderRoute: typeof DocsReactComponentsFieldRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/field'
+      preLoaderRoute: typeof DocsSolidComponentsFieldRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/fieldset': {
-      id: '/_docs/react/components/fieldset'
+    '/_docs/solid/components/fieldset': {
+      id: '/_docs/solid/components/fieldset'
       path: '/components/fieldset'
-      fullPath: '/react/components/fieldset'
-      preLoaderRoute: typeof DocsReactComponentsFieldsetRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/fieldset'
+      preLoaderRoute: typeof DocsSolidComponentsFieldsetRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/form': {
-      id: '/_docs/react/components/form'
+    '/_docs/solid/components/form': {
+      id: '/_docs/solid/components/form'
       path: '/components/form'
-      fullPath: '/react/components/form'
-      preLoaderRoute: typeof DocsReactComponentsFormRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/form'
+      preLoaderRoute: typeof DocsSolidComponentsFormRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/input': {
-      id: '/_docs/react/components/input'
+    '/_docs/solid/components/input': {
+      id: '/_docs/solid/components/input'
       path: '/components/input'
-      fullPath: '/react/components/input'
-      preLoaderRoute: typeof DocsReactComponentsInputRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/input'
+      preLoaderRoute: typeof DocsSolidComponentsInputRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/menu': {
-      id: '/_docs/react/components/menu'
+    '/_docs/solid/components/menu': {
+      id: '/_docs/solid/components/menu'
       path: '/components/menu'
-      fullPath: '/react/components/menu'
-      preLoaderRoute: typeof DocsReactComponentsMenuRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/menu'
+      preLoaderRoute: typeof DocsSolidComponentsMenuRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/menubar': {
-      id: '/_docs/react/components/menubar'
+    '/_docs/solid/components/menubar': {
+      id: '/_docs/solid/components/menubar'
       path: '/components/menubar'
-      fullPath: '/react/components/menubar'
-      preLoaderRoute: typeof DocsReactComponentsMenubarRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/menubar'
+      preLoaderRoute: typeof DocsSolidComponentsMenubarRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/meter': {
-      id: '/_docs/react/components/meter'
+    '/_docs/solid/components/meter': {
+      id: '/_docs/solid/components/meter'
       path: '/components/meter'
-      fullPath: '/react/components/meter'
-      preLoaderRoute: typeof DocsReactComponentsMeterRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/meter'
+      preLoaderRoute: typeof DocsSolidComponentsMeterRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/navigation-menu': {
-      id: '/_docs/react/components/navigation-menu'
+    '/_docs/solid/components/navigation-menu': {
+      id: '/_docs/solid/components/navigation-menu'
       path: '/components/navigation-menu'
-      fullPath: '/react/components/navigation-menu'
-      preLoaderRoute: typeof DocsReactComponentsNavigationMenuRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/navigation-menu'
+      preLoaderRoute: typeof DocsSolidComponentsNavigationMenuRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/number-field': {
-      id: '/_docs/react/components/number-field'
+    '/_docs/solid/components/number-field': {
+      id: '/_docs/solid/components/number-field'
       path: '/components/number-field'
-      fullPath: '/react/components/number-field'
-      preLoaderRoute: typeof DocsReactComponentsNumberFieldRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/number-field'
+      preLoaderRoute: typeof DocsSolidComponentsNumberFieldRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/otp-field': {
-      id: '/_docs/react/components/otp-field'
+    '/_docs/solid/components/otp-field': {
+      id: '/_docs/solid/components/otp-field'
       path: '/components/otp-field'
-      fullPath: '/react/components/otp-field'
-      preLoaderRoute: typeof DocsReactComponentsOtpFieldRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/otp-field'
+      preLoaderRoute: typeof DocsSolidComponentsOtpFieldRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/popover': {
-      id: '/_docs/react/components/popover'
+    '/_docs/solid/components/popover': {
+      id: '/_docs/solid/components/popover'
       path: '/components/popover'
-      fullPath: '/react/components/popover'
-      preLoaderRoute: typeof DocsReactComponentsPopoverRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/popover'
+      preLoaderRoute: typeof DocsSolidComponentsPopoverRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/preview-card': {
-      id: '/_docs/react/components/preview-card'
+    '/_docs/solid/components/preview-card': {
+      id: '/_docs/solid/components/preview-card'
       path: '/components/preview-card'
-      fullPath: '/react/components/preview-card'
-      preLoaderRoute: typeof DocsReactComponentsPreviewCardRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/preview-card'
+      preLoaderRoute: typeof DocsSolidComponentsPreviewCardRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/progress': {
-      id: '/_docs/react/components/progress'
+    '/_docs/solid/components/progress': {
+      id: '/_docs/solid/components/progress'
       path: '/components/progress'
-      fullPath: '/react/components/progress'
-      preLoaderRoute: typeof DocsReactComponentsProgressRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/progress'
+      preLoaderRoute: typeof DocsSolidComponentsProgressRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/radio-group': {
-      id: '/_docs/react/components/radio-group'
+    '/_docs/solid/components/radio-group': {
+      id: '/_docs/solid/components/radio-group'
       path: '/components/radio-group'
-      fullPath: '/react/components/radio-group'
-      preLoaderRoute: typeof DocsReactComponentsRadioGroupRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/radio-group'
+      preLoaderRoute: typeof DocsSolidComponentsRadioGroupRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/scroll-area': {
-      id: '/_docs/react/components/scroll-area'
+    '/_docs/solid/components/scroll-area': {
+      id: '/_docs/solid/components/scroll-area'
       path: '/components/scroll-area'
-      fullPath: '/react/components/scroll-area'
-      preLoaderRoute: typeof DocsReactComponentsScrollAreaRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/scroll-area'
+      preLoaderRoute: typeof DocsSolidComponentsScrollAreaRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/select': {
-      id: '/_docs/react/components/select'
+    '/_docs/solid/components/select': {
+      id: '/_docs/solid/components/select'
       path: '/components/select'
-      fullPath: '/react/components/select'
-      preLoaderRoute: typeof DocsReactComponentsSelectRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/select'
+      preLoaderRoute: typeof DocsSolidComponentsSelectRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/separator': {
-      id: '/_docs/react/components/separator'
+    '/_docs/solid/components/separator': {
+      id: '/_docs/solid/components/separator'
       path: '/components/separator'
-      fullPath: '/react/components/separator'
-      preLoaderRoute: typeof DocsReactComponentsSeparatorRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/separator'
+      preLoaderRoute: typeof DocsSolidComponentsSeparatorRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/slider': {
-      id: '/_docs/react/components/slider'
+    '/_docs/solid/components/slider': {
+      id: '/_docs/solid/components/slider'
       path: '/components/slider'
-      fullPath: '/react/components/slider'
-      preLoaderRoute: typeof DocsReactComponentsSliderRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/slider'
+      preLoaderRoute: typeof DocsSolidComponentsSliderRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/switch': {
-      id: '/_docs/react/components/switch'
+    '/_docs/solid/components/switch': {
+      id: '/_docs/solid/components/switch'
       path: '/components/switch'
-      fullPath: '/react/components/switch'
-      preLoaderRoute: typeof DocsReactComponentsSwitchRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/switch'
+      preLoaderRoute: typeof DocsSolidComponentsSwitchRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/tabs': {
-      id: '/_docs/react/components/tabs'
+    '/_docs/solid/components/tabs': {
+      id: '/_docs/solid/components/tabs'
       path: '/components/tabs'
-      fullPath: '/react/components/tabs'
-      preLoaderRoute: typeof DocsReactComponentsTabsRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/tabs'
+      preLoaderRoute: typeof DocsSolidComponentsTabsRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/toast': {
-      id: '/_docs/react/components/toast'
+    '/_docs/solid/components/toast': {
+      id: '/_docs/solid/components/toast'
       path: '/components/toast'
-      fullPath: '/react/components/toast'
-      preLoaderRoute: typeof DocsReactComponentsToastRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/toast'
+      preLoaderRoute: typeof DocsSolidComponentsToastRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/toggle': {
-      id: '/_docs/react/components/toggle'
+    '/_docs/solid/components/toggle': {
+      id: '/_docs/solid/components/toggle'
       path: '/components/toggle'
-      fullPath: '/react/components/toggle'
-      preLoaderRoute: typeof DocsReactComponentsToggleRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/toggle'
+      preLoaderRoute: typeof DocsSolidComponentsToggleRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/toggle-group': {
-      id: '/_docs/react/components/toggle-group'
+    '/_docs/solid/components/toggle-group': {
+      id: '/_docs/solid/components/toggle-group'
       path: '/components/toggle-group'
-      fullPath: '/react/components/toggle-group'
-      preLoaderRoute: typeof DocsReactComponentsToggleGroupRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/toggle-group'
+      preLoaderRoute: typeof DocsSolidComponentsToggleGroupRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/toolbar': {
-      id: '/_docs/react/components/toolbar'
+    '/_docs/solid/components/toolbar': {
+      id: '/_docs/solid/components/toolbar'
       path: '/components/toolbar'
-      fullPath: '/react/components/toolbar'
-      preLoaderRoute: typeof DocsReactComponentsToolbarRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/toolbar'
+      preLoaderRoute: typeof DocsSolidComponentsToolbarRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/components/tooltip': {
-      id: '/_docs/react/components/tooltip'
+    '/_docs/solid/components/tooltip': {
+      id: '/_docs/solid/components/tooltip'
       path: '/components/tooltip'
-      fullPath: '/react/components/tooltip'
-      preLoaderRoute: typeof DocsReactComponentsTooltipRouteImport
-      parentRoute: typeof DocsReactRoute
+      fullPath: '/solid/components/tooltip'
+      preLoaderRoute: typeof DocsSolidComponentsTooltipRouteImport
+      parentRoute: typeof DocsSolidRoute
     }
-    '/_docs/react/handbook/': {
-      id: '/_docs/react/handbook/'
+    '/_docs/solid/handbook/': {
+      id: '/_docs/solid/handbook/'
       path: '/'
-      fullPath: '/react/handbook/'
-      preLoaderRoute: typeof DocsReactHandbookIndexRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/'
+      preLoaderRoute: typeof DocsSolidHandbookIndexRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/animation': {
-      id: '/_docs/react/handbook/animation'
+    '/_docs/solid/handbook/animation': {
+      id: '/_docs/solid/handbook/animation'
       path: '/animation'
-      fullPath: '/react/handbook/animation'
-      preLoaderRoute: typeof DocsReactHandbookAnimationRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/animation'
+      preLoaderRoute: typeof DocsSolidHandbookAnimationRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/composition': {
-      id: '/_docs/react/handbook/composition'
+    '/_docs/solid/handbook/composition': {
+      id: '/_docs/solid/handbook/composition'
       path: '/composition'
-      fullPath: '/react/handbook/composition'
-      preLoaderRoute: typeof DocsReactHandbookCompositionRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/composition'
+      preLoaderRoute: typeof DocsSolidHandbookCompositionRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/customization': {
-      id: '/_docs/react/handbook/customization'
+    '/_docs/solid/handbook/customization': {
+      id: '/_docs/solid/handbook/customization'
       path: '/customization'
-      fullPath: '/react/handbook/customization'
-      preLoaderRoute: typeof DocsReactHandbookCustomizationRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/customization'
+      preLoaderRoute: typeof DocsSolidHandbookCustomizationRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/forms': {
-      id: '/_docs/react/handbook/forms'
+    '/_docs/solid/handbook/forms': {
+      id: '/_docs/solid/handbook/forms'
       path: '/forms'
-      fullPath: '/react/handbook/forms'
-      preLoaderRoute: typeof DocsReactHandbookFormsRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/forms'
+      preLoaderRoute: typeof DocsSolidHandbookFormsRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/styling': {
-      id: '/_docs/react/handbook/styling'
+    '/_docs/solid/handbook/styling': {
+      id: '/_docs/solid/handbook/styling'
       path: '/styling'
-      fullPath: '/react/handbook/styling'
-      preLoaderRoute: typeof DocsReactHandbookStylingRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/styling'
+      preLoaderRoute: typeof DocsSolidHandbookStylingRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/handbook/typescript': {
-      id: '/_docs/react/handbook/typescript'
+    '/_docs/solid/handbook/typescript': {
+      id: '/_docs/solid/handbook/typescript'
       path: '/typescript'
-      fullPath: '/react/handbook/typescript'
-      preLoaderRoute: typeof DocsReactHandbookTypescriptRouteImport
-      parentRoute: typeof DocsReactHandbookRoute
+      fullPath: '/solid/handbook/typescript'
+      preLoaderRoute: typeof DocsSolidHandbookTypescriptRouteImport
+      parentRoute: typeof DocsSolidHandbookRoute
     }
-    '/_docs/react/overview/': {
-      id: '/_docs/react/overview/'
+    '/_docs/solid/overview/': {
+      id: '/_docs/solid/overview/'
       path: '/'
-      fullPath: '/react/overview/'
-      preLoaderRoute: typeof DocsReactOverviewIndexRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/'
+      preLoaderRoute: typeof DocsSolidOverviewIndexRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/overview/about': {
-      id: '/_docs/react/overview/about'
+    '/_docs/solid/overview/about': {
+      id: '/_docs/solid/overview/about'
       path: '/about'
-      fullPath: '/react/overview/about'
-      preLoaderRoute: typeof DocsReactOverviewAboutRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/about'
+      preLoaderRoute: typeof DocsSolidOverviewAboutRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/overview/accessibility': {
-      id: '/_docs/react/overview/accessibility'
+    '/_docs/solid/overview/accessibility': {
+      id: '/_docs/solid/overview/accessibility'
       path: '/accessibility'
-      fullPath: '/react/overview/accessibility'
-      preLoaderRoute: typeof DocsReactOverviewAccessibilityRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/accessibility'
+      preLoaderRoute: typeof DocsSolidOverviewAccessibilityRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/overview/community': {
-      id: '/_docs/react/overview/community'
+    '/_docs/solid/overview/community': {
+      id: '/_docs/solid/overview/community'
       path: '/community'
-      fullPath: '/react/overview/community'
-      preLoaderRoute: typeof DocsReactOverviewCommunityRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/community'
+      preLoaderRoute: typeof DocsSolidOverviewCommunityRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/overview/quick-start': {
-      id: '/_docs/react/overview/quick-start'
+    '/_docs/solid/overview/quick-start': {
+      id: '/_docs/solid/overview/quick-start'
       path: '/quick-start'
-      fullPath: '/react/overview/quick-start'
-      preLoaderRoute: typeof DocsReactOverviewQuickStartRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/quick-start'
+      preLoaderRoute: typeof DocsSolidOverviewQuickStartRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/overview/releases': {
-      id: '/_docs/react/overview/releases'
+    '/_docs/solid/overview/releases': {
+      id: '/_docs/solid/overview/releases'
       path: '/releases'
-      fullPath: '/react/overview/releases'
-      preLoaderRoute: typeof DocsReactOverviewReleasesRouteImport
-      parentRoute: typeof DocsReactOverviewRoute
+      fullPath: '/solid/overview/releases'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesRouteImport
+      parentRoute: typeof DocsSolidOverviewRoute
     }
-    '/_docs/react/utils/': {
-      id: '/_docs/react/utils/'
+    '/_docs/solid/utils/': {
+      id: '/_docs/solid/utils/'
       path: '/'
-      fullPath: '/react/utils/'
-      preLoaderRoute: typeof DocsReactUtilsIndexRouteImport
-      parentRoute: typeof DocsReactUtilsRoute
+      fullPath: '/solid/utils/'
+      preLoaderRoute: typeof DocsSolidUtilsIndexRouteImport
+      parentRoute: typeof DocsSolidUtilsRoute
     }
-    '/_docs/react/utils/csp-provider': {
-      id: '/_docs/react/utils/csp-provider'
+    '/_docs/solid/utils/csp-provider': {
+      id: '/_docs/solid/utils/csp-provider'
       path: '/csp-provider'
-      fullPath: '/react/utils/csp-provider'
-      preLoaderRoute: typeof DocsReactUtilsCspProviderRouteImport
-      parentRoute: typeof DocsReactUtilsRoute
+      fullPath: '/solid/utils/csp-provider'
+      preLoaderRoute: typeof DocsSolidUtilsCspProviderRouteImport
+      parentRoute: typeof DocsSolidUtilsRoute
     }
-    '/_docs/react/utils/direction-provider': {
-      id: '/_docs/react/utils/direction-provider'
+    '/_docs/solid/utils/direction-provider': {
+      id: '/_docs/solid/utils/direction-provider'
       path: '/direction-provider'
-      fullPath: '/react/utils/direction-provider'
-      preLoaderRoute: typeof DocsReactUtilsDirectionProviderRouteImport
-      parentRoute: typeof DocsReactUtilsRoute
+      fullPath: '/solid/utils/direction-provider'
+      preLoaderRoute: typeof DocsSolidUtilsDirectionProviderRouteImport
+      parentRoute: typeof DocsSolidUtilsRoute
     }
-    '/_docs/react/utils/merge-props': {
-      id: '/_docs/react/utils/merge-props'
+    '/_docs/solid/utils/merge-props': {
+      id: '/_docs/solid/utils/merge-props'
       path: '/merge-props'
-      fullPath: '/react/utils/merge-props'
-      preLoaderRoute: typeof DocsReactUtilsMergePropsRouteImport
-      parentRoute: typeof DocsReactUtilsRoute
+      fullPath: '/solid/utils/merge-props'
+      preLoaderRoute: typeof DocsSolidUtilsMergePropsRouteImport
+      parentRoute: typeof DocsSolidUtilsRoute
     }
-    '/_docs/react/utils/use-render': {
-      id: '/_docs/react/utils/use-render'
+    '/_docs/solid/utils/use-render': {
+      id: '/_docs/solid/utils/use-render'
       path: '/use-render'
-      fullPath: '/react/utils/use-render'
-      preLoaderRoute: typeof DocsReactUtilsUseRenderRouteImport
-      parentRoute: typeof DocsReactUtilsRoute
+      fullPath: '/solid/utils/use-render'
+      preLoaderRoute: typeof DocsSolidUtilsUseRenderRouteImport
+      parentRoute: typeof DocsSolidUtilsRoute
     }
-    '/_docs/react/overview/releases/': {
-      id: '/_docs/react/overview/releases/'
+    '/_docs/solid/overview/releases/': {
+      id: '/_docs/solid/overview/releases/'
       path: '/'
-      fullPath: '/react/overview/releases/'
-      preLoaderRoute: typeof DocsReactOverviewReleasesIndexRouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesIndexRouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0': {
-      id: '/_docs/react/overview/releases/v1-0-0'
+    '/_docs/solid/overview/releases/v1-0-0': {
+      id: '/_docs/solid/overview/releases/v1-0-0'
       path: '/v1-0-0'
-      fullPath: '/react/overview/releases/v1-0-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-alpha-4': {
-      id: '/_docs/react/overview/releases/v1-0-0-alpha-4'
+    '/_docs/solid/overview/releases/v1-0-0-alpha-4': {
+      id: '/_docs/solid/overview/releases/v1-0-0-alpha-4'
       path: '/v1-0-0-alpha-4'
-      fullPath: '/react/overview/releases/v1-0-0-alpha-4'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Alpha4RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-alpha-4'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha4RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-alpha-5': {
-      id: '/_docs/react/overview/releases/v1-0-0-alpha-5'
+    '/_docs/solid/overview/releases/v1-0-0-alpha-5': {
+      id: '/_docs/solid/overview/releases/v1-0-0-alpha-5'
       path: '/v1-0-0-alpha-5'
-      fullPath: '/react/overview/releases/v1-0-0-alpha-5'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Alpha5RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-alpha-5'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha5RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-alpha-6': {
-      id: '/_docs/react/overview/releases/v1-0-0-alpha-6'
+    '/_docs/solid/overview/releases/v1-0-0-alpha-6': {
+      id: '/_docs/solid/overview/releases/v1-0-0-alpha-6'
       path: '/v1-0-0-alpha-6'
-      fullPath: '/react/overview/releases/v1-0-0-alpha-6'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Alpha6RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-alpha-6'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha6RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-alpha-7': {
-      id: '/_docs/react/overview/releases/v1-0-0-alpha-7'
+    '/_docs/solid/overview/releases/v1-0-0-alpha-7': {
+      id: '/_docs/solid/overview/releases/v1-0-0-alpha-7'
       path: '/v1-0-0-alpha-7'
-      fullPath: '/react/overview/releases/v1-0-0-alpha-7'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Alpha7RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-alpha-7'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha7RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-alpha-8': {
-      id: '/_docs/react/overview/releases/v1-0-0-alpha-8'
+    '/_docs/solid/overview/releases/v1-0-0-alpha-8': {
+      id: '/_docs/solid/overview/releases/v1-0-0-alpha-8'
       path: '/v1-0-0-alpha-8'
-      fullPath: '/react/overview/releases/v1-0-0-alpha-8'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Alpha8RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-alpha-8'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Alpha8RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-0': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-0'
+    '/_docs/solid/overview/releases/v1-0-0-beta-0': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-0'
       path: '/v1-0-0-beta-0'
-      fullPath: '/react/overview/releases/v1-0-0-beta-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta0RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta0RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-1': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-1'
+    '/_docs/solid/overview/releases/v1-0-0-beta-1': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-1'
       path: '/v1-0-0-beta-1'
-      fullPath: '/react/overview/releases/v1-0-0-beta-1'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta1RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-1'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta1RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-2': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-2'
+    '/_docs/solid/overview/releases/v1-0-0-beta-2': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-2'
       path: '/v1-0-0-beta-2'
-      fullPath: '/react/overview/releases/v1-0-0-beta-2'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta2RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-2'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta2RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-3': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-3'
+    '/_docs/solid/overview/releases/v1-0-0-beta-3': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-3'
       path: '/v1-0-0-beta-3'
-      fullPath: '/react/overview/releases/v1-0-0-beta-3'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta3RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-3'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta3RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-4': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-4'
+    '/_docs/solid/overview/releases/v1-0-0-beta-4': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-4'
       path: '/v1-0-0-beta-4'
-      fullPath: '/react/overview/releases/v1-0-0-beta-4'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta4RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-4'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta4RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-5': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-5'
+    '/_docs/solid/overview/releases/v1-0-0-beta-5': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-5'
       path: '/v1-0-0-beta-5'
-      fullPath: '/react/overview/releases/v1-0-0-beta-5'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta5RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-5'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta5RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-6': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-6'
+    '/_docs/solid/overview/releases/v1-0-0-beta-6': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-6'
       path: '/v1-0-0-beta-6'
-      fullPath: '/react/overview/releases/v1-0-0-beta-6'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta6RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-6'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta6RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-beta-7': {
-      id: '/_docs/react/overview/releases/v1-0-0-beta-7'
+    '/_docs/solid/overview/releases/v1-0-0-beta-7': {
+      id: '/_docs/solid/overview/releases/v1-0-0-beta-7'
       path: '/v1-0-0-beta-7'
-      fullPath: '/react/overview/releases/v1-0-0-beta-7'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Beta7RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-beta-7'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Beta7RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-rc-0': {
-      id: '/_docs/react/overview/releases/v1-0-0-rc-0'
+    '/_docs/solid/overview/releases/v1-0-0-rc-0': {
+      id: '/_docs/solid/overview/releases/v1-0-0-rc-0'
       path: '/v1-0-0-rc-0'
-      fullPath: '/react/overview/releases/v1-0-0-rc-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Rc0RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-rc-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc0RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-rc-1': {
-      id: '/_docs/react/overview/releases/v1-0-0-rc-1'
+    '/_docs/solid/overview/releases/v1-0-0-rc-1': {
+      id: '/_docs/solid/overview/releases/v1-0-0-rc-1'
       path: '/v1-0-0-rc-1'
-      fullPath: '/react/overview/releases/v1-0-0-rc-1'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Rc1RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-rc-1'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc1RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-0-0-rc-2': {
-      id: '/_docs/react/overview/releases/v1-0-0-rc-2'
+    '/_docs/solid/overview/releases/v1-0-0-rc-2': {
+      id: '/_docs/solid/overview/releases/v1-0-0-rc-2'
       path: '/v1-0-0-rc-2'
-      fullPath: '/react/overview/releases/v1-0-0-rc-2'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV100Rc2RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-0-0-rc-2'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV100Rc2RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-1-0': {
-      id: '/_docs/react/overview/releases/v1-1-0'
+    '/_docs/solid/overview/releases/v1-1-0': {
+      id: '/_docs/solid/overview/releases/v1-1-0'
       path: '/v1-1-0'
-      fullPath: '/react/overview/releases/v1-1-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV110RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-1-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV110RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-2-0': {
-      id: '/_docs/react/overview/releases/v1-2-0'
+    '/_docs/solid/overview/releases/v1-2-0': {
+      id: '/_docs/solid/overview/releases/v1-2-0'
       path: '/v1-2-0'
-      fullPath: '/react/overview/releases/v1-2-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV120RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-2-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV120RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-3-0': {
-      id: '/_docs/react/overview/releases/v1-3-0'
+    '/_docs/solid/overview/releases/v1-3-0': {
+      id: '/_docs/solid/overview/releases/v1-3-0'
       path: '/v1-3-0'
-      fullPath: '/react/overview/releases/v1-3-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV130RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-3-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV130RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-4-0': {
-      id: '/_docs/react/overview/releases/v1-4-0'
+    '/_docs/solid/overview/releases/v1-4-0': {
+      id: '/_docs/solid/overview/releases/v1-4-0'
       path: '/v1-4-0'
-      fullPath: '/react/overview/releases/v1-4-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV140RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-4-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV140RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-4-1': {
-      id: '/_docs/react/overview/releases/v1-4-1'
+    '/_docs/solid/overview/releases/v1-4-1': {
+      id: '/_docs/solid/overview/releases/v1-4-1'
       path: '/v1-4-1'
-      fullPath: '/react/overview/releases/v1-4-1'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV141RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-4-1'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV141RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-5-0': {
-      id: '/_docs/react/overview/releases/v1-5-0'
+    '/_docs/solid/overview/releases/v1-5-0': {
+      id: '/_docs/solid/overview/releases/v1-5-0'
       path: '/v1-5-0'
-      fullPath: '/react/overview/releases/v1-5-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV150RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-5-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV150RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-6-0': {
-      id: '/_docs/react/overview/releases/v1-6-0'
+    '/_docs/solid/overview/releases/v1-6-0': {
+      id: '/_docs/solid/overview/releases/v1-6-0'
       path: '/v1-6-0'
-      fullPath: '/react/overview/releases/v1-6-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV160RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-6-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV160RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-7-0': {
-      id: '/_docs/react/overview/releases/v1-7-0'
+    '/_docs/solid/overview/releases/v1-7-0': {
+      id: '/_docs/solid/overview/releases/v1-7-0'
       path: '/v1-7-0'
-      fullPath: '/react/overview/releases/v1-7-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV170RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-7-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV170RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
-    '/_docs/react/overview/releases/v1-8-0': {
-      id: '/_docs/react/overview/releases/v1-8-0'
+    '/_docs/solid/overview/releases/v1-8-0': {
+      id: '/_docs/solid/overview/releases/v1-8-0'
       path: '/v1-8-0'
-      fullPath: '/react/overview/releases/v1-8-0'
-      preLoaderRoute: typeof DocsReactOverviewReleasesV180RouteImport
-      parentRoute: typeof DocsReactOverviewReleasesRoute
+      fullPath: '/solid/overview/releases/v1-8-0'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV180RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
   }
 }
 
-interface DocsReactHandbookRouteChildren {
-  DocsReactHandbookAnimationRoute: typeof DocsReactHandbookAnimationRoute
-  DocsReactHandbookCompositionRoute: typeof DocsReactHandbookCompositionRoute
-  DocsReactHandbookCustomizationRoute: typeof DocsReactHandbookCustomizationRoute
-  DocsReactHandbookFormsRoute: typeof DocsReactHandbookFormsRoute
-  DocsReactHandbookStylingRoute: typeof DocsReactHandbookStylingRoute
-  DocsReactHandbookTypescriptRoute: typeof DocsReactHandbookTypescriptRoute
-  DocsReactHandbookIndexRoute: typeof DocsReactHandbookIndexRoute
+interface DocsSolidHandbookRouteChildren {
+  DocsSolidHandbookAnimationRoute: typeof DocsSolidHandbookAnimationRoute
+  DocsSolidHandbookCompositionRoute: typeof DocsSolidHandbookCompositionRoute
+  DocsSolidHandbookCustomizationRoute: typeof DocsSolidHandbookCustomizationRoute
+  DocsSolidHandbookFormsRoute: typeof DocsSolidHandbookFormsRoute
+  DocsSolidHandbookStylingRoute: typeof DocsSolidHandbookStylingRoute
+  DocsSolidHandbookTypescriptRoute: typeof DocsSolidHandbookTypescriptRoute
+  DocsSolidHandbookIndexRoute: typeof DocsSolidHandbookIndexRoute
 }
 
-const DocsReactHandbookRouteChildren: DocsReactHandbookRouteChildren = {
-  DocsReactHandbookAnimationRoute: DocsReactHandbookAnimationRoute,
-  DocsReactHandbookCompositionRoute: DocsReactHandbookCompositionRoute,
-  DocsReactHandbookCustomizationRoute: DocsReactHandbookCustomizationRoute,
-  DocsReactHandbookFormsRoute: DocsReactHandbookFormsRoute,
-  DocsReactHandbookStylingRoute: DocsReactHandbookStylingRoute,
-  DocsReactHandbookTypescriptRoute: DocsReactHandbookTypescriptRoute,
-  DocsReactHandbookIndexRoute: DocsReactHandbookIndexRoute,
+const DocsSolidHandbookRouteChildren: DocsSolidHandbookRouteChildren = {
+  DocsSolidHandbookAnimationRoute: DocsSolidHandbookAnimationRoute,
+  DocsSolidHandbookCompositionRoute: DocsSolidHandbookCompositionRoute,
+  DocsSolidHandbookCustomizationRoute: DocsSolidHandbookCustomizationRoute,
+  DocsSolidHandbookFormsRoute: DocsSolidHandbookFormsRoute,
+  DocsSolidHandbookStylingRoute: DocsSolidHandbookStylingRoute,
+  DocsSolidHandbookTypescriptRoute: DocsSolidHandbookTypescriptRoute,
+  DocsSolidHandbookIndexRoute: DocsSolidHandbookIndexRoute,
 }
 
-const DocsReactHandbookRouteWithChildren =
-  DocsReactHandbookRoute._addFileChildren(DocsReactHandbookRouteChildren)
+const DocsSolidHandbookRouteWithChildren =
+  DocsSolidHandbookRoute._addFileChildren(DocsSolidHandbookRouteChildren)
 
-interface DocsReactOverviewReleasesRouteChildren {
-  DocsReactOverviewReleasesV100Route: typeof DocsReactOverviewReleasesV100Route
-  DocsReactOverviewReleasesV100Alpha4Route: typeof DocsReactOverviewReleasesV100Alpha4Route
-  DocsReactOverviewReleasesV100Alpha5Route: typeof DocsReactOverviewReleasesV100Alpha5Route
-  DocsReactOverviewReleasesV100Alpha6Route: typeof DocsReactOverviewReleasesV100Alpha6Route
-  DocsReactOverviewReleasesV100Alpha7Route: typeof DocsReactOverviewReleasesV100Alpha7Route
-  DocsReactOverviewReleasesV100Alpha8Route: typeof DocsReactOverviewReleasesV100Alpha8Route
-  DocsReactOverviewReleasesV100Beta0Route: typeof DocsReactOverviewReleasesV100Beta0Route
-  DocsReactOverviewReleasesV100Beta1Route: typeof DocsReactOverviewReleasesV100Beta1Route
-  DocsReactOverviewReleasesV100Beta2Route: typeof DocsReactOverviewReleasesV100Beta2Route
-  DocsReactOverviewReleasesV100Beta3Route: typeof DocsReactOverviewReleasesV100Beta3Route
-  DocsReactOverviewReleasesV100Beta4Route: typeof DocsReactOverviewReleasesV100Beta4Route
-  DocsReactOverviewReleasesV100Beta5Route: typeof DocsReactOverviewReleasesV100Beta5Route
-  DocsReactOverviewReleasesV100Beta6Route: typeof DocsReactOverviewReleasesV100Beta6Route
-  DocsReactOverviewReleasesV100Beta7Route: typeof DocsReactOverviewReleasesV100Beta7Route
-  DocsReactOverviewReleasesV100Rc0Route: typeof DocsReactOverviewReleasesV100Rc0Route
-  DocsReactOverviewReleasesV100Rc1Route: typeof DocsReactOverviewReleasesV100Rc1Route
-  DocsReactOverviewReleasesV100Rc2Route: typeof DocsReactOverviewReleasesV100Rc2Route
-  DocsReactOverviewReleasesV110Route: typeof DocsReactOverviewReleasesV110Route
-  DocsReactOverviewReleasesV120Route: typeof DocsReactOverviewReleasesV120Route
-  DocsReactOverviewReleasesV130Route: typeof DocsReactOverviewReleasesV130Route
-  DocsReactOverviewReleasesV140Route: typeof DocsReactOverviewReleasesV140Route
-  DocsReactOverviewReleasesV141Route: typeof DocsReactOverviewReleasesV141Route
-  DocsReactOverviewReleasesV150Route: typeof DocsReactOverviewReleasesV150Route
-  DocsReactOverviewReleasesV160Route: typeof DocsReactOverviewReleasesV160Route
-  DocsReactOverviewReleasesV170Route: typeof DocsReactOverviewReleasesV170Route
-  DocsReactOverviewReleasesV180Route: typeof DocsReactOverviewReleasesV180Route
-  DocsReactOverviewReleasesIndexRoute: typeof DocsReactOverviewReleasesIndexRoute
+interface DocsSolidOverviewReleasesRouteChildren {
+  DocsSolidOverviewReleasesV100Route: typeof DocsSolidOverviewReleasesV100Route
+  DocsSolidOverviewReleasesV100Alpha4Route: typeof DocsSolidOverviewReleasesV100Alpha4Route
+  DocsSolidOverviewReleasesV100Alpha5Route: typeof DocsSolidOverviewReleasesV100Alpha5Route
+  DocsSolidOverviewReleasesV100Alpha6Route: typeof DocsSolidOverviewReleasesV100Alpha6Route
+  DocsSolidOverviewReleasesV100Alpha7Route: typeof DocsSolidOverviewReleasesV100Alpha7Route
+  DocsSolidOverviewReleasesV100Alpha8Route: typeof DocsSolidOverviewReleasesV100Alpha8Route
+  DocsSolidOverviewReleasesV100Beta0Route: typeof DocsSolidOverviewReleasesV100Beta0Route
+  DocsSolidOverviewReleasesV100Beta1Route: typeof DocsSolidOverviewReleasesV100Beta1Route
+  DocsSolidOverviewReleasesV100Beta2Route: typeof DocsSolidOverviewReleasesV100Beta2Route
+  DocsSolidOverviewReleasesV100Beta3Route: typeof DocsSolidOverviewReleasesV100Beta3Route
+  DocsSolidOverviewReleasesV100Beta4Route: typeof DocsSolidOverviewReleasesV100Beta4Route
+  DocsSolidOverviewReleasesV100Beta5Route: typeof DocsSolidOverviewReleasesV100Beta5Route
+  DocsSolidOverviewReleasesV100Beta6Route: typeof DocsSolidOverviewReleasesV100Beta6Route
+  DocsSolidOverviewReleasesV100Beta7Route: typeof DocsSolidOverviewReleasesV100Beta7Route
+  DocsSolidOverviewReleasesV100Rc0Route: typeof DocsSolidOverviewReleasesV100Rc0Route
+  DocsSolidOverviewReleasesV100Rc1Route: typeof DocsSolidOverviewReleasesV100Rc1Route
+  DocsSolidOverviewReleasesV100Rc2Route: typeof DocsSolidOverviewReleasesV100Rc2Route
+  DocsSolidOverviewReleasesV110Route: typeof DocsSolidOverviewReleasesV110Route
+  DocsSolidOverviewReleasesV120Route: typeof DocsSolidOverviewReleasesV120Route
+  DocsSolidOverviewReleasesV130Route: typeof DocsSolidOverviewReleasesV130Route
+  DocsSolidOverviewReleasesV140Route: typeof DocsSolidOverviewReleasesV140Route
+  DocsSolidOverviewReleasesV141Route: typeof DocsSolidOverviewReleasesV141Route
+  DocsSolidOverviewReleasesV150Route: typeof DocsSolidOverviewReleasesV150Route
+  DocsSolidOverviewReleasesV160Route: typeof DocsSolidOverviewReleasesV160Route
+  DocsSolidOverviewReleasesV170Route: typeof DocsSolidOverviewReleasesV170Route
+  DocsSolidOverviewReleasesV180Route: typeof DocsSolidOverviewReleasesV180Route
+  DocsSolidOverviewReleasesIndexRoute: typeof DocsSolidOverviewReleasesIndexRoute
 }
 
-const DocsReactOverviewReleasesRouteChildren: DocsReactOverviewReleasesRouteChildren =
+const DocsSolidOverviewReleasesRouteChildren: DocsSolidOverviewReleasesRouteChildren =
   {
-    DocsReactOverviewReleasesV100Route: DocsReactOverviewReleasesV100Route,
-    DocsReactOverviewReleasesV100Alpha4Route:
-      DocsReactOverviewReleasesV100Alpha4Route,
-    DocsReactOverviewReleasesV100Alpha5Route:
-      DocsReactOverviewReleasesV100Alpha5Route,
-    DocsReactOverviewReleasesV100Alpha6Route:
-      DocsReactOverviewReleasesV100Alpha6Route,
-    DocsReactOverviewReleasesV100Alpha7Route:
-      DocsReactOverviewReleasesV100Alpha7Route,
-    DocsReactOverviewReleasesV100Alpha8Route:
-      DocsReactOverviewReleasesV100Alpha8Route,
-    DocsReactOverviewReleasesV100Beta0Route:
-      DocsReactOverviewReleasesV100Beta0Route,
-    DocsReactOverviewReleasesV100Beta1Route:
-      DocsReactOverviewReleasesV100Beta1Route,
-    DocsReactOverviewReleasesV100Beta2Route:
-      DocsReactOverviewReleasesV100Beta2Route,
-    DocsReactOverviewReleasesV100Beta3Route:
-      DocsReactOverviewReleasesV100Beta3Route,
-    DocsReactOverviewReleasesV100Beta4Route:
-      DocsReactOverviewReleasesV100Beta4Route,
-    DocsReactOverviewReleasesV100Beta5Route:
-      DocsReactOverviewReleasesV100Beta5Route,
-    DocsReactOverviewReleasesV100Beta6Route:
-      DocsReactOverviewReleasesV100Beta6Route,
-    DocsReactOverviewReleasesV100Beta7Route:
-      DocsReactOverviewReleasesV100Beta7Route,
-    DocsReactOverviewReleasesV100Rc0Route:
-      DocsReactOverviewReleasesV100Rc0Route,
-    DocsReactOverviewReleasesV100Rc1Route:
-      DocsReactOverviewReleasesV100Rc1Route,
-    DocsReactOverviewReleasesV100Rc2Route:
-      DocsReactOverviewReleasesV100Rc2Route,
-    DocsReactOverviewReleasesV110Route: DocsReactOverviewReleasesV110Route,
-    DocsReactOverviewReleasesV120Route: DocsReactOverviewReleasesV120Route,
-    DocsReactOverviewReleasesV130Route: DocsReactOverviewReleasesV130Route,
-    DocsReactOverviewReleasesV140Route: DocsReactOverviewReleasesV140Route,
-    DocsReactOverviewReleasesV141Route: DocsReactOverviewReleasesV141Route,
-    DocsReactOverviewReleasesV150Route: DocsReactOverviewReleasesV150Route,
-    DocsReactOverviewReleasesV160Route: DocsReactOverviewReleasesV160Route,
-    DocsReactOverviewReleasesV170Route: DocsReactOverviewReleasesV170Route,
-    DocsReactOverviewReleasesV180Route: DocsReactOverviewReleasesV180Route,
-    DocsReactOverviewReleasesIndexRoute: DocsReactOverviewReleasesIndexRoute,
+    DocsSolidOverviewReleasesV100Route: DocsSolidOverviewReleasesV100Route,
+    DocsSolidOverviewReleasesV100Alpha4Route:
+      DocsSolidOverviewReleasesV100Alpha4Route,
+    DocsSolidOverviewReleasesV100Alpha5Route:
+      DocsSolidOverviewReleasesV100Alpha5Route,
+    DocsSolidOverviewReleasesV100Alpha6Route:
+      DocsSolidOverviewReleasesV100Alpha6Route,
+    DocsSolidOverviewReleasesV100Alpha7Route:
+      DocsSolidOverviewReleasesV100Alpha7Route,
+    DocsSolidOverviewReleasesV100Alpha8Route:
+      DocsSolidOverviewReleasesV100Alpha8Route,
+    DocsSolidOverviewReleasesV100Beta0Route:
+      DocsSolidOverviewReleasesV100Beta0Route,
+    DocsSolidOverviewReleasesV100Beta1Route:
+      DocsSolidOverviewReleasesV100Beta1Route,
+    DocsSolidOverviewReleasesV100Beta2Route:
+      DocsSolidOverviewReleasesV100Beta2Route,
+    DocsSolidOverviewReleasesV100Beta3Route:
+      DocsSolidOverviewReleasesV100Beta3Route,
+    DocsSolidOverviewReleasesV100Beta4Route:
+      DocsSolidOverviewReleasesV100Beta4Route,
+    DocsSolidOverviewReleasesV100Beta5Route:
+      DocsSolidOverviewReleasesV100Beta5Route,
+    DocsSolidOverviewReleasesV100Beta6Route:
+      DocsSolidOverviewReleasesV100Beta6Route,
+    DocsSolidOverviewReleasesV100Beta7Route:
+      DocsSolidOverviewReleasesV100Beta7Route,
+    DocsSolidOverviewReleasesV100Rc0Route:
+      DocsSolidOverviewReleasesV100Rc0Route,
+    DocsSolidOverviewReleasesV100Rc1Route:
+      DocsSolidOverviewReleasesV100Rc1Route,
+    DocsSolidOverviewReleasesV100Rc2Route:
+      DocsSolidOverviewReleasesV100Rc2Route,
+    DocsSolidOverviewReleasesV110Route: DocsSolidOverviewReleasesV110Route,
+    DocsSolidOverviewReleasesV120Route: DocsSolidOverviewReleasesV120Route,
+    DocsSolidOverviewReleasesV130Route: DocsSolidOverviewReleasesV130Route,
+    DocsSolidOverviewReleasesV140Route: DocsSolidOverviewReleasesV140Route,
+    DocsSolidOverviewReleasesV141Route: DocsSolidOverviewReleasesV141Route,
+    DocsSolidOverviewReleasesV150Route: DocsSolidOverviewReleasesV150Route,
+    DocsSolidOverviewReleasesV160Route: DocsSolidOverviewReleasesV160Route,
+    DocsSolidOverviewReleasesV170Route: DocsSolidOverviewReleasesV170Route,
+    DocsSolidOverviewReleasesV180Route: DocsSolidOverviewReleasesV180Route,
+    DocsSolidOverviewReleasesIndexRoute: DocsSolidOverviewReleasesIndexRoute,
   }
 
-const DocsReactOverviewReleasesRouteWithChildren =
-  DocsReactOverviewReleasesRoute._addFileChildren(
-    DocsReactOverviewReleasesRouteChildren,
+const DocsSolidOverviewReleasesRouteWithChildren =
+  DocsSolidOverviewReleasesRoute._addFileChildren(
+    DocsSolidOverviewReleasesRouteChildren,
   )
 
-interface DocsReactOverviewRouteChildren {
-  DocsReactOverviewAboutRoute: typeof DocsReactOverviewAboutRoute
-  DocsReactOverviewAccessibilityRoute: typeof DocsReactOverviewAccessibilityRoute
-  DocsReactOverviewCommunityRoute: typeof DocsReactOverviewCommunityRoute
-  DocsReactOverviewQuickStartRoute: typeof DocsReactOverviewQuickStartRoute
-  DocsReactOverviewReleasesRoute: typeof DocsReactOverviewReleasesRouteWithChildren
-  DocsReactOverviewIndexRoute: typeof DocsReactOverviewIndexRoute
+interface DocsSolidOverviewRouteChildren {
+  DocsSolidOverviewAboutRoute: typeof DocsSolidOverviewAboutRoute
+  DocsSolidOverviewAccessibilityRoute: typeof DocsSolidOverviewAccessibilityRoute
+  DocsSolidOverviewCommunityRoute: typeof DocsSolidOverviewCommunityRoute
+  DocsSolidOverviewQuickStartRoute: typeof DocsSolidOverviewQuickStartRoute
+  DocsSolidOverviewReleasesRoute: typeof DocsSolidOverviewReleasesRouteWithChildren
+  DocsSolidOverviewIndexRoute: typeof DocsSolidOverviewIndexRoute
 }
 
-const DocsReactOverviewRouteChildren: DocsReactOverviewRouteChildren = {
-  DocsReactOverviewAboutRoute: DocsReactOverviewAboutRoute,
-  DocsReactOverviewAccessibilityRoute: DocsReactOverviewAccessibilityRoute,
-  DocsReactOverviewCommunityRoute: DocsReactOverviewCommunityRoute,
-  DocsReactOverviewQuickStartRoute: DocsReactOverviewQuickStartRoute,
-  DocsReactOverviewReleasesRoute: DocsReactOverviewReleasesRouteWithChildren,
-  DocsReactOverviewIndexRoute: DocsReactOverviewIndexRoute,
+const DocsSolidOverviewRouteChildren: DocsSolidOverviewRouteChildren = {
+  DocsSolidOverviewAboutRoute: DocsSolidOverviewAboutRoute,
+  DocsSolidOverviewAccessibilityRoute: DocsSolidOverviewAccessibilityRoute,
+  DocsSolidOverviewCommunityRoute: DocsSolidOverviewCommunityRoute,
+  DocsSolidOverviewQuickStartRoute: DocsSolidOverviewQuickStartRoute,
+  DocsSolidOverviewReleasesRoute: DocsSolidOverviewReleasesRouteWithChildren,
+  DocsSolidOverviewIndexRoute: DocsSolidOverviewIndexRoute,
 }
 
-const DocsReactOverviewRouteWithChildren =
-  DocsReactOverviewRoute._addFileChildren(DocsReactOverviewRouteChildren)
+const DocsSolidOverviewRouteWithChildren =
+  DocsSolidOverviewRoute._addFileChildren(DocsSolidOverviewRouteChildren)
 
-interface DocsReactUtilsRouteChildren {
-  DocsReactUtilsCspProviderRoute: typeof DocsReactUtilsCspProviderRoute
-  DocsReactUtilsDirectionProviderRoute: typeof DocsReactUtilsDirectionProviderRoute
-  DocsReactUtilsMergePropsRoute: typeof DocsReactUtilsMergePropsRoute
-  DocsReactUtilsUseRenderRoute: typeof DocsReactUtilsUseRenderRoute
-  DocsReactUtilsIndexRoute: typeof DocsReactUtilsIndexRoute
+interface DocsSolidUtilsRouteChildren {
+  DocsSolidUtilsCspProviderRoute: typeof DocsSolidUtilsCspProviderRoute
+  DocsSolidUtilsDirectionProviderRoute: typeof DocsSolidUtilsDirectionProviderRoute
+  DocsSolidUtilsMergePropsRoute: typeof DocsSolidUtilsMergePropsRoute
+  DocsSolidUtilsUseRenderRoute: typeof DocsSolidUtilsUseRenderRoute
+  DocsSolidUtilsIndexRoute: typeof DocsSolidUtilsIndexRoute
 }
 
-const DocsReactUtilsRouteChildren: DocsReactUtilsRouteChildren = {
-  DocsReactUtilsCspProviderRoute: DocsReactUtilsCspProviderRoute,
-  DocsReactUtilsDirectionProviderRoute: DocsReactUtilsDirectionProviderRoute,
-  DocsReactUtilsMergePropsRoute: DocsReactUtilsMergePropsRoute,
-  DocsReactUtilsUseRenderRoute: DocsReactUtilsUseRenderRoute,
-  DocsReactUtilsIndexRoute: DocsReactUtilsIndexRoute,
+const DocsSolidUtilsRouteChildren: DocsSolidUtilsRouteChildren = {
+  DocsSolidUtilsCspProviderRoute: DocsSolidUtilsCspProviderRoute,
+  DocsSolidUtilsDirectionProviderRoute: DocsSolidUtilsDirectionProviderRoute,
+  DocsSolidUtilsMergePropsRoute: DocsSolidUtilsMergePropsRoute,
+  DocsSolidUtilsUseRenderRoute: DocsSolidUtilsUseRenderRoute,
+  DocsSolidUtilsIndexRoute: DocsSolidUtilsIndexRoute,
 }
 
-const DocsReactUtilsRouteWithChildren = DocsReactUtilsRoute._addFileChildren(
-  DocsReactUtilsRouteChildren,
+const DocsSolidUtilsRouteWithChildren = DocsSolidUtilsRoute._addFileChildren(
+  DocsSolidUtilsRouteChildren,
 )
 
-interface DocsReactRouteChildren {
-  DocsReactHandbookRoute: typeof DocsReactHandbookRouteWithChildren
-  DocsReactOverviewRoute: typeof DocsReactOverviewRouteWithChildren
-  DocsReactUtilsRoute: typeof DocsReactUtilsRouteWithChildren
-  DocsReactIndexRoute: typeof DocsReactIndexRoute
-  DocsReactComponentsAccordionRoute: typeof DocsReactComponentsAccordionRoute
-  DocsReactComponentsAlertDialogRoute: typeof DocsReactComponentsAlertDialogRoute
-  DocsReactComponentsAutocompleteRoute: typeof DocsReactComponentsAutocompleteRoute
-  DocsReactComponentsAvatarRoute: typeof DocsReactComponentsAvatarRoute
-  DocsReactComponentsButtonRoute: typeof DocsReactComponentsButtonRoute
-  DocsReactComponentsCheckboxRoute: typeof DocsReactComponentsCheckboxRoute
-  DocsReactComponentsCheckboxGroupRoute: typeof DocsReactComponentsCheckboxGroupRoute
-  DocsReactComponentsCollapsibleRoute: typeof DocsReactComponentsCollapsibleRoute
-  DocsReactComponentsComboboxRoute: typeof DocsReactComponentsComboboxRoute
-  DocsReactComponentsContextMenuRoute: typeof DocsReactComponentsContextMenuRoute
-  DocsReactComponentsDialogRoute: typeof DocsReactComponentsDialogRoute
-  DocsReactComponentsDrawerRoute: typeof DocsReactComponentsDrawerRoute
-  DocsReactComponentsFieldRoute: typeof DocsReactComponentsFieldRoute
-  DocsReactComponentsFieldsetRoute: typeof DocsReactComponentsFieldsetRoute
-  DocsReactComponentsFormRoute: typeof DocsReactComponentsFormRoute
-  DocsReactComponentsInputRoute: typeof DocsReactComponentsInputRoute
-  DocsReactComponentsMenuRoute: typeof DocsReactComponentsMenuRoute
-  DocsReactComponentsMenubarRoute: typeof DocsReactComponentsMenubarRoute
-  DocsReactComponentsMeterRoute: typeof DocsReactComponentsMeterRoute
-  DocsReactComponentsNavigationMenuRoute: typeof DocsReactComponentsNavigationMenuRoute
-  DocsReactComponentsNumberFieldRoute: typeof DocsReactComponentsNumberFieldRoute
-  DocsReactComponentsOtpFieldRoute: typeof DocsReactComponentsOtpFieldRoute
-  DocsReactComponentsPopoverRoute: typeof DocsReactComponentsPopoverRoute
-  DocsReactComponentsPreviewCardRoute: typeof DocsReactComponentsPreviewCardRoute
-  DocsReactComponentsProgressRoute: typeof DocsReactComponentsProgressRoute
-  DocsReactComponentsRadioGroupRoute: typeof DocsReactComponentsRadioGroupRoute
-  DocsReactComponentsScrollAreaRoute: typeof DocsReactComponentsScrollAreaRoute
-  DocsReactComponentsSelectRoute: typeof DocsReactComponentsSelectRoute
-  DocsReactComponentsSeparatorRoute: typeof DocsReactComponentsSeparatorRoute
-  DocsReactComponentsSliderRoute: typeof DocsReactComponentsSliderRoute
-  DocsReactComponentsSwitchRoute: typeof DocsReactComponentsSwitchRoute
-  DocsReactComponentsTabsRoute: typeof DocsReactComponentsTabsRoute
-  DocsReactComponentsToastRoute: typeof DocsReactComponentsToastRoute
-  DocsReactComponentsToggleRoute: typeof DocsReactComponentsToggleRoute
-  DocsReactComponentsToggleGroupRoute: typeof DocsReactComponentsToggleGroupRoute
-  DocsReactComponentsToolbarRoute: typeof DocsReactComponentsToolbarRoute
-  DocsReactComponentsTooltipRoute: typeof DocsReactComponentsTooltipRoute
-  DocsReactComponentsIndexRoute: typeof DocsReactComponentsIndexRoute
+interface DocsSolidRouteChildren {
+  DocsSolidHandbookRoute: typeof DocsSolidHandbookRouteWithChildren
+  DocsSolidOverviewRoute: typeof DocsSolidOverviewRouteWithChildren
+  DocsSolidUtilsRoute: typeof DocsSolidUtilsRouteWithChildren
+  DocsSolidIndexRoute: typeof DocsSolidIndexRoute
+  DocsSolidComponentsAccordionRoute: typeof DocsSolidComponentsAccordionRoute
+  DocsSolidComponentsAlertDialogRoute: typeof DocsSolidComponentsAlertDialogRoute
+  DocsSolidComponentsAutocompleteRoute: typeof DocsSolidComponentsAutocompleteRoute
+  DocsSolidComponentsAvatarRoute: typeof DocsSolidComponentsAvatarRoute
+  DocsSolidComponentsButtonRoute: typeof DocsSolidComponentsButtonRoute
+  DocsSolidComponentsCheckboxRoute: typeof DocsSolidComponentsCheckboxRoute
+  DocsSolidComponentsCheckboxGroupRoute: typeof DocsSolidComponentsCheckboxGroupRoute
+  DocsSolidComponentsCollapsibleRoute: typeof DocsSolidComponentsCollapsibleRoute
+  DocsSolidComponentsComboboxRoute: typeof DocsSolidComponentsComboboxRoute
+  DocsSolidComponentsContextMenuRoute: typeof DocsSolidComponentsContextMenuRoute
+  DocsSolidComponentsDialogRoute: typeof DocsSolidComponentsDialogRoute
+  DocsSolidComponentsDrawerRoute: typeof DocsSolidComponentsDrawerRoute
+  DocsSolidComponentsFieldRoute: typeof DocsSolidComponentsFieldRoute
+  DocsSolidComponentsFieldsetRoute: typeof DocsSolidComponentsFieldsetRoute
+  DocsSolidComponentsFormRoute: typeof DocsSolidComponentsFormRoute
+  DocsSolidComponentsInputRoute: typeof DocsSolidComponentsInputRoute
+  DocsSolidComponentsMenuRoute: typeof DocsSolidComponentsMenuRoute
+  DocsSolidComponentsMenubarRoute: typeof DocsSolidComponentsMenubarRoute
+  DocsSolidComponentsMeterRoute: typeof DocsSolidComponentsMeterRoute
+  DocsSolidComponentsNavigationMenuRoute: typeof DocsSolidComponentsNavigationMenuRoute
+  DocsSolidComponentsNumberFieldRoute: typeof DocsSolidComponentsNumberFieldRoute
+  DocsSolidComponentsOtpFieldRoute: typeof DocsSolidComponentsOtpFieldRoute
+  DocsSolidComponentsPopoverRoute: typeof DocsSolidComponentsPopoverRoute
+  DocsSolidComponentsPreviewCardRoute: typeof DocsSolidComponentsPreviewCardRoute
+  DocsSolidComponentsProgressRoute: typeof DocsSolidComponentsProgressRoute
+  DocsSolidComponentsRadioGroupRoute: typeof DocsSolidComponentsRadioGroupRoute
+  DocsSolidComponentsScrollAreaRoute: typeof DocsSolidComponentsScrollAreaRoute
+  DocsSolidComponentsSelectRoute: typeof DocsSolidComponentsSelectRoute
+  DocsSolidComponentsSeparatorRoute: typeof DocsSolidComponentsSeparatorRoute
+  DocsSolidComponentsSliderRoute: typeof DocsSolidComponentsSliderRoute
+  DocsSolidComponentsSwitchRoute: typeof DocsSolidComponentsSwitchRoute
+  DocsSolidComponentsTabsRoute: typeof DocsSolidComponentsTabsRoute
+  DocsSolidComponentsToastRoute: typeof DocsSolidComponentsToastRoute
+  DocsSolidComponentsToggleRoute: typeof DocsSolidComponentsToggleRoute
+  DocsSolidComponentsToggleGroupRoute: typeof DocsSolidComponentsToggleGroupRoute
+  DocsSolidComponentsToolbarRoute: typeof DocsSolidComponentsToolbarRoute
+  DocsSolidComponentsTooltipRoute: typeof DocsSolidComponentsTooltipRoute
+  DocsSolidComponentsIndexRoute: typeof DocsSolidComponentsIndexRoute
 }
 
-const DocsReactRouteChildren: DocsReactRouteChildren = {
-  DocsReactHandbookRoute: DocsReactHandbookRouteWithChildren,
-  DocsReactOverviewRoute: DocsReactOverviewRouteWithChildren,
-  DocsReactUtilsRoute: DocsReactUtilsRouteWithChildren,
-  DocsReactIndexRoute: DocsReactIndexRoute,
-  DocsReactComponentsAccordionRoute: DocsReactComponentsAccordionRoute,
-  DocsReactComponentsAlertDialogRoute: DocsReactComponentsAlertDialogRoute,
-  DocsReactComponentsAutocompleteRoute: DocsReactComponentsAutocompleteRoute,
-  DocsReactComponentsAvatarRoute: DocsReactComponentsAvatarRoute,
-  DocsReactComponentsButtonRoute: DocsReactComponentsButtonRoute,
-  DocsReactComponentsCheckboxRoute: DocsReactComponentsCheckboxRoute,
-  DocsReactComponentsCheckboxGroupRoute: DocsReactComponentsCheckboxGroupRoute,
-  DocsReactComponentsCollapsibleRoute: DocsReactComponentsCollapsibleRoute,
-  DocsReactComponentsComboboxRoute: DocsReactComponentsComboboxRoute,
-  DocsReactComponentsContextMenuRoute: DocsReactComponentsContextMenuRoute,
-  DocsReactComponentsDialogRoute: DocsReactComponentsDialogRoute,
-  DocsReactComponentsDrawerRoute: DocsReactComponentsDrawerRoute,
-  DocsReactComponentsFieldRoute: DocsReactComponentsFieldRoute,
-  DocsReactComponentsFieldsetRoute: DocsReactComponentsFieldsetRoute,
-  DocsReactComponentsFormRoute: DocsReactComponentsFormRoute,
-  DocsReactComponentsInputRoute: DocsReactComponentsInputRoute,
-  DocsReactComponentsMenuRoute: DocsReactComponentsMenuRoute,
-  DocsReactComponentsMenubarRoute: DocsReactComponentsMenubarRoute,
-  DocsReactComponentsMeterRoute: DocsReactComponentsMeterRoute,
-  DocsReactComponentsNavigationMenuRoute:
-    DocsReactComponentsNavigationMenuRoute,
-  DocsReactComponentsNumberFieldRoute: DocsReactComponentsNumberFieldRoute,
-  DocsReactComponentsOtpFieldRoute: DocsReactComponentsOtpFieldRoute,
-  DocsReactComponentsPopoverRoute: DocsReactComponentsPopoverRoute,
-  DocsReactComponentsPreviewCardRoute: DocsReactComponentsPreviewCardRoute,
-  DocsReactComponentsProgressRoute: DocsReactComponentsProgressRoute,
-  DocsReactComponentsRadioGroupRoute: DocsReactComponentsRadioGroupRoute,
-  DocsReactComponentsScrollAreaRoute: DocsReactComponentsScrollAreaRoute,
-  DocsReactComponentsSelectRoute: DocsReactComponentsSelectRoute,
-  DocsReactComponentsSeparatorRoute: DocsReactComponentsSeparatorRoute,
-  DocsReactComponentsSliderRoute: DocsReactComponentsSliderRoute,
-  DocsReactComponentsSwitchRoute: DocsReactComponentsSwitchRoute,
-  DocsReactComponentsTabsRoute: DocsReactComponentsTabsRoute,
-  DocsReactComponentsToastRoute: DocsReactComponentsToastRoute,
-  DocsReactComponentsToggleRoute: DocsReactComponentsToggleRoute,
-  DocsReactComponentsToggleGroupRoute: DocsReactComponentsToggleGroupRoute,
-  DocsReactComponentsToolbarRoute: DocsReactComponentsToolbarRoute,
-  DocsReactComponentsTooltipRoute: DocsReactComponentsTooltipRoute,
-  DocsReactComponentsIndexRoute: DocsReactComponentsIndexRoute,
+const DocsSolidRouteChildren: DocsSolidRouteChildren = {
+  DocsSolidHandbookRoute: DocsSolidHandbookRouteWithChildren,
+  DocsSolidOverviewRoute: DocsSolidOverviewRouteWithChildren,
+  DocsSolidUtilsRoute: DocsSolidUtilsRouteWithChildren,
+  DocsSolidIndexRoute: DocsSolidIndexRoute,
+  DocsSolidComponentsAccordionRoute: DocsSolidComponentsAccordionRoute,
+  DocsSolidComponentsAlertDialogRoute: DocsSolidComponentsAlertDialogRoute,
+  DocsSolidComponentsAutocompleteRoute: DocsSolidComponentsAutocompleteRoute,
+  DocsSolidComponentsAvatarRoute: DocsSolidComponentsAvatarRoute,
+  DocsSolidComponentsButtonRoute: DocsSolidComponentsButtonRoute,
+  DocsSolidComponentsCheckboxRoute: DocsSolidComponentsCheckboxRoute,
+  DocsSolidComponentsCheckboxGroupRoute: DocsSolidComponentsCheckboxGroupRoute,
+  DocsSolidComponentsCollapsibleRoute: DocsSolidComponentsCollapsibleRoute,
+  DocsSolidComponentsComboboxRoute: DocsSolidComponentsComboboxRoute,
+  DocsSolidComponentsContextMenuRoute: DocsSolidComponentsContextMenuRoute,
+  DocsSolidComponentsDialogRoute: DocsSolidComponentsDialogRoute,
+  DocsSolidComponentsDrawerRoute: DocsSolidComponentsDrawerRoute,
+  DocsSolidComponentsFieldRoute: DocsSolidComponentsFieldRoute,
+  DocsSolidComponentsFieldsetRoute: DocsSolidComponentsFieldsetRoute,
+  DocsSolidComponentsFormRoute: DocsSolidComponentsFormRoute,
+  DocsSolidComponentsInputRoute: DocsSolidComponentsInputRoute,
+  DocsSolidComponentsMenuRoute: DocsSolidComponentsMenuRoute,
+  DocsSolidComponentsMenubarRoute: DocsSolidComponentsMenubarRoute,
+  DocsSolidComponentsMeterRoute: DocsSolidComponentsMeterRoute,
+  DocsSolidComponentsNavigationMenuRoute:
+    DocsSolidComponentsNavigationMenuRoute,
+  DocsSolidComponentsNumberFieldRoute: DocsSolidComponentsNumberFieldRoute,
+  DocsSolidComponentsOtpFieldRoute: DocsSolidComponentsOtpFieldRoute,
+  DocsSolidComponentsPopoverRoute: DocsSolidComponentsPopoverRoute,
+  DocsSolidComponentsPreviewCardRoute: DocsSolidComponentsPreviewCardRoute,
+  DocsSolidComponentsProgressRoute: DocsSolidComponentsProgressRoute,
+  DocsSolidComponentsRadioGroupRoute: DocsSolidComponentsRadioGroupRoute,
+  DocsSolidComponentsScrollAreaRoute: DocsSolidComponentsScrollAreaRoute,
+  DocsSolidComponentsSelectRoute: DocsSolidComponentsSelectRoute,
+  DocsSolidComponentsSeparatorRoute: DocsSolidComponentsSeparatorRoute,
+  DocsSolidComponentsSliderRoute: DocsSolidComponentsSliderRoute,
+  DocsSolidComponentsSwitchRoute: DocsSolidComponentsSwitchRoute,
+  DocsSolidComponentsTabsRoute: DocsSolidComponentsTabsRoute,
+  DocsSolidComponentsToastRoute: DocsSolidComponentsToastRoute,
+  DocsSolidComponentsToggleRoute: DocsSolidComponentsToggleRoute,
+  DocsSolidComponentsToggleGroupRoute: DocsSolidComponentsToggleGroupRoute,
+  DocsSolidComponentsToolbarRoute: DocsSolidComponentsToolbarRoute,
+  DocsSolidComponentsTooltipRoute: DocsSolidComponentsTooltipRoute,
+  DocsSolidComponentsIndexRoute: DocsSolidComponentsIndexRoute,
 }
 
-const DocsReactRouteWithChildren = DocsReactRoute._addFileChildren(
-  DocsReactRouteChildren,
+const DocsSolidRouteWithChildren = DocsSolidRoute._addFileChildren(
+  DocsSolidRouteChildren,
 )
 
 interface DocsRouteChildren {
   DocsProductionErrorRoute: typeof DocsProductionErrorRoute
-  DocsReactRoute: typeof DocsReactRouteWithChildren
+  DocsSolidRoute: typeof DocsSolidRouteWithChildren
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsProductionErrorRoute: DocsProductionErrorRoute,
-  DocsReactRoute: DocsReactRouteWithChildren,
+  DocsSolidRoute: DocsSolidRouteWithChildren,
 }
 
 const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)

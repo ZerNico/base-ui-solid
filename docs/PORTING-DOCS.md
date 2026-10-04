@@ -1,9 +1,10 @@
 # Porting documentation pages
 
-Keep upstream filenames under `src/app/(docs)/react/{overview,components,handbook,utils}`.
+Keep upstream filenames under `src/app/(docs)/solid/{overview,components,handbook,utils}`.
 A small route wrapper in `src/routes` imports each `page.mdx` and passes `mdxComponents`.
 The pathless routes `_docs`, `_website`, and `_private` correspond to upstream `(docs)`,
-`(website)`, and `(private)` without changing URLs. `_private/playground` provides the
+`(website)`, and `(private)` without changing URLs. Public framework URLs use `/solid/`; legacy `/react/*`
+URLs receive permanent redirects through the shared middleware and Netlify `_redirects`. `_private/playground` provides the
 upstream `/playground` URL as a Collapsible smoke surface. It is a route group, not authorization.
 
 ## Page workflow
@@ -78,6 +79,9 @@ pnpm --filter docs test
 pnpm --filter docs build
 pnpm --filter docs dev
 pnpm --filter docs smoke
+pnpm --filter docs smoke:all
+pnpm --filter docs links
+pnpm --filter docs redirects
 pnpm exec prettier --write docs eslint.config.mjs pnpm-workspace.yaml --ignore-path .lintignore
 pnpm exec eslint docs eslint.config.mjs --report-unused-disable-directives --max-warnings 0
 ```

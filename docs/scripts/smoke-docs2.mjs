@@ -19,7 +19,7 @@ try {
         errors.push(message.text());
       }
     });
-    const url = `${process.env.DOCS_URL ?? 'http://localhost:3005'}/react/components/${name === 'index' ? '' : name}`;
+    const url = `${process.env.DOCS_URL ?? 'http://localhost:3005'}/solid/components/${name === 'index' ? '' : name}`;
     const response = await page.goto(url);
     assert.equal(response.status(), 200, name);
     await page.waitForLoadState('networkidle');

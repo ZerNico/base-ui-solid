@@ -9,10 +9,10 @@ const paths = [];
 for (const filename of await readdir(new URL('../src/routes/', import.meta.url))) {
   const source = await readFile(new URL(`../src/routes/${filename}`, import.meta.url), 'utf8');
   const path = source.match(/createFileRoute\('([^']+)'\)/)?.[1].replace('/_docs', '');
-  if (!source.includes('import Content') || !path?.startsWith('/react/')) {
+  if (!source.includes('import Content') || !path?.startsWith('/solid/')) {
     continue;
   }
-  if (path.includes('/releases/') && path !== '/react/overview/releases/') {
+  if (path.includes('/releases/') && path !== '/solid/overview/releases/') {
     continue;
   }
   paths.push(path);
@@ -42,7 +42,10 @@ try {
           failedRequests.push(`${response.status()} ${response.url()}`);
         }
       });
-      await page.goto(origin + path, { waitUntil: 'networkidle', timeout: 120000 });
+      // Port note: upstream comparison pages retain their React URL segment.
+      const requestPath =
+        origin === 'https://base-ui.com' ? path.replace(/^\/solid(?=\/|$)/, '/react') : path;
+      await page.goto(origin + requestPath, { waitUntil: 'networkidle', timeout: 120000 });
       await page.evaluate(() => scrollTo(0, 0));
       const filename = `${name}-${path.replaceAll('/', '_')}.png`;
       await page.screenshot({ path: `${evidence}/${filename}` });

@@ -109,10 +109,11 @@ try {
         ids: [...doc.querySelectorAll('[id], a[name]')]
           .flatMap((element) => [element.id, element.getAttribute('name')])
           .filter(Boolean),
-        links: [...doc.querySelectorAll('[href], [src], [srcset]')]
+        links: [...doc.querySelectorAll('[href], [src], [srcset], meta[property="og:url"]')]
           .flatMap((element) => [
             element.getAttribute('href'),
             element.getAttribute('src'),
+            element.getAttribute('property') === 'og:url' ? element.getAttribute('content') : null,
             ...(element
               .getAttribute('srcset')
               ?.split(',')
@@ -129,8 +130,8 @@ try {
     ['/inbox', '/'],
     ['/inbox/sent', '/'],
     ['/inbox/spam', '/'],
-    ['/r/invalid-render-prop', '/react/handbook/composition'],
-    ['/react/components/radio', '/react/components/radio-group'],
+    ['/r/invalid-render-prop', '/solid/handbook/composition'],
+    ['/solid/components/radio', '/solid/components/radio-group'],
   ]);
   async function destination(url) {
     const pathname = redirects.get(url.pathname) ?? url.pathname;
@@ -152,6 +153,12 @@ try {
     }
     return undefined;
   }
+  const sitemap = await readFile(path.join(root, 'export/sitemap.xml'), 'utf8');
+  for (const [, link] of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+    const url = new URL(link);
+    assert.ok(!/^\/react(?:\/|$)/.test(url.pathname), `Legacy sitemap URL: ${link}`);
+    assert.ok(await destination(url), `Missing sitemap target: ${link}`);
+  }
   const checked = new Set();
   for (const [filename, document] of documents) {
     const pathname = `/${path.relative(path.join(root, 'export'), filename).replace(/index\.html$/, '')}`;
@@ -160,6 +167,9 @@ try {
         continue;
       }
       const url = new URL(link, new URL(pathname, SITE_URL));
+      if (url.origin === new URL(SITE_URL).origin && /^\/react(?:\/|$)/.test(url.pathname)) {
+        errors.push(`${pathname}: legacy framework link ${link}`);
+      }
       if (url.origin !== new URL(SITE_URL).origin) {
         continue;
       }
@@ -190,6 +200,9 @@ try {
         continue;
       }
       const url = new URL(link, new URL(pathname, SITE_URL));
+      if (url.origin === new URL(SITE_URL).origin && /^\/react(?:\/|$)/.test(url.pathname)) {
+        errors.push(`${pathname}: legacy framework link ${link}`);
+      }
       if (url.origin === new URL(SITE_URL).origin && !(await destination(url))) {
         errors.push(`${pathname}: broken CSS asset ${link}`);
       }
@@ -205,6 +218,9 @@ try {
     const pathname = `/${path.relative(path.join(root, 'export'), filename)}`;
     for (const [, link] of text.matchAll(/\]\((\/[^\s)]+)\)/g)) {
       const url = new URL(link, SITE_URL);
+      if (/^\/react(?:\/|$)/.test(url.pathname)) {
+        errors.push(`${pathname}: legacy Markdown link ${link}`);
+      }
       if (!(await destination(url))) {
         errors.push(`${pathname}: broken Markdown link ${link}`);
       }

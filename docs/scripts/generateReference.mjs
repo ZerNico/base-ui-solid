@@ -6,8 +6,8 @@ import { resolve } from 'node:path';
 const name = process.argv[2] ?? 'collapsible';
 const upstream = process.argv[3] ?? '../../base-ui/docs';
 const source = (
-  await readFile(resolve(upstream, `src/app/(docs)/react/components/${name}/types.md`), 'utf8')
-).replaceAll('https://base-ui.com/react/', '/react/');
+  await readFile(resolve(upstream, `src/app/(docs)/solid/components/${name}/types.md`), 'utf8')
+).replaceAll('https://base-ui.com/react/', '/solid/');
 const sections = source
   .split(/^### /m)
   .slice(1)

@@ -6,7 +6,7 @@
     "dev": "node scripts/generateDocsIndex.mjs && vite --port 3005",
     "build": "node scripts/generateDocsIndex.mjs && vite build && node scripts/exportStatic.mjs",
     "build:clean": "rimraf dist export && pnpm build",
-    "serve": "serve export -l 3010",
+    "serve": "node scripts/serveStatic.mjs",
     "typescript": "tsc -p tsconfig.json --noEmit",
     "docs-infra": "docs-infra",
     "validate": "pnpm typescript",
@@ -20,7 +20,8 @@
     "smoke:all": "node scripts/smokeAll.mjs",
     "smoke:fix2": "node scripts/checkDocs.mjs",
     "performance": "node scripts/performance.mjs",
-    "screenshots": "node scripts/compareScreenshots.mjs"
+    "screenshots": "node scripts/compareScreenshots.mjs",
+    "redirects": "node scripts/checkRedirects.mjs"
   },
   "dependencies": {
     "@base-ui-solid/utils": "workspace:*",

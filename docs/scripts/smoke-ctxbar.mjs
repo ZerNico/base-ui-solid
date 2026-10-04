@@ -8,7 +8,7 @@ const browser = await chromium.launch();
 try {
   for (const component of ['context-menu', 'menubar']) {
     const html = await readFile(
-      new URL(`../export/react/components/${component}/index.html`, import.meta.url),
+      new URL(`../export/solid/components/${component}/index.html`, import.meta.url),
       'utf8',
     );
     assert.ok(
@@ -26,7 +26,7 @@ try {
     });
     page.on('dialog', (dialog) => dialog.dismiss());
     await page.goto(
-      `${process.env.DOCS_URL ?? 'http://localhost:3010'}/react/components/${component}`,
+      `${process.env.DOCS_URL ?? 'http://localhost:3010'}/solid/components/${component}`,
       { waitUntil: 'networkidle' },
     );
     const demos = page.locator('.DemoRoot');
