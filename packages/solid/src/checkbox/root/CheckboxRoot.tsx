@@ -502,7 +502,7 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
         // When using a native button, the `id` is applied to the button instead.
         id={nativeButton() ? undefined : controlId()}
         required={required()}
-        style={(name() ? visuallyHiddenInput : visuallyHidden) as JSX.CSSProperties}
+        style={name() ? visuallyHiddenInput : visuallyHidden}
         tabindex={-1}
         aria-hidden="true"
         aria-describedby={inputAriaProps()['aria-describedby']}

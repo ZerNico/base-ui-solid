@@ -26,7 +26,7 @@ export function FocusGuard(props: JSX.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
       {...props}
-      style={visuallyHidden as JSX.CSSProperties}
+      style={visuallyHidden}
       aria-hidden={role() ? undefined : 'true'}
       tabindex={0}
       // Role is only for VoiceOver

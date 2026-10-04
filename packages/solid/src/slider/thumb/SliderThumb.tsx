@@ -299,7 +299,7 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
     const currentActiveIndex = activeIndex();
 
     if (!isInset && !Number.isFinite(percent)) {
-      return visuallyHidden as JSX.CSSProperties;
+      return visuallyHidden;
     }
 
     const startEdge = isVertical ? 'bottom' : 'inset-inline-start';

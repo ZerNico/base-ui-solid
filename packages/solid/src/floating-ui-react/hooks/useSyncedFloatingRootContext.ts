@@ -15,7 +15,8 @@ export type SyncedFloatingRootContextStore<State extends PopupStoreState<unknown
 >;
 
 /**
- * Port note: the options are read once (they're stable for a popup root).
+ * Port note: the options are read once (they're stable for a popup root), except `floatingId`,
+ * which is read lazily (pass a getter when it can change, like Menu's rendered popup id).
  */
 export interface UseSyncedFloatingRootContextOptions<
   State extends PopupStoreState<unknown>,
@@ -43,7 +44,6 @@ export function useSyncedFloatingRootContext<
     popupStore,
     treatPopupAsFloatingElement = false,
     floatingRootContext: store,
-    floatingId,
     nested,
     onOpenChange,
   } = options;
@@ -59,7 +59,7 @@ export function useSyncedFloatingRootContext<
     eventDetails: BaseUIChangeEventDetails<string>,
   ) => void;
 
-  popupStore.useSyncedValue('floatingId', () => floatingId as State['floatingId']);
+  popupStore.useSyncedValue('floatingId', () => options.floatingId as State['floatingId']);
 
   useIsoLayoutEffect(
     ([openValue, floatingIdValue, referenceElementValue, floatingElementValue]) => {
@@ -88,7 +88,7 @@ export function useSyncedFloatingRootContext<
 
       store.update(valuesToSync);
     },
-    () => [open(), floatingId, referenceElement(), floatingElement(), store] as const,
+    () => [open(), options.floatingId, referenceElement(), floatingElement(), store] as const,
   );
 
   // Keep non-reactive context values fresh for interactions that call `store.setOpen`.

@@ -80,7 +80,7 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
       return (
         <>
           {componentProps.children}
-          <span role="presentation" style={visuallyHidden as JSX.CSSProperties}>
+          <span role="presentation" style={visuallyHidden}>
             {/* force NVDA to read the label https://github.com/mui/base-ui/issues/4184 */}x
           </span>
         </>

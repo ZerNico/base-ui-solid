@@ -88,10 +88,14 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   // Port note: the context and the return value keep `floating`'s getters.
   const context = Object.create(floating.context, {
     refs: { value: refs, enumerable: true },
+    // Port note: this test helper owns a stable store, so hooks may read it during setup.
+    rootStore: { value: store, enumerable: true },
   }) as UseFloatingReturn['context'];
 
   return Object.create(floating, {
     refs: { value: refs, enumerable: true },
+    // Port note: this test helper owns a stable store, so hooks may read it during setup.
+    rootStore: { value: store, enumerable: true },
     context: { value: context, enumerable: true },
   }) as UseFloatingReturn;
 }

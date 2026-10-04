@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createMemo, createSignal, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { useFloating as usePosition } from '../dom';
@@ -18,28 +18,38 @@ import type {
  * The caller supplies the root store, which owns the reference and floating elements.
  * @see https://floating-ui.com/docs/useFloating
  *
- * Port note: `options` is read lazily (pass getters for reactive options); `rootContext`,
- * `nodeId` and `externalTree` are read once. The returned object and its `context` expose the
- * positioning data through getters (see `UseFloatingReturn` in `../dom`).
+ * Port note: `options` is read lazily (pass getters for reactive options); `nodeId` and
+ * `externalTree` are read once. `rootContext` is read reactively: like upstream re-rendering with
+ * another store, a new store is subscribed to (Navigation Menu's positioner switches to the active
+ * trigger's store). The returned object and its `context` expose the positioning data (and the
+ * store-dependent fields) through getters (see `UseFloatingReturn` in `../dom`).
  */
 export function useBaseUIFloating(
   options: UseFloatingOptions & { rootContext: FloatingRootStore },
 ): UseFloatingReturn {
-  const {
-    nodeId,
-    externalTree,
-    rootContext: store,
-  } = untrack(() => ({
+  const { nodeId, externalTree } = untrack(() => ({
     nodeId: options.nodeId,
     externalTree: options.externalTree,
-    rootContext: options.rootContext,
   }));
 
-  const referenceElement = store.useState('referenceElement');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
-  const open = store.useState('open');
-  const floatingId = store.useState('floatingId');
+  const store = createMemo(() => options.rootContext);
+  // The subscriptions are owned by the memo, so they're disposed when the store changes.
+  const storeState = createMemo(() => {
+    const currentStore = store();
+    return {
+      referenceElement: currentStore.useState('referenceElement'),
+      floatingElement: currentStore.useState('floatingElement'),
+      domReferenceElement: currentStore.useState('domReferenceElement'),
+      open: currentStore.useState('open'),
+      floatingId: currentStore.useState('floatingId'),
+    };
+  });
+
+  const referenceElement = () => storeState().referenceElement();
+  const floatingElement = () => storeState().floatingElement();
+  const domReferenceElement = () => storeState().domReferenceElement();
+  const open = () => storeState().open();
+  const floatingId = () => storeState().floatingId();
 
   const [positionReference, setPositionReferenceRaw] = createSignal<ReferenceType | null>(null, {
     ownedWrite: true,
@@ -136,19 +146,27 @@ export function useBaseUIFloating(
       return position.floatingStyles;
     },
     update: position.update,
-    dataRef: store.context.dataRef,
+    get dataRef() {
+      return store().context.dataRef;
+    },
     get open() {
       return open();
     },
-    onOpenChange: store.setOpen,
-    events: store.context.events,
+    get onOpenChange() {
+      return store().setOpen;
+    },
+    get events() {
+      return store().context.events;
+    },
     get floatingId() {
       return floatingId();
     },
     refs,
     elements,
     nodeId,
-    rootStore: store,
+    get rootStore() {
+      return store();
+    },
   };
 
   useIsoLayoutEffect(
@@ -161,18 +179,18 @@ export function useBaseUIFloating(
   );
 
   // Port note: upstream re-assigns the (new) context object after every render. The context is
-  // a single object here, so it's assigned once.
-  store.context.dataRef.current.floatingContext = context;
+  // a single object here, so it's assigned once per store.
+  untrack(store).context.dataRef.current.floatingContext = context;
   useIsoLayoutEffect(
-    ([treeValue]) => {
-      store.context.dataRef.current.floatingContext = context;
+    ([treeValue, currentStore]) => {
+      currentStore.context.dataRef.current.floatingContext = context;
 
       const node = treeValue?.nodesRef.current.find((n) => n.id === nodeId);
       if (node) {
         node.context = context;
       }
     },
-    () => [tree],
+    () => [tree, store()] as const,
   );
 
   return {
@@ -201,6 +219,8 @@ export function useBaseUIFloating(
     context,
     refs,
     elements,
-    rootStore: store as unknown as FloatingRootStore,
+    get rootStore() {
+      return store() as unknown as FloatingRootStore;
+    },
   } as UseFloatingReturn;
 }

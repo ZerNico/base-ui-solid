@@ -1,12 +1,14 @@
 export * from '@base-ui-solid/utils/testUtils';
 export {
   render,
+  act,
   flushMicrotasks,
   waitForAnimationFrame,
   screen,
   fireEvent,
   waitFor,
 } from './utils';
+export { advanceReactClock } from './advanceReactClock';
 export { createRenderer } from './createRenderer';
 export type { Clock } from './createRenderer';
 export { describeConformance } from './describeConformance';

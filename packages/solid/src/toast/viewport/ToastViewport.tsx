@@ -285,7 +285,7 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
         props: () => [defaultProps(), elementProps, childrenProps],
       })}
       <Show when={!focused() && highPriorityToasts().length > 0}>
-        <div style={visuallyHidden as JSX.CSSProperties}>
+        <div style={visuallyHidden}>
           <For each={highPriorityToasts()} keyed={(toast) => toast.id}>
             {(toast) => (
               <div role="alert" aria-atomic="true">

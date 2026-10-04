@@ -2178,13 +2178,16 @@ describe('<Popover.Root />', () => {
             requestAnimationFrame(() => resolve());
           });
           await flushMicrotasks();
+          // Port note: Solid's frame flush precedes the deferred scroll-lock cleanup task.
+          // Wait for that cleanup, as upstream's async act does.
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
 
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(false);
+            expect(isScrollLocked).toBe(false);
+          });
         });
       });
     });

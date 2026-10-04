@@ -1,5 +1,7 @@
+import type { JSX } from '@solidjs/web';
+
 // Port note: Solid style objects use kebab-case property names and don't append `px` to numbers.
-type CSSProperties = Readonly<Record<string, string | number>>;
+type CSSProperties = JSX.CSSProperties;
 
 const visuallyHiddenBase = {
   'clip-path': 'inset(50%)',

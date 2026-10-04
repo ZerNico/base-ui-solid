@@ -879,7 +879,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
       events.on('openchange', onOpenChangeLocal);
 
       function getReturnElement(closeTypeValue: InteractionType) {
-        const returnFocusValueOrFn = returnFocus();
+        // Port note: called from the cleanup below, which runs outside a tracking scope.
+        const returnFocusValueOrFn = untrack(returnFocus);
         let resolvedReturnFocusValue =
           typeof returnFocusValueOrFn === 'function'
             ? returnFocusValueOrFn(closeTypeValue)
@@ -928,7 +929,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
               contains(node.context?.elements.floating, activeEl),
             ));
 
-        const returnFocusValueOrFn = returnFocus();
+        const returnFocusValueOrFn = untrack(returnFocus);
         const closeTypeValue = closeType;
         const returnElement = getReturnElement(closeTypeValue);
 

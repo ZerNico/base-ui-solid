@@ -1,5 +1,4 @@
 import { expect, describe, it } from 'vitest';
-import type { JSX } from '@solidjs/web';
 import { render, screen } from '@solidjs/testing-library';
 import { isJSDOM } from './testUtils';
 import { visuallyHidden } from './visuallyHidden';
@@ -21,7 +20,7 @@ describe.skipIf(isJSDOM)('visuallyHidden', () => {
         >
           {/* Establish a fixed-position containing block below the scroller's top edge. */}
           <div dir={contentDirection} style={{ transform: 'translateY(20px)' }}>
-            <input type="radio" style={visuallyHidden as JSX.CSSProperties} />
+            <input type="radio" style={visuallyHidden} />
           </div>
         </div>
       ));

@@ -32,3 +32,13 @@ export async function render(ui: () => JSX.Element, options?: { container?: HTML
   await flushMicrotasks();
   return { user, ...result };
 }
+
+/** Port note: applies pending Solid updates after an imperative upstream test action. */
+export function act<T>(callback: () => T | Promise<T>): Promise<T> {
+  const result = callback();
+  flush();
+  return Promise.resolve(result).then(async (value) => {
+    await flushMicrotasks();
+    return value;
+  });
+}

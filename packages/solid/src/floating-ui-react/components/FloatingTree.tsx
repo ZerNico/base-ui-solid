@@ -1,4 +1,5 @@
 import { createContext, createMemo, untrack, useContext } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -38,24 +39,30 @@ export const useFloatingTree = (externalTree?: FloatingTreeStore): FloatingTreeT
  * Registers a node into the `FloatingTree`, returning its id.
  * @see https://floating-ui.com/docs/FloatingTree
  */
-export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | undefined {
+export function useFloatingNodeId(
+  externalTree?: FloatingTreeStore | Accessor<FloatingTreeStore | undefined>,
+): string | undefined {
   const id = useId();
-  const tree = useFloatingTree(externalTree);
+  // Port note: `externalTree` may be an accessor (e.g. a tree read from a popup store), in which
+  // case the node moves to the new tree when it changes, like upstream on re-render.
+  const contextTree = useFloatingTree();
+  const tree = () =>
+    (typeof externalTree === 'function' ? externalTree() : externalTree) ?? contextTree;
   const parentId = useFloatingParentNodeId();
 
   useIsoLayoutEffect(
-    () => {
+    ([treeValue]) => {
       if (!id) {
         return undefined;
       }
 
       const node = { id, parentId };
-      tree?.addNode(node);
+      treeValue?.addNode(node);
       return () => {
-        tree?.removeNode(node);
+        treeValue?.removeNode(node);
       };
     },
-    () => [tree, id, parentId],
+    () => [tree(), id, parentId],
   );
 
   return id;

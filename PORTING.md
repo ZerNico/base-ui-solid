@@ -292,6 +292,20 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ## Known issues
 
+### Porting pitfalls
+
+- `useIsoLayoutEffect` compares dependencies with `Object.is`; use incrementing counters for tick
+  signals, since repeated `undefined` values do not rerun the effect.
+- Solid rewrites an input's `value` on every spread update, which can move the caret. Write the DOM
+  value only when it differs (see `NumberFieldInput` and `OTPFieldInput`).
+- Expected-throw tests can emit a duplicate uncaught window error in Chromium. Suppress only the
+  expected error around the assertion (see `TabsTab.test.tsx`).
+- Solid runs parent effects before children; check popup setup that assumes React's child-first
+  layout effects.
+- Popup Root children are render functions only when `typeof children === 'function'` and
+  `children.length > 0`; zero-argument functions are JSX factories. Call
+  `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
+
 - **Solid dev performance warnings in the browser.** Ported "write state in a layout effect"
   patterns trigger `EFFECT_RELAY_TEAR` / `EFFECT_WRITES_OWN_SOURCE`, which cost an extra flush but
   don't change behavior:

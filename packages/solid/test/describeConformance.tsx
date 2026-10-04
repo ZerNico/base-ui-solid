@@ -10,6 +10,8 @@ export interface ConformanceOptions {
   refInstanceof: typeof Element;
   /** The default tag name. */
   defaultTagName?: string;
+  /** @internal Set by `describeConformance.skip`. */
+  skip?: boolean;
 }
 
 /**
@@ -27,7 +29,7 @@ export function describeConformance<P extends Record<string, any>>(
     return render(() => wrap(() => <Tested {...props} />));
   }
 
-  describe('Base UI component API', () => {
+  (options.skip ? describe.skip : describe)('Base UI component API', () => {
     it('forwards the ref', async () => {
       let element: Element | undefined;
       await renderTested({
@@ -109,3 +111,13 @@ export function describeConformance<P extends Record<string, any>>(
     });
   });
 }
+
+/**
+ * Counterpart of upstream's `describeConformance.skip`: registers the conformance tests as skipped.
+ */
+describeConformance.skip = function describeConformanceSkip<P extends Record<string, any>>(
+  TestedComponent: Component<P>,
+  options: ConformanceOptions,
+) {
+  describeConformance(TestedComponent, { ...options, skip: true });
+};

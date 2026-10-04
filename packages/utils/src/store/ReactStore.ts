@@ -231,10 +231,10 @@ export class ReactStore<
     key: Key,
     fn: Accessor<ContextFunction<Context, Key> | undefined>,
   ) {
-    const stableFunction = ((...args: any[]) => (untrack(fn) ?? NOOP)(...args)) as ContextFunction<
-      Context,
-      Key
-    >;
+    // Port note: a context command is imperative, including when invoked by a DOM ref.
+    // Its callback reads intentionally do not subscribe to the caller's reactive scope.
+    const stableFunction = ((...args: any[]) =>
+      untrack(() => (fn() ?? NOOP)(...args))) as ContextFunction<Context, Key>;
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }
 

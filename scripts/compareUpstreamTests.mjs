@@ -18,6 +18,21 @@ const MAP = [
   ['react/test', 'solid/test'],
 ];
 
+// These modules are being ported concurrently; compare them once their ports are complete.
+const IN_PROGRESS = new Set([
+  'combobox',
+  'menu',
+  'filter-dropdown',
+  'drawer',
+  'context-menu',
+  'menubar',
+  'autocomplete',
+]);
+
+function isReactAPIDetection(condition) {
+  return /^(?:!hasCaptureOwnerStack|(?:Safe)?React\.\w+\s*===?\s*undefined)$/.test(condition);
+}
+
 function norm(text) {
   return text
     .replace(/\s+/g, ' ')
@@ -93,7 +108,7 @@ function collect(file) {
     }
     // A condition that only detects the React version (e.g. `React.useId === undefined`) has no
     // Solid counterpart; the port runs the test unconditionally.
-    if (/^React\.\w+ === undefined$/.test(cond)) {
+    if (isReactAPIDetection(cond)) {
       return '';
     }
     return cond ? `skipIf(${cond})` : '';
@@ -107,6 +122,9 @@ function collect(file) {
         const fn = node.arguments[node.arguments.length - 1];
         const conds = [...inherited];
         let mod = info.mod;
+        if (/^skipIf\((.*)\)$/.test(mod) && isReactAPIDetection(mod.slice(7, -1))) {
+          mod = '';
+        }
         if (mod === 'skip') {
           // Allowed hard skips carry a reason marker in a leading comment or the body.
           const stmt = node.parent;
@@ -159,8 +177,21 @@ const rows = [];
 for (const [u, p] of MAP) {
   for (const upFile of walk(path.join(UP, u))) {
     const rel = path.relative(path.join(UP, u), upFile);
+    const module = rel.split(path.sep)[0];
+    if (p === 'solid/src' && IN_PROGRESS.has(module)) {
+      continue;
+    }
     const ptFile = path.join(PT, p, rel);
     if (!fs.existsSync(ptFile)) {
+      // Only source modules present in the port are required to have all upstream test files.
+      if (
+        p.endsWith('/src') &&
+        fs.existsSync(path.join(PT, p, module)) &&
+        fs.statSync(path.join(PT, p, module)).isDirectory()
+      ) {
+        rows.push([`${p}/${rel}`, '(test file)', 'present', 'MISSING']);
+        diffs += 1;
+      }
       continue;
     }
     const a = collect(upFile),
