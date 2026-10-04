@@ -1,10 +1,5 @@
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { fileURLToPath } from 'node:url';
-
-const run = promisify(execFile);
-// Port note: upstream's generation runs before builds; Vite also refreshes public
-// Markdown when its source changes so development links never serve stale pages.
+// Port note: the generated Markdown and llms.txt files are served by `src/server.ts` (see
+// `src/mdx/generatedFiles.ts`), so this plugin only rewrites docs URLs in package sources.
 export function markdownPlugin() {
   return {
     name: 'docs-markdown',
@@ -15,35 +10,6 @@ export function markdownPlugin() {
         return code.replaceAll('https://base-ui.com/react/', '/solid/');
       }
       return undefined;
-    },
-    configureServer(server) {
-      let pending = Promise.resolve();
-      let timer;
-      server.watcher.on('change', (file) => {
-        if (!file.includes('/src/') && !file.includes('/reference/')) {
-          return;
-        }
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          pending = pending
-            .then(() =>
-              run(process.execPath, [
-                fileURLToPath(new URL('../../scripts/generateLlmTxt/index.mjs', import.meta.url)),
-              ]),
-            )
-            .catch((error) => {
-              server.config.logger.error(error.stderr || error.message);
-            });
-        }, 100);
-      });
-      server.middlewares.use((request, _response, next) => {
-        if (/\.(md|txt)(?:\?|$)/.test(request.url ?? '')) {
-          void pending.then(() => next());
-        } else {
-          next();
-        }
-      });
-      server.httpServer?.on('close', () => clearTimeout(timer));
     },
   };
 }

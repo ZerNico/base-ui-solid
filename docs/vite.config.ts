@@ -9,6 +9,23 @@ import { requestPathsPlugin } from './src/mdx/requestPathsPlugin.mjs';
 import { searchIndexPlugin } from './src/mdx/searchIndexPlugin.mjs';
 import { sourcePlugin } from './src/mdx/sourcePlugin.mjs';
 import { mdxOptions } from './src/mdx/options.mjs';
+import { listMarkdownPages } from './scripts/generateLlmTxt/index.mjs';
+import { SITE_URL } from './src/config';
+
+// Port note: the generated Markdown and llms.txt files aren't linked from rendered HTML in a way
+// the prerenderer follows, so list them explicitly. They stay out of the sitemap.
+const generatedFiles = [
+  '/robots.txt',
+  '/llms.txt',
+  '/llms-full.txt',
+  '/index.md',
+  ...(await listMarkdownPages()).map((page) => page.mdUrlPath),
+].map((path) => ({ path, prerender: { enabled: true }, sitemap: { exclude: true } }));
+// Pages that are prerendered but don't belong in the sitemap (robots.txt disallows /playground/).
+const unlistedPages = ['/playground', '/production-error', '/solid/'].map((path) => ({
+  path,
+  sitemap: { exclude: true },
+}));
 
 export default defineConfig({
   // Port note: bind prerender previews to IPv4 to avoid localhost IPv6 connection timeouts.
@@ -40,7 +57,11 @@ export default defineConfig({
     sourcePlugin(),
     searchIndexPlugin(),
     { ...mdx(mdxOptions), enforce: 'pre' },
-    tanstackStart({ prerender: { enabled: true, crawlLinks: false, failOnError: true } }),
+    tanstackStart({
+      prerender: { enabled: true, crawlLinks: false, failOnError: true },
+      pages: [...generatedFiles, ...unlistedPages],
+      sitemap: { enabled: true, host: SITE_URL },
+    }),
     solid({ ssr: true, extensions: ['.mdx'], solid: { hydratable: true } }),
     tailwind(),
   ],

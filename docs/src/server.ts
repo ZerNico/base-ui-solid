@@ -1,6 +1,7 @@
 import { provideRequestEvent } from '@solidjs/web/storage';
 import { createStartHandler, defaultStreamHandler } from '@tanstack/solid-start-server';
 import { legacyPath } from './mdx/legacyPaths.mjs';
+import { getGeneratedFile } from './mdx/generatedFiles';
 
 // Port note: Solid Web rc.13 removed server-function helpers still imported by Start rc.8's
 // server barrel. This static docs site uses Start's real SSR handler directly, with the same
@@ -12,6 +13,12 @@ export default {
     const target = legacyPath(url.pathname);
     if (target) {
       return new Response(null, { status: 301, headers: { Location: target + url.search } });
+    }
+    if (request.method === 'GET' || request.method === 'HEAD') {
+      const generated = await getGeneratedFile(url.pathname);
+      if (generated) {
+        return generated;
+      }
     }
     const response = await provideRequestEvent({ request, locals: {} }, () => handle(request));
     if (response.status === 404) {
