@@ -53,12 +53,16 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   const { open, ref, preventUnmountOnClose } = parameters;
   const setPreventUnmountOnClose = (value: boolean) => parameters.setPreventUnmountOnClose(value);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
-    open,
-    false,
-    false,
-    parameters.animateInitialOpen,
-  );
+  const {
+    mounted: transitionMounted,
+    setMounted,
+    transitionStatus,
+  } = useTransitionStatus(open, false, false, parameters.animateInitialOpen);
+
+  // Port note: a batched completion callback can reopen after `setMounted(false)`. A pending
+  // writable-memo override can outlive that same-batch compute; preserve the open invariant
+  // here so the DOM never disposes the live popup and restores focus in between.
+  const mounted = createMemo(() => open() || transitionMounted());
 
   // Opening starts a new close cycle. Derive it so the close-completion hook below reads the
   // value on the same pass, and clear the stored value so it doesn't leak into the next close.
@@ -85,10 +89,16 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
   };
 
   useIsoLayoutEffect(
-    ([isMounted]) => {
+    ([isMounted, isOpen, isTransitionMounted]) => {
       mountedRef = isMounted;
+      if (isOpen && !isTransitionMounted) {
+        // Port note: rebase the pending writable-memo override for the next close cycle.
+        setMounted(true);
+      }
     },
-    () => [mounted()],
+    // Port note: reopening in the same batch can keep `mounted` true after `unmount`.
+    // Resync on open changes too, so the imperative mirror does not remain false.
+    () => [mounted(), open(), transitionMounted()],
   );
 
   const forceUnmount = () => {

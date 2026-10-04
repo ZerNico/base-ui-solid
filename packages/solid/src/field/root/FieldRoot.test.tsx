@@ -1,6 +1,5 @@
-import { expect, describe, it, afterEach, beforeEach } from 'vitest';
-import { Show, createSignal } from 'solid-js';
 import {
+  renderToString,
   fireEvent,
   flushMicrotasks,
   render,
@@ -9,6 +8,15 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+import { expect, describe, it, afterEach, beforeEach } from 'vitest';
+import { Show, createSignal } from 'solid-js';
+import { Select } from '../../select';
+import { Slider } from '../../slider';
+import {
+  SelectLabelFixture0,
+  SelectLabelFixture1,
+  SelectLabelFixture2,
+} from './FieldRoot.fixtures';
 import { Field } from '..';
 import { Form } from '../../form';
 import { NumberField } from '../../number-field';
@@ -187,14 +195,63 @@ describe('<Field.Root />', () => {
     });
   });
 
-  // TODO(port): needs <Select> (SSR setup is available via renderToString)
-  it.skip('does not set `aria-labelledby` during SSR when Field.Label is absent', () => {});
+  it.skipIf(isJSDOM)(
+    'does not set `aria-labelledby` during SSR when Field.Label is absent',
+    async () => {
+      await renderToString(SelectLabelFixture0);
 
-  // TODO(port): needs <Select> (SSR setup is available via renderToString)
-  it.skip('keeps `aria-labelledby` valid when toggling from Checkbox.Root to Select.Root after hydration', () => {});
+      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-labelledby');
+    },
+  );
 
-  // TODO(port): needs <Select> (SSR setup is available via renderToString)
-  it.skip('removes `aria-labelledby` when Field.Label is removed after hydration', () => {});
+  it.skipIf(isJSDOM)(
+    'keeps `aria-labelledby` valid when toggling from Checkbox.Root to Select.Root after hydration',
+    async () => {
+      const { hydrate } = await renderToString(SelectLabelFixture1);
+      const label = screen.getByTestId('label');
+      const checkbox = screen.getByTestId('checkbox');
+
+      expect(label.id).not.toBe('');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      await hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('aria-labelledby', label.id);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      const checkboxAfterToggle = screen.getByTestId('checkbox');
+      expect(checkboxAfterToggle).toHaveAttribute('aria-labelledby', label.id);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'removes `aria-labelledby` when Field.Label is removed after hydration',
+    async () => {
+      const { hydrate } = await renderToString(SelectLabelFixture2);
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.toHaveAttribute('aria-labelledby');
+
+      await hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Remove Label' }));
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('label')).toBe(null);
+      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-labelledby');
+    },
+  );
 
   // React-only: React.Activity (+ StrictMode)
   it.skip('preserves label association without looping when a control is unmounted and remounted', () => {});
@@ -692,8 +749,93 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
     });
 
-    // TODO(port): needs NumberField, Select, Slider
-    it.skip('receives all form values as the 2nd argument', () => {});
+    it('receives all form values as the 2nd argument', async () => {
+      const validateSpy = vi.fn();
+      const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
+
+      await render(() => (
+        <Form onSubmit={onSubmit}>
+          <Field.Root name="checkbox">
+            <Checkbox.Root defaultChecked />
+          </Field.Root>
+
+          <Field.Root name="checkbox-group">
+            <CheckboxGroup defaultValue={['apple', 'banana']}>
+              <Field.Item>
+                <Checkbox.Root value="apple" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="banana" />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>
+
+          <Field.Root name="input" validate={validateSpy}>
+            <Field.Control data-testid="input" type="url" defaultValue="https://base-ui.com" />
+          </Field.Root>
+
+          <Field.Root name="number-field">
+            <NumberField.Root defaultValue={13}>
+              <NumberField.Input />
+            </NumberField.Root>
+          </Field.Root>
+
+          <Field.Root name="radio-group">
+            <RadioGroup defaultValue="cats">
+              <Radio.Root value="cats" />
+            </RadioGroup>
+          </Field.Root>
+
+          <Field.Root name="select">
+            <Select.Root defaultValue="sans">
+              <Select.Trigger />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="sans" />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+
+          <Field.Root name="slider">
+            <Slider.Root defaultValue={12}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="range-slider">
+            <Slider.Root defaultValue={[25, 70]}>
+              <Slider.Control />
+            </Slider.Root>
+          </Field.Root>
+
+          <Field.Root name="switch">
+            <Switch.Root defaultChecked={false} />
+          </Field.Root>
+
+          <button type="submit">submit</button>
+        </Form>
+      ));
+
+      fireEvent.click(screen.getByText('submit'));
+      await flushMicrotasks();
+
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(validateSpy.mock.calls[0][1]).toEqual({
+        checkbox: true,
+        'checkbox-group': ['apple', 'banana'],
+        input: 'https://base-ui.com',
+        'number-field': 13,
+        'radio-group': 'cats',
+        select: 'sans',
+        slider: 12,
+        'range-slider': [25, 70],
+        switch: false,
+      });
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
 
     it('unmounted fields are excluded from the validate fn', async () => {
       const validateSpy = vi.fn();
@@ -736,8 +878,56 @@ describe('<Field.Root />', () => {
       expect(onSubmit).toHaveBeenCalledTimes(2);
     });
 
-    // TODO(port): needs Select and Slider
-    it.skip('submits the replacement control value when swapping field-aware controls', () => {});
+    it('submits the replacement control value when swapping field-aware controls', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [showSlider, setShowSlider] = createSignal(false);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="value">
+              {showSlider() ? (
+                <Slider.Root defaultValue={12}>
+                  <Slider.Control />
+                </Slider.Root>
+              ) : (
+                <Select.Root defaultValue="sans">
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="sans" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              )}
+            </Field.Root>
+            <button type="button" onClick={() => setShowSlider(true)}>
+              Toggle
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(() => <App />);
+
+      fireEvent.click(screen.getByText('submit'));
+      await flushMicrotasks();
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ value: 'sans' });
+
+      fireEvent.click(screen.getByText('Toggle'));
+      await flushMicrotasks();
+      fireEvent.click(screen.getByText('submit'));
+      await flushMicrotasks();
+
+      expect(handleSubmit).toHaveBeenCalledTimes(2);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ value: 12 });
+    });
 
     it('excludes registration-gated controls from onFormSubmit when their field name is removed', async () => {
       const handleSubmit = vi.fn();
@@ -2168,8 +2358,50 @@ describe('<Field.Root />', () => {
         });
       });
 
-      // TODO(port): needs Select
-      it.skip('should clear [data-dirty] when a Select returns to its null initial value', () => {});
+      it('should clear [data-dirty] when a Select returns to its null initial value', async () => {
+        function App() {
+          const [value, setValue] = createSignal<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Select.Root value={value()} onValueChange={setValue}>
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="a" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                set
+              </button>
+              <button type="button" onClick={() => setValue(null)}>
+                clear
+              </button>
+            </div>
+          );
+        }
+
+        await render(() => <App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('set'));
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('clear'));
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
 
       it('keeps [data-dirty] on a RadioGroup when returning to the first picked value', async () => {
         function App() {

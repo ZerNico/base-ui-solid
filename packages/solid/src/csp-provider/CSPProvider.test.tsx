@@ -1,6 +1,8 @@
+import { describe, it, expect } from 'vitest';
+import { render } from '#test-utils';
+import { Select } from '../select';
 import { ScrollArea } from '../scroll-area';
 import { CSPProvider } from '.';
-import { render } from '#test-utils';
 
 function queryDisableScrollbarStyle() {
   const styles = Array.from(document.querySelectorAll('style'));
@@ -22,10 +24,25 @@ describe('<CSPProvider />', () => {
     expect(queryDisableScrollbarStyle()).toBeNull();
   });
 
-  // TODO(port): needs Select
-  it.skip('does not render Select inline style tags when disableStyleElements is true', async () => {
-    // Upstream renders `<Select.Root defaultOpen>` with a popup inside `<CSPProvider
-    // disableStyleElements>` and asserts that no disable-scrollbar style element is rendered.
+  it('does not render Select inline style tags when disableStyleElements is true', async () => {
+    await render(() => (
+      <CSPProvider disableStyleElements>
+        <Select.Root defaultOpen>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </CSPProvider>
+    ));
+
+    expect(queryDisableScrollbarStyle()).toBeNull();
   });
 
   it('applies nonce to inline style tags', async () => {
