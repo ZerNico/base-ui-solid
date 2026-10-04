@@ -29,3 +29,26 @@ export function SSRFixture3() {
     </Combobox.Root>
   );
 }
+
+export function InputOutsidePopupFixture() {
+  return (
+    <Combobox.Root items={['a', 'b']}>
+      <Combobox.InputGroup>
+        <Combobox.Input />
+        <div>
+          <Combobox.Clear />
+          <Combobox.Trigger data-testid="trigger" />
+        </div>
+      </Combobox.InputGroup>
+      <Combobox.Portal>
+        <Combobox.Positioner>
+          <Combobox.Popup>
+            <Combobox.List>
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}

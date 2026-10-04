@@ -1,4 +1,13 @@
-import { createMemo, createRenderEffect, createSignal, flush, omit, Show, untrack } from 'solid-js';
+import {
+  createMemo,
+  createRenderEffect,
+  createSignal,
+  flush,
+  isHydrating,
+  omit,
+  Show,
+  untrack,
+} from 'solid-js';
 import { isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -119,6 +128,19 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
 
     if (nextIsInsidePopup && !store.state.hasInputValue) {
       store.context.setInputValue('', createChangeEventDetails(REASONS.none));
+    }
+
+    // Port note: React attaches refs after hydration, so its state update re-renders the
+    // server markup. Solid runs refs while hydrating, where attribute writes are skipped: a
+    // change here would leave the server-rendered trigger attributes in place. Defer it instead.
+    if (element && nextIsInsidePopup !== store.state.inputInsidePopup && isHydrating()) {
+      store.update({ inputElement: element, inputOwnsFormValue: untrack(inputOwnsFormValue) });
+      queueMicrotask(() => {
+        if (inputElement === element) {
+          store.set('inputInsidePopup', nextIsInsidePopup);
+        }
+      });
+      return;
     }
 
     store.update({

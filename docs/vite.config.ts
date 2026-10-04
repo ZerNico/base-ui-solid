@@ -26,6 +26,11 @@ export default defineConfig({
       '@orama/orama',
       '@orama/plugin-qps',
       '@orama/stemmers/english',
+      // Imported by demos only, so the dependency scan can't find them before a page needs them.
+      // Optimizing them on demand reloads the page mid-hydration, leaving it non-interactive.
+      '@tanstack/virtual-core',
+      'match-sorter',
+      'zod',
     ],
   },
   ssr: { noExternal: ['solid-js', '@solidjs/web', 'base-ui-solid', '@base-ui-solid/utils'] },

@@ -370,7 +370,9 @@ export function useFieldValidation(
     return mergeProps<any>(
       getDescriptionProps(externalProps),
       state.valid === false && !state.disabled && !disabled
-        ? { 'aria-invalid': true }
+        ? // Port note: a string, since Solid renders a boolean `true` as an empty attribute
+          // when these props are spread on plain JSX elements (e.g. hidden inputs).
+          { 'aria-invalid': 'true' }
         : EMPTY_OBJECT,
     );
   };
