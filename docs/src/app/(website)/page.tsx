@@ -14,7 +14,7 @@ export default function Homepage() {
         innerHTML={JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebSite',
-          name: 'Base UI for Solid',
+          name: 'Base UI Solid',
           url: SITE_URL,
         })}
       />
@@ -35,7 +35,7 @@ export default function Homepage() {
       <section class="bui-d-c">
         <div class="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p class="Text sz-2">
-            base-ui-solid is an unofficial port of{' '}
+            Base UI Solid is an unofficial port of{' '}
             <Link href="https://base-ui.com">Base&nbsp;UI</Link> to Solid&nbsp;2.0: unstyled,
             accessible UI components for building design systems and web applications.
           </p>
@@ -73,7 +73,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  What is Base UI?
+                  What is Base UI Solid?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -85,9 +85,10 @@ export default function Homepage() {
                 itemtype="https://schema.org/Answer"
               >
                 <p class="Text sz-2" itemprop="text">
-                  Base UI is a library of unstyled UI components for building accessible component
-                  libraries, user interfaces, web applications, and websites with Solid 2.0. Base UI
-                  components are highly configurable, composable, and customizable.
+                  Base UI Solid is a library of unstyled UI components for building accessible
+                  component libraries, user interfaces, web applications, and websites with Solid
+                  2.0. Base UI Solid components are highly configurable, composable, and
+                  customizable.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
@@ -99,7 +100,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  Does Base UI work with any styling library?
+                  Does Base UI Solid work with any styling library?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -111,10 +112,11 @@ export default function Homepage() {
                 itemtype="https://schema.org/Answer"
               >
                 <p class="Text sz-2" itemprop="text">
-                  Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any other
-                  styling library you prefer. It also works with JavaScript animation libraries like
-                  Motion, or just plain CSS transitions. Base UI is an unstyled component library.
-                  The package does not bundle any CSS, and does not prescribe any styling solution.
+                  Yes. Base UI Solid works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any
+                  other styling library you prefer. It also works with JavaScript animation
+                  libraries like Motion, or just plain CSS transitions. Base UI Solid is an unstyled
+                  component library. The package does not bundle any CSS, and does not prescribe any
+                  styling solution.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
@@ -126,7 +128,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  Which accessibility standards does Base UI follow?
+                  Which accessibility standards does Base UI Solid follow?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -138,18 +140,16 @@ export default function Homepage() {
                 itemtype="https://schema.org/Answer"
               >
                 <p class="Text sz-2" itemprop="text">
-                  When designing and speccing components, Base UI follows{' '}
+                  Base UI Solid ports Base UI's accessibility behavior. Base UI follows the{' '}
                   <Link href="https://www.w3.org/WAI/ARIA/apg/patterns/">
                     ARIA Authoring Practices Guide patterns
-                  </Link>
-                  , and comply with the{' '}
+                  </Link>{' '}
+                  and complies with the{' '}
                   <Link href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
                     WCAG 2.2 standard
-                  </Link>
-                  . Base UI is compliant with all Success Criteria levels relating to component
-                  behavior, and in most cases goes way beyond these guides. Base UI components are
-                  tested across a wide range of browsers, devices, platforms, and environments, and
-                  are designed to be accessible.
+                  </Link>{' '}
+                  for component behavior. The port runs Base UI's test suite, including its
+                  accessibility tests.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
@@ -161,7 +161,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  How does Base UI differ from Radix UI?
+                  How does Base UI Solid differ from Radix UI?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -174,12 +174,12 @@ export default function Homepage() {
               >
                 <div class="bui-d-f bui-fd-c bui-g-4" itemprop="text">
                   <p class="Text sz-2">
-                    In terms of API design, both libraries are very similar. Base UI intentionally
-                    kept its APIs close to Radix UI for an easier migration path. Base UI provides
-                    more complex components such as Combobox and Autocomplete. Base UI also provides
-                    deeper feature support such as input scrubbing, nested dialogs, and triggering
-                    menus on hover. Base UI is more robust and more polished in terms of a11y and
-                    edge case handling.
+                    In terms of API design, both libraries are very similar. Base UI Solid keeps
+                    Base UI's APIs, which are intentionally close to Radix UI for an easier
+                    migration path. Base UI Solid provides more complex components such as Combobox
+                    and Autocomplete. Base UI Solid also provides deeper feature support such as
+                    input scrubbing, nested dialogs, and triggering menus on hover. Base UI Solid is
+                    more robust and more polished in terms of a11y and edge case handling.
                   </p>
                 </div>
               </Accordion.Panel>
@@ -192,7 +192,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  How does base-ui-solid relate to Base UI?
+                  How does Base UI Solid relate to Base UI?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -204,8 +204,8 @@ export default function Homepage() {
                 itemtype="https://schema.org/Answer"
               >
                 <p class="Text sz-2" itemprop="text">
-                  base-ui-solid ports a specific upstream Base UI release to Solid 2.0 and follows
-                  its changes. Base UI itself targets React; this package uses native Solid
+                  Base UI Solid ports a specific upstream Base UI release to Solid 2.0 and follows
+                  its changes. Base UI itself targets React; Base UI Solid uses native Solid
                   components, adapting the API where React and Solid differ.
                 </p>
               </Accordion.Panel>
@@ -218,7 +218,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  Is base-ui-solid free for commercial use?
+                  Is Base UI Solid free for commercial use?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>
@@ -230,7 +230,7 @@ export default function Homepage() {
                 itemtype="https://schema.org/Answer"
               >
                 <p class="Text sz-2" itemprop="text">
-                  Yes. base-ui-solid, like Base UI, is licensed under the MIT license, and is free
+                  Yes. Base UI Solid, like Base UI, is licensed under the MIT license, and is free
                   for commercial use. You are free to use it in your commercial projects, and to
                   modify it to suit your needs.
                 </p>
@@ -244,7 +244,7 @@ export default function Homepage() {
             >
               <Accordion.Header class="AccordionWebsiteHeader">
                 <Accordion.Trigger class="AccordionWebsiteTrigger Text sz-2" itemprop="name">
-                  Is base-ui-solid an official Base UI project?
+                  Is Base UI Solid an official Base UI project?
                   <PlusIcon class="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon class="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
                 </Accordion.Trigger>

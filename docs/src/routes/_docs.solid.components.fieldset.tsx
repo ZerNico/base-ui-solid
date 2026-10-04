@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_docs/solid/components/fieldset')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Fieldset · Base UI · Solid' },
+      { title: 'Fieldset · Base UI Solid' },
       {
         name: 'description',
         content:

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_docs/solid/components/combobox')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Combobox · Base UI · Solid' },
+      { title: 'Combobox · Base UI Solid' },
       {
         name: 'description',
         content:

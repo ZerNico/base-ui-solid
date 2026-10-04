@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_docs/solid/components/alert-dialog')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Alert Dialog · Base UI · Solid' },
+      { title: 'Alert Dialog · Base UI Solid' },
       {
         name: 'description',
         content:

@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_docs/solid/components/checkbox-group')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Checkbox Group · Base UI · Solid' },
+      { title: 'Checkbox Group · Base UI Solid' },
       {
         name: 'description',
         content:

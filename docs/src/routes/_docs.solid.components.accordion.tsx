@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_docs/solid/components/accordion')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Accordion · Base UI · Solid' },
+      { title: 'Accordion · Base UI Solid' },
       {
         name: 'description',
         content:

@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/select')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Select · Base UI · Solid' },
+      { title: 'Select · Base UI Solid' },
       {
         name: 'description',
         content:

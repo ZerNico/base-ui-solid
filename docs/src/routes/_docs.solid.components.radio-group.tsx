@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/radio-group')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Radio Group · Base UI · Solid' },
+      { title: 'Radio Group · Base UI Solid' },
       {
         name: 'description',
         content:

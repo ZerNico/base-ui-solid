@@ -234,14 +234,14 @@ export const pages = [
     section: 'Releases',
     title: 'Releases',
     href: '/solid/overview/releases',
-    description: 'Release notes for base-ui-solid, the Solid port of Base\u00a0UI.',
+    description: 'Release notes for Base UI Solid, the Solid port of Base\u00a0UI.',
   },
   {
     section: 'Overview',
-    title: 'About Base\u00a0UI',
+    title: 'About Base\u00a0UI Solid',
     href: '/solid/overview/about',
     description:
-      'An overview of base-ui-solid, the unofficial Solid port of Base\u00a0UI, and how it relates to upstream.',
+      'An overview of Base UI Solid, the unofficial Solid port of Base\u00a0UI, and how it relates to upstream.',
   },
   {
     section: 'Overview',
@@ -254,7 +254,7 @@ export const pages = [
     title: 'Community',
     href: '/solid/overview/community',
     description:
-      'Learn where to get help with base-ui-solid, how to contribute, and how to stay up to date.',
+      'Learn where to get help with Base UI Solid, how to contribute, and how to stay up to date.',
   },
   {
     section: 'Overview',

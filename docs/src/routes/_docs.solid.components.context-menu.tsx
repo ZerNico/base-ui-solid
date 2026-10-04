@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/context-menu')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Context Menu · Base UI · Solid' },
+      { title: 'Context Menu · Base UI Solid' },
       {
         name: 'description',
         content:

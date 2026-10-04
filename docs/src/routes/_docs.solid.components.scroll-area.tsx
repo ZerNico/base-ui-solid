@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/scroll-area')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Scroll Area · Base UI · Solid' },
+      { title: 'Scroll Area · Base UI Solid' },
       {
         name: 'description',
         content:

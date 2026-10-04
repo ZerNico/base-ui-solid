@@ -226,7 +226,7 @@ async function generateLlmsTxt() {
 
     // Build shared preamble for both files
     const preamble = [
-      '# Base UI for Solid',
+      '# Base UI Solid',
       '',
       'This is the documentation for the `base-ui-solid` package.',
       'It contains a collection of components and utilities for building user interfaces in Solid 2.0 RC.',

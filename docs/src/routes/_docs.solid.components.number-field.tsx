@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/number-field')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Number Field · Base UI · Solid' },
+      { title: 'Number Field · Base UI Solid' },
       {
         name: 'description',
         content:

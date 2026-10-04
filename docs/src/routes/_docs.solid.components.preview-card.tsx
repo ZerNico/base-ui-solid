@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/preview-card')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Preview Card · Base UI · Solid' },
+      { title: 'Preview Card · Base UI Solid' },
       {
         name: 'description',
         content:

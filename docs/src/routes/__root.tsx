@@ -16,7 +16,7 @@ export const Route = createRootRoute({
       { rel: 'icon', href: '/static/favicon.svg', type: 'image/svg+xml' },
     ],
     meta: [
-      { title: 'Base UI · Solid' },
+      { title: 'Base UI Solid' },
       { property: 'og:url', content: new URL(matches.at(-1)?.pathname ?? '/', SITE_URL).href },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     ],

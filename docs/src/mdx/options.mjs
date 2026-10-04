@@ -25,7 +25,7 @@ export const mdxOptions = {
   remarkPlugins: [
     remarkHeadingTags,
     remarkGfm,
-    [transformMarkdownMetadata, { titleSuffix: ' · Base UI · Solid' }],
+    [transformMarkdownMetadata, { titleSuffix: ' · Base UI Solid' }],
     remarkTypography,
     remarkQuickNavExcludeHeading,
     transformMarkdownRelativePaths,

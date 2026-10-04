@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_docs/solid/components/toolbar')({
   // Port note: keep head metadata independent of MDX so Start can split the page component.
   head: () => ({
     meta: [
-      { title: 'Toolbar · Base UI · Solid' },
+      { title: 'Toolbar · Base UI Solid' },
       {
         name: 'description',
         content:
