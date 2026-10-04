@@ -2,11 +2,12 @@
 // - React-specific rule sets (`react/*`, `react-hooks/*`, `react-compiler/*`) that
 //   `createBaseConfig()` enables are turned off for our files and replaced by
 //   `eslint-plugin-solid` (see "Solid instead of React" below).
-// - The docs / Next.js blocks are dropped until the docs site is ported (see TODO below).
+// - The docs block uses Solid Start in place of Next.js.
 // - The playground block targets our Vite playground (`playground/`), not `playground/vite-app`.
 import {
   baseSpecRules,
   createBaseConfig,
+  createDocsConfig,
   createTestConfig,
   EXTENSION_TEST_FILE,
   EXTENSION_TS,
@@ -111,7 +112,14 @@ const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
 ];
 
 export default defineConfig(
-  globalIgnores(['./examples', './playground/dist']),
+  globalIgnores([
+    './examples',
+    './playground/dist',
+    './docs/dist',
+    './docs/export',
+    './docs/.tanstack',
+    './docs/src/routeTree.gen.ts',
+  ]),
   baseConfig,
   // eslint-plugin-mdx loads `.remarkrc.mjs` itself, but ESLint doesn't know
   // that file is a config dependency, so `--cache` doesn't invalidate when
@@ -269,9 +277,30 @@ export default defineConfig(
     },
   },
   baseSpecRules,
-  // TODO(port): add upstream's docs blocks ("MUI ESLint config for docs" via `createDocsConfig()`,
-  // experiments/demos overrides, `NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES`) once the docs
-  // site is ported.
+  {
+    name: 'MUI ESLint config for docs (Solid Start)',
+    files: [`docs/**/*${EXTENSION_TS}`],
+    extends: createDocsConfig(),
+    rules: {
+      ...reactRulesOff,
+      // Port note: Solid Start has no Next.js link, document, or image conventions.
+      '@next/next/no-html-link-for-pages': 'off',
+      '@next/next/no-img-element': 'off',
+      '@next/next/no-head-element': 'off',
+      // Port note: upstream code blocks are keyboard-scrollable pre elements.
+      'jsx-a11y/no-noninteractive-tabindex': 'off',
+      'mui/disallow-react-api-in-server-components': 'off',
+      '@typescript-eslint/no-use-before-define': 'off',
+      'import/extensions': [
+        'error',
+        'ignorePackages',
+        { ts: 'never', tsx: 'never', mjs: 'always' },
+      ],
+    },
+    settings: {
+      'import/resolver': { typescript: { project: ['docs/tsconfig.json', 'tsconfig.json'] } },
+    },
+  },
   {
     files: [`test/**/*${EXTENSION_TS}`],
     rules: {

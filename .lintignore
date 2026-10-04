@@ -3,6 +3,10 @@
 /docs/.output
 /docs/.vinxi
 /docs/dist
+/docs/export
+/docs/.tanstack
+/docs/.cache
+/docs/src/routeTree.gen.ts
 /packages/solid/**/*.min.*
 build
 build-tests
