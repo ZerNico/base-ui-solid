@@ -13,6 +13,9 @@ import { toPortPath } from './portPaths.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const UP = path.resolve(process.argv[2] ?? path.join(ROOT, '../base-ui'), 'packages');
 const PT = path.join(ROOT, 'packages');
+// Tests of React-only utilities that have no Solid counterpart.
+const REACT_ONLY_TEST_FILES = new Set(['utils/src/getReactElementRef.test.tsx']);
+
 const MAP = [
   ['react/src', 'solid/src'],
   ['utils/src', 'utils/src'],
@@ -133,10 +136,9 @@ function collect(file) {
           conds.push(bs);
         }
         // Test names mention renamed modules, see `portPaths.mjs`.
-        const full = (prefix ? `${prefix} > ${name}` : name).replace(
-          /\bReactStore\b/g,
-          'SolidStore',
-        );
+        const full = (prefix ? `${prefix} > ${name}` : name)
+          .replace(/\bReactStore\b/g, 'SolidStore')
+          .replace('@base-ui/react', 'base-ui-solid');
         if (info.base === 'describe') {
           if (fn) {
             ts.forEachChild(fn, (c) => visit(c, full, conds));
@@ -174,11 +176,14 @@ for (const [u, p] of MAP) {
     const module = rel.split(path.sep)[0];
     const ptFile = path.join(PT, p, rel);
     if (!fs.existsSync(ptFile)) {
-      // Only source modules present in the port are required to have all upstream test files.
+      // Every upstream test file needs a counterpart, except for React-only utilities.
       if (
         p.endsWith('/src') &&
-        fs.existsSync(path.join(PT, p, module)) &&
-        fs.statSync(path.join(PT, p, module)).isDirectory()
+        !REACT_ONLY_TEST_FILES.has(`${p}/${rel}`) &&
+        (p === 'utils/src' ||
+          (fs.existsSync(path.join(PT, p, module)) &&
+            fs.statSync(path.join(PT, p, module)).isDirectory()) ||
+          !rel.includes(path.sep))
       ) {
         rows.push([`${p}/${rel}`, '(test file)', 'present', 'MISSING']);
         diffs += 1;

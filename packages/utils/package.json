@@ -7,7 +7,9 @@
   "exports": {
     "./platform": "./src/platform/index.ts",
     "./store": "./src/store/index.ts",
-    "./*": "./src/*.ts"
+    "./*": "./src/*.ts",
+    "./*.test": null,
+    "./*.spec": null
   },
   "peerDependencies": {
     "@solidjs/web": "2.0.0-rc.13",
