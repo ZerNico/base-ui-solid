@@ -1,0 +1,146 @@
+{
+  "Root": {
+    "description": "Displays a user's profile picture, initials, or fallback icon.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type AvatarRootState = {\n  /** The image loading status. */\n  imageLoadingStatus: ImageLoadingStatus;\n};"
+      }
+    ]
+  },
+  "Image": {
+    "description": "The image to be displayed in the avatar.\nRenders an `<img>` element.",
+    "props": [
+      {
+        "name": "onLoadingStatusChange",
+        "type": "((status: ImageLoadingStatus) => void)",
+        "default": "-",
+        "description": "Callback fired when the loading status changes."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the image element stays mounted and loads in place instead of being preloaded.\nSupports `loading=\"lazy\"` and optimized image components such as `next/image`."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-error",
+        "type": "-",
+        "description": "Present when the image failed to load."
+      },
+      {
+        "name": "data-loading",
+        "type": "-",
+        "description": "Present while the image is loading."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the image begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the image is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Image.State",
+        "source": "type AvatarImageState = {\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** The image loading status. */\n  imageLoadingStatus: ImageLoadingStatus;\n};"
+      }
+    ]
+  },
+  "Fallback": {
+    "description": "Rendered when the image fails to load or when no image is provided.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "delay",
+        "type": "number",
+        "default": "`0`",
+        "description": "How long to wait before showing the fallback. Specified in milliseconds."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Fallback.State",
+        "source": "type AvatarFallbackState = {\n  /** The image loading status. */\n  imageLoadingStatus: ImageLoadingStatus;\n};"
+      }
+    ]
+  },
+  "Additional": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "ImageLoadingStatus",
+        "source": "type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';\n"
+      }
+    ]
+  }
+}

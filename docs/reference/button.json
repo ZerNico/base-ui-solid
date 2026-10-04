@@ -1,0 +1,51 @@
+{
+  "Button": {
+    "description": "A button component that can be used to trigger actions.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "focusableWhenDisabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the button should be focusable when disabled."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the button is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Button.State",
+        "source": "type ButtonState = {\n  /** Whether the button should ignore user interaction. */\n  disabled: boolean;\n};"
+      }
+    ]
+  }
+}

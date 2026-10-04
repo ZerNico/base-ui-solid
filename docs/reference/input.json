@@ -1,0 +1,95 @@
+{
+  "Input": {
+    "description": "A native input element that automatically works with [Field](https://base-ui.com/react/components/field).\nRenders an `<input>` element.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "string | number | string[]",
+        "default": "-",
+        "description": "The default value of the input. Use when uncontrolled."
+      },
+      {
+        "name": "value",
+        "type": "string | string[] | number",
+        "default": "-",
+        "description": "The value of the input. Use when controlled."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: string, eventDetails: Input.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when the `value` changes. Use when controlled."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the input is disabled."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the input is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the input is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the input's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the input has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the input is filled (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the input is focused (when wrapped in Field.Root)."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Input.State",
+        "source": "type InputState = {\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "Input.ChangeEventReason",
+        "source": "type InputChangeEventReason = 'none';"
+      },
+      {
+        "name": "Input.ChangeEventDetails",
+        "source": "type InputChangeEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  }
+}

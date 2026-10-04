@@ -1,0 +1,844 @@
+{
+  "Root": {
+    "description": "Groups all parts of the drawer.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the drawer is initially open. To render a controlled drawer, use the `open` prop instead."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the drawer is currently open."
+      },
+      {
+        "name": "onOpenChange",
+        "type": "((open: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the drawer is opened or closed."
+      },
+      {
+        "name": "snapPoints",
+        "type": "DrawerSnapPoint[]",
+        "default": "-",
+        "description": "Snap points used to position the drawer.\nUse numbers between 0 and 1 to represent fractions of the viewport height,\nnumbers greater than 1 as pixel values, or strings in `px`/`rem` units\n(for example, `'148px'` or `'30rem'`)."
+      },
+      {
+        "name": "defaultSnapPoint",
+        "type": "DrawerSnapPoint | null",
+        "default": "-",
+        "description": "The initial snap point value when uncontrolled."
+      },
+      {
+        "name": "snapPoint",
+        "type": "DrawerSnapPoint | null",
+        "default": "-",
+        "description": "The currently active snap point. Use with `onSnapPointChange` to control the snap point."
+      },
+      {
+        "name": "onSnapPointChange",
+        "type": "((snapPoint: DrawerSnapPoint | null, eventDetails: Drawer.Root.SnapPointChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Callback fired when the snap point changes."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<Drawer.Root.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the drawer after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the drawer completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the drawer imperatively when called."
+      },
+      {
+        "name": "defaultTriggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the drawer is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open drawer."
+      },
+      {
+        "name": "disablePointerDismissal",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to prevent the drawer from closing on outside presses.\nFor non-modal drawers, this also prevents the drawer from closing when focus moves outside of it."
+      },
+      {
+        "name": "handle",
+        "type": "Drawer.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the drawer with a trigger.\nIf specified, allows detached triggers to control the drawer's open state.\nCan be created with the Drawer.createHandle() method."
+      },
+      {
+        "name": "modal",
+        "type": "boolean | 'trap-focus'",
+        "default": "`true`",
+        "description": "Determines if the drawer enters a modal state when open. `true`: user interaction is limited to just the drawer: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled."
+      },
+      {
+        "name": "onOpenChangeComplete",
+        "type": "((open: boolean) => void)",
+        "default": "-",
+        "description": "Event handler called after any animations complete when the drawer is opened or closed."
+      },
+      {
+        "name": "snapToSequentialPoints",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Disables velocity-based snap skipping so drag distance determines the next snap point."
+      },
+      {
+        "name": "swipeDirection",
+        "type": "DrawerSwipeDirection",
+        "default": "`'down'`",
+        "description": "The swipe direction used to dismiss the drawer."
+      },
+      {
+        "name": "triggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the drawer is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled drawer.\nThere's no need to specify this prop when the drawer is uncontrolled (that is, when the `open` prop is not set)."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element | PayloadChildRenderFunction<Payload>",
+        "default": "-",
+        "description": "The content of the drawer."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type DrawerRootState = {};"
+      },
+      {
+        "name": "Root.Actions",
+        "source": "type DrawerRootActions = { unmount: () => void; close: () => void };"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type DrawerRootChangeEventReason =\n  | 'trigger-press'\n  | 'outside-press'\n  | 'escape-key'\n  | 'close-watcher'\n  | 'close-press'\n  | 'focus-out'\n  | 'imperative-action'\n  | 'swipe'\n  | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type DrawerRootChangeEventDetails = (\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n  | { reason: 'close-watcher'; event: Event }\n  | { reason: 'swipe'; event: TouchEvent | PointerEvent }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      },
+      {
+        "name": "Root.SnapPoint",
+        "source": "type DrawerRootSnapPoint = number | string;"
+      },
+      {
+        "name": "Root.SnapPointChangeEventDetails",
+        "source": "type DrawerRootSnapPointChangeEventDetails = (\n  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n  | { reason: 'close-watcher'; event: Event }\n  | { reason: 'swipe'; event: TouchEvent | PointerEvent }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      },
+      {
+        "name": "Root.SnapPointChangeEventReason",
+        "source": "type DrawerRootSnapPointChangeEventReason =\n  | 'trigger-press'\n  | 'outside-press'\n  | 'escape-key'\n  | 'close-watcher'\n  | 'close-press'\n  | 'focus-out'\n  | 'imperative-action'\n  | 'swipe'\n  | 'none';"
+      }
+    ]
+  },
+  "Provider": {
+    "description": "Provides a shared context for coordinating global Drawer UI, such as indent/background effects based on whether any Drawer is open.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Provider.State",
+        "source": "type DrawerProviderState = {};"
+      }
+    ]
+  },
+  "Trigger": {
+    "description": "A button that opens the drawer.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "handle",
+        "type": "Drawer.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the trigger with a drawer.\nCan be created with the Drawer.createHandle() method."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "payload",
+        "type": "Payload",
+        "default": "-",
+        "description": "A payload to pass to the drawer when it is opened."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "default": "-",
+        "description": "ID of the trigger. In addition to being forwarded to the rendered element,\nit is also used to specify the active trigger for drawers in controlled mode (with the Drawer.Root `triggerId` prop)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-popup-open",
+        "type": "-",
+        "description": "Present when the corresponding dialog is open."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the trigger is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Trigger.State",
+        "source": "type DrawerTriggerState = {\n  /** Whether the trigger is currently disabled. */\n  disabled: boolean;\n  /** Whether the drawer is currently open and was opened by this trigger. */\n  open: boolean;\n};"
+      }
+    ]
+  },
+  "Portal": {
+    "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "container",
+        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "default": "-",
+        "description": "A parent element to render the portal element into."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type DrawerPortalState = {};"
+      }
+    ]
+  },
+  "Backdrop": {
+    "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "forceRender",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the backdrop is forced to render even when nested."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the drawer is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the drawer is closed."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the drawer begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the drawer is animating out."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--drawer-swipe-progress",
+        "type": "number",
+        "description": "The swipe progress of the drawer gesture."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Backdrop.State",
+        "source": "type DrawerBackdropState = {\n  /** Whether the drawer is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "Popup": {
+    "description": "A container for the drawer contents.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "initialFocus",
+        "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
+        "default": "-",
+        "description": "Determines the element to focus when the drawer is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+      },
+      {
+        "name": "finalFocus",
+        "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "default": "-",
+        "description": "Determines the element to focus when the drawer is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the drawer is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the drawer is closed."
+      },
+      {
+        "name": "data-expanded",
+        "type": "-",
+        "description": "Present when the drawer is at the expanded (full-height) snap point."
+      },
+      {
+        "name": "data-nested-drawer-open",
+        "type": "-",
+        "description": "Present when a nested drawer is open."
+      },
+      {
+        "name": "data-nested-drawer-swiping",
+        "type": "-",
+        "description": "Present when a nested drawer is being swiped."
+      },
+      {
+        "name": "data-swipe-direction",
+        "type": "'up' | 'down' | 'left' | 'right'",
+        "description": "Indicates the swipe direction."
+      },
+      {
+        "name": "data-swipe-dismiss",
+        "type": "-",
+        "description": "Present when the drawer is dismissed by swiping."
+      },
+      {
+        "name": "data-swiping",
+        "type": "-",
+        "description": "Present when the drawer is being swiped."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the drawer begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the drawer is animating out."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--drawer-frontmost-height",
+        "type": "CSS",
+        "description": "The height of the frontmost open drawer in the current nested drawer stack."
+      },
+      {
+        "name": "--drawer-height",
+        "type": "CSS",
+        "description": "The height of the drawer popup."
+      },
+      {
+        "name": "--drawer-snap-point-offset",
+        "type": "CSS",
+        "description": "The snap point offset used for translating the drawer."
+      },
+      {
+        "name": "--drawer-swipe-movement-x",
+        "type": "CSS",
+        "description": "The swipe movement on the X axis."
+      },
+      {
+        "name": "--drawer-swipe-movement-y",
+        "type": "CSS",
+        "description": "The swipe movement on the Y axis."
+      },
+      {
+        "name": "--drawer-swipe-strength",
+        "type": "number",
+        "description": "A scalar (0.1-1) used to scale the swipe release transition duration in CSS."
+      },
+      {
+        "name": "--nested-drawers",
+        "type": "number",
+        "description": "The number of nested drawers that are currently open."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Popup.State",
+        "source": "type DrawerPopupState = {\n  /** Whether the drawer is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the active snap point is the full-height expanded state. */\n  expanded: boolean;\n  /** Whether the drawer is nested within a parent drawer. */\n  nested: boolean;\n  /** Whether the drawer has nested drawers open. */\n  nestedDrawerOpen: boolean;\n  /** Whether a nested drawer is currently being swiped. */\n  nestedDrawerSwiping: boolean;\n  /** The swipe direction used to dismiss the drawer. */\n  swipeDirection: DrawerSwipeDirection;\n  /** Whether the drawer is being swiped. */\n  swiping: boolean;\n};"
+      }
+    ]
+  },
+  "Content": {
+    "description": "A container for the drawer contents.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Content.State",
+        "source": "type DrawerContentState = {};"
+      }
+    ]
+  },
+  "Title": {
+    "description": "A heading that labels the drawer.\nRenders an `<h2>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Title.State",
+        "source": "type DrawerTitleState = {};"
+      }
+    ]
+  },
+  "Description": {
+    "description": "A paragraph with additional information about the drawer.\nRenders a `<p>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Description.State",
+        "source": "type DrawerDescriptionState = {};"
+      }
+    ]
+  },
+  "Close": {
+    "description": "A button that closes the drawer.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the button is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Close.State",
+        "source": "type DrawerCloseState = {\n  /** Whether the button is currently disabled. */\n  disabled: boolean;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "A positioning container for the drawer popup that can be made scrollable.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the drawer is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the drawer is closed."
+      },
+      {
+        "name": "data-nested",
+        "type": "-",
+        "description": "Present when the drawer is nested within another drawer."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the drawer begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the drawer is animating out."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--drawer-keyboard-inset",
+        "type": "CSS",
+        "description": "The software keyboard inset, measured from the bottom edge of the layout viewport.\nPresent only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type DrawerViewportState = {\n  /** Whether the drawer is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the drawer is nested within another drawer. */\n  nested: boolean;\n  /** Whether the drawer has nested drawers open. */\n  nestedDialogOpen: boolean;\n};"
+      }
+    ]
+  },
+  "Indent": {
+    "description": "A wrapper element intended to contain your app's main UI.\nApplies `data-active` when any drawer within the nearest `<Drawer.Provider>` is open.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Indent.State",
+        "source": "type DrawerIndentState = {\n  /** Whether any drawer within the nearest <Drawer.Provider> is open. */\n  active: boolean;\n};"
+      }
+    ]
+  },
+  "IndentBackground": {
+    "description": "An element placed before `<Drawer.Indent>` to render a background layer that can be styled based on whether any drawer is open.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "IndentBackground.State",
+        "source": "type DrawerIndentBackgroundState = {\n  /** Whether any drawer within the nearest <Drawer.Provider> is open. */\n  active: boolean;\n};"
+      }
+    ]
+  },
+  "SwipeArea": {
+    "description": "An invisible area that listens for swipe gestures to open the drawer.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "swipeDirection",
+        "type": "DrawerSwipeDirection",
+        "default": "-",
+        "description": "The swipe direction that opens the drawer.\nDefaults to the opposite of `Drawer.Root` `swipeDirection`."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the swipe area is disabled."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the drawer is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the drawer is closed."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the swipe area is disabled."
+      },
+      {
+        "name": "data-swipe-direction",
+        "type": "'up' | 'down' | 'left' | 'right'",
+        "description": "Indicates the swipe direction."
+      },
+      {
+        "name": "data-swiping",
+        "type": "-",
+        "description": "Present when the drawer is being swiped."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "SwipeArea.State",
+        "source": "type DrawerSwipeAreaState = {\n  /** Whether the drawer is currently open. */\n  open: boolean;\n  /** Whether the swipe area is currently being swiped. */\n  swiping: boolean;\n  /** The swipe direction that opens the drawer. */\n  swipeDirection: SwipeDirection;\n  /** Whether the swipe area is disabled. */\n  disabled: boolean;\n};"
+      }
+    ]
+  },
+  "VirtualKeyboardProvider": {
+    "description": "Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.",
+    "props": [
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "VirtualKeyboardProvider.State",
+        "source": "type DrawerVirtualKeyboardProviderState = {};"
+      }
+    ]
+  },
+  "createHandle": {
+    "description": "Creates a new handle to connect a Drawer.Root with detached Drawer.Trigger components.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "createHandle",
+        "source": "type ReturnValue = Drawer.Handle<Payload>;\n"
+      }
+    ]
+  },
+  "Handle": {
+    "description": "Controls a Drawer imperatively and associates detached `Drawer.Trigger` components with a\n`Drawer.Root`. Create one with `Drawer.createHandle()` and pass it to the `handle` prop of the\nroot and of any triggers rendered outside of it.\n\nThe imperative methods take effect only while a root using this handle is mounted; calls made\nbefore a root attaches (or after it unmounts) are ignored.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Handle",
+        "source": "function open(triggerId: string | null): void;\n"
+      },
+      {
+        "name": "Handle",
+        "source": "function openWithPayload(payload: Payload): void;\n"
+      },
+      {
+        "name": "Handle",
+        "source": "function close(): void;\n"
+      }
+    ]
+  }
+}

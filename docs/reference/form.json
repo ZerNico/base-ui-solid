@@ -1,0 +1,77 @@
+{
+  "Form": {
+    "description": "A native form element with consolidated error handling.\nRenders a `<form>` element.",
+    "props": [
+      {
+        "name": "errors",
+        "type": "Errors",
+        "default": "-",
+        "description": "Validation errors returned externally, typically after submission by a server or a form action.\nThis should be an object where keys correspond to the `name` attribute on `<Field.Root>`,\nand values correspond to error(s) related to that field."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<Form.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `validate`: Validates all fields when called. Optionally pass a field name to validate a single field."
+      },
+      {
+        "name": "onFormSubmit",
+        "type": "((formValues: Record<string, any>, eventDetails: Form.SubmitEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the form is submitted.\n`preventDefault()` is called on the native submit event when used."
+      },
+      {
+        "name": "validationMode",
+        "type": "Form.ValidationMode",
+        "default": "`'onSubmit'`",
+        "description": "Determines when the form should be validated.\nThe `validationMode` prop on `<Field.Root>` takes precedence over this. `onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change.`onBlur`: validates a field when it loses focus.`onChange`: validates the field on every change to its value."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Form.State",
+        "source": "type FormState = {};"
+      },
+      {
+        "name": "Form.Actions",
+        "source": "type FormActions = { validate: (fieldName?: string) => void };"
+      },
+      {
+        "name": "Form.SubmitEventDetails",
+        "source": "type FormSubmitEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n};"
+      },
+      {
+        "name": "Form.SubmitEventReason",
+        "source": "type FormSubmitEventReason = 'none';"
+      },
+      {
+        "name": "Form.ValidationMode",
+        "source": "type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';"
+      },
+      {
+        "name": "Form.Values",
+        "source": "type FormValues = Record<string, any>;"
+      }
+    ]
+  }
+}

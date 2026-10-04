@@ -1,0 +1,300 @@
+{
+  "Root": {
+    "description": "Represents the checkbox itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
+    "props": [
+      {
+        "name": "name",
+        "type": "string",
+        "default": "`undefined`",
+        "description": "Identifies the field when a form is submitted."
+      },
+      {
+        "name": "defaultChecked",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the checkbox is initially ticked. To render a controlled checkbox, use the `checked` prop instead."
+      },
+      {
+        "name": "checked",
+        "type": "boolean",
+        "default": "`undefined`",
+        "description": "Whether the checkbox is currently ticked. To render an uncontrolled checkbox, use the `defaultChecked` prop instead."
+      },
+      {
+        "name": "onCheckedChange",
+        "type": "((checked: boolean, eventDetails: Checkbox.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the checkbox is ticked or unticked."
+      },
+      {
+        "name": "indeterminate",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the checkbox is in a mixed state: neither ticked, nor unticked."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "default": "-",
+        "description": "The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.\nWhen submitting a form, a checked box submits `value`; with no `value`, it submits the native \"on\"."
+      },
+      {
+        "name": "form",
+        "type": "string",
+        "default": "-",
+        "description": "Identifies the form that owns the hidden input.\nUseful when the checkbox is rendered outside the form."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button."
+      },
+      {
+        "name": "parent",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the checkbox controls a group of child checkboxes. Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group)."
+      },
+      {
+        "name": "uncheckedValue",
+        "type": "string",
+        "default": "-",
+        "description": "The value submitted with the form when the checkbox is unchecked.\nBy default, unchecked checkboxes do not submit any value, matching native checkbox behavior."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user should be unable to tick or untick the checkbox."
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the user must tick the checkbox before submitting a form."
+      },
+      {
+        "name": "inputRef",
+        "type": "JSX.Ref<HTMLInputElement>",
+        "default": "-",
+        "description": "A ref to access the hidden `<input>` element."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "default": "-",
+        "description": "The id of the input element."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the checkbox is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the checkbox is not checked."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the checkbox is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the checkbox is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the checkbox is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the checkbox is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the checkbox is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the checkbox is checked (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the checkbox is in an indeterminate state."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type CheckboxRootState = {\n  /** Whether the checkbox is currently ticked. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to tick or untick the checkbox. */\n  readOnly: boolean;\n  /** Whether the user must tick the checkbox before submitting a form. */\n  required: boolean;\n  /** Whether the checkbox is in a mixed state: neither ticked, nor unticked. */\n  indeterminate: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type CheckboxRootChangeEventReason = 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type CheckboxRootChangeEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  },
+  "Indicator": {
+    "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the element in the DOM when the checkbox is not checked."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-checked",
+        "type": "-",
+        "description": "Present when the checkbox is checked."
+      },
+      {
+        "name": "data-unchecked",
+        "type": "-",
+        "description": "Present when the checkbox is not checked."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the checkbox is disabled."
+      },
+      {
+        "name": "data-readonly",
+        "type": "-",
+        "description": "Present when the checkbox is readonly."
+      },
+      {
+        "name": "data-required",
+        "type": "-",
+        "description": "Present when the checkbox is required."
+      },
+      {
+        "name": "data-valid",
+        "type": "-",
+        "description": "Present when the checkbox is in a valid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-invalid",
+        "type": "-",
+        "description": "Present when the checkbox is in an invalid state (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-dirty",
+        "type": "-",
+        "description": "Present when the checkbox's value has changed (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-touched",
+        "type": "-",
+        "description": "Present when the checkbox has been touched (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-filled",
+        "type": "-",
+        "description": "Present when the checkbox is checked (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-focused",
+        "type": "-",
+        "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
+      },
+      {
+        "name": "data-indeterminate",
+        "type": "-",
+        "description": "Present when the checkbox is in an indeterminate state."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the checkbox indicator begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the checkbox indicator is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Indicator.State",
+        "source": "type CheckboxIndicatorState = {\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the checkbox is currently ticked. */\n  checked: boolean;\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the user should be unable to tick or untick the checkbox. */\n  readOnly: boolean;\n  /** Whether the user must tick the checkbox before submitting a form. */\n  required: boolean;\n  /** Whether the checkbox is in a mixed state: neither ticked, nor unticked. */\n  indeterminate: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      }
+    ]
+  }
+}

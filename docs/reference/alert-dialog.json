@@ -1,0 +1,527 @@
+{
+  "Root": {
+    "description": "Groups all parts of the alert dialog.\nDoesn't render its own HTML element.",
+    "props": [
+      {
+        "name": "defaultOpen",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "default": "-",
+        "description": "Whether the dialog is currently open."
+      },
+      {
+        "name": "onOpenChange",
+        "type": "((open: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when the alert dialog is opened or closed."
+      },
+      {
+        "name": "actionsRef",
+        "type": "RefObject<AlertDialog.Root.Actions | null>",
+        "default": "-",
+        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the alert dialog after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the alert dialog completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the alert dialog imperatively when called."
+      },
+      {
+        "name": "defaultTriggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open dialog."
+      },
+      {
+        "name": "handle",
+        "type": "AlertDialog.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the alert dialog with a trigger.\nIf specified, allows external triggers to control the alert dialog's open state.\nCan be created with the AlertDialog.createHandle() method."
+      },
+      {
+        "name": "onOpenChangeComplete",
+        "type": "((open: boolean) => void)",
+        "default": "-",
+        "description": "Event handler called after any animations complete when the dialog is opened or closed."
+      },
+      {
+        "name": "triggerId",
+        "type": "string | null",
+        "default": "-",
+        "description": "ID of the trigger that the dialog is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled dialog.\nThere's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set)."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element | PayloadChildRenderFunction<Payload>",
+        "default": "-",
+        "description": "The content of the dialog.\nThis can be a regular Solid JSX or a render function that receives the `payload` of the active trigger."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Root.State",
+        "source": "type AlertDialogRootState = {};"
+      },
+      {
+        "name": "Root.Actions",
+        "source": "type AlertDialogRootActions = { unmount: () => void; close: () => void };"
+      },
+      {
+        "name": "Root.ChangeEventReason",
+        "source": "type AlertDialogRootChangeEventReason =\n  | 'trigger-press'\n  | 'outside-press'\n  | 'escape-key'\n  | 'close-press'\n  | 'focus-out'\n  | 'imperative-action'\n  | 'none';"
+      },
+      {
+        "name": "Root.ChangeEventDetails",
+        "source": "type AlertDialogRootChangeEventDetails = (\n  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }\n  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }\n  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n  /** Prevents the popup from unmounting until the `unmount` action is called. */\n  preventUnmountOnClose: () => void;\n};"
+      }
+    ]
+  },
+  "Trigger": {
+    "description": "A button that opens the alert dialog.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "handle",
+        "type": "AlertDialog.Handle<Payload>",
+        "default": "-",
+        "description": "A handle to associate the trigger with an alert dialog.\nCan be created with the AlertDialog.createHandle() method."
+      },
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "payload",
+        "type": "Payload",
+        "default": "-",
+        "description": "A payload to pass to the dialog when it is opened."
+      },
+      {
+        "name": "id",
+        "type": "string",
+        "default": "-",
+        "description": "ID of the trigger. In addition to being forwarded to the rendered element,\nit is also used to specify the active trigger for the dialog in controlled mode (with the DialogRoot `triggerId` prop)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-popup-open",
+        "type": "-",
+        "description": "Present when the corresponding alert dialog is open."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the trigger is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Trigger.State",
+        "source": "type AlertDialogTriggerState = {\n  /** Whether the trigger is currently disabled. */\n  disabled: boolean;\n  /** Whether the dialog is currently open and was opened by this trigger. */\n  open: boolean;\n};"
+      }
+    ]
+  },
+  "Portal": {
+    "description": "A portal element that moves the popup to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "container",
+        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "default": "-",
+        "description": "A parent element to render the portal element into."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "keepMounted",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether to keep the portal mounted in the DOM while the popup is hidden."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Portal.State",
+        "source": "type AlertDialogPortalState = {};"
+      }
+    ]
+  },
+  "Backdrop": {
+    "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "forceRender",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the backdrop is forced to render even when nested."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the dialog is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the dialog is closed."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the dialog begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the dialog is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Backdrop.State",
+        "source": "type AlertDialogBackdropState = {\n  /** Whether the dialog is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n};"
+      }
+    ]
+  },
+  "Popup": {
+    "description": "A container for the dialog contents.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "initialFocus",
+        "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
+        "default": "-",
+        "description": "Determines the element to focus when the dialog is opened.\nBy default, focus moves to the first tabbable element inside the popup, except when the dialog\nis opened by touch \u2014 then the popup itself is focused to avoid opening the virtual keyboard. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing."
+      },
+      {
+        "name": "finalFocus",
+        "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "default": "-",
+        "description": "Determines the element to focus when the dialog is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the dialog is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the dialog is closed."
+      },
+      {
+        "name": "data-nested",
+        "type": "-",
+        "description": "Present when the dialog is nested within another dialog."
+      },
+      {
+        "name": "data-nested-dialog-open",
+        "type": "-",
+        "description": "Present when the dialog has other open dialogs nested within it."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the dialog begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the dialog is animating out."
+      }
+    ],
+    "cssVariables": [
+      {
+        "name": "--nested-dialogs",
+        "type": "number",
+        "description": "Indicates how many dialogs are nested within."
+      }
+    ],
+    "additionalTypes": [
+      {
+        "name": "Popup.State",
+        "source": "type AlertDialogPopupState = {\n  /** Whether the dialog is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the dialog is nested within a parent dialog. */\n  nested: boolean;\n  /** Whether the dialog has nested dialogs open. */\n  nestedDialogOpen: boolean;\n};"
+      }
+    ]
+  },
+  "Title": {
+    "description": "A heading that labels the dialog.\nRenders an `<h2>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Title.State",
+        "source": "type AlertDialogTitleState = {};"
+      }
+    ]
+  },
+  "Description": {
+    "description": "A paragraph with additional information about the dialog.\nRenders a `<p>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Description.State",
+        "source": "type AlertDialogDescriptionState = {};"
+      }
+    ]
+  },
+  "Close": {
+    "description": "A button that closes the dialog.\nRenders a `<button>` element.",
+    "props": [
+      {
+        "name": "nativeButton",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (for example, `<div>`)."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the button is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Close.State",
+        "source": "type AlertDialogCloseState = {\n  /** Whether the button is currently disabled. */\n  disabled: boolean;\n};"
+      }
+    ]
+  },
+  "Viewport": {
+    "description": "A positioning container for the dialog popup that can be made scrollable.\nRenders a `<div>` element.",
+    "props": [
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-open",
+        "type": "-",
+        "description": "Present when the dialog is open."
+      },
+      {
+        "name": "data-closed",
+        "type": "-",
+        "description": "Present when the dialog is closed."
+      },
+      {
+        "name": "data-nested",
+        "type": "-",
+        "description": "Present when the dialog is nested within another dialog."
+      },
+      {
+        "name": "data-nested-dialog-open",
+        "type": "-",
+        "description": "Present when the dialog has other open dialogs nested within it."
+      },
+      {
+        "name": "data-starting-style",
+        "type": "-",
+        "description": "Present when the dialog begins animating in."
+      },
+      {
+        "name": "data-ending-style",
+        "type": "-",
+        "description": "Present when the dialog is animating out."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Viewport.State",
+        "source": "type AlertDialogViewportState = {\n  /** Whether the dialog is currently open. */\n  open: boolean;\n  /** The transition status of the component. */\n  transitionStatus: TransitionStatus;\n  /** Whether the dialog is nested within another dialog. */\n  nested: boolean;\n  /** Whether the dialog has nested dialogs open. */\n  nestedDialogOpen: boolean;\n};"
+      }
+    ]
+  },
+  "createHandle": {
+    "description": "Creates a new handle to connect an AlertDialog.Root with detached AlertDialog.Trigger components.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "createHandle",
+        "source": "type ReturnValue = AlertDialog.Handle<Payload>;\n"
+      }
+    ]
+  },
+  "Handle": {
+    "description": "Controls an Alert Dialog imperatively and associates detached `AlertDialog.Trigger` components with\nan `AlertDialog.Root`. Create one with `AlertDialog.createHandle()` and pass it to the `handle`\nprop of the root and of any triggers rendered outside of it.\n\nThe imperative methods take effect only while a root using this handle is mounted; calls made\nbefore a root attaches (or after it unmounts) are ignored.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Handle",
+        "source": "function open(triggerId: string | null): void;\n"
+      },
+      {
+        "name": "Handle",
+        "source": "function openWithPayload(payload: Payload): void;\n"
+      },
+      {
+        "name": "Handle",
+        "source": "function close(): void;\n"
+      }
+    ]
+  }
+}

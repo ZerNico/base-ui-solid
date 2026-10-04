@@ -1,0 +1,77 @@
+{
+  "CheckboxGroup": {
+    "description": "Provides a shared state to a series of checkboxes.",
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "string[]",
+        "default": "-",
+        "description": "Names of the checkboxes in the group that should be initially ticked. To render a controlled checkbox group, use the `value` prop instead."
+      },
+      {
+        "name": "value",
+        "type": "string[]",
+        "default": "-",
+        "description": "Names of the checkboxes in the group that should be ticked. To render an uncontrolled checkbox group, use the `defaultValue` prop instead."
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: string[], eventDetails: CheckboxGroup.ChangeEventDetails) => void)",
+        "default": "-",
+        "description": "Event handler called when a checkbox in the group is ticked or unticked.\nProvides the new value as an argument."
+      },
+      {
+        "name": "allValues",
+        "type": "string[]",
+        "default": "-",
+        "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the component should ignore user interaction."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the checkbox group is disabled."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "CheckboxGroup.State",
+        "source": "type CheckboxGroupState = {\n  /** Whether the component should ignore user interaction. */\n  disabled: boolean;\n  /** Whether the field has been touched. */\n  touched: boolean;\n  /** Whether the field value has changed from its initial value. */\n  dirty: boolean;\n  /** Whether the field is valid. */\n  valid: boolean | null;\n  /** Whether the field has a value. */\n  filled: boolean;\n  /** Whether the field is focused. */\n  focused: boolean;\n};"
+      },
+      {
+        "name": "CheckboxGroup.ChangeEventReason",
+        "source": "type CheckboxGroupChangeEventReason = 'none';"
+      },
+      {
+        "name": "CheckboxGroup.ChangeEventDetails",
+        "source": "type CheckboxGroupChangeEventDetails = {\n  /** The reason for the event. */\n  reason: 'none';\n  /** The native event associated with the custom event. */\n  event: Event;\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
+      }
+    ]
+  }
+}
