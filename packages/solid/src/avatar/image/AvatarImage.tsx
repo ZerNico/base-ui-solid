@@ -111,7 +111,14 @@ export function AvatarImage(componentProps: AvatarImage.Props) {
           // Until the image is displayable, the fallback owns the accessible name; without this
           // both would be exposed to assistive technology at once (including in server HTML).
           'aria-hidden': imageLoadingStatus() !== 'loaded' || undefined,
-          onLoad() {
+          onLoad(event: Event) {
+            // Port note: Solid applies a new `src` synchronously, so Firefox can still deliver the
+            // previous source's queued `load` event while the new source is loading. A real `load`
+            // event always finds the element complete.
+            const image = event.currentTarget as HTMLImageElement;
+            if (!image.complete && image.currentSrc) {
+              return;
+            }
             setImageLoadingStatus('loaded');
           },
           onError() {
