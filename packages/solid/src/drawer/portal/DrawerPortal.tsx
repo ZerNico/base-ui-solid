@@ -1,0 +1,32 @@
+import type { RefObject } from '@base-ui-solid/utils/refObject';
+import type { JSX } from '@solidjs/web';
+import { DialogPortal } from '../../dialog/portal/DialogPortal';
+import type { BaseUIComponentProps } from '../../internals/types';
+/**
+ * A portal element that moves the popup to a different part of the DOM.
+ * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ */
+export const DrawerPortal = DialogPortal as DrawerPortal;
+export interface DrawerPortalState {}
+export interface DrawerPortalProps extends BaseUIComponentProps<'div', DrawerPortalState> {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?:
+    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+}
+export interface DrawerPortal {
+  (componentProps: DrawerPortalProps): JSX.Element | null;
+}
+export namespace DrawerPortal {
+  export type Props = DrawerPortalProps;
+  export type State = DrawerPortalState;
+}
