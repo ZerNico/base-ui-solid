@@ -897,9 +897,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
     it.skipIf(isJSDOM)(
       'does not highlight the first item while closing from the trigger with a pointer',
-      async (componentProps1) => {
+      async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        componentProps1.onTestFinished(() => {
+        onTestFinished(() => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
         const { user } = await render(
@@ -1332,10 +1332,12 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
       });
     });
-    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async (componentProps2) => {
+    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async ({
+      onTestFinished,
+    }) => {
       // Exit transitions keep the closing popups mounted while focus relocates.
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      componentProps2.onTestFinished(() => {
+      onTestFinished(() => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
       });
       const { user } = await render(
@@ -1458,10 +1460,8 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
     });
     // Only the submenu filters here; the outer menu is an ordinary one.
-    function FilterableSubmenu(componentProps3: { portalled?: boolean }) {
-      const SubmenuPortal = untrack(() =>
-        (componentProps3.portalled ?? true) ? Menu.Portal : PortFragment,
-      );
+    function FilterableSubmenu(props: { portalled?: boolean }) {
+      const SubmenuPortal = untrack(() => ((props.portalled ?? true) ? Menu.Portal : PortFragment));
       return (
         <Menu.Root defaultOpen>
           <Menu.Trigger>Actions</Menu.Trigger>
@@ -1630,9 +1630,9 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
     it.skipIf(isJSDOM)(
       'keeps submenu filtering updated during the exit transition',
-      async (componentProps4) => {
+      async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        componentProps4.onTestFinished(() => {
+        onTestFinished(() => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
         let addApricot = () => {};
@@ -6082,8 +6082,8 @@ describe('filterable menu navigation regressions', () => {
     );
   });
   it('does not repeat matching when navigating past hidden component labels', async () => {
-    function Label(componentProps5: { text: string }) {
-      return <span>{componentProps5.text}</span>;
+    function Label(props: { text: string }) {
+      return <span>{props.text}</span>;
     }
     const filter = vi.fn((text: string, query: string) => text.includes(query));
     const { user } = await render(

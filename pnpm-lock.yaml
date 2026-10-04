@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@base-ui-solid/monorepo-tests':
+        specifier: workspace:*
+        version: link:test
       '@floating-ui/utils':
         specifier: ^0.2.12
         version: 0.2.12

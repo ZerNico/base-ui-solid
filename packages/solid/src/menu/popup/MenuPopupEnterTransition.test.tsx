@@ -402,7 +402,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     // The inherited `instantType` must not outlive the initial reveal: controlled `open` flips
     // bypass `setOpen`, so a value that stuck around would render `[data-instant]` on every
     // subsequent open and suppress transitions that should play.
-    function App(componentProps1: { submenuOpen: boolean }) {
+    function App(props: { submenuOpen: boolean }) {
       return (
         <Menu.Root>
           <Menu.Trigger>Trigger</Menu.Trigger>
@@ -410,7 +410,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
             <Menu.Positioner>
               <Menu.Popup data-testid="menu-popup">
                 <Menu.Item>Item</Menu.Item>
-                <Menu.SubmenuRoot open={componentProps1.submenuOpen}>
+                <Menu.SubmenuRoot open={props.submenuOpen}>
                   <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -457,7 +457,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
     // The transition keeps the animations-finished cleanup pending long enough for the controlled
     // close to interrupt it; there is no ending style, so closing unmounts without delay.
-    function App(componentProps2: { submenuOpen: boolean }) {
+    function App(props: { submenuOpen: boolean }) {
       return (
         <PortFragment>
           <style>{`
@@ -475,7 +475,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
               <Menu.Positioner>
                 <Menu.Popup data-testid="menu-popup">
                   <Menu.Item>Item</Menu.Item>
-                  <Menu.SubmenuRoot open={componentProps2.submenuOpen}>
+                  <Menu.SubmenuRoot open={props.submenuOpen}>
                     <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
                     <Menu.Portal>
                       <Menu.Positioner>
@@ -522,7 +522,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     // element for the animations-finished callback to watch, and a ref assignment alone never
     // reruns the clearing effect. The seed must still be cleared, so a popup rendered after the
     // reveal settles does not carry a stale `[data-instant]`.
-    function App(componentProps3: { showPopup: boolean }) {
+    function App(props: { showPopup: boolean }) {
       return (
         <Menu.Root>
           <Menu.Trigger>Trigger</Menu.Trigger>
@@ -532,7 +532,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
                 <Menu.Item>Item</Menu.Item>
                 <Menu.SubmenuRoot defaultOpen>
                   <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
-                  {componentProps3.showPopup && (
+                  {props.showPopup && (
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup data-testid="submenu-popup">
@@ -576,7 +576,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     // through `setOpen`, so a seeded value would never be cleared. `defaultOpen` is set alongside
     // the controlled prop to pin that the gate resolves the effective open state — the controlled
     // `open={false}` must win over `defaultOpen`.
-    function App(componentProps4: { submenuOpen: boolean }) {
+    function App(props: { submenuOpen: boolean }) {
       return (
         <Menu.Root>
           <Menu.Trigger>Trigger</Menu.Trigger>
@@ -584,7 +584,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
             <Menu.Positioner>
               <Menu.Popup data-testid="menu-popup">
                 <Menu.Item>Item</Menu.Item>
-                <Menu.SubmenuRoot open={componentProps4.submenuOpen} defaultOpen>
+                <Menu.SubmenuRoot open={props.submenuOpen} defaultOpen>
                   <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>

@@ -46,9 +46,9 @@ describe('<MenuRoot />', () => {
                   Trigger
                 </Menu.Trigger>
                 <Menu.Root handle={handle}>
-                  {(componentProps1: NumberPayload) => (
+                  {(props: NumberPayload) => (
                     <PortFragment>
-                      <span data-testid="payload">{componentProps1.payload ?? 'No payload'}</span>
+                      <span data-testid="payload">{props.payload ?? 'No payload'}</span>
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>
@@ -86,9 +86,9 @@ describe('<MenuRoot />', () => {
             )}
             {mounted() && (
               <Menu.Root handle={handle}>
-                {(componentProps2: NumberPayload) => (
+                {(props: NumberPayload) => (
                   <PortFragment>
-                    <span data-testid="payload">{componentProps2.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{props.payload ?? 'No payload'}</span>
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
@@ -251,13 +251,13 @@ describe('<MenuRoot />', () => {
           );
           return null;
         }
-        function App(componentProps3: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+        function App(props: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
           return (
             <PortFragment>
               <Menu.Trigger handle={handle} id="trigger">
                 Trigger
               </Menu.Trigger>
-              {(componentProps3.phase === 'outgoing' || componentProps3.phase === 'overlap') && (
+              {(props.phase === 'outgoing' || props.phase === 'overlap') && (
                 <Menu.Root handle={handle}>
                   <Menu.Portal>
                     <Menu.Positioner>
@@ -268,7 +268,7 @@ describe('<MenuRoot />', () => {
                   </Menu.Portal>
                 </Menu.Root>
               )}
-              {(componentProps3.phase === 'overlap' || componentProps3.phase === 'incoming') && (
+              {(props.phase === 'overlap' || props.phase === 'incoming') && (
                 <PortFragment>
                   <Menu.Root handle={handle}>
                     <Menu.Portal>
@@ -365,7 +365,7 @@ describe('<MenuRoot />', () => {
           get children() {
             return (
               <>
-                {(componentProps4: NumberPayload) => (
+                {(props: NumberPayload) => (
                   <PortFragment>
                     <Menu.Trigger payload={1}>Trigger 1</Menu.Trigger>
                     <Menu.Trigger payload={2}>Trigger 2</Menu.Trigger>
@@ -373,7 +373,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{componentProps4.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -406,7 +406,7 @@ describe('<MenuRoot />', () => {
           get children() {
             return (
               <>
-                {(componentProps5: NumberPayload) => (
+                {(props: NumberPayload) => (
                   <PortFragment>
                     <Menu.Trigger payload={1}>Trigger 1</Menu.Trigger>
                     <Menu.Trigger payload={2}>Trigger 2</Menu.Trigger>
@@ -414,7 +414,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner data-testid="positioner">
                         <Menu.Popup data-testid="popup">
-                          <span>{componentProps5.payload}</span>
+                          <span>{props.payload}</span>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -450,7 +450,7 @@ describe('<MenuRoot />', () => {
                 setOpen(nextOpen);
               }}
             >
-              {(componentProps6: NumberPayload) => (
+              {(props: NumberPayload) => (
                 <PortFragment>
                   <Menu.Trigger payload={1} id="trigger-1">
                     Trigger 1
@@ -462,7 +462,7 @@ describe('<MenuRoot />', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.Item data-testid="content">{componentProps6.payload}</Menu.Item>
+                        <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -515,7 +515,7 @@ describe('<MenuRoot />', () => {
           get children() {
             return (
               <>
-                {(componentProps7: NumberPayload) => (
+                {(props: NumberPayload) => (
                   <PortFragment>
                     <Menu.Trigger payload={1} id="trigger-1">
                       Trigger 1
@@ -526,9 +526,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="popup-content">
-                            {componentProps7.payload}
-                          </Menu.Item>
+                          <Menu.Item data-testid="popup-content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -808,7 +806,7 @@ describe('<MenuRoot />', () => {
      * `instantType` is `trigger-change`.
      */
     async function renderHoverDetachedTriggers(
-      componentProps8: {
+      props: {
         /**
          * Set to `false` to return while the positioner is still animating to the
          * new trigger, so the delayed `trigger-change` restoration is still pending.
@@ -832,14 +830,14 @@ describe('<MenuRoot />', () => {
                   {`
               .positioner {
                 transition:
-                  top ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear,
-                  left ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear,
-                  transform ${componentProps8.settleTriggerChange === false ? 10000 : 120}ms linear;
+                  top ${props.settleTriggerChange === false ? 10000 : 120}ms linear,
+                  left ${props.settleTriggerChange === false ? 10000 : 120}ms linear,
+                  transform ${props.settleTriggerChange === false ? 10000 : 120}ms linear;
               }
 
               .popup {
                 opacity: 1;
-                transition: opacity ${componentProps8.settleTriggerChange === false ? 20000 : 250}ms linear;
+                transition: opacity ${props.settleTriggerChange === false ? 20000 : 250}ms linear;
               }
 
               .popup[data-ending-style] {
@@ -873,7 +871,7 @@ describe('<MenuRoot />', () => {
                 </Menu.Trigger>
 
                 <Menu.Root handle={testMenu}>
-                  {(componentProps9: NumberPayload) => (
+                  {(props: NumberPayload) => (
                     <Menu.Portal>
                       <Menu.Positioner data-testid="positioner" class="positioner">
                         <Menu.Popup
@@ -892,7 +890,7 @@ describe('<MenuRoot />', () => {
                             return <div {...props} />;
                           }}
                         >
-                          <Menu.Item data-testid="content">{componentProps9.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -916,7 +914,7 @@ describe('<MenuRoot />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
       });
-      if (componentProps8.settleTriggerChange ?? true) {
+      if (props.settleTriggerChange ?? true) {
         await waitFor(() => {
           expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
         });
@@ -1161,11 +1159,11 @@ describe('<MenuRoot />', () => {
                 </Menu.Trigger>
 
                 <Menu.Root handle={testMenu}>
-                  {(componentProps10: NumberPayload) => (
+                  {(props: NumberPayload) => (
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{componentProps10.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1207,11 +1205,11 @@ describe('<MenuRoot />', () => {
                 </Menu.Trigger>
 
                 <Menu.Root handle={testMenu}>
-                  {(componentProps11: NumberPayload) => (
+                  {(props: NumberPayload) => (
                     <Menu.Portal>
                       <Menu.Positioner data-testid="positioner">
                         <Menu.Popup data-testid="popup">
-                          <span>{componentProps11.payload}</span>
+                          <span>{props.payload}</span>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1256,11 +1254,11 @@ describe('<MenuRoot />', () => {
               triggerId={activeTrigger()}
               handle={testMenu}
             >
-              {(componentProps12: NumberPayload) => (
+              {(props: NumberPayload) => (
                 <Menu.Portal>
                   <Menu.Positioner data-testid="positioner" side="bottom" align="start">
                     <Menu.Popup>
-                      <Menu.Item data-testid="content">{componentProps12.payload}</Menu.Item>
+                      <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
@@ -1329,7 +1327,7 @@ describe('<MenuRoot />', () => {
           get children() {
             return (
               <>
-                {(componentProps13: NumberPayload) => (
+                {(props: NumberPayload) => (
                   <PortFragment>
                     <Menu.Trigger handle={testMenu} payload={1} id="trigger-1">
                       Trigger 1
@@ -1340,9 +1338,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="popup-content">
-                            {componentProps13.payload}
-                          </Menu.Item>
+                          <Menu.Item data-testid="popup-content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1369,12 +1365,12 @@ describe('<MenuRoot />', () => {
             </Menu.Trigger>
 
             <Menu.Root handle={testMenu}>
-              {(componentProps14: NumberPayload) => (
+              {(props: NumberPayload) => (
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup data-testid="popup">
                       <Menu.Viewport>
-                        <Menu.Item data-testid="content">{componentProps14.payload}</Menu.Item>
+                        <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                       </Menu.Viewport>
                     </Menu.Popup>
                   </Menu.Positioner>
@@ -1724,11 +1720,11 @@ describe('<MenuRoot />', () => {
                   Trigger 2
                 </Menu.Trigger>
                 <Menu.Root handle={menuHandle}>
-                  {(componentProps15: NumberPayload) => (
+                  {(props: NumberPayload) => (
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{componentProps15.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>

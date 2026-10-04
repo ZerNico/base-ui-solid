@@ -296,7 +296,7 @@ describe('<Menu.SubmenuTrigger />', () => {
       storeRef.current = useMenuRootContext().store;
       return null;
     }
-    function App(componentProps1: { id: string }) {
+    function App(props: { id: string }) {
       return (
         <Menu.Root open>
           <Menu.Portal>
@@ -304,7 +304,7 @@ describe('<Menu.SubmenuTrigger />', () => {
               <Menu.Popup>
                 <Menu.SubmenuRoot>
                   <StoreProbe />
-                  <Menu.SubmenuTrigger id={componentProps1.id}>More</Menu.SubmenuTrigger>
+                  <Menu.SubmenuTrigger id={props.id}>More</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
@@ -366,9 +366,9 @@ describe('<Menu.SubmenuTrigger />', () => {
       errorSpy.mockRestore();
     }
   });
-  function TestComponent(componentProps2: { direction: TextDirection }) {
+  function TestComponent(props: { direction: TextDirection }) {
     return (
-      <DirectionProvider direction={componentProps2.direction ?? 'ltr'}>
+      <DirectionProvider direction={props.direction ?? 'ltr'}>
         <Menu.Root open>
           <Menu.Trigger>Open menu</Menu.Trigger>
           <Menu.Portal>

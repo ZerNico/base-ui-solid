@@ -223,17 +223,17 @@ describe('<Menu.GroupLabel />', () => {
       expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);
     });
     it('does not let an older label cleanup clear a newer label', async () => {
-      function Test(componentProps1: { labels: 'old' | 'both' | 'new' }) {
+      function Test(props: { labels: 'old' | 'both' | 'new' }) {
         return (
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.Group>
-                    {componentProps1.labels !== 'new' && (
+                    {props.labels !== 'new' && (
                       <Menu.GroupLabel id="old-label">Old</Menu.GroupLabel>
                     )}
-                    {componentProps1.labels !== 'old' && (
+                    {props.labels !== 'old' && (
                       <Menu.GroupLabel id="new-label">New</Menu.GroupLabel>
                     )}
                   </Menu.Group>

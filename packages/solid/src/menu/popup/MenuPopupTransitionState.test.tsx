@@ -11,27 +11,20 @@ import { PortFragment, portForwardRef, createRenderer } from '../../../test/menu
 type Ref<T> = (element: T) => void;
 type PopupState = Pick<Menu.Popup.State, 'open' | 'transitionStatus'>;
 const TrackedPopup = portForwardRef(function TrackedPopup(
-  componentProps1: JSX.HTMLAttributes<HTMLDivElement> & {
+  props: JSX.HTMLAttributes<HTMLDivElement> & {
     state: PopupState;
     onState: (state: PopupState) => void;
   },
   ref: Ref<HTMLDivElement>,
 ) {
-  const enter = () =>
-    componentProps1.state.open && componentProps1.state.transitionStatus !== 'starting';
+  const enter = () => props.state.open && props.state.transitionStatus !== 'starting';
   useIsoLayoutEffect(
     ([open, transitionStatus]) => {
-      componentProps1.onState({ open, transitionStatus });
+      props.onState({ open, transitionStatus });
     },
-    () => [componentProps1.state.open, componentProps1.state.transitionStatus] as const,
+    () => [props.state.open, props.state.transitionStatus] as const,
   );
-  return (
-    <div
-      {...omit(componentProps1, 'state', 'onState')}
-      ref={ref}
-      data-enter={enter() || undefined}
-    />
-  );
+  return <div {...omit(props, 'state', 'onState')} ref={ref} data-enter={enter() || undefined} />;
 });
 describe.skipIf(isJSDOM)('Menu popup transition state', () => {
   const { render } = createRenderer();

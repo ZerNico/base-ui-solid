@@ -54,7 +54,7 @@ describe('<Menu.RadioItemIndicator />', () => {
   });
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
-    async (componentProps1) => {
+    async ({ onTestFinished }) => {
       const frameCallbacks: FrameRequestCallback[] = [];
       const requestAnimationFrameSpy = vi
         .spyOn(window, 'requestAnimationFrame')
@@ -62,7 +62,7 @@ describe('<Menu.RadioItemIndicator />', () => {
           frameCallbacks.push(callback);
           return frameCallbacks.length;
         });
-      componentProps1.onTestFinished(() => requestAnimationFrameSpy.mockRestore());
+      onTestFinished(() => requestAnimationFrameSpy.mockRestore());
       function Test() {
         const [value, setValue] = createSignal(untrack(() => 'a'));
         return (

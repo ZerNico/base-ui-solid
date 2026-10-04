@@ -542,17 +542,17 @@ describe('closing a filtered submenu from the keyboard', () => {
     { parentFilterable: true, submenuFilterable: true },
   ])(
     'moves a horizontal parent on when a vertical submenu closes on its main-axis key (filterable parent: $parentFilterable, filterable submenu: $submenuFilterable)',
-    async (componentProps1) => {
+    async ({ parentFilterable, submenuFilterable }) => {
       const menu = () => (
         <Menu.Root orientation="horizontal">
           <Menu.Trigger>Actions</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                {componentProps1.parentFilterable && <Menu.Input aria-label="Filter actions" />}
+                {parentFilterable && <Menu.Input aria-label="Filter actions" />}
                 <Menu.List>
                   <Menu.Item>First</Menu.Item>
-                  <Submenu filterable={componentProps1.submenuFilterable} />
+                  <Submenu filterable={submenuFilterable} />
                   <Menu.Item>Last</Menu.Item>
                 </Menu.List>
               </Menu.Popup>
@@ -561,15 +561,11 @@ describe('closing a filtered submenu from the keyboard', () => {
         </Menu.Root>
       );
       const { user } = await render(() =>
-        componentProps1.parentFilterable ? (
-          <Menu.FilterProvider>{menu()}</Menu.FilterProvider>
-        ) : (
-          menu()
-        ),
+        parentFilterable ? <Menu.FilterProvider>{menu()}</Menu.FilterProvider> : menu(),
       );
       await act(async () => screen.getByRole('button', { name: 'Actions' }).focus());
       await user.keyboard('[Enter]');
-      const initialFocus = componentProps1.parentFilterable
+      const initialFocus = parentFilterable
         ? await screen.findByRole('searchbox', { name: 'Filter actions' })
         : await screen.findByRole('menuitem', { name: 'First' });
       await waitFor(() => expect(initialFocus).toHaveFocus());

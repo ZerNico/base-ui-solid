@@ -253,6 +253,14 @@ export default defineConfig(
         'error',
         ...baseRestrictedSyntax,
         {
+          // A React-to-Solid conversion step once renamed destructured test arguments (vitest
+          // context, `.each` rows) to `componentProps1`, `componentProps2`, ... Keep upstream's
+          // destructuring there, and name real component props `props`.
+          selector: 'Identifier[name=/^componentProps\\d+$/]',
+          message:
+            'Generated name. Keep upstream destructuring for test callbacks, and call component props `props`.',
+        },
+        {
           // `timeStamp` is read-only and not an `EventInit` member, so `fireEvent` accepts it from
           // the type system and then silently drops it: the event ends up stamped off the
           // environment's clock instead, which is the real one in a browser. Velocity-sensitive

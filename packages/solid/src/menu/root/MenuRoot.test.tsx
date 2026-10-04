@@ -206,10 +206,10 @@ describe('<Menu.Root />', () => {
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
-  ])('when using $name', (componentProps1) => {
+  ])('when using $name', ({ Component }) => {
     it('sets aria-orientation on a horizontal popup', async () => {
       await render(
-        (testProps: any) => <componentProps1.Component {...testProps} />,
+        (testProps: any) => <Component {...testProps} />,
         () => ({
           rootProps: { defaultOpen: true, orientation: 'horizontal' },
         }),
@@ -218,7 +218,7 @@ describe('<Menu.Root />', () => {
     });
     it('does not render aria-orientation on a vertical popup', async () => {
       await render(
-        (testProps: any) => <componentProps1.Component {...testProps} />,
+        (testProps: any) => <Component {...testProps} />,
         () => ({
           rootProps: { defaultOpen: true },
         }),
@@ -229,7 +229,7 @@ describe('<Menu.Root />', () => {
     describe('keyboard navigation', () => {
       it('changes the highlighted item using the arrow keys', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -258,7 +258,7 @@ describe('<Menu.Root />', () => {
       });
       it.skipIf(isJSDOM)('navigates across grouped items with arrow keys and text', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             popupProps: {
               get children() {
@@ -307,7 +307,7 @@ describe('<Menu.Root />', () => {
       it('closes with a `detail === 0` click event on keyboard item activation', async () => {
         const openChangeSpy = vi.fn();
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { onOpenChange: openChangeSpy },
           }),
@@ -332,7 +332,7 @@ describe('<Menu.Root />', () => {
       });
       it('changes the highlighted item using the Home and End keys', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -356,7 +356,7 @@ describe('<Menu.Root />', () => {
       });
       it('includes disabled items during keyboard navigation', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -382,7 +382,7 @@ describe('<Menu.Root />', () => {
       });
       it.skipIf(isJSDOM)('skips items hidden with CSS during keyboard navigation', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             popupProps: {
               get children() {
@@ -431,7 +431,7 @@ describe('<Menu.Root />', () => {
             <Menu.Item>Cd</Menu.Item>,
           ];
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
               // Port note: construct Solid items under the popup provider, like React elements.
@@ -466,7 +466,7 @@ describe('<Menu.Root />', () => {
             <Menu.Item data-testid="item-banana">Banana</Menu.Item>,
           ];
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
               // Port note: construct Solid items under the popup provider, like React elements.
@@ -502,7 +502,7 @@ describe('<Menu.Root />', () => {
             <Menu.Item data-testid="item-blueberry">Blueberry</Menu.Item>,
           ];
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
               // Port note: construct Solid items under the popup provider, like React elements.
@@ -536,7 +536,7 @@ describe('<Menu.Root />', () => {
               <Menu.Item label="Ca">4</Menu.Item>,
             ];
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 // Port note: construct Solid items under the popup provider, like React elements.
                 popupProps: {
@@ -586,7 +586,7 @@ describe('<Menu.Root />', () => {
             <Menu.Item>Bc</Menu.Item>,
           ];
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
               // Port note: construct Solid items under the popup provider, like React elements.
@@ -620,7 +620,7 @@ describe('<Menu.Root />', () => {
             <Menu.Item>Bą</Menu.Item>,
           ];
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
               // Port note: construct Solid items under the popup provider, like React elements.
@@ -656,7 +656,7 @@ describe('<Menu.Root />', () => {
               <Menu.Item>ąc</Menu.Item>,
             ];
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
                 // Port note: construct Solid items under the popup provider, like React elements.
@@ -688,7 +688,7 @@ describe('<Menu.Root />', () => {
               <Menu.Item onClick={() => handleClick()}>Item Three</Menu.Item>,
             ];
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
                 // Port note: construct Solid items under the popup provider, like React elements.
@@ -714,7 +714,7 @@ describe('<Menu.Root />', () => {
           'does not open a submenu when pressing Space during a typeahead session',
           async () => {
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
                 popupProps: {
@@ -753,7 +753,7 @@ describe('<Menu.Root />', () => {
         );
         it('opens a focused submenu trigger with Space when not typing', async () => {
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { open: true },
             }),
@@ -769,7 +769,7 @@ describe('<Menu.Root />', () => {
           'matches "Item 2" after "Item " currently matches "Item 1"',
           async () => {
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
                 popupProps: {
@@ -798,7 +798,7 @@ describe('<Menu.Root />', () => {
           'matches a submenu trigger label after a space + numeric suffix',
           async () => {
             const { user } = await render(
-              (testProps: any) => <componentProps1.Component {...testProps} />,
+              (testProps: any) => <Component {...testProps} />,
               () => ({
                 rootProps: { open: true },
                 popupProps: {
@@ -856,7 +856,7 @@ describe('<Menu.Root />', () => {
                 get children() {
                   return (
                     <>
-                      <componentProps1.Component
+                      <Component
                         rootProps={{ open: true, orientation }}
                         submenuProps={{ orientation }}
                       />
@@ -889,7 +889,7 @@ describe('<Menu.Root />', () => {
       });
       it('opens submenu on click when openOnHover is false', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             submenuTriggerProps: { openOnHover: false },
           }),
@@ -905,7 +905,7 @@ describe('<Menu.Root />', () => {
       });
       it('renders root menu portal ownership without an accessibility role', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
@@ -920,7 +920,7 @@ describe('<Menu.Root />', () => {
       });
       it('renders submenu portal ownership as an allowed menu child', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             submenuTriggerProps: { openOnHover: false },
           }),
@@ -942,7 +942,7 @@ describe('<Menu.Root />', () => {
       it('keeps the root menu open when a submenu opens and the trigger `render` element has a custom id', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { onOpenChange },
             triggerProps: {
@@ -966,7 +966,7 @@ describe('<Menu.Root />', () => {
       });
       it('closes submenus when focus is lost by shift-tabbing from a nested menu', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1000,7 +1000,7 @@ describe('<Menu.Root />', () => {
             get children() {
               return (
                 <>
-                  <componentProps1.Component />
+                  <Component />
                   <button data-testid="outside">Outside</button>
                 </>
               );
@@ -1052,7 +1052,7 @@ describe('<Menu.Root />', () => {
           const rootOnOpenChange = vi.fn();
           const submenuOnOpenChange = vi.fn();
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { onOpenChange: rootOnOpenChange },
               submenuProps: { onOpenChange: submenuOnOpenChange },
@@ -1090,7 +1090,7 @@ describe('<Menu.Root />', () => {
         'returns focus to submenu triggers when closing nested menus',
         async () => {
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({}),
           );
           const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1392,7 +1392,7 @@ describe('<Menu.Root />', () => {
     describe('focus management', () => {
       it('focuses the first item after the menu is opened by keyboard', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1410,7 +1410,7 @@ describe('<Menu.Root />', () => {
       });
       it('focuses the first item when down arrow key opens the menu', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1427,7 +1427,7 @@ describe('<Menu.Root />', () => {
       });
       it('focuses the last item when up arrow key opens the menu', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1452,7 +1452,7 @@ describe('<Menu.Root />', () => {
               return (
                 <>
                   <input type="text" />
-                  <componentProps1.Component />
+                  <Component />
                   <input type="text" />
                 </>
               );
@@ -1489,9 +1489,7 @@ describe('<Menu.Root />', () => {
                   }
                 `}
                     </style>
-                    <componentProps1.Component
-                      popupProps={{ class: 'transition-test-indicator' }}
-                    />
+                    <Component popupProps={{ class: 'transition-test-indicator' }} />
                   </>
                 );
               },
@@ -1526,7 +1524,7 @@ describe('<Menu.Root />', () => {
                 return (
                   <>
                     <input type="text" />
-                    <componentProps1.Component portalProps={{ keepMounted: true }} />
+                    <Component portalProps={{ keepMounted: true }} />
                     <input type="text" />
                   </>
                 );
@@ -1552,7 +1550,7 @@ describe('<Menu.Root />', () => {
               return (
                 <>
                   <input />
-                  <componentProps1.Component rootProps={{ modal: false }} />
+                  <Component rootProps={{ modal: false }} />
                   <input data-testid="after" />
                 </>
               );
@@ -1580,7 +1578,7 @@ describe('<Menu.Root />', () => {
               return (
                 <>
                   <input data-testid="before" />
-                  <componentProps1.Component />
+                  <Component />
                   <input />
                 </>
               );
@@ -1606,7 +1604,7 @@ describe('<Menu.Root />', () => {
     describe('prop: closeParentOnEsc', () => {
       it('does not close the parent menu when the Escape key is pressed by default', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({}),
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1642,7 +1640,7 @@ describe('<Menu.Root />', () => {
       });
       it('closes the parent menu when the Escape key is pressed  if `closeParentOnEsc=true`', async () => {
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             submenuProps: { closeParentOnEsc: true },
           }),
@@ -1684,7 +1682,7 @@ describe('<Menu.Root />', () => {
             get children() {
               return (
                 <>
-                  <componentProps1.Component rootProps={{ modal: true }} />
+                  <Component rootProps={{ modal: true }} />
                   <button>Outside</button>
                 </>
               );
@@ -1706,7 +1704,7 @@ describe('<Menu.Root />', () => {
             get children() {
               return (
                 <>
-                  <componentProps1.Component rootProps={{ modal: false }} />
+                  <Component rootProps={{ modal: false }} />
                   <button>Outside</button>
                 </>
               );
@@ -1725,7 +1723,7 @@ describe('<Menu.Root />', () => {
     describe('hover close', () => {
       it('does not close after hovering out of a popup opened without trigger hover', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { defaultOpen: true },
           }),
@@ -1748,7 +1746,7 @@ describe('<Menu.Root />', () => {
               <button type="button" onClick={() => setOpen(true)}>
                 Show
               </button>
-              <componentProps1.Component rootProps={{ open: open(), onOpenChange: setOpen }} />
+              <Component rootProps={{ open: open(), onOpenChange: setOpen }} />
             </PortFragment>
           );
         }
@@ -1769,7 +1767,7 @@ describe('<Menu.Root />', () => {
         function App() {
           const [open, setOpen] = createSignal(untrack(() => false));
           return (
-            <componentProps1.Component
+            <Component
               rootProps={{ open: open(), onOpenChange: setOpen, modal: false }}
               triggerProps={{ openOnHover: true, delay: 0 }}
             />
@@ -1801,7 +1799,7 @@ describe('<Menu.Root />', () => {
       describe('interaction type tracking (openMethod)', () => {
         it('should not apply scroll lock when opened via touch', async () => {
           await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { modal: true },
             }),
@@ -1819,7 +1817,7 @@ describe('<Menu.Root />', () => {
         });
         it('should apply scroll lock when opened via mouse', async () => {
           const { user } = await render(
-            (testProps: any) => <componentProps1.Component {...testProps} />,
+            (testProps: any) => <Component {...testProps} />,
             () => ({
               rootProps: { modal: true },
             }),
@@ -1927,7 +1925,7 @@ describe('<Menu.Root />', () => {
           },
         };
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: {
               actionsRef,
@@ -1968,7 +1966,7 @@ describe('<Menu.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(false)}>Close</button>
-              <componentProps1.Component rootProps={{ open: open(), onOpenChangeComplete }} />
+              <Component rootProps={{ open: open(), onOpenChangeComplete }} />
             </div>
           );
         }
@@ -2005,7 +2003,7 @@ describe('<Menu.Root />', () => {
               {}
               <style>{style}</style>
               <button onClick={() => setOpen(false)}>Close</button>
-              <componentProps1.Component
+              <Component
                 rootProps={{ open: open(), onOpenChangeComplete }}
                 popupProps={{ class: 'animation-test-indicator' }}
               />
@@ -2035,7 +2033,7 @@ describe('<Menu.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(true)}>Open</button>
-              <componentProps1.Component rootProps={{ open: open(), onOpenChangeComplete }} />
+              <Component rootProps={{ open: open(), onOpenChangeComplete }} />
             </div>
           );
         }
@@ -2073,7 +2071,7 @@ describe('<Menu.Root />', () => {
               {}
               <style>{style}</style>
               <button onClick={() => setOpen(true)}>Open</button>
-              <componentProps1.Component
+              <Component
                 rootProps={{ open: open(), onOpenChange: setOpen, onOpenChangeComplete }}
                 popupProps={{ class: 'animation-test-indicator' }}
               />
@@ -2095,7 +2093,7 @@ describe('<Menu.Root />', () => {
       it('does not get called on mount when not open', async () => {
         const onOpenChangeComplete = vi.fn();
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { onOpenChangeComplete },
           }),
@@ -2106,7 +2104,7 @@ describe('<Menu.Root />', () => {
     describe('prop: openOnHover', () => {
       it('should open the menu when the trigger is hovered', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             triggerProps: { openOnHover: true, delay: 0 },
           }),
@@ -2122,7 +2120,7 @@ describe('<Menu.Root />', () => {
       });
       it('should close the menu when the trigger is no longer hovered', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { modal: false },
             triggerProps: { openOnHover: true, delay: 0 },
@@ -2157,7 +2155,7 @@ describe('<Menu.Root />', () => {
       });
       it('does not clear body pointer-events styles when closing a scoped submenu', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { defaultOpen: true },
             submenuTriggerProps: { delay: 0, closeDelay: 0 },
@@ -2184,7 +2182,7 @@ describe('<Menu.Root />', () => {
       });
       it('scopes submenu safePolygon pointer events to the parent menu with keepMounted portal', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: { defaultOpen: true },
             popupProps: {
@@ -2224,7 +2222,7 @@ describe('<Menu.Root />', () => {
       });
       it('should not close when submenu is hovered after root menu is hovered', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             triggerProps: { openOnHover: true, delay: 0 },
             submenuTriggerProps: { delay: 0 },
@@ -2308,7 +2306,7 @@ describe('<Menu.Root />', () => {
         clock.withFakeTimers();
         it('reopens on hover after an impatient click closes via item press', async () => {
           await renderFakeTimers(() => (
-            <componentProps1.Component triggerProps={{ openOnHover: true, delay: 100 }} />
+            <Component triggerProps={{ openOnHover: true, delay: 100 }} />
           ));
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
@@ -2365,9 +2363,7 @@ describe('<Menu.Root />', () => {
       clock.withFakeTimers();
       it('should close after delay', async () => {
         await renderFakeTimers(() => (
-          <componentProps1.Component
-            triggerProps={{ openOnHover: true, delay: 0, closeDelay: 100 }}
-          />
+          <Component triggerProps={{ openOnHover: true, delay: 0, closeDelay: 100 }} />
         ));
         const anchor = screen.getByRole('button');
         fireEvent.mouseEnter(anchor);
@@ -2382,7 +2378,7 @@ describe('<Menu.Root />', () => {
       });
       it('should close submenu after delay when hovering a sibling item', async () => {
         await renderFakeTimers(() => (
-          <componentProps1.Component
+          <Component
             triggerProps={{ openOnHover: true, delay: 0 }}
             submenuTriggerProps={{ delay: 0, closeDelay: 100 }}
           />
@@ -2409,7 +2405,7 @@ describe('<Menu.Root />', () => {
       });
       it('should not restart closeDelay on repeated mousemove over sibling items', async () => {
         await renderFakeTimers(() => (
-          <componentProps1.Component
+          <Component
             triggerProps={{ openOnHover: true, delay: 0 }}
             submenuTriggerProps={{ delay: 0, closeDelay: 100 }}
           />
@@ -2446,10 +2442,7 @@ describe('<Menu.Root />', () => {
         // open it after a plain delay rather than collapsing to a rest-only
         // path that requires the cursor to stop moving.
         await renderFakeTimers(() => (
-          <componentProps1.Component
-            rootProps={{ open: true }}
-            submenuTriggerProps={{ delay: 100 }}
-          />
+          <Component rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />
         ));
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         fireEvent.mouseEnter(submenuTrigger);
@@ -2471,10 +2464,7 @@ describe('<Menu.Root />', () => {
         // pointer has already left (stranding the parent at
         // `pointer-events: none`). See #5152.
         await renderFakeTimers(() => (
-          <componentProps1.Component
-            rootProps={{ open: true }}
-            submenuTriggerProps={{ delay: 100 }}
-          />
+          <Component rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />
         ));
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         const otherItem = screen.getByTestId('item-1');
@@ -2495,10 +2485,7 @@ describe('<Menu.Root />', () => {
         // pending open, otherwise a plain hover would never open the submenu.
         // See #5152.
         await renderFakeTimers(() => (
-          <componentProps1.Component
-            rootProps={{ open: true }}
-            submenuTriggerProps={{ delay: 100 }}
-          />
+          <Component rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />
         ));
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         // Arm the submenu's delayed open, then fire a `mouseout` whose
@@ -2534,7 +2521,7 @@ describe('<Menu.Root />', () => {
             get children() {
               return (
                 <>
-                  <componentProps1.Component
+                  <Component
                     rootProps={{ onOpenChange: openChangeSpy }}
                     popupProps={{ children: items() }}
                   />
@@ -2574,7 +2561,7 @@ describe('<Menu.Root />', () => {
         ];
         await vbrRender(() => (
           <div>
-            <componentProps1.Component
+            <Component
               rootProps={{ onOpenChange: openChangeSpy }}
               popupProps={{ children: items() }}
             />
@@ -2597,7 +2584,7 @@ describe('<Menu.Root />', () => {
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
         await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: {
               onOpenChange: (nextOpen: boolean, eventDetails: Menu.Root.ChangeEventDetails) => {
@@ -2617,7 +2604,7 @@ describe('<Menu.Root />', () => {
       it('unmounts on a later normal close after a preventUnmountOnClose cycle and reopen', async () => {
         let preventNextUnmount = true;
         const { user } = await render(
-          (testProps: any) => <componentProps1.Component {...testProps} />,
+          (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: {
               onOpenChange: (open: boolean, details: Menu.Root.ChangeEventDetails) => {

@@ -66,7 +66,7 @@ describe('<Menu.Viewport />', () => {
         get children() {
           return (
             <>
-              {(componentProps1: { payload: string | undefined }) => (
+              {(props: { payload: string | undefined }) => (
                 <PortFragment>
                   <Menu.Trigger payload="first" data-testid="trigger1">
                     Trigger 1
@@ -78,10 +78,10 @@ describe('<Menu.Viewport />', () => {
                     <Menu.Positioner>
                       <Menu.Popup>
                         <Menu.Viewport>
-                          {componentProps1.payload === 'first' ? (
+                          {props.payload === 'first' ? (
                             <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
                           ) : null}
-                          {componentProps1.payload === 'second' ? (
+                          {props.payload === 'second' ? (
                             <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
                           ) : null}
                         </Menu.Viewport>
@@ -142,7 +142,7 @@ describe('<Menu.Viewport />', () => {
             `}
                 </style>
                 <Menu.Root>
-                  {(componentProps2) => (
+                  {(props) => (
                     <PortFragment>
                       <Menu.Trigger
                         payload={0}
@@ -174,9 +174,7 @@ describe('<Menu.Viewport />', () => {
                         <Menu.Positioner>
                           <Menu.Popup>
                             <Menu.Viewport>
-                              <div data-testid="content">
-                                Content {componentProps2.payload as number}
-                              </div>
+                              <div data-testid="content">Content {props.payload as number}</div>
                             </Menu.Viewport>
                           </Menu.Popup>
                         </Menu.Positioner>
@@ -244,7 +242,7 @@ describe('<Menu.Viewport />', () => {
             `}
             </style>
             <Menu.Root>
-              {(componentProps3) => (
+              {(props) => (
                 <PortFragment>
                   <Menu.Trigger payload={1} data-testid="trigger1">
                     Trigger 1
@@ -258,7 +256,7 @@ describe('<Menu.Viewport />', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.Viewport>Content {componentProps3.payload as number}</Menu.Viewport>
+                        <Menu.Viewport>Content {props.payload as number}</Menu.Viewport>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -327,7 +325,7 @@ describe('<Menu.Viewport />', () => {
         trigger2: { top: 10, left: 200 },
         expectedDirection: ['right', 'up'],
       },
-    ])('$name', async (componentProps4) => {
+    ])('$name', async ({ trigger1, trigger2, expectedDirection }) => {
       const { user } = await render(
         (testProps: any) => <div {...testProps} />,
         () => ({
@@ -353,15 +351,15 @@ describe('<Menu.Viewport />', () => {
             `}
                 </style>
                 <Menu.Root>
-                  {(componentProps5) => (
+                  {(props) => (
                     <PortFragment>
                       <Menu.Trigger
                         payload={0}
                         data-testid="trigger1"
                         style={{
                           position: 'absolute',
-                          top: `${componentProps4.trigger1.top}px`,
-                          left: `${componentProps4.trigger1.left}px`,
+                          top: `${trigger1.top}px`,
+                          left: `${trigger1.left}px`,
                           width: '100px',
                           height: '50px',
                         }}
@@ -373,8 +371,8 @@ describe('<Menu.Viewport />', () => {
                         data-testid="trigger2"
                         style={{
                           position: 'absolute',
-                          top: `${componentProps4.trigger2.top}px`,
-                          left: `${componentProps4.trigger2.left}px`,
+                          top: `${trigger2.top}px`,
+                          left: `${trigger2.left}px`,
                           width: '100px',
                           height: '50px',
                         }}
@@ -385,9 +383,7 @@ describe('<Menu.Viewport />', () => {
                         <Menu.Positioner>
                           <Menu.Popup>
                             <Menu.Viewport data-testid="viewport">
-                              <div data-testid="content">
-                                Content {componentProps5.payload as number}
-                              </div>
+                              <div data-testid="content">Content {props.payload as number}</div>
                             </Menu.Viewport>
                           </Menu.Popup>
                         </Menu.Positioner>
@@ -413,7 +409,7 @@ describe('<Menu.Viewport />', () => {
       });
       const direction = viewport.getAttribute('data-activation-direction');
       const directionTokens = (direction ?? '').split(' ').filter(Boolean);
-      expect(directionTokens.sort()).toEqual([...componentProps4.expectedDirection].sort());
+      expect(directionTokens.sort()).toEqual([...expectedDirection].sort());
     });
   });
 });

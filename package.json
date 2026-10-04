@@ -38,6 +38,7 @@
     "inline-scripts": "tsx ./scripts/inlineScripts.mts"
   },
   "devDependencies": {
+    "@base-ui-solid/monorepo-tests": "workspace:*",
     "@floating-ui/utils": "^0.2.12",
     "@mui/internal-code-infra": "0.1.1-canary.4",
     "@next/eslint-plugin-next": "16.3.6",

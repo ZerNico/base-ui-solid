@@ -9,29 +9,29 @@ import { PortFragment, createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 import { useMenuRootContext } from './MenuRootContext';
 
-function Popup(componentProps1: Menu.Portal.Props) {
+function Popup(props: Menu.Portal.Props) {
   return (
-    <Menu.Portal {...omit(componentProps1, 'children')}>
+    <Menu.Portal {...omit(props, 'children')}>
       <Menu.Positioner anchor={document.body}>
-        <Menu.Popup>{componentProps1.children}</Menu.Popup>
+        <Menu.Popup>{props.children}</Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
   );
 }
 function Submenu(
-  componentProps2: Menu.SubmenuRoot.Props & {
+  props: Menu.SubmenuRoot.Props & {
     label: string;
     openOnHover?: boolean;
   },
 ) {
   return (
-    <Menu.SubmenuRoot {...omit(componentProps2, 'label', 'children', 'openOnHover')}>
-      <Menu.SubmenuTrigger openOnHover={componentProps2.openOnHover ?? false} delay={0}>
-        {componentProps2.label}
+    <Menu.SubmenuRoot {...omit(props, 'label', 'children', 'openOnHover')}>
+      <Menu.SubmenuTrigger openOnHover={props.openOnHover ?? false} delay={0}>
+        {props.label}
       </Menu.SubmenuTrigger>
       <Menu.Portal>
         <Menu.Positioner>
-          <Menu.Popup>{componentProps2.children}</Menu.Popup>
+          <Menu.Popup>{props.children}</Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.SubmenuRoot>

@@ -44,7 +44,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
   });
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
-    async (componentProps1) => {
+    async ({ onTestFinished }) => {
       const frameCallbacks: FrameRequestCallback[] = [];
       const requestAnimationFrameSpy = vi
         .spyOn(window, 'requestAnimationFrame')
@@ -52,7 +52,7 @@ describe('<Menu.CheckboxItemIndicator />', () => {
           frameCallbacks.push(callback);
           return frameCallbacks.length;
         });
-      componentProps1.onTestFinished(() => requestAnimationFrameSpy.mockRestore());
+      onTestFinished(() => requestAnimationFrameSpy.mockRestore());
       function Test() {
         const [checked, setChecked] = createSignal(untrack(() => true));
         return (
