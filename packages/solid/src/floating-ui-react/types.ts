@@ -1,10 +1,10 @@
 // Port note: `@floating-ui/react-dom` is replaced by the Solid counterpart in `./dom`.
+import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type {
   UseFloatingOptions as UsePositionOptions,
   UseFloatingReturn as UsePositionFloatingReturn,
   VirtualElement,
 } from './dom';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { HTMLProps } from '../internals/types';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 

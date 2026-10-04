@@ -1,3 +1,5 @@
+// Port note: the lists mirror upstream's `.map()` one to one.
+/* eslint-disable solid/prefer-for */
 import { createMemo, createSignal, omit, onCleanup, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useId } from '@base-ui-solid/utils/useId';

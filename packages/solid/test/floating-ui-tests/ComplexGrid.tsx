@@ -1,3 +1,5 @@
+// Port note: the lists mirror upstream's `.map()` one to one.
+/* eslint-disable solid/prefer-for */
 import { createSignal, Show } from 'solid-js';
 import { useTestInteractions } from '#test-utils';
 import type { RefObject } from '@base-ui-solid/utils/refObject';

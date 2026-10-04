@@ -177,7 +177,27 @@ Floating UI:
   React's `onMouseDown`/`onPointerDown`/… keep their names.
 - Mutable refs shared through stores (`dataRef`, `popupRef`) are `RefObject`s from
   `@base-ui-solid/utils/refObject`.
-- `FloatingPortal` renders through `@solidjs/web`'s `Portal` semantics, keeping upstream's API.
+- `useHoverReferenceInteraction` returns an accessor of its props (upstream: `HTMLProps | undefined`).
+- `FloatingPortal` renders through `@solidjs/web`'s `Portal`, keeping upstream's API. Solid portals
+  don't bubble events through the component tree like React portals: `useDismiss` decides whether
+  an event comes from inside the floating tree by following Solid's `_$host` links on portaled
+  nodes (the same internal property Solid's event delegation uses).
+- Effect order: Solid runs a parent's effects before its children's; React runs child layout
+  effects first. Popup code that relies on child-first ordering needs checking (see the Port notes in
+  `popupStoreUtils.test.tsx`).
+- Popup-related utils take accessors: `useMergedRefs(() => props.ref, …)`, `useValueAsRef(accessor)`,
+  `usePreviousValue(accessor)`, `useScrollLock(enabled, referenceElement)`;
+  `useForcedRerendering()` returns `rerender` plus `rerender.track()` for memos that must re-run.
+
+Tests for popups:
+
+- `fireEvent` from `#test-utils` doesn't flush Solid: call `flush()` (or `await flushMicrotasks()`)
+  before asserting.
+- Native keyboard events aren't normalized: React maps `Esc` to `Escape`, Solid doesn't.
+- `toBeInaccessible` (from `@mui/internal-test-utils`) is registered in `test/setupVitest.ts`.
+- Production-only code paths can be tested with `vi.doMock('@base-ui-solid/utils/isDev', () => ({ IS_DEV: false }))`.
+- Floating UI's test helpers live in `packages/solid/test/floating-ui-tests` (`useFloating`, `useHover`, …);
+  reactive `useFloating` options are passed as getters (`get open() { return open(); }`).
 
 ## Tests
 
@@ -286,20 +306,20 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ## Port status
 
-| Area                                                                                | Status                                             |
-| :---------------------------------------------------------------------------------- | :------------------------------------------------- |
-| `merge-props`, `use-render`                                                         | Ported                                             |
-| `internals/useRenderElement`                                                        | Ported (Solid-specific implementation)             |
-| `internals/use-button`                                                              | Ported                                             |
-| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete`   | Ported                                             |
-| `collapsible`                                                                       | Ported, upstream jsdom tests ported                |
-| `accordion`                                                                         | Ported                                             |
-| `separator`, `toggle`, `toggle-group`                                               | Ported, upstream tests ported                      |
-| `direction-provider`                                                                | Ported (`useDirection()` returns an accessor)      |
-| `internals/composite`                                                               | Ported (list, item, root, grid navigation)         |
-| `toolbar`, `tabs`                                                                   | Ported, upstream tests ported                      |
-| `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                          |
-| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | In progress                                        |
-| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | In progress                                        |
-| `button`, `meter`, `progress`, `avatar`, `csp-provider`, `unstable-use-media-query` | Ported, upstream tests ported                      |
-| Other components                                                                    | Not started                                        |
+| Area                                                                                | Status                                        |
+| :---------------------------------------------------------------------------------- | :-------------------------------------------- |
+| `merge-props`, `use-render`                                                         | Ported                                        |
+| `internals/useRenderElement`                                                        | Ported (Solid-specific implementation)        |
+| `internals/use-button`                                                              | Ported                                        |
+| `internals/useTransitionStatus`, `useAnimationsFinished`, `useOpenChangeComplete`   | Ported                                        |
+| `collapsible`                                                                       | Ported, upstream jsdom tests ported           |
+| `accordion`                                                                         | Ported                                        |
+| `separator`, `toggle`, `toggle-group`                                               | Ported, upstream tests ported                 |
+| `direction-provider`                                                                | Ported (`useDirection()` returns an accessor) |
+| `internals/composite`                                                               | Ported (list, item, root, grid navigation)    |
+| `toolbar`, `tabs`                                                                   | Ported, upstream tests ported                 |
+| `field`, `fieldset`, `form`, `input` + field/form/labelable internals               | Ported; tests in progress                     |
+| `switch`, `checkbox`, `checkbox-group`, `radio`, `radio-group`                      | In progress                                   |
+| `utils/store`, `floating-ui-react`, `utils/popups`, popup utils/internals           | Ported, upstream tests ported                 |
+| `button`, `meter`, `progress`, `avatar`, `csp-provider`, `unstable-use-media-query` | Ported, upstream tests ported                 |
+| Other components                                                                    | Not started                                   |

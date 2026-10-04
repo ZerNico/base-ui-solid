@@ -15,6 +15,7 @@ const PT = path.join(ROOT, 'packages');
 const MAP = [
   ['react/src', 'solid/src'],
   ['utils/src', 'utils/src'],
+  ['react/test', 'solid/test'],
 ];
 
 function norm(text) {

@@ -1,0 +1,44 @@
+export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+
+/**
+ * Provides a cross-browser way to determine the type of the pointer used to click.
+ * Safari and Firefox do not provide the PointerEvent to the click handler (they use MouseEvent) yet.
+ * Additionally, this implementation detects if the click was triggered by the keyboard.
+ *
+ * Port note: handlers receive native events. The returned handlers are stable and call `handler`
+ * when the event fires, so it may read reactive values.
+ *
+ * @param handler The function to be called when the button is clicked. The first parameter is the original event and the second parameter is the pointer type.
+ */
+export function useEnhancedClickHandler(
+  handler: (event: MouseEvent | PointerEvent, interactionType: InteractionType) => void,
+) {
+  let lastClickInteractionType: InteractionType = '';
+
+  const handlePointerDown = (event: PointerEvent) => {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    lastClickInteractionType = event.pointerType as InteractionType;
+    handler(event, event.pointerType as InteractionType);
+  };
+
+  const handleClick = (event: MouseEvent | PointerEvent) => {
+    // event.detail has the number of clicks performed on the element. 0 means it was triggered by the keyboard.
+    if (event.detail === 0) {
+      handler(event, 'keyboard');
+      return;
+    }
+
+    if ('pointerType' in event) {
+      // Chrome and Edge correctly use PointerEvent
+      handler(event, event.pointerType as InteractionType);
+    } else {
+      handler(event, lastClickInteractionType);
+    }
+    lastClickInteractionType = '';
+  };
+
+  return { onClick: handleClick, onPointerDown: handlePointerDown };
+}

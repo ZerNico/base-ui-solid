@@ -313,6 +313,17 @@ export function makeEventPreventable<T extends Event>(event: BaseUIEvent<T>) {
     (event.baseUIHandlerPrevented as boolean) = true;
   };
 
+  // Port note: React's synthetic `preventDefault()` sets `defaultPrevented` even on events that
+  // aren't cancelable (e.g. `focus`/`blur`), and Base UI's handlers rely on it to let a composed
+  // handler opt out. Native events ignore it, so record it on the event instance.
+  if (!event.cancelable && !Object.prototype.hasOwnProperty.call(event, 'preventDefault')) {
+    const nativePreventDefault = event.preventDefault;
+    event.preventDefault = () => {
+      nativePreventDefault.call(event);
+      Object.defineProperty(event, 'defaultPrevented', { value: true, configurable: true });
+    };
+  }
+
   return event;
 }
 

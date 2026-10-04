@@ -98,7 +98,8 @@ const config: UserWorkspaceConfig = {
     sequence: {
       hooks: 'list',
     },
-    include: ['src/**/*.test.{ts,tsx}'],
+    // Like upstream (Vitest's default include), the helpers' own tests in `test/` run too.
+    include: ['src/**/*.test.{ts,tsx}', 'test/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', 'build', '**/*.spec.*'],
     globals: true,
     setupFiles: [resolve(WORKSPACE_ROOT, './test/setupVitest.ts')],

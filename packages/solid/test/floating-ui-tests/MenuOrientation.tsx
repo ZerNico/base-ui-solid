@@ -444,15 +444,15 @@ export function MenuItem(componentProps: MenuItemProps & ButtonProps) {
 export function Menu(props: MenuProps & ButtonProps) {
   const parentId = useFloatingParentNodeId();
 
-  if (parentId === null) {
-    return (
-      <FloatingTree>
-        <MenuComponent {...props} />
-      </FloatingTree>
-    );
-  }
-
-  return <MenuComponent {...props} />;
+  // Port note: the parent node id comes from context, so the branch is decided once.
+  // eslint-disable-next-line solid/components-return-once
+  return parentId === null ? (
+    <FloatingTree>
+      <MenuComponent {...props} />
+    </FloatingTree>
+  ) : (
+    <MenuComponent {...props} />
+  );
 }
 
 /** @internal */

@@ -1,6 +1,7 @@
 import { afterEach, beforeAll, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import './toHaveComputedStyle';
+import './toBeInaccessible';
 
 declare global {
   // eslint-disable-next-line vars-on-top

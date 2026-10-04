@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["packages/solid/src/number-field", "packages/solid/src/internals/usePressAndHold.ts", "packages/utils/src/useInterval.ts", "packages/utils/src/mergeCleanups*.ts", "packages/solid/src/form/Form.test.tsx", "test"]
+}
