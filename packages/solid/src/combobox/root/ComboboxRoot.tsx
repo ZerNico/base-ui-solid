@@ -1,0 +1,214 @@
+import { omit } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { AriaCombobox } from './AriaCombobox';
+import type { AriaComboboxState } from './AriaCombobox';
+
+/**
+ * Groups all parts of the combobox.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ */
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: ComboboxRoot.Props<Value, Multiple, Item>,
+): JSX.Element {
+  const other = omit(props, 'multiple', 'defaultValue', 'value', 'onValueChange', 'autoComplete');
+
+  // Port note: the renamed props are forwarded as getters so they stay reactive.
+  return (
+    <AriaCombobox
+      {...(other as any)}
+      selectionMode={props.multiple ? 'multiple' : 'single'}
+      selectedValue={props.value}
+      defaultSelectedValue={props.defaultValue}
+      onSelectedValueChange={props.onValueChange}
+      formAutoComplete={props.autoComplete}
+    />
+  );
+}
+type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends true
+  ? 'multiple'
+  : 'single';
+
+type ComboboxInputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly Value[]
+  : Value;
+
+type ComboboxOutputValue<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? Value[]
+  : Value;
+
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Item = Value,
+> = Omit<
+  AriaCombobox.Props<Value, ModeFromMultiple<Multiple>, Item>,
+  | 'fillInputOnItemPress'
+  | 'autoComplete'
+  | 'formAutoComplete'
+  | 'submitOnItemClick'
+  | 'autoHighlight'
+  | 'keepHighlight'
+  | 'highlightItemOnHover'
+  | 'itemToStringLabel'
+  | 'itemToStringValue'
+  | 'isItemEqualToValue'
+  // Different names
+  | 'selectionMode'
+  | 'defaultSelectedValue'
+  | 'selectedValue'
+  | 'onSelectedValueChange'
+  // Custom JSDoc
+  | 'actionsRef'
+  | 'onOpenChange'
+  | 'onInputValueChange'
+  | 'onItemHighlighted'
+> & {
+  /**
+   * Whether multiple items can be selected.
+   * @default false
+   */
+  multiple?: Multiple | undefined;
+  /**
+   * Provides a hint to the browser for autofill.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
+   */
+  autoComplete?: string | undefined;
+  /**
+   * Whether the first matching item is highlighted automatically while filtering.
+   * @default false
+   */
+  autoHighlight?: boolean | undefined;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean | undefined;
+  /**
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value, and the collection's
+   * `getLabel` takes precedence for values it can resolve.
+   */
+  itemToStringLabel?: ((itemValue: Value) => string) | undefined;
+  /**
+   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
+   * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value.
+   */
+  itemToStringValue?: ((itemValue: Value) => string) | undefined;
+  /**
+   * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * With a `createItems()` collection, both arguments are derived values.
+   * Defaults to `Object.is` comparison.
+   */
+  isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
+  /**
+   * The uncontrolled selected value of the combobox when it's initially rendered.
+   *
+   * To render a controlled combobox, use the `value` prop instead.
+   */
+  defaultValue?: ComboboxInputValue<Value, Multiple> | null | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the combobox imperatively when called.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
+   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
+   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
+   *   `'none'` clears the highlight.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
+   */
+  actionsRef?: RefObject<ComboboxRoot.Actions | null> | undefined;
+  /**
+   * Event handler called when the popup is opened or closed.
+   */
+  onOpenChange?:
+    ((open: boolean, eventDetails: ComboboxRoot.OpenChangeEventDetails) => void) | undefined;
+  /**
+   * Event handler called when the input value changes.
+   */
+  onInputValueChange?:
+    ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
+  /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
+   */
+  onItemHighlighted?:
+    | ((
+        highlightedValue: Value | undefined,
+        eventDetails: ComboboxRoot.HighlightEventDetails,
+      ) => void)
+    | undefined;
+  /**
+   * The selected value of the combobox. Use when controlled.
+   */
+  value?: ComboboxInputValue<Value, Multiple> | null | undefined;
+  /**
+   * Event handler called when the selected value of the combobox changes.
+   */
+  onValueChange?:
+    | ((
+        value: ComboboxOutputValue<Value, Multiple> | (Multiple extends true ? never : null),
+        eventDetails: ComboboxRoot.ChangeEventDetails,
+      ) => void)
+    | undefined;
+};
+
+export interface ComboboxRootState extends AriaComboboxState {}
+
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around when `loopFocus` is enabled
+ *   and never leave the list: `'previous'` on the first item does not move back to the input.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight.
+ */
+export type ComboboxRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
+export interface ComboboxRootActions {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: ComboboxRootHighlightItemTarget) => void;
+}
+
+export type ComboboxRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
+
+export type ComboboxRootChangeEventReason = AriaCombobox.ChangeEventReason;
+export type ComboboxRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
+
+export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason;
+export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
+
+export namespace ComboboxRoot {
+  export type Props<
+    Value,
+    Multiple extends boolean | undefined = false,
+    Item = Value,
+  > = ComboboxRootProps<Value, Multiple, Item>;
+  export type State = ComboboxRootState;
+  export type Actions = ComboboxRootActions;
+  export type HighlightItemTarget = ComboboxRootHighlightItemTarget;
+  export type ChangeEventReason = ComboboxRootChangeEventReason;
+  export type ChangeEventDetails = ComboboxRootChangeEventDetails;
+  export type OpenChangeEventDetails = ComboboxRootOpenChangeEventDetails;
+  export type HighlightEventReason = ComboboxRootHighlightEventReason;
+  export type HighlightEventDetails = ComboboxRootHighlightEventDetails;
+}

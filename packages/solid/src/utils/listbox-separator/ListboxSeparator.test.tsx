@@ -1,3 +1,5 @@
+import { Combobox } from 'base-ui-solid/combobox';
+import { Select } from 'base-ui-solid/select';
 import { expect, describe, it } from 'vitest';
 import { render, screen, describeConformance } from '#test-utils';
 import { ListboxSeparator } from './ListboxSeparator';
@@ -33,16 +35,23 @@ describe('<ListboxSeparator />', () => {
     });
   });
 
-  // Port note: upstream renders `<Autocomplete.Separator />`, `<Combobox.Separator />` and
-  // `<Select.Separator />` (each with `data-testid="separator"`). Those components aren't ported yet.
-  describe.each([['Autocomplete.Separator'], ['Combobox.Separator'], ['Select.Separator']])(
-    '%s',
-    () => {
-      // TODO(port): needs Autocomplete, Combobox, Select
-      it.skip('exposes the listbox separator behavior', async () => {
-        // Upstream renders the separator part and asserts `role="presentation"`,
-        // `data-orientation="horizontal"` and no `aria-orientation` attribute.
-      });
-    },
-  );
+  // TODO(port): needs Autocomplete. Keep the real body for every available separator.
+  describe.each([
+    ['Autocomplete.Separator', null],
+    ['Combobox.Separator', () => <Combobox.Separator data-testid="separator" />],
+    ['Select.Separator', () => <Select.Separator data-testid="separator" />],
+  ] as const)('%s', (_, separator) => {
+    it('exposes the listbox separator behavior', async (context) => {
+      // TODO(port): needs Autocomplete for its row.
+      if (separator == null) {
+        context.skip();
+        return;
+      }
+      await render(separator!);
+      const element = screen.getByTestId('separator');
+      expect(element).toHaveAttribute('role', 'presentation');
+      expect(element).toHaveAttribute('data-orientation', 'horizontal');
+      expect(element).not.toHaveAttribute('aria-orientation');
+    });
+  });
 });

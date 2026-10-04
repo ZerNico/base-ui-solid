@@ -578,8 +578,13 @@ export function useListNavigation(
   // `floatingElement`, so this runs when those change, after the effects above.
   useIsoLayoutEffect(
     ([openValue, floatingElementValue]) => {
-      previousOpenRef = openValue;
-      previousMountedRef = !!floatingElementValue;
+      // Port note: Solid orders effects by dependencies, so this bookkeeping effect can run
+      // before the navigation effects above. Commit after the current effect flush, matching
+      // React's final layout effect and preserving the previous-open snapshot for initial sync.
+      queueMicrotask(() => {
+        previousOpenRef = openValue;
+        previousMountedRef = !!floatingElementValue;
+      });
     },
     () => [open(), floatingElement()],
   );
