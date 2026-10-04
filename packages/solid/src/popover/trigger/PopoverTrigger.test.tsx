@@ -1,0 +1,531 @@
+import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { flush } from 'solid-js';
+import {
+  createRenderer,
+  describeConformance,
+  enterWithMouse,
+  fireEvent,
+  flushMicrotasks,
+  isJSDOM,
+  resetBrowserPointer,
+  screen,
+  waitFor,
+} from '#test-utils';
+import { Popover } from '..';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+
+// Port note: `fireEvent` doesn't flush Solid, so assertions after it are preceded by `flush()`
+// (or `flushMicrotasks()`), and `act(async () => { … })` runs its body and then awaits
+// `flushMicrotasks()`. `render={<span />}` becomes `render="span"` (React elements can't be cloned).
+
+describe('<Popover.Trigger />', () => {
+  beforeEach(resetBrowserPointer);
+
+  const { render } = createRenderer();
+
+  describeConformance(Popover.Trigger, {
+    refInstanceof: window.HTMLButtonElement,
+    wrap: (node) => <Popover.Root open>{node()}</Popover.Root>,
+  });
+
+  it('throws a descriptive error when rendered without a root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Port note: Solid may report the error that `render` rejects with once more as an uncaught
+    // error (through `window`'s `error` event). Swallow that duplicate report only.
+    const handleWindowError = (event: ErrorEvent) => {
+      if (event.message.includes('<Popover.Trigger> must be either used within')) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener('error', handleWindowError);
+
+    try {
+      await expect(render(() => <Popover.Trigger>Toggle</Popover.Trigger>)).rejects.toThrow(
+        'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
+      );
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    } finally {
+      window.removeEventListener('error', handleWindowError);
+      errorSpy.mockRestore();
+    }
+  });
+
+  describe('prop: disabled', () => {
+    it('disables the popover', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger disabled />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).toHaveAttribute('disabled');
+      expect(trigger).toHaveAttribute('data-disabled');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).not.toBe(trigger);
+    });
+
+    it('custom element', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger disabled render="span" nativeButton={false} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).not.toHaveAttribute('disabled');
+      expect(trigger).toHaveAttribute('data-disabled');
+      expect(trigger).toHaveAttribute('aria-disabled', 'true');
+
+      await user.click(trigger);
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await user.keyboard('[Tab]');
+      expect(document.activeElement).not.toBe(trigger);
+    });
+
+    it('does not open on hover when disabled', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger disabled openOnHover delay={0} render="span" nativeButton={false} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).toHaveAttribute('data-disabled');
+
+      await user.hover(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
+  });
+
+  describe('openOnHover opened by touch', () => {
+    // Port note: the children render function is called once with an object whose `payload` is a
+    // getter, so it's read in JSX instead of being destructured.
+    function MultiTriggerPopover() {
+      return (
+        <Popover.Root>
+          {(arg) => (
+            <>
+              <Popover.Trigger
+                payload="One"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ 'pointer-events': 'none' }}
+              >
+                One
+              </Popover.Trigger>
+              <Popover.Trigger
+                payload="Two"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ 'pointer-events': 'none' }}
+              >
+                Two
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">{arg.payload as string}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </>
+          )}
+        </Popover.Root>
+      );
+    }
+
+    async function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
+      fireEvent.pointerDown(trigger, { pointerType });
+      fireEvent.mouseDown(trigger);
+      fireEvent.click(trigger, { detail: 1 });
+      await flushMicrotasks();
+    }
+
+    function hoverTrigger(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+    }
+
+    // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
+    // disarmed until the popover is reopened by some other means. Otherwise a stray hover over a
+    // sibling trigger silently swaps the content the user just tapped for.
+    it('keeps ownership on the tapped trigger when a sibling trigger is hovered', async () => {
+      await render(() => <MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'touch');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+      expect(two).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // The same hover must still take over when the popover was opened with a mouse, so the guard
+    // above can't be a blanket disable.
+    it('hands ownership to a hovered sibling trigger when opened by mouse', async () => {
+      await render(() => <MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'mouse');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('Two');
+      expect(two).toHaveAttribute('aria-expanded', 'true');
+    });
+  });
+
+  describe('style hooks', () => {
+    it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
+      await render(() => (
+        <Popover.Root>
+          <Popover.Trigger />
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      trigger.click();
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('should have the data-popup-open but not the data-pressed attribute when open by hover', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={0} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      await user.hover(trigger);
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).not.toHaveAttribute('data-pressed');
+    });
+
+    it('should not have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true` and `delay=0`', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      await user.hover(trigger);
+
+      trigger.click();
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('should have the data-popup-open and data-pressed attributes when open by click when `openOnHover=true`', async () => {
+      const { user } = await render(() => (
+        <Popover.Root>
+          <Popover.Trigger openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      await user.hover(trigger);
+      trigger.click();
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+  });
+
+  describe('impatient clicks with `openOnHover=true`', () => {
+    const { clock, render: renderFakeTimers } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('does not close the popover if the user clicks too quickly', async () => {
+      await renderFakeTimers(() => (
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+
+      fireEvent.click(trigger);
+      flush();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('closes the popover if the user clicks patiently', async () => {
+      await renderFakeTimers(() => (
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+      flush();
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
+
+    it('sticks if the user clicks impatiently', async () => {
+      await renderFakeTimers(() => (
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
+      flush();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+
+      clock.tick(1);
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('does not stick if the user clicks patiently', async () => {
+      await renderFakeTimers(() => (
+        <Popover.Root>
+          <Popover.Trigger delay={0} openOnHover />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup />
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.click(trigger);
+      fireEvent.mouseLeave(trigger);
+      flush();
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
+
+    it('sticks when clicked before the hover delay completes', async () => {
+      await renderFakeTimers(() => (
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={300}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      // User clicks impatiently to open
+      fireEvent.click(trigger);
+      flush();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+
+      fireEvent.mouseLeave(trigger);
+      flush();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('should keep the popover open when re-hovered and clicked within the patient threshold', async () => {
+      await render(() => (
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={100}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      ));
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.toBe(null);
+
+      clock.tick(PATIENT_CLICK_THRESHOLD);
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      fireEvent.click(trigger);
+      flush();
+      expect(screen.getByText('Content')).not.toBe(null);
+    });
+  });
+
+  // Port note: upstream renders with `vitest-browser-react` to drive the real browser keyboard
+  // outside React's act environment; the regular `render` does the same here.
+  it.skipIf(isJSDOM)(
+    'should toggle closed with Enter or Space when rendering a <div>',
+    async () => {
+      const { userEvent: user } = await import('vitest/browser');
+
+      await render(() => (
+        <div>
+          <Popover.Root>
+            <Popover.Trigger render="div" nativeButton={false} data-testid="div-trigger">
+              Toggle
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="other-button">Other button</button>
+        </div>
+      ));
+
+      const trigger = screen.getByTestId('div-trigger');
+
+      trigger.focus();
+      await flushMicrotasks();
+      await user.keyboard('[Enter]');
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(trigger);
+
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      await user.keyboard('[Enter]');
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(trigger);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).toBe(null);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(trigger);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).toBe(null);
+    },
+  );
+});
