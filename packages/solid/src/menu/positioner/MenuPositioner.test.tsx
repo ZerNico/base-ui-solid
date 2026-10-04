@@ -143,8 +143,7 @@ describe('<Menu.Positioner />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   });
-  // TODO(port): needs ContextMenu
-  describe.skip('layout viewport', () => {
+  describe('layout viewport', () => {
     beforeEach(async () => {
       const modulePath = '../../context-menu/index';
       ({ ContextMenu } = await import(/* @vite-ignore */ modulePath));
@@ -629,8 +628,7 @@ describe('<Menu.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: `${anchorWidth}px`, height: `${anchorHeight}px` };
   const popupStyle = { width: `${popupWidth}px`, height: `${popupHeight}px` };
-  // TODO(port): needs Menubar
-  describe.skip('Menubar parent', () => {
+  describe('Menubar parent', () => {
     beforeEach(async () => {
       const modulePath = '../../menubar/index';
       ({ Menubar } = await import(/* @vite-ignore */ modulePath));

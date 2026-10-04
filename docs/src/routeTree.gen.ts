@@ -31,6 +31,7 @@ import { Route as DocsReactComponentsCheckboxRouteImport } from './routes/_docs.
 import { Route as DocsReactComponentsCheckboxGroupRouteImport } from './routes/_docs.react.components.checkbox-group'
 import { Route as DocsReactComponentsCollapsibleRouteImport } from './routes/_docs.react.components.collapsible'
 import { Route as DocsReactComponentsComboboxRouteImport } from './routes/_docs.react.components.combobox'
+import { Route as DocsReactComponentsContextMenuRouteImport } from './routes/_docs.react.components.context-menu'
 import { Route as DocsReactComponentsDialogRouteImport } from './routes/_docs.react.components.dialog'
 import { Route as DocsReactComponentsDrawerRouteImport } from './routes/_docs.react.components.drawer'
 import { Route as DocsReactComponentsFieldRouteImport } from './routes/_docs.react.components.field'
@@ -38,6 +39,7 @@ import { Route as DocsReactComponentsFieldsetRouteImport } from './routes/_docs.
 import { Route as DocsReactComponentsFormRouteImport } from './routes/_docs.react.components.form'
 import { Route as DocsReactComponentsInputRouteImport } from './routes/_docs.react.components.input'
 import { Route as DocsReactComponentsMenuRouteImport } from './routes/_docs.react.components.menu'
+import { Route as DocsReactComponentsMenubarRouteImport } from './routes/_docs.react.components.menubar'
 import { Route as DocsReactComponentsMeterRouteImport } from './routes/_docs.react.components.meter'
 import { Route as DocsReactComponentsNavigationMenuRouteImport } from './routes/_docs.react.components.navigation-menu'
 import { Route as DocsReactComponentsNumberFieldRouteImport } from './routes/_docs.react.components.number-field'
@@ -221,6 +223,12 @@ const DocsReactComponentsComboboxRoute =
     path: '/components/combobox',
     getParentRoute: () => DocsReactRoute,
   } as any)
+const DocsReactComponentsContextMenuRoute =
+  DocsReactComponentsContextMenuRouteImport.update({
+    id: '/components/context-menu',
+    path: '/components/context-menu',
+    getParentRoute: () => DocsReactRoute,
+  } as any)
 const DocsReactComponentsDialogRoute =
   DocsReactComponentsDialogRouteImport.update({
     id: '/components/dialog',
@@ -261,6 +269,12 @@ const DocsReactComponentsMenuRoute = DocsReactComponentsMenuRouteImport.update({
   path: '/components/menu',
   getParentRoute: () => DocsReactRoute,
 } as any)
+const DocsReactComponentsMenubarRoute =
+  DocsReactComponentsMenubarRouteImport.update({
+    id: '/components/menubar',
+    path: '/components/menubar',
+    getParentRoute: () => DocsReactRoute,
+  } as any)
 const DocsReactComponentsMeterRoute =
   DocsReactComponentsMeterRouteImport.update({
     id: '/components/meter',
@@ -658,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
   '/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
   '/react/components/combobox': typeof DocsReactComponentsComboboxRoute
+  '/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
   '/react/components/dialog': typeof DocsReactComponentsDialogRoute
   '/react/components/drawer': typeof DocsReactComponentsDrawerRoute
   '/react/components/field': typeof DocsReactComponentsFieldRoute
@@ -665,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/react/components/form': typeof DocsReactComponentsFormRoute
   '/react/components/input': typeof DocsReactComponentsInputRoute
   '/react/components/menu': typeof DocsReactComponentsMenuRoute
+  '/react/components/menubar': typeof DocsReactComponentsMenubarRoute
   '/react/components/meter': typeof DocsReactComponentsMeterRoute
   '/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
   '/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
@@ -746,6 +762,7 @@ export interface FileRoutesByTo {
   '/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
   '/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
   '/react/components/combobox': typeof DocsReactComponentsComboboxRoute
+  '/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
   '/react/components/dialog': typeof DocsReactComponentsDialogRoute
   '/react/components/drawer': typeof DocsReactComponentsDrawerRoute
   '/react/components/field': typeof DocsReactComponentsFieldRoute
@@ -753,6 +770,7 @@ export interface FileRoutesByTo {
   '/react/components/form': typeof DocsReactComponentsFormRoute
   '/react/components/input': typeof DocsReactComponentsInputRoute
   '/react/components/menu': typeof DocsReactComponentsMenuRoute
+  '/react/components/menubar': typeof DocsReactComponentsMenubarRoute
   '/react/components/meter': typeof DocsReactComponentsMeterRoute
   '/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
   '/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
@@ -841,6 +859,7 @@ export interface FileRoutesById {
   '/_docs/react/components/checkbox-group': typeof DocsReactComponentsCheckboxGroupRoute
   '/_docs/react/components/collapsible': typeof DocsReactComponentsCollapsibleRoute
   '/_docs/react/components/combobox': typeof DocsReactComponentsComboboxRoute
+  '/_docs/react/components/context-menu': typeof DocsReactComponentsContextMenuRoute
   '/_docs/react/components/dialog': typeof DocsReactComponentsDialogRoute
   '/_docs/react/components/drawer': typeof DocsReactComponentsDrawerRoute
   '/_docs/react/components/field': typeof DocsReactComponentsFieldRoute
@@ -848,6 +867,7 @@ export interface FileRoutesById {
   '/_docs/react/components/form': typeof DocsReactComponentsFormRoute
   '/_docs/react/components/input': typeof DocsReactComponentsInputRoute
   '/_docs/react/components/menu': typeof DocsReactComponentsMenuRoute
+  '/_docs/react/components/menubar': typeof DocsReactComponentsMenubarRoute
   '/_docs/react/components/meter': typeof DocsReactComponentsMeterRoute
   '/_docs/react/components/navigation-menu': typeof DocsReactComponentsNavigationMenuRoute
   '/_docs/react/components/number-field': typeof DocsReactComponentsNumberFieldRoute
@@ -935,6 +955,7 @@ export interface FileRouteTypes {
     | '/react/components/checkbox-group'
     | '/react/components/collapsible'
     | '/react/components/combobox'
+    | '/react/components/context-menu'
     | '/react/components/dialog'
     | '/react/components/drawer'
     | '/react/components/field'
@@ -942,6 +963,7 @@ export interface FileRouteTypes {
     | '/react/components/form'
     | '/react/components/input'
     | '/react/components/menu'
+    | '/react/components/menubar'
     | '/react/components/meter'
     | '/react/components/navigation-menu'
     | '/react/components/number-field'
@@ -1023,6 +1045,7 @@ export interface FileRouteTypes {
     | '/react/components/checkbox-group'
     | '/react/components/collapsible'
     | '/react/components/combobox'
+    | '/react/components/context-menu'
     | '/react/components/dialog'
     | '/react/components/drawer'
     | '/react/components/field'
@@ -1030,6 +1053,7 @@ export interface FileRouteTypes {
     | '/react/components/form'
     | '/react/components/input'
     | '/react/components/menu'
+    | '/react/components/menubar'
     | '/react/components/meter'
     | '/react/components/navigation-menu'
     | '/react/components/number-field'
@@ -1117,6 +1141,7 @@ export interface FileRouteTypes {
     | '/_docs/react/components/checkbox-group'
     | '/_docs/react/components/collapsible'
     | '/_docs/react/components/combobox'
+    | '/_docs/react/components/context-menu'
     | '/_docs/react/components/dialog'
     | '/_docs/react/components/drawer'
     | '/_docs/react/components/field'
@@ -1124,6 +1149,7 @@ export interface FileRouteTypes {
     | '/_docs/react/components/form'
     | '/_docs/react/components/input'
     | '/_docs/react/components/menu'
+    | '/_docs/react/components/menubar'
     | '/_docs/react/components/meter'
     | '/_docs/react/components/navigation-menu'
     | '/_docs/react/components/number-field'
@@ -1353,6 +1379,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsReactComponentsComboboxRouteImport
       parentRoute: typeof DocsReactRoute
     }
+    '/_docs/react/components/context-menu': {
+      id: '/_docs/react/components/context-menu'
+      path: '/components/context-menu'
+      fullPath: '/react/components/context-menu'
+      preLoaderRoute: typeof DocsReactComponentsContextMenuRouteImport
+      parentRoute: typeof DocsReactRoute
+    }
     '/_docs/react/components/dialog': {
       id: '/_docs/react/components/dialog'
       path: '/components/dialog'
@@ -1400,6 +1433,13 @@ declare module '@tanstack/solid-router' {
       path: '/components/menu'
       fullPath: '/react/components/menu'
       preLoaderRoute: typeof DocsReactComponentsMenuRouteImport
+      parentRoute: typeof DocsReactRoute
+    }
+    '/_docs/react/components/menubar': {
+      id: '/_docs/react/components/menubar'
+      path: '/components/menubar'
+      fullPath: '/react/components/menubar'
+      preLoaderRoute: typeof DocsReactComponentsMenubarRouteImport
       parentRoute: typeof DocsReactRoute
     }
     '/_docs/react/components/meter': {
@@ -2013,6 +2053,7 @@ interface DocsReactRouteChildren {
   DocsReactComponentsCheckboxGroupRoute: typeof DocsReactComponentsCheckboxGroupRoute
   DocsReactComponentsCollapsibleRoute: typeof DocsReactComponentsCollapsibleRoute
   DocsReactComponentsComboboxRoute: typeof DocsReactComponentsComboboxRoute
+  DocsReactComponentsContextMenuRoute: typeof DocsReactComponentsContextMenuRoute
   DocsReactComponentsDialogRoute: typeof DocsReactComponentsDialogRoute
   DocsReactComponentsDrawerRoute: typeof DocsReactComponentsDrawerRoute
   DocsReactComponentsFieldRoute: typeof DocsReactComponentsFieldRoute
@@ -2020,6 +2061,7 @@ interface DocsReactRouteChildren {
   DocsReactComponentsFormRoute: typeof DocsReactComponentsFormRoute
   DocsReactComponentsInputRoute: typeof DocsReactComponentsInputRoute
   DocsReactComponentsMenuRoute: typeof DocsReactComponentsMenuRoute
+  DocsReactComponentsMenubarRoute: typeof DocsReactComponentsMenubarRoute
   DocsReactComponentsMeterRoute: typeof DocsReactComponentsMeterRoute
   DocsReactComponentsNavigationMenuRoute: typeof DocsReactComponentsNavigationMenuRoute
   DocsReactComponentsNumberFieldRoute: typeof DocsReactComponentsNumberFieldRoute
@@ -2056,6 +2098,7 @@ const DocsReactRouteChildren: DocsReactRouteChildren = {
   DocsReactComponentsCheckboxGroupRoute: DocsReactComponentsCheckboxGroupRoute,
   DocsReactComponentsCollapsibleRoute: DocsReactComponentsCollapsibleRoute,
   DocsReactComponentsComboboxRoute: DocsReactComponentsComboboxRoute,
+  DocsReactComponentsContextMenuRoute: DocsReactComponentsContextMenuRoute,
   DocsReactComponentsDialogRoute: DocsReactComponentsDialogRoute,
   DocsReactComponentsDrawerRoute: DocsReactComponentsDrawerRoute,
   DocsReactComponentsFieldRoute: DocsReactComponentsFieldRoute,
@@ -2063,6 +2106,7 @@ const DocsReactRouteChildren: DocsReactRouteChildren = {
   DocsReactComponentsFormRoute: DocsReactComponentsFormRoute,
   DocsReactComponentsInputRoute: DocsReactComponentsInputRoute,
   DocsReactComponentsMenuRoute: DocsReactComponentsMenuRoute,
+  DocsReactComponentsMenubarRoute: DocsReactComponentsMenubarRoute,
   DocsReactComponentsMeterRoute: DocsReactComponentsMeterRoute,
   DocsReactComponentsNavigationMenuRoute:
     DocsReactComponentsNavigationMenuRoute,

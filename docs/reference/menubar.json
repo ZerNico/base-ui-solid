@@ -1,0 +1,73 @@
+{
+  "Menubar": {
+    "description": "The container for menus.",
+    "props": [
+      {
+        "name": "loopFocus",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys."
+      },
+      {
+        "name": "modal",
+        "type": "boolean",
+        "default": "`true`",
+        "description": "Whether the menubar is modal."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether the whole menubar is disabled."
+      },
+      {
+        "name": "orientation",
+        "type": "MenuRoot.Orientation",
+        "default": "`'horizontal'`",
+        "description": "The orientation of the menubar."
+      },
+      {
+        "name": "class",
+        "type": "JSX.ClassValue | ((state) => JSX.ClassValue)",
+        "default": "-",
+        "description": "CSS class applied to the element, or a function that\nreturns a class based on the component's state."
+      },
+      {
+        "name": "style",
+        "type": "JSX.CSSProperties | string | ((state) => JSX.CSSProperties | string | undefined)",
+        "default": "-",
+        "description": "Style applied to the element, or a function that\nreturns a style object based on the component's state."
+      },
+      {
+        "name": "render",
+        "type": "keyof JSX.IntrinsicElements | Component | ((props, state) => JSX.Element)",
+        "default": "-",
+        "description": "Replace the default element with a tag name, component, or render function."
+      }
+    ],
+    "dataAttributes": [
+      {
+        "name": "data-orientation",
+        "type": "'horizontal' | 'vertical'",
+        "description": "Determines the orientation of the menubar."
+      },
+      {
+        "name": "data-has-submenu-open",
+        "type": "-",
+        "description": "Present when any submenu within the menubar is open."
+      },
+      {
+        "name": "data-modal",
+        "type": "-",
+        "description": "Present when the corresponding menubar is modal."
+      }
+    ],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Menubar.State",
+        "source": "type MenubarState = {\n  /** The orientation of the menubar. */\n  orientation: MenuRoot.Orientation;\n  /** Whether the menubar is modal. */\n  modal: boolean;\n  /** Whether any submenu within the menubar is open. */\n  hasSubmenuOpen: boolean;\n};"
+      }
+    ]
+  }
+}

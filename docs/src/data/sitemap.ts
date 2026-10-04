@@ -2,6 +2,18 @@
 export const pages = [
   {
     section: 'Components',
+    title: 'Context Menu',
+    href: '/react/components/context-menu',
+    description: 'A menu opened by right click or long press.',
+  },
+  {
+    section: 'Components',
+    title: 'Menubar',
+    href: '/react/components/menubar',
+    description: 'A container for menus.',
+  },
+  {
+    section: 'Components',
     title: 'Collapsible',
     href: '/react/components/collapsible',
     description: 'A collapsible panel controlled by a button.',
