@@ -7,9 +7,10 @@ import { REPO_URL, sourceUrl } from '../../../../../config';
 
 Base UI Solid has not been released yet.
 
-Each release ports a specific upstream [Base UI](https://base-ui.com) commit, so component behavior
-and APIs follow the matching `@base-ui/react` release. Its release notes list the upstream
-version it tracks and any Solid-specific changes.
+Each release ports a specific commit from the main branch of upstream [Base UI](https://base-ui.com).
+That commit can include changes upstream hasn't released yet, so a Base UI Solid release can be ahead
+of the latest `@base-ui/react` release. Its release notes list the upstream commit it tracks, the
+`@base-ui/react` release it builds on, and any Solid-specific changes.
 
 import { ReleaseTimeline } from './ReleaseTimeline';
 
