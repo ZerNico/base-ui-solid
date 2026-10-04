@@ -1,8 +1,8 @@
 import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
-import type { Placement } from '../../src/floating-ui-react/types';
+import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
+import type { Placement } from '../../src/floating-ui-solid/types';
 import {
   autoUpdate,
   flip,
@@ -17,7 +17,7 @@ import {
   useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../src/floating-ui-react';
+} from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Popover.module.css';

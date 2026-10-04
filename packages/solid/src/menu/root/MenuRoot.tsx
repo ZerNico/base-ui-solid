@@ -5,7 +5,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
-import { useFloatingParentNodeIdAccessor } from '../../floating-ui-react/components/FloatingTree';
+import { useFloatingParentNodeIdAccessor } from '../../floating-ui-solid/components/FloatingTree';
 import {
   FloatingTree,
   useDismiss,
@@ -13,8 +13,8 @@ import {
   useListNavigation,
   useTypeahead,
   useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
-import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
+} from '../../floating-ui-solid';
+import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';

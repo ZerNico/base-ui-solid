@@ -1,8 +1,8 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
+import type { FloatingRootContext } from '../../floating-ui-solid';
+import { FloatingRootStore } from '../../floating-ui-solid/components/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -234,6 +234,6 @@ export type PopupTriggerStoreKeys = 'context' | 'select' | 'set' | 'state' | 'up
  * that an inert store can be passed while detached.
  */
 export type PopupTriggerDataStore<State extends PopupStoreState<unknown>> = Pick<
-  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
+  SolidStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
   PopupTriggerStoreKeys
 >;

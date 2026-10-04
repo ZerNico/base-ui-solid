@@ -2,7 +2,7 @@ import { createMemo, omit, Show, untrack } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { FloatingNode } from '../../floating-ui-react';
+import { FloatingNode } from '../../floating-ui-solid';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';

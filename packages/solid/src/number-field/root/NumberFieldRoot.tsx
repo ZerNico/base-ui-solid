@@ -10,7 +10,7 @@ import { platform } from '@base-ui-solid/utils/platform';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement } from '../../floating-ui-solid/utils';
 import type { InputMode } from './NumberFieldRootContext';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';

@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import { contains } from '../floating-ui-react/utils';
+import { contains } from '../floating-ui-solid/utils';
 import { SHIFT } from '../internals/composite/composite';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';

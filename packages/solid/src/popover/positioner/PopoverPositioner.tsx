@@ -1,6 +1,6 @@
 import { createMemo, omit, Show } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-solid';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';

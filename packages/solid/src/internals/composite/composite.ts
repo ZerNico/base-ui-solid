@@ -8,7 +8,7 @@ export {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
-} from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid/utils';
 
 export const ARROW_UP = 'ArrowUp';
 export const ARROW_DOWN = 'ArrowDown';

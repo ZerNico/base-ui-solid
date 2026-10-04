@@ -8,7 +8,7 @@ import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../floating-ui-solid';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';

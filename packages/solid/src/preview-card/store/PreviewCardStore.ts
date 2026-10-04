@@ -1,4 +1,4 @@
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type {
   InlineRectCoords,
@@ -50,7 +50,7 @@ export type PreviewCardHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys
 >;
 
-export class PreviewCardStore<Payload> extends ReactStore<
+export class PreviewCardStore<Payload> extends SolidStore<
   Readonly<State<Payload>>,
   Context,
   Selectors

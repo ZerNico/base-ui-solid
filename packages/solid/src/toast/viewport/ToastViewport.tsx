@@ -6,7 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-solid/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';

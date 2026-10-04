@@ -1,6 +1,6 @@
 import { merge } from 'solid-js';
 import { useMenuFilterPopup } from './useMenuFilterPopup';
-import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
+import type { FloatingFocusManagerProps } from '../../floating-ui-solid/components/FloatingFocusManager';
 import { MenuPopupPlain } from '../popup/MenuPopup';
 import type { MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';

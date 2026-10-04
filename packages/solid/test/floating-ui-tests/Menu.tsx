@@ -8,8 +8,8 @@ import { useTestInteractions } from '#test-utils';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
-import type { ElementProps } from '../../src/floating-ui-react/types';
+import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
+import type { ElementProps } from '../../src/floating-ui-solid/types';
 import {
   autoUpdate,
   flip,
@@ -28,10 +28,10 @@ import {
   useListNavigation,
   useTypeahead,
   useFocus,
-} from '../../src/floating-ui-react';
+} from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
-import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import { gridNavigation } from '../../src/floating-ui-solid/hooks/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
 

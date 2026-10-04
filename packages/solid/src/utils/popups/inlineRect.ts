@@ -2,7 +2,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { Accessor } from 'solid-js';
 import { isElement } from '@floating-ui/utils/dom';
 import type { HTMLProps } from '../../internals/types';
-import type { Middleware, VirtualElement } from '../../floating-ui-react/dom';
+import type { Middleware, VirtualElement } from '../../floating-ui-solid/dom';
 
 // Floating UI ships an `inline()` middleware. This local version mirrors its line-rect
 // selection while adding trigger identity checks, delayed-open hit-line reuse, and

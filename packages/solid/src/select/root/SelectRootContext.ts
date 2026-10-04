@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'solid-js';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-solid';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = createContext<SelectStore | null>(null);

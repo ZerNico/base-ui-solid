@@ -6,11 +6,11 @@ import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui-solid/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
-import type { Dimensions } from '../floating-ui-react/types';
+import type { Dimensions } from '../floating-ui-solid/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';
@@ -44,7 +44,7 @@ export interface PopupViewportState {
  * rendered (see `usePopupViewport`).
  */
 type PopupViewportStore = Pick<
-  ReactStore<any, any, any>,
+  SolidStore<any, any, any>,
   'useState' | 'set' | 'subscribe' | 'state'
 >;
 

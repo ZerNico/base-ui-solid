@@ -12,7 +12,7 @@ import type { DialogHandle } from '../store/DialogHandle';
 import type { DialogHandleStore } from '../store/DialogStore';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick } from '../../floating-ui-react';
+import { useClick } from '../../floating-ui-solid';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**

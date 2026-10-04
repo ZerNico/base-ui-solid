@@ -1,8 +1,8 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
-import type { ElementProps } from '../../floating-ui-react';
-import { closest, getTarget } from '../../floating-ui-react/utils';
+import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-solid';
+import type { ElementProps } from '../../floating-ui-solid';
+import { closest, getTarget } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -11,7 +11,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../floating-ui-solid/utils/getEmptyRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

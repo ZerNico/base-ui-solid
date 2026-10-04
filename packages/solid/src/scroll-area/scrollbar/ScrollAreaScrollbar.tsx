@@ -2,7 +2,7 @@ import { Show, createMemo, omit } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-solid/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../internals/useRenderElement';

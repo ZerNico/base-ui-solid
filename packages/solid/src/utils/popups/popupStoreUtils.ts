@@ -2,15 +2,15 @@ import { createMemo, flush, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
-import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
-import type { SyncedFloatingRootContextStore } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-solid/utils/constants';
+import { useFloatingParentNodeId } from '../../floating-ui-solid/components/FloatingTree';
+import { useSyncedFloatingRootContext } from '../../floating-ui-solid/hooks/useSyncedFloatingRootContext';
+import type { SyncedFloatingRootContextStore } from '../../floating-ui-solid/hooks/useSyncedFloatingRootContext';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -633,7 +633,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  */
 export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: Accessor<boolean>,
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: SolidStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
   animateInitialOpen?: boolean,
 ) {
@@ -671,7 +671,7 @@ export function usePopupInteractionProps<
   State extends PopupStoreState<unknown>,
   const Key extends keyof State,
 >(
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: SolidStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   statePart: Accessor<Pick<State, Key | PopupInteractionPropKey>>,
 ) {
   store.useSyncedValues(statePart);
@@ -693,7 +693,7 @@ export function usePopupRootSync<
     openMethod: InteractionType | null;
   },
 >(
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: SolidStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   open: Accessor<boolean>,
 ) {
   useIsoLayoutEffect(

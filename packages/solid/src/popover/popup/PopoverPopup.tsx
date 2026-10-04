@@ -2,7 +2,7 @@ import { createMemo, omit } from 'solid-js';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
+import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-solid';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';

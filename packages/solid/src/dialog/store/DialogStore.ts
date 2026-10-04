@@ -1,5 +1,5 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
@@ -53,7 +53,7 @@ const selectors = {
  */
 export type DialogHandleStore<Payload> = PopupTriggerDataStore<State<Payload>>;
 
-export class DialogStore<Payload> extends ReactStore<
+export class DialogStore<Payload> extends SolidStore<
   Readonly<State<Payload>>,
   Context,
   typeof selectors

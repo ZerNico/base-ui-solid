@@ -1,5 +1,5 @@
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import type { BaseUIChangeEventDetails } from '../../types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
@@ -10,7 +10,7 @@ import type { FloatingRootState, FloatingRootStore } from '../components/Floatin
  * unrelated store capabilities.
  */
 export type SyncedFloatingRootContextStore<State extends PopupStoreState<unknown>> = Pick<
-  ReactStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
+  SolidStore<Readonly<State>, PopupStoreContext<never>, PopupStoreSelectors>,
   'context' | 'state' | 'useState' | 'useSyncedValue'
 >;
 

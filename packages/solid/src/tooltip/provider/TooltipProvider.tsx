@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web';
-import { FloatingDelayGroup } from '../../floating-ui-react';
+import { FloatingDelayGroup } from '../../floating-ui-solid';
 import { TooltipProviderContext } from './TooltipProviderContext';
 
 /**

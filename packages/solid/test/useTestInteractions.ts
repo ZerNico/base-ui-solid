@@ -1,10 +1,10 @@
 import type { HTMLProps } from '../src/internals/types';
-import type { ElementProps } from '../src/floating-ui-react/types';
+import type { ElementProps } from '../src/floating-ui-solid/types';
 import {
   ACTIVE_KEY,
   FOCUSABLE_ATTRIBUTE,
   SELECTED_KEY,
-} from '../src/floating-ui-react/utils/constants';
+} from '../src/floating-ui-solid/utils/constants';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean | undefined;

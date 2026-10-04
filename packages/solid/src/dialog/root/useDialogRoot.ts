@@ -1,8 +1,8 @@
 import { createSignal, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui-solid/utils/useScrollLock';
-import { useDismiss } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { useDismiss } from '../../floating-ui-solid';
+import { contains, getTarget } from '../../floating-ui-solid/utils';
 import type { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups';
 

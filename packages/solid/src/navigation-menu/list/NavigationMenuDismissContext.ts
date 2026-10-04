@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'solid-js';
 import type { Accessor } from 'solid-js';
-import type { ElementProps } from '../../floating-ui-react';
+import type { ElementProps } from '../../floating-ui-solid';
 
 /**
  * Port note: the value is an accessor of the dismiss props (`undefined` while there's no active

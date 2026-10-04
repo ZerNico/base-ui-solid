@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { fileURLToPath } from 'node:url';
+import { toPortPath } from './portPaths.mjs';
 
 // Compares every ported test file with its upstream counterpart: each upstream test must exist in
 // the port (by full "describe > it" name) with the same effective skip condition. Hard skips are
@@ -17,17 +18,6 @@ const MAP = [
   ['utils/src', 'utils/src'],
   ['react/test', 'solid/test'],
 ];
-
-// These modules are being ported concurrently; compare them once their ports are complete.
-const IN_PROGRESS = new Set([
-  'combobox',
-  'menu',
-  'filter-dropdown',
-  'drawer',
-  'context-menu',
-  'menubar',
-  'autocomplete',
-]);
 
 function isReactAPIDetection(condition) {
   return /^(?:!hasCaptureOwnerStack|(?:Safe)?React\.\w+\s*===?\s*undefined)$/.test(condition);
@@ -142,7 +132,11 @@ function collect(file) {
         if (bs) {
           conds.push(bs);
         }
-        const full = prefix ? `${prefix} > ${name}` : name;
+        // Test names mention renamed modules, see `portPaths.mjs`.
+        const full = (prefix ? `${prefix} > ${name}` : name).replace(
+          /\bReactStore\b/g,
+          'SolidStore',
+        );
         if (info.base === 'describe') {
           if (fn) {
             ts.forEachChild(fn, (c) => visit(c, full, conds));
@@ -176,11 +170,8 @@ const allowed = {};
 const rows = [];
 for (const [u, p] of MAP) {
   for (const upFile of walk(path.join(UP, u))) {
-    const rel = path.relative(path.join(UP, u), upFile);
+    const rel = toPortPath(path.relative(path.join(UP, u), upFile));
     const module = rel.split(path.sep)[0];
-    if (p === 'solid/src' && IN_PROGRESS.has(module)) {
-      continue;
-    }
     const ptFile = path.join(PT, p, rel);
     if (!fs.existsSync(ptFile)) {
       // Only source modules present in the port are required to have all upstream test files.

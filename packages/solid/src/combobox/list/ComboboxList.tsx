@@ -10,7 +10,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-solid/utils';
 import { clickHighlightedItem } from '../utils/parts';
 
 /**

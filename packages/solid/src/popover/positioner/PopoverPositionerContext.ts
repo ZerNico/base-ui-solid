@@ -2,7 +2,7 @@ import { createContext, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import type { FloatingContext } from '../../floating-ui-react';
+import type { FloatingContext } from '../../floating-ui-solid';
 
 /**
  * Port note: `side`, `align`, `arrowUncentered` and `arrowStyles` are getters (the value is the

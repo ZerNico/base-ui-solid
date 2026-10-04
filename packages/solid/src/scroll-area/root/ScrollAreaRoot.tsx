@@ -8,7 +8,7 @@ import { getOffset } from '../utils/getOffset';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
-import { contains } from '../../floating-ui-react/utils';
+import { contains } from '../../floating-ui-solid/utils';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import * as ScrollAreaRootCssVars from './ScrollAreaRootCssVars';
 import * as ScrollAreaScrollbarDataAttributes from '../scrollbar/ScrollAreaScrollbarDataAttributes';

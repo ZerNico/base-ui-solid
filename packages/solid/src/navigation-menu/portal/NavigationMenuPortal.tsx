@@ -1,6 +1,6 @@
 import { omit, Show } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-solid';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { NavigationMenuPortalContext } from './NavigationMenuPortalContext';

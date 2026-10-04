@@ -4,7 +4,7 @@ import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
+import { isVirtualPointerEvent } from '../../floating-ui-solid/utils/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';

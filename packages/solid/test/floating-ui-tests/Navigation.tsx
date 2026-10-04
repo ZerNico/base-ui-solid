@@ -2,7 +2,7 @@ import { createSignal, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
 import type { HTMLProps } from '../../src/internals/types';
 import {
   flip,
@@ -15,7 +15,7 @@ import {
   useDismiss,
   useFloatingNodeId,
   useFocus,
-} from '../../src/floating-ui-react';
+} from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Navigation.module.css';

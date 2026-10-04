@@ -1,4 +1,4 @@
-import type { Middleware } from '../floating-ui-react/dom';
+import type { Middleware } from '../floating-ui-solid/dom';
 
 export const hide: Middleware = {
   name: 'hide',

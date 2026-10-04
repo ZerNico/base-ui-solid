@@ -4,7 +4,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { FilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
-import { getTarget } from '../../floating-ui-react/utils';
+import { getTarget } from '../../floating-ui-solid/utils';
 import { refocusOwner } from '../utils/refocusOwner';
 /**
  * @internal

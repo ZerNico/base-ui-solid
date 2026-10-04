@@ -11,7 +11,7 @@ commit. base-ui.com documents the latest release, so it can differ from this por
 upstream changed something after that release.
 
 The folder layout mirrors upstream (`packages/react/src/*` → `packages/solid/src/*`,
-`packages/utils/src/*` → `packages/utils/src/*`) so upstream diffs can be ported file by file.
+`packages/utils/src/*` → `packages/utils/src/*`, plus the renames listed in `PORTING.md`) so upstream diffs can be ported file by file.
 See `PORTING.md` for the React → Solid translation rules.
 
 ## Syncing with upstream

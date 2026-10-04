@@ -6,7 +6,7 @@ import { useId } from '@base-ui-solid/utils/useId';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTestInteractions } from '#test-utils';
-import type { Placement } from '../../src/floating-ui-react/types';
+import type { Placement } from '../../src/floating-ui-solid/types';
 import {
   arrow,
   autoUpdate,
@@ -17,7 +17,7 @@ import {
   useClick,
   useDismiss,
   useListNavigation,
-} from '../../src/floating-ui-react';
+} from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';

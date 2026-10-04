@@ -18,13 +18,13 @@ import {
   useDelayGroup,
   useFocus,
   useHoverReferenceInteraction,
-} from '../../floating-ui-react';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
-import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
+} from '../../floating-ui-solid';
+import { closest, contains, getTarget } from '../../floating-ui-solid/utils/element';
+import { isMouseLikePointerType } from '../../floating-ui-solid/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
-import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
+import { useHoverInteractionSharedState } from '../../floating-ui-solid/hooks/useHoverInteractionSharedState';
+import { getDelay } from '../../floating-ui-solid/hooks/useHoverShared';
 import * as TooltipTriggerDataAttributes from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';

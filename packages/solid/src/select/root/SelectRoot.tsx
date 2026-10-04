@@ -8,7 +8,7 @@ import { isElementDisabled } from '@base-ui-solid/utils/isElementDisabled';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import {
@@ -17,8 +17,8 @@ import {
   useFloatingRootContext,
   useListNavigation,
   useTypeahead,
-} from '../../floating-ui-react';
-import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
+} from '../../floating-ui-solid';
+import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -128,7 +128,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const store = untrack(
     () =>
-      new ReactStore<StoreState, SelectStoreContext, typeof selectors>(
+      new SolidStore<StoreState, SelectStoreContext, typeof selectors>(
         {
           id: generatedId(),
           labelId: undefined,

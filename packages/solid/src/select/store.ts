@@ -1,6 +1,6 @@
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -163,4 +163,4 @@ export const selectors = {
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
 
-export type SelectStore = ReactStore<State, SelectStoreContext, typeof selectors>;
+export type SelectStore = SolidStore<State, SelectStoreContext, typeof selectors>;

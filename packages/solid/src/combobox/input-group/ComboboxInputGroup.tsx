@@ -9,7 +9,7 @@ import type { Side } from '../../internals/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
 import { useListEmpty, usePopupSide } from '../utils/parts';
-import { contains } from '../../floating-ui-react/utils/element';
+import { contains } from '../../floating-ui-solid/utils/element';
 
 /**
  * A wrapper for the input and its associated controls.

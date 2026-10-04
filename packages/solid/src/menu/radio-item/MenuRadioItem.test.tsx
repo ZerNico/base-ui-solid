@@ -67,9 +67,9 @@ describe('<Menu.RadioItem />', () => {
       errorSpy.mockRestore();
     }
   });
-  it('perf: does not rerender menu items unnecessarily', async (componentProps1) => {
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
-      componentProps1.skip();
+      skip();
     }
     const renderItem1Spy = vi.fn();
     const renderItem2Spy = vi.fn();

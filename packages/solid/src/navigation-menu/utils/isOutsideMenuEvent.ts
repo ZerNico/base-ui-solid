@@ -1,6 +1,6 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { FloatingTreeType } from '../../floating-ui-react';
-import { contains, getNodeChildren } from '../../floating-ui-react/utils';
+import type { FloatingTreeType } from '../../floating-ui-solid';
+import { contains, getNodeChildren } from '../../floating-ui-solid/utils';
 
 interface Targets {
   currentTarget: HTMLElement | null;

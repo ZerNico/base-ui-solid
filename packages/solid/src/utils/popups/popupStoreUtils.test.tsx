@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
 import type { Setter } from 'solid-js';
 import { flushMicrotasks, render, screen, waitFor } from '#test-utils';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
@@ -17,7 +17,7 @@ import {
   useTriggerDataForwarding,
   useTriggerRegistration,
 } from './';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useSyncedFloatingRootContext } from '../../floating-ui-solid';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
@@ -26,7 +26,7 @@ import type { BaseUIChangeEventDetails } from '../../types';
 // driven by signals (`<Show>` replaces keyed (un)mounting; `flush()` replaces `act`). Hooks
 // receive the props they read on every render as accessors.
 
-type TestStore = ReactStore<
+type TestStore = SolidStore<
   PopupStoreState<unknown>,
   PopupStoreContext<unknown>,
   PopupStoreSelectors
@@ -36,7 +36,7 @@ type TestStore = ReactStore<
 
 function createStore() {
   const triggerElements = new PopupTriggerMap();
-  const store = new ReactStore<
+  const store = new SolidStore<
     PopupStoreState<unknown>,
     PopupStoreContext<unknown>,
     PopupStoreSelectors
@@ -59,7 +59,7 @@ function createStore() {
 
 function TestTrigger(props: {
   id: string;
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  store: SolidStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
   element: HTMLElement;
   repeat?: number;
 }) {
@@ -86,7 +86,7 @@ function TestTrigger(props: {
 
 function TestForwardedTrigger(props: {
   id: string;
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  store: SolidStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
   element: HTMLElement;
   payload?: unknown;
 }) {
@@ -114,7 +114,7 @@ function TestForwardedTrigger(props: {
 }
 
 function PopupIdTest(props: {
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  store: SolidStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
   floatingId: string | undefined;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
 }) {
@@ -169,7 +169,7 @@ function ImplicitTriggerUnmountTest(props: { store: TestStore; element: HTMLElem
 }
 
 function PopupInteractionPropsTest(props: {
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  store: SolidStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
   activeTriggerProps: PopupStoreState<unknown>['activeTriggerProps'];
   inactiveTriggerProps: PopupStoreState<unknown>['inactiveTriggerProps'];
   popupProps: PopupStoreState<unknown>['popupProps'];

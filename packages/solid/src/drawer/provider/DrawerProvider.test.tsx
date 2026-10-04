@@ -57,7 +57,7 @@ function VisualStateCase(props: { showIndent: boolean }) {
     </Drawer.Provider>
   );
 }
-describe('<Drawer />', () => {
+describe('<Drawer.Provider />', () => {
   const { render } = createRenderer();
   it('stays active until every open drawer is closed or removed', async () => {
     const { setProps } = await render((overrides) => (

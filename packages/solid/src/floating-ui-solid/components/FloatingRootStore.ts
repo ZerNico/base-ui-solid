@@ -1,5 +1,5 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
@@ -56,7 +56,7 @@ interface FloatingRootStoreOptions {
     ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
-export class FloatingRootStore extends ReactStore<
+export class FloatingRootStore extends SolidStore<
   Readonly<FloatingRootState>,
   FloatingRootStoreContext,
   typeof selectors

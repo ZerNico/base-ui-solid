@@ -8,7 +8,7 @@ import {
   useClick,
   useDismiss,
   useListNavigation,
-} from '../../src/floating-ui-react';
+} from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 import styles from './Grid.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';

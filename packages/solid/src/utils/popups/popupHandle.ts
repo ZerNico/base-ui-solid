@@ -159,7 +159,7 @@ export class BasePopupHandle<
         // the transition has settled (more than one root stayed mounted), so a clean handoff doesn't
         // warn regardless of the exact unmount timing.
         // The warning frame only exists in development; it is created lazily so it never appears on
-        // instances in production (like `controlledValues` in `ReactStore`).
+        // instances in production (like `controlledValues` in `SolidStore`).
         const dev = this as this & { overlapWarningFrame?: AnimationFrame | undefined };
         (dev.overlapWarningFrame ??= AnimationFrame.create()).request(() => {
           if (this.attachedStores.length > 1) {

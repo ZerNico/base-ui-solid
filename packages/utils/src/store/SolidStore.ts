@@ -17,13 +17,13 @@ import { IS_DEV } from '../isDev';
  * - `useState` returns an accessor; selector arguments may be accessors.
  * - `useContextCallback` takes an accessor returning the callback, read when it's called.
  */
-export class ReactStore<
+export class SolidStore<
   State extends object,
   Context = Record<string, never>,
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
   /**
-   * Creates a new ReactStore instance.
+   * Creates a new SolidStore instance.
    *
    * @param state Initial state of the store.
    * @param context Non-reactive context values.
@@ -120,7 +120,7 @@ export class ReactStore<
             keys.some((k, index) => k !== nextKeys[index])
           ) {
             console.error(
-              'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+              'SolidStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
             );
           }
         }

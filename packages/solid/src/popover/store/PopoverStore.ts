@@ -1,5 +1,5 @@
 import { flush } from 'solid-js';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { Timeout } from '@base-ui-solid/utils/useTimeout';
 import { NOOP } from '@base-ui-solid/utils/empty';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
@@ -80,7 +80,7 @@ export type PopoverHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen'
 >;
 
-export class PopoverStore<Payload> extends ReactStore<
+export class PopoverStore<Payload> extends SolidStore<
   Readonly<State<Payload>>,
   Context,
   Selectors

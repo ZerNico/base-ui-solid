@@ -14,7 +14,7 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-solid/utils';
 
 /**
  * An individual interactive tab button that toggles the corresponding panel.

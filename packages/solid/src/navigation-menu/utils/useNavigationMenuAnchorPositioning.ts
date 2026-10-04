@@ -1,6 +1,6 @@
-import { useBaseUIFloating } from '../../floating-ui-react/hooks/useFloating';
-import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
-import type { UseFloatingOptions } from '../../floating-ui-react/types';
+import { useBaseUIFloating } from '../../floating-ui-solid/hooks/useFloating';
+import { useFloatingRootContext } from '../../floating-ui-solid/hooks/useFloatingRootContext';
+import type { UseFloatingOptions } from '../../floating-ui-solid/types';
 import { useAnchorPositioningWithHook } from '../../internals/useAnchorPositioning';
 import type {
   UseAnchorPositioningParameters,

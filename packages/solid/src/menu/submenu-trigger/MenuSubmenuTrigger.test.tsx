@@ -397,18 +397,18 @@ describe('<Menu.SubmenuTrigger />', () => {
     { direction: 'ltr', openKey: 'ArrowRight', closeKey: 'ArrowLeft' },
     { direction: 'rtl', openKey: 'ArrowLeft', closeKey: 'ArrowRight' },
   ];
-  testCases.forEach((componentProps3) => {
-    it(`opens the submenu with ${componentProps3.openKey} and highlights a single item in ${componentProps3.direction.toUpperCase()} direction`, async () => {
+  testCases.forEach(({ direction, openKey }) => {
+    it(`opens the submenu with ${openKey} and highlights a single item in ${direction.toUpperCase()} direction`, async () => {
       await render(
         (testProps: any) => <TestComponent {...testProps} />,
         () => ({
-          direction: componentProps3.direction as TextDirection,
+          direction: direction as TextDirection,
         }),
       );
       const submenuTrigger = screen.getByText('2');
       // Port note: native focus dispatch does not move focus or bubble as React onFocus does.
       await act(() => submenuTrigger.focus());
-      fireEvent.keyDown(submenuTrigger, { key: componentProps3.openKey });
+      fireEvent.keyDown(submenuTrigger, { key: openKey });
       // Port note: flush the native event before findAll sees only the parent items.
       flush();
       const submenuItems = await screen.findAllByRole('menuitem');

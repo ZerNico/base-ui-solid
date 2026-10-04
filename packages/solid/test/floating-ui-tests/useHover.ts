@@ -11,30 +11,30 @@ import type { FloatingUIOpenChangeDetails } from '../../src/internals/types';
 import {
   useFloatingParentNodeId,
   useFloatingTree,
-} from '../../src/floating-ui-react/components/FloatingTree';
+} from '../../src/floating-ui-solid/components/FloatingTree';
 import type {
   Delay,
   ElementProps,
   FloatingContext,
   FloatingRootContext,
-} from '../../src/floating-ui-react/types';
+} from '../../src/floating-ui-solid/types';
 import {
   contains,
   getTarget,
   isInteractiveElement,
-} from '../../src/floating-ui-react/utils/element';
-import type { HandleClose } from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/floating-ui-solid/utils/element';
+import type { HandleClose } from '../../src/floating-ui-solid/hooks/useHoverShared';
 import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
   isHoverOpenEvent,
-} from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/floating-ui-solid/hooks/useHoverShared';
 
 export type {
   HandleCloseContext,
   HandleClose,
-} from '../../src/floating-ui-react/hooks/useHoverShared';
+} from '../../src/floating-ui-solid/hooks/useHoverShared';
 
 /**
  * Port note: read lazily like Solid props, so pass a props-like object with getters for reactive

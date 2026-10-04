@@ -1,7 +1,7 @@
 import { omit, onCleanup, Show } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-solid';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';

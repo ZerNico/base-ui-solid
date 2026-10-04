@@ -9,7 +9,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { getTarget } from '@base-ui-solid/utils/shadowDom';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-solid';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';

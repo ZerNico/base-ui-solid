@@ -3,7 +3,7 @@ import type { MockInstance } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { render as solidRender, screen } from '@solidjs/testing-library';
-import { ReactStore } from './ReactStore';
+import { SolidStore } from './SolidStore';
 import { useEffect } from '../useIsoLayoutEffect';
 import { createSelector } from './createSelector';
 
@@ -12,7 +12,7 @@ type TestState = { value: number; label: string };
 // Port note: the component body runs once, so the store is created once (upstream's
 // `useRefWithInit`).
 function useStableStore<State extends object>(initial: State) {
-  return new ReactStore<State>(initial);
+  return new SolidStore<State>(initial);
 }
 
 // Port note: counterpart of upstream's `render(...).setProps` and `act()`: the props are held in a
@@ -52,18 +52,18 @@ function expectErrorDev(callback: () => void, messages: string[]) {
   }
 }
 
-describe('ReactStore', () => {
-  it('create() constructs a fully wired ReactStore instance', () => {
-    const store = ReactStore.create({ value: 1, label: 'a' });
+describe('SolidStore', () => {
+  it('create() constructs a fully wired SolidStore instance', () => {
+    const store = SolidStore.create({ value: 1, label: 'a' });
 
-    expect(store).toBeInstanceOf(ReactStore);
+    expect(store).toBeInstanceOf(SolidStore);
     expect(store.state.value).toBe(1);
     // The static type degrades to `Store` on the generic class (see Store.create).
-    expect((store as ReactStore<TestState>).context).toEqual({});
+    expect((store as SolidStore<TestState>).context).toEqual({});
   });
 
   it('syncs internal state from controlled prop', () => {
-    let store!: ReactStore<TestState>;
+    let store!: SolidStore<TestState>;
 
     function Test(props: { controlled: number | undefined }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
@@ -88,17 +88,17 @@ describe('ReactStore', () => {
   });
 
   it('syncs internal state from controlled prop when the store changes', () => {
-    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
-    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const firstStore = new SolidStore<TestState>({ value: 0, label: '' });
+    const secondStore = new SolidStore<TestState>({ value: 0, label: '' });
 
-    function Test(props: { store: ReactStore<TestState> }) {
+    function Test(props: { store: SolidStore<TestState> }) {
       props.store.useControlledProp('value', () => 1);
       return null;
     }
 
     // Port note: the `use*` methods are bound to the store they're called on when the component
     // runs, so a different store re-creates the component (keyed), where React re-renders it.
-    function Keyed(props: { store: ReactStore<TestState> }) {
+    function Keyed(props: { store: SolidStore<TestState> }) {
       return (
         <Show when={props.store} keyed>
           {(store) => <Test store={store} />}
@@ -147,7 +147,7 @@ describe('ReactStore', () => {
   });
 
   it('useProp updates a single key when the passed value changes', () => {
-    let store!: ReactStore<TestState>;
+    let store!: SolidStore<TestState>;
 
     function Test(props: { value: number }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
@@ -163,16 +163,16 @@ describe('ReactStore', () => {
   });
 
   it('useProp syncs the same value when the store changes', () => {
-    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
-    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const firstStore = new SolidStore<TestState>({ value: 0, label: '' });
+    const secondStore = new SolidStore<TestState>({ value: 0, label: '' });
 
-    function Test(props: { store: ReactStore<TestState> }) {
+    function Test(props: { store: SolidStore<TestState> }) {
       props.store.useSyncedValue('value', () => 1);
       return null;
     }
 
     // Port note: see 'syncs internal state from controlled prop when the store changes'.
-    function Keyed(props: { store: ReactStore<TestState> }) {
+    function Keyed(props: { store: SolidStore<TestState> }) {
       return (
         <Show when={props.store} keyed>
           {(store) => <Test store={store} />}
@@ -189,7 +189,7 @@ describe('ReactStore', () => {
   });
 
   it('useProps applies multiple keys from a props object', () => {
-    let store!: ReactStore<TestState>;
+    let store!: SolidStore<TestState>;
 
     function Test(props: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
@@ -207,7 +207,7 @@ describe('ReactStore', () => {
   });
 
   it('useSyncedValues depends on entries instead of object identity', () => {
-    let store!: ReactStore<TestState>;
+    let store!: SolidStore<TestState>;
     let updateSpy!: MockInstance;
 
     function Test(props: { props: TestState }) {
@@ -255,13 +255,13 @@ describe('ReactStore', () => {
         setProps({ props: { label: 'x' } });
       });
     }, [
-      'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+      'SolidStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
     ]);
   });
 
   it('useSyncedValueWithCleanup synchronizes value and resets on cleanup', () => {
     type CleanupState = { node: HTMLDivElement | undefined };
-    let store!: ReactStore<CleanupState>;
+    let store!: SolidStore<CleanupState>;
 
     const firstNode = document.createElement('div');
     const secondNode = document.createElement('div');
@@ -288,7 +288,7 @@ describe('ReactStore', () => {
 
   it('useStateSetter returns a stable callback that updates the store state', () => {
     type ElementState = { element: HTMLDivElement | null };
-    let store!: ReactStore<ElementState>;
+    let store!: SolidStore<ElementState>;
     let forceUpdate!: (updater: (value: number) => number) => void;
     let lastSetter!: (element: HTMLDivElement | null) => void;
 
@@ -332,7 +332,7 @@ describe('ReactStore', () => {
   it('supports nested stores as state values', async () => {
     type ParentState = { count: number };
     const parentSelectors = { count: (state: ParentState) => state.count };
-    type ParentStore = ReactStore<ParentState, Record<string, never>, typeof parentSelectors>;
+    type ParentStore = SolidStore<ParentState, Record<string, never>, typeof parentSelectors>;
     type ChildState = { count: number; parent?: ParentStore };
 
     const childSelectors = {
@@ -342,13 +342,13 @@ describe('ReactStore', () => {
 
     const localCountSelector = createSelector((state: ChildState) => state.count);
 
-    const parentStore = new ReactStore<ParentState, Record<string, never>, typeof parentSelectors>(
+    const parentStore = new SolidStore<ParentState, Record<string, never>, typeof parentSelectors>(
       { count: 0 },
       undefined,
       parentSelectors,
     );
 
-    const childStore = new ReactStore<ChildState, Record<string, never>, typeof childSelectors>(
+    const childStore = new SolidStore<ChildState, Record<string, never>, typeof childSelectors>(
       { count: 10 },
       undefined,
       childSelectors,
@@ -358,7 +358,7 @@ describe('ReactStore', () => {
     const onParentUpdated = (
       newParent: ParentStore | undefined,
       _: ParentStore | undefined,
-      store: ReactStore<ChildState, any, any>,
+      store: SolidStore<ChildState, any, any>,
     ) => {
       if (!newParent) {
         unsubscribeParentHandler?.();
@@ -373,7 +373,7 @@ describe('ReactStore', () => {
     const onCountUpdated = (
       newCount: number,
       _: number,
-      store: ReactStore<ChildState, any, any>,
+      store: SolidStore<ChildState, any, any>,
     ) => {
       store.state.parent?.set('count', newCount);
     };
@@ -424,7 +424,7 @@ describe('ReactStore', () => {
     const selectors = {
       valueByKey: (state: State, valueKey: string) => state.values[valueKey],
     };
-    const store = new ReactStore<State, {}, typeof selectors>(
+    const store = new SolidStore<State, {}, typeof selectors>(
       { values: { first: 'one', second: 'two', third: 'three' } },
       undefined,
       selectors,
@@ -457,7 +457,7 @@ describe('ReactStore', () => {
     };
 
     it('accepts selector functions', () => {
-      const store = new ReactStore<CounterState>({ count: 0, multiplier: 1 });
+      const store = new SolidStore<CounterState>({ count: 0, multiplier: 1 });
       const calls: Array<{ newValue: boolean; oldValue: boolean }> = [];
 
       const unsubscribe = store.observe(
@@ -485,7 +485,7 @@ describe('ReactStore', () => {
     });
 
     it('calls listener immediately with current selector result on subscription', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -501,7 +501,7 @@ describe('ReactStore', () => {
     });
 
     it('calls listener when selector result changes', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -521,7 +521,7 @@ describe('ReactStore', () => {
     });
 
     it('does not call listener when selector result is unchanged', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -538,7 +538,7 @@ describe('ReactStore', () => {
     });
 
     it('calls listener when any dependency of the selector changes', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -559,12 +559,12 @@ describe('ReactStore', () => {
     });
 
     it('provides the store instance to the listener', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
       );
-      let receivedStore!: ReactStore<CounterState, Record<string, never>, typeof selectors>;
+      let receivedStore!: SolidStore<CounterState, Record<string, never>, typeof selectors>;
 
       store.observe('doubled', (_: number, __: number, storeArg) => {
         receivedStore = storeArg;
@@ -574,7 +574,7 @@ describe('ReactStore', () => {
     });
 
     it('returns an unsubscribe function that stops observing', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -595,7 +595,7 @@ describe('ReactStore', () => {
     });
 
     it('supports multiple observers on the same selector', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,
@@ -618,7 +618,7 @@ describe('ReactStore', () => {
     });
 
     it('supports observers on different selectors', () => {
-      const store = new ReactStore<CounterState, Record<string, never>, typeof selectors>(
+      const store = new SolidStore<CounterState, Record<string, never>, typeof selectors>(
         { count: 5, multiplier: 3 },
         undefined,
         selectors,

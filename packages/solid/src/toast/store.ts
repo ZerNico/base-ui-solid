@@ -1,4 +1,4 @@
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { generateId } from '@base-ui-solid/utils/generateId';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { Timeout } from '@base-ui-solid/utils/useTimeout';
@@ -9,7 +9,7 @@ import type {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../floating-ui-solid/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
@@ -96,7 +96,7 @@ export const selectors = {
   prevFocusElement: (state: State) => state.prevFocusElement,
 };
 
-export class ToastStore extends ReactStore<State, {}, typeof selectors> {
+export class ToastStore extends SolidStore<State, {}, typeof selectors> {
   private timers = new Map<string, TimerInfo>();
 
   private areTimersPaused = false;

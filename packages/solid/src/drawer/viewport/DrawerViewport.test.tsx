@@ -4267,7 +4267,7 @@ describe('<Drawer.Viewport />', () => {
     expect(screen.getByTestId('backdrop')).not.toHaveAttribute('data-swiping');
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
-  it('publishes and clears swipe progress through Drawer', async () => {
+  it('publishes and clears swipe progress through Drawer.Provider', async () => {
     await render((overrides) => (
       <Drawer.Provider {...overrides()}>
         <Drawer.Indent data-testid="indent" />

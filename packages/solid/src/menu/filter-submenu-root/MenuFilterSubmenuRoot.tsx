@@ -18,8 +18,8 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-react/hooks/useListNavigation';
-import { activeElement, contains, stopEvent } from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid/hooks/useListNavigation';
+import { activeElement, contains, stopEvent } from '../../floating-ui-solid/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';

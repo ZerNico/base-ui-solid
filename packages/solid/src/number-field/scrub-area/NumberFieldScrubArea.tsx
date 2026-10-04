@@ -15,7 +15,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getTarget } from '../../floating-ui-react/utils';
+import { getTarget } from '../../floating-ui-solid/utils';
 
 const SCRUB_AREA_STYLE = {
   'touch-action': 'none',

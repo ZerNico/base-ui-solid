@@ -12,11 +12,11 @@ import {
   contains,
   getTarget,
   isTypeableElement,
-} from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid/utils';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
 import type { MenuRoot } from '../root/MenuRoot';
-import { isCrossOrientationCloseKey } from '../../floating-ui-react/hooks/useListNavigation';
+import { isCrossOrientationCloseKey } from '../../floating-ui-solid/hooks/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 export function useMenuFilterPopup(orientation: Accessor<MenuRoot.Orientation>): HTMLProps {

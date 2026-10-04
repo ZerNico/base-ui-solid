@@ -1,14 +1,14 @@
 import { createMemo, createSignal } from 'solid-js';
 import { isElement } from '@floating-ui/utils/dom';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { useBaseUIFloating } from '../../src/floating-ui-react/hooks/useFloating';
-import { useFloatingRootContext } from '../../src/floating-ui-react/hooks/useFloatingRootContext';
+import { useBaseUIFloating } from '../../src/floating-ui-solid/hooks/useFloating';
+import { useFloatingRootContext } from '../../src/floating-ui-solid/hooks/useFloatingRootContext';
 import type {
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
   UseFloatingReturn,
-} from '../../src/floating-ui-react/types';
+} from '../../src/floating-ui-solid/types';
 
 /**
  * Floating UI's public `useFloating`: `refs.setReference` and `refs.setFloating` also register the

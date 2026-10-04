@@ -13,12 +13,12 @@ import {
   useFloatingRootContext,
   useFloatingTree,
   useHoverReferenceInteraction,
-} from '../../floating-ui-react';
+} from '../../floating-ui-solid';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
-} from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+} from '../../floating-ui-solid/hooks/useHoverInteractionSharedState';
 import {
   closest,
   contains,
@@ -27,8 +27,8 @@ import {
   getPreviousTabbable,
   isOutsideEvent,
   stopEvent,
-} from '../../floating-ui-react/utils';
-import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
+} from '../../floating-ui-solid/utils';
+import type { HandleCloseContextBase } from '../../floating-ui-solid/hooks/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {

@@ -11,6 +11,21 @@ Solid 2.0 is not Solid 1.x. Before writing code, read
 `node_modules/solid-js/CHEATSHEET.md` (and `skills/reactivity-diagnostics/SKILL.md` when a
 diagnostic fires).
 
+## Renamed modules
+
+A few upstream names refer to React and are renamed in the port. `scripts/portPaths.mjs` maps
+them for `pnpm upstream:sync` and `pnpm test:compare-upstream`, so upstream diffs still land on
+the right files. Add new renames there and here.
+
+| Upstream                                    | Port                                        |
+| :------------------------------------------ | :------------------------------------------ |
+| `packages/react/src/floating-ui-react/`     | `packages/solid/src/floating-ui-solid/`     |
+| `packages/utils/src/store/ReactStore.ts(x)` | `packages/utils/src/store/SolidStore.ts(x)` |
+| `ReactStore` (class and test names)         | `SolidStore`                                |
+
+Test-only names that mention React (`advanceReactClock`, `*.react17.test.tsx`) keep their upstream
+names so test diffs stay mechanical.
+
 ## Public API differences
 
 | Upstream (React)                              | Port (Solid)                                                            |
@@ -143,7 +158,7 @@ diagnostic fires).
 
 ### Stores and popups
 
-Upstream's popups share state through `@base-ui/utils/store` (`Store`/`ReactStore` read with
+Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStore` read with
 `useSyncExternalStore`). The port keeps the same classes, names and methods
 (`@base-ui-solid/utils/store`) so popup code ports 1:1:
 
@@ -156,7 +171,7 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`ReactStor
   when Solid flushes and notifies readers only when the selected value changed (`Object.is`).
   Selector arguments may be accessors (`store.useState('isActive', () => index())`). An argument
   that is itself a function must be wrapped (`() => fn`).
-- `ReactStore` keeps its name. Values synced into the store are passed as accessors:
+- `SolidStore` keeps its name. Values synced into the store are passed as accessors:
   `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
   `useControlledProp(key, () => props.open)` and `useSyncedValues(() => ({ a: a(), b: props.b }))`.
   They write in an effect (`useIsoLayoutEffect`), like upstream's layout effects.
@@ -166,7 +181,7 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`ReactStor
 
 Floating UI:
 
-- `@floating-ui/react-dom` is replaced by `floating-ui-react/dom` (built on `@floating-ui/dom`), with
+- `@floating-ui/react-dom` is replaced by `floating-ui-solid/dom` (built on `@floating-ui/dom`), with
   the same API: `useFloating`, middleware accepting `deps`, `arrow` accepting a ref object, and the
   DOM utilities. Options objects are read lazily (pass getters for reactive options). The returned
   object (and `FloatingContext`) exposes `x`, `y`, `placement`, `strategy`, `middlewareData`,

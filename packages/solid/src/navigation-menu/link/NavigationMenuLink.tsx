@@ -1,6 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { useFloatingTree } from '../../floating-ui-react';
+import { useFloatingTree } from '../../floating-ui-solid';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

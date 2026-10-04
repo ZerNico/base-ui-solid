@@ -19,9 +19,9 @@ describe('<Menu.CheckboxItem />', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) => render(() => <Menu.Root open>{node()}</Menu.Root>),
   });
-  it('perf: does not rerender menu items unnecessarily', async (componentProps1) => {
+  it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
-      componentProps1.skip();
+      skip();
     }
     const renderItem1Spy = vi.fn();
     const renderItem2Spy = vi.fn();
@@ -299,9 +299,9 @@ describe('<Menu.CheckboxItem />', () => {
         expect(itemTwo).toHaveAttribute('aria-checked', 'false');
       },
     );
-    it(`toggles the checked state when Enter is pressed`, async (componentProps2) => {
+    it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
       if (isJSDOM) {
-        componentProps2.skip();
+        skip();
       }
       const { user } = await render(
         (testProps: any) => <Menu.Root {...testProps} />,

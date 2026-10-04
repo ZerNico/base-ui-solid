@@ -2,7 +2,7 @@ import type { Accessor } from 'solid-js';
 import { expectType } from '../testUtils';
 import { createSelector } from './createSelector';
 import type { Store } from './Store';
-import { ReactStore } from './ReactStore';
+import { SolidStore } from './SolidStore';
 
 interface TestState {
   count: number | undefined;
@@ -20,7 +20,7 @@ const selectors = {
   },
 };
 
-const store = new ReactStore<TestState, Record<string, never>, typeof selectors>(
+const store = new SolidStore<TestState, Record<string, never>, typeof selectors>(
   { count: 0, text: '' },
   undefined,
   selectors,
@@ -126,10 +126,10 @@ const mismatchedListener = (newValue: string) => {
 // @ts-expect-error listener must match selector return type
 store.observe((state) => state.text.length, mismatchedListener);
 
-// Calling create() on the generic class constructs a ReactStore at runtime, but the
+// Calling create() on the generic class constructs a SolidStore at runtime, but the
 // inferred instance type degrades to the base Store — a known limitation (see Store.create).
 {
-  const degraded = ReactStore.create({ count: 0 });
+  const degraded = SolidStore.create({ count: 0 });
   expectType<Store<{ count: number }>, typeof degraded>(degraded);
 }
 

@@ -1,6 +1,6 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { flush } from 'solid-js';
-import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-react/utils';
+import { getTabbableNearElement, isOutsideEvent } from '../../floating-ui-solid/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';

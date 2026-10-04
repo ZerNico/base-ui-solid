@@ -8,7 +8,7 @@ import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayout
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { warn } from '@base-ui-solid/utils/warn';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
-import { contains } from '../../floating-ui-react/utils';
+import { contains } from '../../floating-ui-solid/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';

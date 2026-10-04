@@ -1,4 +1,4 @@
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { NOOP } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { TooltipRoot } from '../root/TooltipRoot';
@@ -59,7 +59,7 @@ export type TooltipHandleStore<Payload> = Pick<
   PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'
 >;
 
-export class TooltipStore<Payload> extends ReactStore<
+export class TooltipStore<Payload> extends SolidStore<
   Readonly<State<Payload>>,
   Context,
   Selectors

@@ -4,7 +4,7 @@ import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
-import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
+import { contains, getTarget, stopEvent } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';

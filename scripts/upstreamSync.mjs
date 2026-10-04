@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { toPortPath } from './portPaths.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mappings = [
@@ -160,7 +161,7 @@ Relative override paths are resolved from the current working directory.`);
       const [source, destination] = mappings.find(
         ([prefix]) => file.startsWith(`${prefix}/`) || file === prefix,
       );
-      const portFile = destination + file.slice(source.length);
+      const portFile = destination + toPortPath(file.slice(source.length));
       const marker = existsSync(path.join(root, portFile)) ? 'exists' : 'missing';
       print(`  ${status} ${JSON.stringify(file)} -> ${JSON.stringify(portFile)} [${marker}]`);
     }

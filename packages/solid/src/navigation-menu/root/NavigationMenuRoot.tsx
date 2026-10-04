@@ -11,9 +11,9 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import type { FloatingRootContext } from '../../floating-ui-react';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid';
+import type { FloatingRootContext } from '../../floating-ui-solid';
+import { activeElement, contains } from '../../floating-ui-solid/utils';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

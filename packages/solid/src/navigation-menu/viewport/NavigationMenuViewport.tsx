@@ -13,8 +13,8 @@ import {
   getPreviousTabbable,
   isOutsideEvent,
   contains,
-} from '../../floating-ui-react/utils';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+} from '../../floating-ui-solid/utils';
+import { getEmptyRootContext } from '../../floating-ui-solid/utils/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();

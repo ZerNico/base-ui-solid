@@ -14,9 +14,9 @@ import {
   useHoverReferenceInteraction,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid';
+import { FloatingTreeStore } from '../../floating-ui-solid/components/FloatingTreeStore';
+import { contains } from '../../floating-ui-solid/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';

@@ -4,8 +4,8 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { FloatingNode } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { FloatingNode } from '../../floating-ui-solid';
+import { contains, getTarget } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

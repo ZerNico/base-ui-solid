@@ -1,4 +1,4 @@
-import type { ReactStore } from '@base-ui-solid/utils/store';
+import type { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
@@ -202,4 +202,4 @@ export const selectors = {
   autoHighlight: (state: State) => state.autoHighlight,
 };
 
-export type ComboboxStore = ReactStore<State, ComboboxStoreContext, typeof selectors>;
+export type ComboboxStore = SolidStore<State, ComboboxStoreContext, typeof selectors>;

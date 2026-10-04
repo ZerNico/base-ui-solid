@@ -3,7 +3,7 @@ import { createSignal, flush } from 'solid-js';
 import { render } from '@solidjs/testing-library';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTestInteractions } from './useTestInteractions';
-import { FOCUSABLE_ATTRIBUTE } from '../src/floating-ui-react/utils/constants';
+import { FOCUSABLE_ATTRIBUTE } from '../src/floating-ui-solid/utils/constants';
 
 describe('useTestInteractions', () => {
   it('correctly merges functions', () => {

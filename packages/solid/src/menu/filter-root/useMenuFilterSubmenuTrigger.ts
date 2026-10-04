@@ -4,7 +4,7 @@ import { useEnhancedClickHandler } from '@base-ui-solid/utils/useEnhancedClickHa
 import type { HTMLProps, BaseUIEvent } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
+import { isVirtualPointerEvent } from '../../floating-ui-solid/utils/event';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { useFilterContextForList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import type { MenuFilterItemParams, MenuFilterItemResult } from './MenuFilterContext';

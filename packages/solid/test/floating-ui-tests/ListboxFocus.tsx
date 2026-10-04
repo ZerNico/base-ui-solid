@@ -4,7 +4,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useTestInteractions } from '#test-utils';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { useListNavigation, useTypeahead } from '../../src/floating-ui-react';
+import { useListNavigation, useTypeahead } from '../../src/floating-ui-solid';
 import { useFloating } from './useFloating';
 
 /**

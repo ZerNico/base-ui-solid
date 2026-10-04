@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { ComboboxStore } from '../store';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-solid';
 
 /**
  * Port note: the fields are getters backed by the root's memos.

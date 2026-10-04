@@ -6,21 +6,21 @@ import { useOnFirstRender } from '@base-ui-solid/utils/useOnFirstRender';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps } from '../../floating-ui-react';
+import type { ElementProps } from '../../floating-ui-solid';
 import {
   getOverflowAncestors,
   useDismiss,
   useFloatingRootContext,
   useListNavigation,
   useClick,
-} from '../../floating-ui-react';
-import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
-import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
+} from '../../floating-ui-solid';
+import { gridNavigation } from '../../floating-ui-solid/hooks/gridNavigation';
+import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-solid/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -498,7 +498,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       );
     }
 
-    return new ReactStore<StoreState, ComboboxStoreContext, typeof selectors>(
+    return new SolidStore<StoreState, ComboboxStoreContext, typeof selectors>(
       {
         id: id(),
         labelId: undefined,

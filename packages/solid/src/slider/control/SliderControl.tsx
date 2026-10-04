@@ -7,8 +7,8 @@ import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import type { Coords } from '../../floating-ui-react/types';
+import { activeElement, contains, getTarget } from '../../floating-ui-solid/utils';
+import type { Coords } from '../../floating-ui-solid/types';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,

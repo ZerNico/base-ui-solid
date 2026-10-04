@@ -1,9 +1,9 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { ReactStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui-solid/utils/empty';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
+import { FloatingTreeStore } from '../../floating-ui-solid/components/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -151,7 +151,7 @@ type Selectors = typeof selectors;
  */
 export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
-export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
+export class MenuStore<Payload> extends SolidStore<Readonly<State<Payload>>, Context, Selectors> {
   constructor(
     initialState?: Partial<State<Payload>>,
     floatingId?: string | undefined,
