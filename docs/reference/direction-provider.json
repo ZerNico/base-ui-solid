@@ -1,0 +1,65 @@
+{
+  "DirectionProvider": {
+    "description": "Enables RTL behavior for Base\u00a0UI components.",
+    "props": [
+      {
+        "name": "direction",
+        "type": "TextDirection",
+        "default": "`'ltr'`",
+        "description": "The reading direction of the text"
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": []
+  },
+  "DirectionProvider.Props": {
+    "description": "Re-export of [DirectionProvider](#directionprovider) props.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": []
+  },
+  "DirectionProvider.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "DirectionProvider.State",
+        "source": "type DirectionProviderState = {};"
+      }
+    ]
+  },
+  "useDirection": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Return value",
+        "source": "type ReturnValue = Accessor<TextDirection>;"
+      }
+    ]
+  },
+  "TextDirection": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "TextDirection",
+        "source": "type TextDirection = 'ltr' | 'rtl';"
+      }
+    ]
+  }
+}

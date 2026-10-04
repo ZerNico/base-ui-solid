@@ -1,0 +1,108 @@
+{
+  "makeEventPreventable": {
+    "description": "",
+    "props": [
+      {
+        "name": "event",
+        "type": "BaseUIEvent<Event>",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "makeEventPreventable",
+        "source": "type ReturnValue = BaseUIEvent<Event>;"
+      }
+    ]
+  },
+  "mergeClassNames": {
+    "description": "Merge Solid class values into a class array.",
+    "props": [
+      {
+        "name": "ourClassName",
+        "type": "JSX.ClassValue",
+        "default": "-",
+        "description": "Internal class value."
+      },
+      {
+        "name": "theirClassName",
+        "type": "JSX.ClassValue",
+        "default": "-",
+        "description": "External class value."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Return value",
+        "source": "type ReturnValue = JSX.ClassValue;"
+      }
+    ]
+  },
+  "mergeProps": {
+    "description": "Merges multiple sets of Solid props. It follows the Object.assign pattern where the rightmost object's fields overwrite\nthe conflicting ones from others. This doesn't apply to event handlers, `class` and `style` props.\n\nEvent handlers are merged and called in right-to-left order (rightmost handler executes first, leftmost last).\nFor native DOM events, the rightmost handler can prevent prior (left-positioned) handlers from executing\nby calling `event.preventBaseUIHandler()`. For non-DOM events (custom events with primitive/object values),\nall handlers always execute without prevention capability.\n\nThe `class` prop is merged as Solid class values in an array.\nThe `style` prop is merged with rightmost styles overwriting the prior ones.\n\nProps can either be provided as objects or as functions that take the previous props as an argument.\nThe function will receive the merged props up to that point (going from left to right):\nso in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.\nThe function is responsible for chaining event handlers if needed (that is, we don't run the merge logic).\n\nEvent handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.\nThey must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.\nRefs are composed into an array. Children are forwarded lazily. Call mergeProps in a reactive scope for updated values.",
+    "props": [
+      {
+        "name": "a",
+        "type": "InputProps<T>",
+        "default": "-",
+        "description": "Props object to merge."
+      },
+      {
+        "name": "b",
+        "type": "InputProps<T>",
+        "default": "-",
+        "description": "Props object to merge. The function will overwrite conflicting props from `a`."
+      },
+      {
+        "name": "c?",
+        "type": "InputProps<T>",
+        "default": "-",
+        "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+      },
+      {
+        "name": "d?",
+        "type": "InputProps<T>",
+        "default": "-",
+        "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+      },
+      {
+        "name": "e?",
+        "type": "InputProps<T>",
+        "default": "-",
+        "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Return value",
+        "source": "type ReturnValue<T extends object> = WithBaseUIEvent<T>;"
+      }
+    ]
+  },
+  "mergePropsN": {
+    "description": "Merges an arbitrary number of Solid props using the same logic as [`mergeProps`](#mergeprops).\nThis function accepts an array of props instead of individual arguments.\n\nThis has slightly lower performance than [`mergeProps`](#mergeprops) due to accepting an array\ninstead of a fixed number of arguments. Prefer [`mergeProps`](#mergeprops) when merging 5 or\nfewer prop sets for better performance.",
+    "props": [
+      {
+        "name": "props",
+        "type": "InputProps<T>[]",
+        "default": "-",
+        "description": "Array of props to merge."
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Return value",
+        "source": "type ReturnValue<T extends object> = WithBaseUIEvent<T>;"
+      }
+    ]
+  }
+}

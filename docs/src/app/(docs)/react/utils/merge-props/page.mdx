@@ -1,0 +1,89 @@
+# mergeProps
+
+<Subtitle>A utility to merge multiple sets of Solid props.</Subtitle>
+<Meta
+  name="description"
+  content="A utility to merge multiple sets of Solid props, handling event handlers, class, and style props intelligently."
+/>
+
+`mergeProps` helps you combine multiple prop objects (for example, internal props + user props) into a single set of props you can spread onto an element.
+It behaves like `Object.assign` (rightmost wins) with a few special cases, so common Solid patterns work as expected.
+
+Port note: `mergeProps` returns a props snapshot except for lazy children. Call it in JSX, a memo, or a props accessor to keep reactive values up to date. Solid bound event handlers (`[handler, data]`) are supported.
+
+## How merging works
+
+- For most keys (everything except `class`, `style`, `ref`, `children`, and event handlers), the value from the rightmost object wins:
+  ```ts title="returns { id: 'b', dir: 'ltr' }"
+  mergeProps({ id: 'a', dir: 'ltr' }, { id: 'b' });
+  ```
+- `ref` callbacks are composed so each receives the element:
+  ```ts title="both refs receive the element"
+  mergeProps({ ref: refA }, { ref: refB });
+  ```
+- `class` values are merged into a Solid class array, rightmost first:
+  ```ts title="class is ['b', 'a']"
+  mergeProps({ class: 'a' }, { class: 'b' });
+  ```
+- `style` objects are merged, with keys from the rightmost style overwriting earlier ones.
+- Event handlers are merged and executed right-to-left (rightmost first):
+
+  ```ts title="b runs before a"
+  mergeProps({ onClick: a }, { onClick: b });
+  ```
+
+  - For native DOM events, Base UI adds `event.preventBaseUIHandler()`. Calling it prevents Base UI's internal logic from running.
+    This does not call `preventDefault()` or `stopPropagation()`.
+  - For non-DOM events (custom events with primitive/object values), this mechanism isn't available and all handlers always execute.
+
+### Preventing Base UI's default behavior
+
+import { DemoPreventBaseUIHandler } from './demos/prevent-base-ui-handler';
+
+When using the function form of the `render` prop, props are not merged automatically.
+You can use `mergeProps` to combine Base UI's props with your own, and call `preventBaseUIHandler()` to stop Base UI's internal logic from running:
+
+<DemoPreventBaseUIHandler />
+
+## Passing a function instead of an object
+
+Each argument can be a props object or a function that receives the merged props up to that point (left to right) and returns a props object.
+This is useful when you need to compute the next props from whatever has already been merged.
+
+Note that the function's return value completely replaces the accumulated props up to that point.
+If you want to chain event handlers from the previous props, you must call them manually:
+
+```tsx title="Manually chaining handlers in a function"
+const merged = mergeProps(
+  {
+    onClick(event) {
+      // Handler from previous props
+    },
+  },
+  (props) => ({
+    onClick(event) {
+      // Manually call the previous handler
+      props.onClick?.(event);
+      // Your logic here
+    },
+  }),
+);
+```
+
+## API reference
+
+import { TypesMergeProps, TypesMergePropsN } from './types';
+
+### mergeProps
+
+This function accepts up to 5 arguments, each being either a props object or a function that returns a props object.
+If you need to merge more than 5 sets of props, use `mergePropsN` instead.
+
+<TypesMergeProps hideDescription />
+
+### mergePropsN
+
+This function accepts an array of props objects or functions that return props objects.
+It is slightly less efficient than `mergeProps`, so only use it when you need to merge more than 5 sets of props.
+
+<TypesMergePropsN hideDescription />

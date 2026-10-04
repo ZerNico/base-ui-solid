@@ -1,0 +1,21 @@
+{
+  "useRender": {
+    "description": "Renders a Base\u00a0UI element.",
+    "props": [
+      {
+        "name": "params",
+        "type": "useRender.Parameters<Record<string, unknown>>",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "Solid useRender types",
+        "source": "export type UseRenderRenderProp<State = Record<string, unknown>> =\n  ComponentRenderFn<HTMLProps, State> | IntrinsicTagName;\n\nexport type UseRenderElementProps<ElementType extends IntrinsicTagName> =\n  JSX.IntrinsicElements[ElementType];\n\nexport type UseRenderComponentProps<\n  ElementType extends IntrinsicTagName,\n  State = {},\n  RenderFunctionProps = HTMLProps,\n> = JSX.IntrinsicElements[ElementType] & {\n  /**\n   * Allows you to replace the component's HTML element\n   * with a different tag, or compose it with another component.\n   *\n   * Accepts a tag name, a component, or a function that returns the element to render.\n   */\n  render?: ComponentRenderFn<RenderFunctionProps, State> | IntrinsicTagName | undefined;\n};\n\nexport interface UseRenderParameters<State> {\n  /**\n   * The tag name, component, or function returning the element to override the default element.\n   */\n  render?: UseRenderRenderProp<State> | undefined;\n  /**\n   * The ref (or refs) to apply to the rendered element.\n   */\n  ref?: ((element: any) => void) | Array<((element: any) => void) | undefined> | undefined;\n  /**\n   * The state of the component, passed as the second argument to the `render` callback.\n   * State properties are automatically converted to data-* attributes.\n   * Pass an accessor or a reactive object to keep it up to date.\n   */\n  state?: State | Accessor<State> | undefined;\n  /**\n   * Custom mapping for converting state properties to data-* attributes.\n   * @example\n   * { isActive: (value) => (value ? { 'data-is-active': '' } : null) }\n   */\n  stateAttributesMapping?: StateAttributesMapping<State> | undefined;\n  /**\n   * Props to be spread on the rendered element.\n   * They are merged with the internal props of the component, so that event handlers\n   * are merged, `class` values and `style` properties are joined, while other external props overwrite the\n   * internal ones.\n   */\n  props?: Record<string, unknown> | Accessor<Record<string, unknown>> | undefined;\n  /**\n   * If `false`, the element is not rendered.\n   * This is useful for rendering a component conditionally.\n   * @default true\n   */\n  enabled?: boolean | Accessor<boolean> | undefined;\n  /**\n   * The default tag name to use for the rendered element when `render` is not provided.\n   * @default 'div'\n   */\n  defaultTagName?: IntrinsicTagName | undefined;\n  /**\n   * The class to apply to the rendered element.\n   */\n  class?: ClassProp<State> | undefined;\n  /**\n   * The style to apply to the rendered element.\n   */\n  style?: StyleProp<State> | undefined;\n}\n\nexport type UseRenderReturnValue = JSX.Element;\n\nexport interface UseRenderState {}\n\nexport namespace useRender {\n  export type State = UseRenderState;\n  export type RenderProp<TState = Record<string, unknown>> = UseRenderRenderProp<TState>;\n\n  export type ElementProps<ElementType extends IntrinsicTagName> =\n    UseRenderElementProps<ElementType>;\n\n  export type ComponentProps<\n    ElementType extends IntrinsicTagName,\n    TState = {},\n    RenderFunctionProps = HTMLProps,\n  > = UseRenderComponentProps<ElementType, TState, RenderFunctionProps>;\n\n  export type Parameters<TState> = UseRenderParameters<TState>;\n\n  export type ReturnValue = UseRenderReturnValue;\n}\n"
+      }
+    ]
+  }
+}

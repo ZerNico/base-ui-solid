@@ -1,0 +1,47 @@
+{
+  "CSPProvider": {
+    "description": "Provides a default Content Security Policy (CSP) configuration for Base\u00a0UI components that\nrequire inline `<style>` or `<script>` tags.",
+    "props": [
+      {
+        "name": "disableStyleElements",
+        "type": "boolean",
+        "default": "`false`",
+        "description": "Whether inline `<style>` elements created by Base\u00a0UI components should not be rendered. Instead, components must specify the CSS styles via custom class names or other methods."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": "-",
+        "description": "The nonce value to apply to inline `<style>` and `<script>` tags."
+      },
+      {
+        "name": "children",
+        "type": "JSX.Element",
+        "default": "-",
+        "description": "-"
+      }
+    ],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": []
+  },
+  "CSPProvider.Props": {
+    "description": "Re-export of [CSPProvider](#cspprovider) props.",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": []
+  },
+  "CSPProvider.State": {
+    "description": "",
+    "props": [],
+    "dataAttributes": [],
+    "cssVariables": [],
+    "additionalTypes": [
+      {
+        "name": "CSPProvider.State",
+        "source": "type CSPProviderState = {};"
+      }
+    ]
+  }
+}
