@@ -52,8 +52,10 @@ Upstream `src/css` and component CSS are copied as-is, and `port.css` supplies S
 
 Port note: upstream's Next.js loader factories, React demo editing/error machinery, and analytics
 cannot be reused as Solid components. The site provides live demos, source variant/file
-selection, local search, navigation, and TOC. It does not provide an in-browser code editor,
-CodeSandbox export, analytics, or the remaining website/private pages.
+selection, StackBlitz/CodeSandbox export, local search, navigation, and TOC. It does not provide
+an in-browser code editor, analytics, or the remaining website/private pages. The export
+generates a Vite + Solid project with the ported `blocks/createCodeSandbox` utilities and
+`utils/demoExportOptions.ts`. It installs `base-ui-solid` from `BASE_UI_SOLID_PACKAGE_SPEC`.
 
 ## API reference
 

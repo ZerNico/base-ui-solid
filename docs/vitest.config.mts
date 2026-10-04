@@ -8,7 +8,10 @@ export default defineConfig({
     include: [],
     environment: process.env.VITEST_ENV === 'jsdom' ? 'jsdom' : 'node',
     projects: [
-      { extends: true, test: { name: 'docs', include: ['src/**/*.test.mjs'] } },
+      {
+        extends: true,
+        test: { name: 'docs', include: ['src/**/*.test.mjs', 'src/**/*.test.ts'] },
+      },
       {
         extends: true,
         test: {

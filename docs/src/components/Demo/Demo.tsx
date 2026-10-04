@@ -1,6 +1,8 @@
-import { createSignal, For, Show } from 'solid-js';
+import { createSignal, For, onSettled, Show } from 'solid-js';
 import { Dynamic } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
+import { platform } from '@base-ui-solid/utils/platform';
+import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import type { Component } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { CodeNode } from '../CodeBlock/Hast';
@@ -9,6 +11,20 @@ import './Demo.css';
 import '../GhostButton.css';
 import '../Select.css';
 import { CopyIcon } from '../../icons/CopyIcon';
+import { CheckIcon } from '../../icons/CheckIcon';
+import { ExternalLinkIcon } from '../../icons/ExternalLinkIcon';
+import { GitHubIcon } from '../../icons/GitHubIcon';
+import { MoreVertIcon } from '../../icons/MoreVertIcon';
+import * as Menu from '../Menu';
+import { GhostButton } from '../GhostButton';
+import { createCodeSandbox } from '../../blocks/createCodeSandbox/createCodeSandbox';
+import { createStackBlitzProject } from '../../blocks/createCodeSandbox/createStackBlitzProject';
+import {
+  createDemoExportOptions,
+  exportCodeSandbox,
+  exportOpts,
+} from '../../utils/demoExportOptions';
+import { getGitHubDemoUrl } from '../../utils/getGitHubDemoUrl';
 
 export interface DemoVariant {
   name: string;
@@ -32,11 +48,64 @@ function handleTabKeys(event: KeyboardEvent & { currentTarget: HTMLDivElement })
   tabs[next].focus();
   tabs[next].click();
 }
-export function Demo(props: { variants: DemoVariant[] }) {
+export interface DemoProps {
+  variants: DemoVariant[];
+  /**
+   * File URL of the demo's `index.ts` (upstream: its `import.meta.url`).
+   */
+  url?: string | undefined;
+  /**
+   * Demo name, used to title exported projects.
+   */
+  name?: string | undefined;
+}
+
+export function Demo(props: DemoProps) {
   let source: HTMLPreElement | undefined;
   const [variant, setVariant] = createSignal(0);
   const [file, setFile] = createSignal('index.tsx');
   const [showCode, setShowCode] = createSignal(false);
+  const [sourceLinkCopied, setSourceLinkCopied] = createSignal(false);
+  const sourceLinkCopyResetTimeout = useTimeout();
+
+  const githubUrl = () => getGitHubDemoUrl(props.url, props.variants[variant()].name);
+
+  // Port note: replaces `openStackBlitz`/`openCodeSandbox` from docs-infra's `useDemo`. Both
+  // export the selected variant with its source files.
+  const getExportOptions = (config: typeof exportOpts) => {
+    const selectedVariant = props.variants[variant()];
+    return createDemoExportOptions(config, {
+      name: props.name,
+      variantName: selectedVariant.name,
+      files: selectedVariant.files,
+    });
+  };
+  const openStackBlitz = () => {
+    createStackBlitzProject(getExportOptions(exportOpts));
+  };
+  const openCodeSandbox = () => {
+    createCodeSandbox(getExportOptions({ ...exportOpts, ...exportCodeSandbox }));
+  };
+
+  // Port note: `navigator.clipboard` replaces the `clipboard-copy` package. Analytics events
+  // aren't ported.
+  const onCopySourceLink = async () => {
+    const url = githubUrl();
+    if (!url) {
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+    setSourceLinkCopied(true);
+
+    sourceLinkCopyResetTimeout.start(2000, () => setSourceLinkCopied(false));
+  };
+
+  const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = createSignal(false);
+  onSettled(() => {
+    if (platform.engine.webkit) {
+      setFallbackToCodeSandbox(true);
+    }
+  });
   return (
     <section class="DemoRoot" aria-label="Live demo">
       <div class="DemoPlayground DemoPreview">
@@ -131,6 +200,51 @@ export function Demo(props: { variants: DemoVariant[] }) {
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
+          </Show>
+          <Show
+            when={fallbackToCodeSandbox()}
+            fallback={
+              <GhostButton aria-label="Open in StackBlitz" type="button" onClick={openStackBlitz}>
+                StackBlitz
+                <ExternalLinkIcon />
+              </GhostButton>
+            }
+          >
+            <GhostButton aria-label="Open in CodeSandbox" type="button" onClick={openCodeSandbox}>
+              CodeSandbox
+              <ExternalLinkIcon />
+            </GhostButton>
+          </Show>
+          <Show when={githubUrl()}>
+            {(url) => (
+              <Menu.Root>
+                {/* Port note: a render function replaces upstream's cloned `<GhostButton />`. */}
+                <Menu.Trigger
+                  render={(triggerProps) => (
+                    <GhostButton layout="icon" aria-label="More actions" {...triggerProps}>
+                      <MoreVertIcon aria-hidden="true" />
+                    </GhostButton>
+                  )}
+                />
+                <Menu.Popup align="end" alignOffset={-5}>
+                  <Menu.LinkItem href={url()} target="_blank" rel="noopener">
+                    <GitHubIcon aria-hidden="true" />
+                    View source on GitHub
+                    <ExternalLinkIcon aria-hidden="true" />
+                  </Menu.LinkItem>
+
+                  <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
+                    <Show when={sourceLinkCopied()} fallback={<CopyIcon />}>
+                      <CheckIcon aria-hidden="true" />
+                    </Show>
+                    Copy link to source
+                    <span class="sr-only" aria-live="polite">
+                      {sourceLinkCopied() && 'Link copied!'}
+                    </span>
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Root>
+            )}
           </Show>
         </div>
       </div>

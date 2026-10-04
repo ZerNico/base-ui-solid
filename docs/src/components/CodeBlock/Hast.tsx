@@ -10,6 +10,10 @@ export interface CodeNode {
   tagName?: string;
   properties?: Record<string, unknown>;
   children?: CodeNode[];
+  /**
+   * Repository-relative path of the source file (set on `?highlight` imports).
+   */
+  path?: string;
 }
 export function Hast(props: { node: CodeNode }): JSX.Element {
   // Port note: precomputed HAST is immutable; snapshot this node once per component.

@@ -55,7 +55,11 @@ export function sourcePlugin() {
         resolvedPaths,
       );
       const tree = await highlightSource(processedSource, file.split('/').at(-1));
-      return `export default ${JSON.stringify({ type: 'html', value: toHtml(tree) })};`;
+      // Port note: `path` (relative to the repository root) stands in for upstream's demo
+      // `import.meta.url`, which Vite rewrites to the bundled chunk. Demos derive their name and
+      // source link from it.
+      const path = relative(fileURLToPath(new URL('../../../', import.meta.url)), file);
+      return `export default ${JSON.stringify({ type: 'html', value: toHtml(tree), path })};`;
     },
   };
 }
