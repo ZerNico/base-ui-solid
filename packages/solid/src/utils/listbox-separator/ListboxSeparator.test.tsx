@@ -1,3 +1,4 @@
+import { Autocomplete } from 'base-ui-solid/autocomplete';
 import { Combobox } from 'base-ui-solid/combobox';
 import { Select } from 'base-ui-solid/select';
 import { expect, describe, it } from 'vitest';
@@ -35,19 +36,13 @@ describe('<ListboxSeparator />', () => {
     });
   });
 
-  // TODO(port): needs Autocomplete. Keep the real body for every available separator.
   describe.each([
-    ['Autocomplete.Separator', null],
+    ['Autocomplete.Separator', () => <Autocomplete.Separator data-testid="separator" />],
     ['Combobox.Separator', () => <Combobox.Separator data-testid="separator" />],
     ['Select.Separator', () => <Select.Separator data-testid="separator" />],
   ] as const)('%s', (_, separator) => {
-    it('exposes the listbox separator behavior', async (context) => {
-      // TODO(port): needs Autocomplete for its row.
-      if (separator == null) {
-        context.skip();
-        return;
-      }
-      await render(separator!);
+    it('exposes the listbox separator behavior', async () => {
+      await render(separator);
       const element = screen.getByTestId('separator');
       expect(element).toHaveAttribute('role', 'presentation');
       expect(element).toHaveAttribute('data-orientation', 'horizontal');

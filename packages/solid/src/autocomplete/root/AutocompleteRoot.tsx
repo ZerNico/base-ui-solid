@@ -1,0 +1,331 @@
+import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { AriaCombobox } from '../../combobox/root/AriaCombobox';
+import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
+import { useCoreFilter } from '../../combobox/root/utils/useFilter';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import type { Group } from '../../internals/resolveValueLabel';
+import { REASONS } from '../../internals/reasons';
+
+/**
+ * Groups all parts of the autocomplete.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
+ */
+export function AutocompleteRoot<Items extends readonly { items: readonly any[] }[]>(
+  props: Omit<AutocompleteRoot.Props<Items[number]['items'][number]>, 'items'> & {
+    /**
+     * The items to be displayed in the list.
+     * Can be either a flat array of items or an array of groups with items.
+     * Nullish entries are not supported: remove them from the data before passing it.
+     */
+    items: Items;
+  },
+): JSX.Element;
+export function AutocompleteRoot<ItemValue>(
+  props: Omit<AutocompleteRoot.Props<ItemValue>, 'items'> & {
+    /**
+     * The items to be displayed in the list.
+     * Can be either a flat array of items or an array of groups with items.
+     * Nullish entries are not supported: remove them from the data before passing it.
+     */
+    items?: readonly ItemValue[] | undefined;
+  },
+): JSX.Element;
+export function AutocompleteRoot<ItemValue>(props: AutocompleteRoot.Props<ItemValue>): JSX.Element {
+  // Port note: renamed props and derived values stay reactive through accessors.
+  const other = omit(
+    props,
+    'openOnInputClick',
+    'value',
+    'defaultValue',
+    'onValueChange',
+    'mode',
+    'itemToStringValue',
+  );
+  const mode = () => props.mode ?? 'list';
+  const enableInline = () => (mode() === 'inline' || mode() === 'both') && !props.readOnly;
+  const staticItems = () => mode() === 'inline' || mode() === 'none';
+  const isControlled = () => props.value !== undefined;
+  const [internalValue, setInternalValue] = createSignal(untrack(() => props.defaultValue ?? ''));
+  const [inlineInputValue, setInlineInputValue] = createSignal('');
+
+  useEffect(
+    ([_value, controlled, inline]) => {
+      if (controlled || !inline) {
+        // Port note: React's passive parent effect follows child layout effects. Solid runs
+        // parent effects first, so clear the overlay after the child's highlight update.
+        let canceled = false;
+        queueMicrotask(() => {
+          if (!canceled) {
+            setInlineInputValue('');
+          }
+        });
+        return () => {
+          canceled = true;
+        };
+      }
+      return undefined;
+    },
+    () => [props.value, isControlled(), enableInline()] as const,
+  );
+
+  const resolvedInputValue = createMemo(() => {
+    if (enableInline() && inlineInputValue() !== '') {
+      return inlineInputValue();
+    }
+    return isControlled() ? (props.value ?? '') : internalValue();
+  });
+  const collator = createMemo(() => useCoreFilter({ locale: other.locale }));
+  const resolvedQuery = () => String((isControlled() ? props.value : internalValue()) ?? '').trim();
+  const resolvedFilter = () =>
+    staticItems() || other.filter === null ? null : (other.filter ?? collator().contains);
+
+  function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
+    setInlineInputValue('');
+    if (!isControlled()) {
+      setInternalValue(nextValue);
+    }
+    props.onValueChange?.(nextValue, eventDetails);
+  }
+
+  function handleItemHighlighted(
+    highlightedValue: any,
+    eventDetails: AriaCombobox.HighlightEventDetails,
+  ) {
+    props.onItemHighlighted?.(highlightedValue, eventDetails);
+    if (eventDetails.reason === REASONS.pointer) {
+      return;
+    }
+    setInlineInputValue(
+      enableInline() && highlightedValue != null
+        ? stringifyAsLabel(highlightedValue, props.itemToStringValue)
+        : '',
+    );
+  }
+
+  return (
+    <AriaCombobox
+      {...other}
+      itemToStringLabel={props.itemToStringValue}
+      openOnInputClick={props.openOnInputClick ?? false}
+      selectionMode="none"
+      fillInputOnItemPress
+      filter={resolvedFilter()}
+      filterQuery={
+        // Inline completion temporarily changes the displayed input without changing this query.
+        mode() === 'both' ? resolvedQuery() : undefined
+      }
+      autoComplete={mode()}
+      inputValue={resolvedInputValue()}
+      defaultInputValue={props.defaultValue}
+      onInputValueChange={handleValueChange}
+      onItemHighlighted={handleItemHighlighted}
+    />
+  );
+}
+
+export interface AutocompleteRootState extends AriaComboboxState {}
+
+/**
+ * The item `highlightItem` moves the highlight to.
+ * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
+ *   the matching end when nothing is highlighted. They wrap around when `loopFocus` is enabled
+ *   and never leave the list: `'previous'` on the first item does not move back to the input.
+ * - `'first'` and `'last'` jump to either end of the list.
+ * - `'none'` clears the highlight.
+ */
+export type AutocompleteRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
+export interface AutocompleteRootActions {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: AutocompleteRootHighlightItemTarget) => void;
+}
+
+export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
+export type AutocompleteRootChangeEventDetails =
+  BaseUIChangeEventDetails<AutocompleteRootChangeEventReason>;
+export type AutocompleteRootOpenChangeEventDetails = AutocompleteRootChangeEventDetails & {
+  /** Prevents the popup from unmounting until the `unmount` action is called. */
+  preventUnmountOnClose: () => void;
+};
+
+export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
+export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
+
+export interface AutocompleteRootProps<ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none'>,
+  | 'selectionMode'
+  | 'selectedValue'
+  | 'defaultSelectedValue'
+  | 'onSelectedValueChange'
+  | 'fillInputOnItemPress'
+  | 'itemToStringValue'
+  | 'isItemEqualToValue'
+  // Different names
+  | 'inputValue' // value
+  | 'defaultInputValue' // defaultValue
+  | 'onInputValueChange' // onValueChange
+  | 'autoComplete' // mode
+  | 'formAutoComplete'
+  | 'itemToStringLabel' // itemToStringValue
+  // Custom JSDoc
+  | 'inline'
+  | 'autoHighlight'
+  | 'keepHighlight'
+  | 'highlightItemOnHover'
+  | 'actionsRef'
+  | 'onOpenChange'
+  | 'openOnInputClick'
+  | 'form'
+  | 'items'
+  | 'filteredItems'
+  | 'filter'
+> {
+  /**
+   * Identifies the form that owns the internal input.
+   * Useful when the autocomplete is rendered outside the form.
+   */
+  form?: string | undefined;
+  /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   * Nullish entries are not supported: remove them from the data before passing it.
+   */
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filtered items to display in the list.
+   * When provided, the list uses these items instead of filtering the `items` prop internally.
+   * When `items` is also provided, this array must preserve its flat or grouped structure.
+   * Nullish entries are not supported, as in `items`.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filter function used to match items against the input query.
+   */
+  filter?: AriaCombobox.Props<ItemValue, 'none'>['filter'] | undefined;
+  /**
+   * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
+   * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
+   * - `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).
+   * - `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).
+   * - `none`: items are static (not filtered), and the input value will not change based on the active item.
+   * @default 'list'
+   */
+  mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
+  /**
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Autocomplete.Root inline open>`
+   * @default false
+   */
+  inline?: boolean | undefined;
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: boolean | 'always' | undefined;
+  /**
+   * Whether the highlighted item should be preserved when the pointer leaves the list.
+   * @default false
+   */
+  keepHighlight?: boolean | undefined;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean | undefined;
+  /**
+   * The uncontrolled input value of the autocomplete when it's initially rendered.
+   *
+   * To render a controlled autocomplete, use the `value` prop instead.
+   */
+  defaultValue?: AriaCombobox.Props<string, 'none'>['defaultInputValue'] | undefined;
+  /**
+   * The input value of the autocomplete. Use when controlled.
+   */
+  value?: AriaCombobox.Props<string, 'none'>['inputValue'] | undefined;
+  /**
+   * Event handler called when the input value of the autocomplete changes.
+   */
+  onValueChange?:
+    ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
+  /**
+   * Whether clicking an item should submit the autocomplete's owning form.
+   * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
+   * Useful when the autocomplete is used as a single-field form search input.
+   * @default false
+   */
+  submitOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnItemClick'] | undefined;
+  /**
+   * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   */
+  itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.
+   * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.
+   * Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the autocomplete imperatively when called.
+   * - `highlightItem`: Moves or clears the highlight while the popup is open.
+   *   `'next'` and `'previous'` move sequentially through the items, including across rows in a
+   *   grid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the
+   *   highlight to the input. `'first'` and `'last'` highlight the first or last item.
+   *   `'none'` clears the highlight; with `autoHighlight="always"`, the highlight cannot be cleared.
+   *   Calling this action does not open the popup. To highlight an item after opening it, call
+   *   the action from `onOpenChangeComplete` when `open` is `true`.
+   *   Highlight changes requested through this action report the reason `'imperative-action'`
+   *   to `onItemHighlighted`.
+   */
+  actionsRef?: RefObject<AutocompleteRootActions | null> | undefined;
+  /**
+   * Event handler called when the popup is opened or closed.
+   */
+  onOpenChange?:
+    ((open: boolean, eventDetails: AutocompleteRootOpenChangeEventDetails) => void) | undefined;
+  /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
+   *   rather than a `PointerEvent`.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
+   * - `'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the
+   *   item list changing, or the popup opening or closing.
+   */
+  onItemHighlighted?:
+    | ((
+        highlightedValue: ItemValue | undefined,
+        eventDetails: AutocompleteRootHighlightEventDetails,
+      ) => void)
+    | undefined;
+  /**
+   * Whether the popup opens when clicking the input.
+   * @default false
+   */
+  openOnInputClick?: boolean | undefined;
+}
+
+export namespace AutocompleteRoot {
+  export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
+  export type State = AutocompleteRootState;
+  export type Actions = AutocompleteRootActions;
+  export type HighlightItemTarget = AutocompleteRootHighlightItemTarget;
+  export type ChangeEventReason = AutocompleteRootChangeEventReason;
+  export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
+  export type OpenChangeEventDetails = AutocompleteRootOpenChangeEventDetails;
+  export type HighlightEventReason = AutocompleteRootHighlightEventReason;
+  export type HighlightEventDetails = AutocompleteRootHighlightEventDetails;
+}
