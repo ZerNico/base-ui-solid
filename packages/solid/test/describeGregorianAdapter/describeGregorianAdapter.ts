@@ -1,0 +1,34 @@
+import { describe } from 'vitest';
+import { testComputations } from './testComputations';
+import { testLocalization } from './testLocalization';
+import { testFormats } from './testFormats';
+import type { DescribeGregorianAdapterParameters } from './describeGregorianAdapter.types';
+
+function innerGregorianDescribeAdapter(parameters: DescribeGregorianAdapterParameters) {
+  describe(parameters.adapter.lib, () => {
+    testComputations(parameters);
+    testLocalization(parameters);
+    testFormats(parameters);
+  });
+}
+
+type DescribeGregorianAdapter = {
+  (parameters: DescribeGregorianAdapterParameters): void;
+  skip: (parameters: DescribeGregorianAdapterParameters) => void;
+  only: (parameters: DescribeGregorianAdapterParameters) => void;
+};
+
+// Port note: replace the React test utility's createDescribe with Vitest's suite API.
+export const describeGregorianAdapter: DescribeGregorianAdapter = Object.assign(
+  (parameters: DescribeGregorianAdapterParameters) => {
+    describe('Gregorian adapter methods', () => innerGregorianDescribeAdapter(parameters));
+  },
+  {
+    skip: (parameters: DescribeGregorianAdapterParameters) => {
+      describe.skip('Gregorian adapter methods', () => innerGregorianDescribeAdapter(parameters));
+    },
+    only: (parameters: DescribeGregorianAdapterParameters) => {
+      describe.only('Gregorian adapter methods', () => innerGregorianDescribeAdapter(parameters));
+    },
+  },
+);

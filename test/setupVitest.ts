@@ -1,4 +1,6 @@
 import { afterEach, beforeAll, vi } from 'vitest';
+// eslint-disable-next-line import/no-relative-packages
+import '../packages/solid/test/addVitestMatchers';
 import '@testing-library/jest-dom/vitest';
 import './toHaveComputedStyle';
 import './toBeInaccessible';

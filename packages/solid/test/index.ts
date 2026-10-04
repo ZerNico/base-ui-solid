@@ -20,3 +20,4 @@ export { resetBrowserPointer } from './resetBrowserPointer';
 export { useTestInteractions } from './useTestInteractions';
 export * from './wait';
 export { waitForPositioned } from './waitForPositioned';
+export { describeGregorianAdapter } from './describeGregorianAdapter';
