@@ -1,6 +1,6 @@
 {
   "name": "@base-ui-solid/utils",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A collection of Solid utility functions for Base UI Solid.",
   "license": "MIT",
   "repository": {
