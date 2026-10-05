@@ -393,6 +393,53 @@ describe('<CompositeList />', () => {
       expect(screen.getByTestId('last')).toHaveAttribute('data-index', '1');
     });
 
+    it('keeps syncing refs after replacing items under Strict Mode', async () => {
+      // Port note: Solid has no Strict Mode, so this covers replacing the items and an item then
+      // hiding itself without the list updating.
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+      let hideItem: () => void = () => {};
+
+      function HideableItem(props: { label: string }) {
+        const [hidden, setHidden] = createSignal(false);
+        hideItem = () => setHidden(true);
+        return (
+          <Show when={!hidden()}>
+            <Item label={props.label} />
+          </Show>
+        );
+      }
+
+      function App() {
+        const [labels, setLabels] = createSignal(['a', 'b']);
+        return (
+          <>
+            <button type="button" onClick={() => setLabels(['c', 'd'])}>
+              Replace
+            </button>
+            <CompositeList elementsRef={elementsRef}>
+              <For each={labels()}>{(label) => <HideableItem label={label} />}</For>
+            </CompositeList>
+          </>
+        );
+      }
+
+      // The list re-renders while new items mount, then Strict Mode replays their refs.
+      const { user } = await render(() => <App />);
+
+      await user.click(screen.getByRole('button', { name: 'Replace' }));
+      flush();
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('c'), screen.getByTestId('d')]);
+
+      // The item hides itself without re-rendering the list.
+      hideItem();
+      flush();
+
+      expect(elementsRef.current).toEqual([screen.getByTestId('c')]);
+    });
+
     it('assigns correct guessed indexes during the first render', async () => {
       const renderCounts: Record<string, number> = { a: 0, b: 0, c: 0 };
       const initialIndexes: Record<string, number> = {};

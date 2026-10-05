@@ -22,7 +22,7 @@ interface CompositeListItem<Metadata> {
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // Items register from their ref callbacks, which run while rendering or disposing, so the
   // tick is allowed to be written from owned scopes.
-  const [mapTick, setMapTick] = createSignal(false, { ownedWrite: true });
+  const [mapTick, setMapTick] = createSignal(0, { ownedWrite: true });
 
   const listeners = createListeners();
   const map = createMap<Metadata>();
@@ -39,7 +39,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     }
 
     isDirty = true;
-    setMapTick((tick) => !tick);
+    setMapTick((tick) => tick + 1);
   }
 
   function register(node: Element, registration: CompositeListRegistration<Metadata>) {
