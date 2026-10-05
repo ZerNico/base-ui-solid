@@ -1,3 +1,4 @@
+import { $PROXY, $TRACK } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { mergeObjects } from '@base-ui-solid/utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
@@ -223,12 +224,12 @@ function createLayeredProps(layersParam: Layer[]): Record<string, any> {
     return handler;
   };
 
-  const getValue = (key: PropertyKey) => {
-    if (key === CHILDREN_SOURCE) {
-      return getChildrenSource();
-    }
+  const getValue = (key: string | symbol) => {
     if (typeof key !== 'string') {
-      return undefined;
+      if (key === CHILDREN_SOURCE) {
+        return getChildrenSource();
+      }
+      return getSymbolValue(layers, key);
     }
     switch (key) {
       case 'children':
@@ -253,30 +254,61 @@ function createLayeredProps(layersParam: Layer[]): Record<string, any> {
   };
 
   const getKeys = () => {
-    const keys = new Set<string>();
+    const keys = new Set<string | symbol>();
     for (const layer of layers) {
       for (const key of Object.keys(layer)) {
         keys.add(key);
       }
     }
+    for (const layer of layers) {
+      for (const key of Object.getOwnPropertySymbols(layer)) {
+        if (isForwardedSymbol(key) && Object.prototype.propertyIsEnumerable.call(layer, key)) {
+          keys.add(key);
+        }
+      }
+    }
     return Array.from(keys);
   };
 
-  const hasKey = (key: PropertyKey) => {
-    if (key === CHILDREN_SOURCE) {
-      return getChildrenSource() !== undefined;
+  const hasKey = (key: string | symbol) => {
+    if (typeof key !== 'string') {
+      if (key === CHILDREN_SOURCE) {
+        return getChildrenSource() !== undefined;
+      }
+      return findSymbolLayer(layers, key) !== undefined;
     }
     return layers.some((layer) => key in layer);
   };
 
+  // Port note: the proxy is marked with Solid's `$PROXY`, so that Solid's `merge()`, `omit()` and
+  // JSX spreads treat it as a reactive source (like a store): they enumerate its keys through the
+  // `ownKeys` trap in their tracking scope instead of caching them, and pick up keys that a source
+  // adds or removes later.
   return new Proxy(
     {},
     {
-      get: (_target, key) => getValue(key),
-      has: (_target, key) => hasKey(key),
+      get: (_target, key, receiver) => {
+        if (key === $PROXY) {
+          return receiver;
+        }
+        return getValue(key);
+      },
+      has: (_target, key) => {
+        if (key === $PROXY) {
+          return true;
+        }
+        return hasKey(key);
+      },
       ownKeys: () => getKeys(),
       getOwnPropertyDescriptor: (_target, key) => {
-        if (typeof key !== 'string' || !hasKey(key)) {
+        if (key === CHILDREN_SOURCE) {
+          // Internal marker: present but not enumerable, like in the snapshot merge.
+          const source = getChildrenSource();
+          return source === undefined
+            ? undefined
+            : { configurable: true, enumerable: false, value: source };
+        }
+        if (!hasKey(key)) {
           return undefined;
         }
         return {
@@ -290,6 +322,36 @@ function createLayeredProps(layersParam: Layer[]): Record<string, any> {
       deleteProperty: () => false,
     },
   );
+}
+
+/**
+ * Whether a symbol key is forwarded to the sources. Solid's brand symbols describe the proxy
+ * itself (the merged object isn't a store or a `merge()` view), so they're never read from a
+ * source. Solid's private brands (store target, view record) are never own properties of its
+ * proxies, so the own-property lookup below skips them too.
+ */
+function isForwardedSymbol(key: symbol) {
+  return key !== $PROXY && key !== $TRACK && key !== CHILDREN_SOURCE;
+}
+
+/**
+ * The rightmost source that owns the symbol `key`. Symbols are looked up as own properties: Solid's
+ * own proxies answer their private brand symbols in `get`/`has` but never as own properties.
+ */
+function findSymbolLayer(layers: Layer[], key: symbol): Layer | undefined {
+  if (!isForwardedSymbol(key)) {
+    return undefined;
+  }
+  for (let i = layers.length - 1; i >= 0; i -= 1) {
+    if (Reflect.getOwnPropertyDescriptor(layers[i], key) !== undefined) {
+      return layers[i];
+    }
+  }
+  return undefined;
+}
+
+function getSymbolValue(layers: Layer[], key: symbol) {
+  return findSymbolLayer(layers, key)?.[key];
 }
 
 function foldLayers(layers: Layer[], key: string, merge: (ours: any, theirs: any) => unknown): any {

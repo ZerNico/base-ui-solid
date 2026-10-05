@@ -1,8 +1,24 @@
-import { createSignal, flush } from 'solid-js';
+import { $PROXY, createSignal, flush, merge } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
 import { render, screen } from '#test-utils';
 import { mergeProps, mergePropsN } from '.';
+
+/**
+ * A props source whose keys change with a signal, without being a Solid store or view.
+ */
+function createDynamicSource(extra: Accessor<Record<string, string>>) {
+  return new Proxy({} as Record<string, string>, {
+    get: (_target, key) => extra()[key as string],
+    has: (_target, key) => key in extra(),
+    ownKeys: () => Object.keys(extra()),
+    getOwnPropertyDescriptor: (_target, key) =>
+      key in extra()
+        ? { configurable: true, enumerable: true, value: extra()[key as string] }
+        : undefined,
+  });
+}
 
 // Port note: regressions for the reactive result of the public `mergeProps`, absent upstream
 // (upstream returns a new object on every render).
@@ -106,16 +122,7 @@ describe('mergeProps (reactive result)', () => {
 
   it('picks up keys that a source adds later', () => {
     const [extra, setExtra] = createSignal<Record<string, string>>({});
-    const source = new Proxy({} as Record<string, string>, {
-      get: (_target, key) => extra()[key as string],
-      has: (_target, key) => key in extra(),
-      ownKeys: () => Object.keys(extra()),
-      getOwnPropertyDescriptor: (_target, key) =>
-        key in extra()
-          ? { configurable: true, enumerable: true, value: extra()[key as string] }
-          : undefined,
-    });
-    const merged = mergeProps<any>({ id: 'x' }, source);
+    const merged = mergeProps<any>({ id: 'x' }, createDynamicSource(extra));
     expect(Object.keys(merged)).toEqual(['id']);
     setExtra({ title: 't' });
     flush();
@@ -157,5 +164,60 @@ describe('mergeProps (reactive result)', () => {
     setTitle('b');
     flush();
     expect(merged['aria-label']).toBe('label b');
+  });
+
+  it('is tracked as a reactive source when nested in Solid merge()', () => {
+    const [extra, setExtra] = createSignal<Record<string, string>>({});
+    const merged = mergeProps<any>({ id: 'x' }, createDynamicSource(extra));
+    expect($PROXY in merged).toBe(true);
+    const outer = merge({ role: 'button' }, merged) as Record<string, any>;
+    expect(Object.keys(outer)).toEqual(['role', 'id']);
+
+    setExtra({ title: 't' });
+    flush();
+    expect(Object.keys(outer)).toEqual(['role', 'id', 'title']);
+    expect(outer.title).toBe('t');
+
+    setExtra({});
+    flush();
+    expect(Object.keys(outer)).toEqual(['role', 'id']);
+    expect(outer.title).toBe(undefined);
+  });
+
+  it('spreads keys that a source adds later when nested in Solid merge()', async () => {
+    const [extra, setExtra] = createSignal<Record<string, string>>({});
+    const merged = mergeProps<any>({ 'data-testid': 'el' }, createDynamicSource(extra));
+
+    await render(() => <div {...merge({ role: 'button' }, merged)} />);
+    const element = screen.getByTestId('el');
+    expect(element).toHaveAttribute('role', 'button');
+    expect(element).not.toHaveAttribute('title');
+
+    setExtra({ title: 't' });
+    flush();
+    expect(element).toHaveAttribute('title', 't');
+  });
+
+  it('forwards and enumerates symbol keys', () => {
+    const visible = Symbol('visible');
+    const hidden = Symbol('hidden');
+    const source: Record<PropertyKey, unknown> = { id: 'x', [visible]: 'v' };
+    Object.defineProperty(source, hidden, { value: 'h', enumerable: false });
+    const merged: Record<PropertyKey, any> = mergeProps<any>(source, { title: 't' });
+
+    expect(visible in merged).toBe(true);
+    expect(merged[visible]).toBe('v');
+    expect(hidden in merged).toBe(true);
+    expect(merged[hidden]).toBe('h');
+    expect(Reflect.ownKeys(merged)).toEqual(['id', 'title', visible]);
+    expect(Object.getOwnPropertyDescriptor(merged, visible)?.enumerable).toBe(true);
+    expect({ ...merged }[visible]).toBe('v');
+    expect(Object.getOwnPropertySymbols({ ...merged })).toEqual([visible]);
+  });
+
+  it('keeps internal marker symbols non-enumerable', () => {
+    const merged = mergeProps<any>({ id: 'x' }, { children: 'child' });
+    expect(Reflect.ownKeys(merged)).toEqual(['id', 'children']);
+    expect(Object.getOwnPropertySymbols({ ...merged })).toEqual([]);
   });
 });
