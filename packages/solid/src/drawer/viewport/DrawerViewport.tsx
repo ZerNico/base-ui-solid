@@ -636,7 +636,8 @@ export const DrawerViewport = function DrawerViewport(props: DrawerViewport.Prop
   useEffect(
     () => {
       const rootElement = viewportElement() ?? popupElementState();
-      if (!rootElement) {
+      // A non-passive document listener makes all touch scrolling wait on the main thread.
+      if (!rootElement || !open() || !mounted()) {
         return undefined;
       }
       const resolvedRootElement: HTMLElement = rootElement;
@@ -650,7 +651,7 @@ export const DrawerViewport = function DrawerViewport(props: DrawerViewport.Prop
           return;
         }
         const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
-        if (allowTouchMove || !open() || !mounted() || nestedDrawerOpen()) {
+        if (allowTouchMove || nestedDrawerOpen()) {
           return;
         }
         if (shouldYieldTouchMove(touchState, event, touch, isVerticalScrollAxis())) {
