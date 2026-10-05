@@ -4,7 +4,10 @@ import type { Plugin } from 'vite';
 import type { UserWorkspaceConfig } from 'vitest/config';
 import solid from 'vite-plugin-solid';
 import { playwright } from '@vitest/browser-playwright';
-import { closeSsrServer, renderOnServer } from '@base-ui-solid/monorepo-tests/ssr/renderOnServer.mts';
+import {
+  closeSsrServer,
+  renderOnServer,
+} from '@base-ui-solid/monorepo-tests/ssr/renderOnServer.mts';
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
