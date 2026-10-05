@@ -42,6 +42,8 @@ export type State = {
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  // Port note: upstream's `itemRoot` (item props plus root values, combined to save React
+  // re-renders) stays split into `itemProps` and the separate root keys. See `SelectItem`.
   itemProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;

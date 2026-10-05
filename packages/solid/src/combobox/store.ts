@@ -30,6 +30,8 @@ export type State = {
   listProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  // Port note: upstream's `itemRoot` (item props plus root values, combined to save React
+  // re-renders) stays split into `itemProps` and the separate root keys. See `ComboboxItem`.
   itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;

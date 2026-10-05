@@ -49,6 +49,9 @@ export function SelectItem(componentProps: SelectItem.Props) {
   });
 
   const store = useSelectRootContext();
+  // Port note: upstream combines `itemProps`, `multiple`, `disabled`, `readOnly` and
+  // `isItemEqualToValue` into one `itemRoot` store value so each item subscribes once, which
+  // saves React re-renders. Solid's `useState` accessors are fine-grained, so they stay separate.
   const itemProps = store.useState('itemProps');
   const multiple = store.useState('multiple');
   const selectDisabled = store.useState('disabled');

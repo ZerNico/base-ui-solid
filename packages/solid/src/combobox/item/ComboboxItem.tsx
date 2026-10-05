@@ -62,6 +62,9 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
 
+  // Port note: upstream combines `itemProps`, `id`, `selectionMode`, `disabled`, `readOnly` and
+  // `isItemEqualToValue` into one `itemRoot` store value so each item subscribes once, which
+  // saves React re-renders. Solid's `useState` accessors are fine-grained, so they stay separate.
   const selectionMode = store.useState('selectionMode');
   const rootDisabled = store.useState('disabled');
   const readOnly = store.useState('readOnly');
