@@ -25,8 +25,19 @@ export function useRender<State extends Record<string, unknown>>(
 export type UseRenderRenderProp<State = Record<string, unknown>> =
   ComponentRenderFn<HTMLProps, State> | IntrinsicTagName;
 
+/**
+ * Port note: unlike upstream's React props, Solid's element types don't declare `data-*`
+ * attributes (JSX accepts them, object literals don't), so they're added here.
+ */
 export type UseRenderElementProps<ElementType extends IntrinsicTagName> =
-  JSX.IntrinsicElements[ElementType];
+  JSX.IntrinsicElements[ElementType] & DataAttributes;
+
+/**
+ * `data-*` attributes. Like other attributes, `false`/`undefined` remove them.
+ */
+type DataAttributes = {
+  [key: `data-${string}`]: string | number | boolean | undefined;
+};
 
 export type UseRenderComponentProps<
   ElementType extends IntrinsicTagName,

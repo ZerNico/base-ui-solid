@@ -4,21 +4,21 @@ export function useInvalidFeedback() {
   const [focusedIndex, setFocusedIndex] = createSignal(0);
   const [invalidPulse, setInvalidPulse] = createSignal(0);
   const [statusMessage, setStatusMessage] = createSignal('');
-  const invalidTimeoutRef = { current: null as ReturnType<typeof setTimeout> | null };
-  const skipClearOnNextValueChangeRef = { current: false };
+  let invalidTimeout: ReturnType<typeof setTimeout> | null = null;
+  let skipClearOnNextValueChange = false;
 
   onSettled(() => {
     return () => {
-      if (invalidTimeoutRef.current != null) {
-        clearTimeout(invalidTimeoutRef.current);
+      if (invalidTimeout != null) {
+        clearTimeout(invalidTimeout);
       }
     };
   });
 
   function clearInvalidFeedback() {
-    if (invalidTimeoutRef.current != null) {
-      clearTimeout(invalidTimeoutRef.current);
-      invalidTimeoutRef.current = null;
+    if (invalidTimeout != null) {
+      clearTimeout(invalidTimeout);
+      invalidTimeout = null;
     }
 
     setInvalidPulse(0);
@@ -26,8 +26,8 @@ export function useInvalidFeedback() {
   }
 
   function handleValueChange() {
-    if (skipClearOnNextValueChangeRef.current) {
-      skipClearOnNextValueChangeRef.current = false;
+    if (skipClearOnNextValueChange) {
+      skipClearOnNextValueChange = false;
       return;
     }
 
@@ -35,16 +35,16 @@ export function useInvalidFeedback() {
   }
 
   function handleValueInvalid(value: string) {
-    skipClearOnNextValueChangeRef.current = true;
+    skipClearOnNextValueChange = true;
     setInvalidPulse((current) => current + 1);
     setStatusMessage(`Unsupported characters were ignored from ${value}.`);
 
-    if (invalidTimeoutRef.current != null) {
-      clearTimeout(invalidTimeoutRef.current);
+    if (invalidTimeout != null) {
+      clearTimeout(invalidTimeout);
     }
 
-    invalidTimeoutRef.current = setTimeout(() => {
-      invalidTimeoutRef.current = null;
+    invalidTimeout = setTimeout(() => {
+      invalidTimeout = null;
       setInvalidPulse(0);
     }, 400);
   }

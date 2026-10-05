@@ -15,11 +15,11 @@ export default function ExampleToast() {
 }
 function ToastButton() {
   const toastManager = Toast.useToastManager();
-  const countRef = { current: 0 };
+  let count = 0;
   function createToast() {
-    countRef.current += 1;
+    count += 1;
     toastManager.add({
-      title: `Toast ${countRef.current} created`,
+      title: `Toast ${count} created`,
       description: 'This is a toast notification.',
     });
   }

@@ -13,13 +13,13 @@ export default function ExampleCreatableCombobox() {
   const [query, setQuery] = createSignal('');
   const [openDialog, setOpenDialog] = createSignal(false);
 
-  const createInputRef = { current: null } as { current: HTMLInputElement | null };
-  const comboboxInputRef = { current: null } as { current: HTMLInputElement | null };
-  const pendingQueryRef = { current: '' };
-  const highlightedItemRef = { current: undefined } as { current: LabelItem | undefined };
+  let createInput: HTMLInputElement | null = null;
+  let comboboxInput: HTMLInputElement | null = null;
+  let pendingQuery = '';
+  let highlightedItem: LabelItem | undefined;
 
   function handleInputKeyDown(event: KeyboardEvent) {
-    if (event.key !== 'Enter' || highlightedItemRef.current) {
+    if (event.key !== 'Enter' || highlightedItem) {
       return;
     }
 
@@ -41,12 +41,12 @@ export default function ExampleCreatableCombobox() {
       return;
     }
 
-    pendingQueryRef.current = currentTrimmed;
+    pendingQuery = currentTrimmed;
     setOpenDialog(true);
   }
 
   function handleCreate() {
-    const input = createInputRef.current || comboboxInputRef.current;
+    const input = createInput || comboboxInput;
     const value = input ? input.value.trim() : '';
     if (!value) {
       return;
@@ -116,7 +116,7 @@ export default function ExampleCreatableCombobox() {
           );
 
           if (creatableSelection && creatableSelection.creatable) {
-            pendingQueryRef.current = creatableSelection.creatable;
+            pendingQuery = creatableSelection.creatable;
             setOpenDialog(true);
             return;
           }
@@ -128,7 +128,7 @@ export default function ExampleCreatableCombobox() {
         inputValue={query()}
         onInputValueChange={setQuery}
         onItemHighlighted={(item) => {
-          highlightedItemRef.current = item;
+          highlightedItem = item;
         }}
       >
         <div class={styles.Container}>
@@ -161,7 +161,7 @@ export default function ExampleCreatableCombobox() {
                   </For>
                   <Combobox.Input
                     ref={(element) => {
-                      comboboxInputRef.current = element;
+                      comboboxInput = element;
                     }}
                     id={id}
                     placeholder={value().length > 0 ? '' : 'e.g. bug'}
@@ -212,7 +212,7 @@ export default function ExampleCreatableCombobox() {
       <Dialog.Root open={openDialog()} onOpenChange={setOpenDialog}>
         <Dialog.Portal>
           <Dialog.Backdrop class={styles.Backdrop} />
-          <Dialog.Popup class={styles.DialogPopup} initialFocus={() => createInputRef.current}>
+          <Dialog.Popup class={styles.DialogPopup} initialFocus={() => createInput}>
             <Dialog.Title class={styles.Title}>Create new label</Dialog.Title>
             <Dialog.Description class={styles.Description}>
               Add a new label to select.
@@ -220,11 +220,11 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={(element) => {
-                  createInputRef.current = element;
+                  createInput = element;
                 }}
                 class={styles.TextField}
                 placeholder="Label name"
-                defaultValue={pendingQueryRef.current}
+                defaultValue={pendingQuery}
               />
               <div class={styles.Actions}>
                 <Dialog.Close class={styles.Button}>Cancel</Dialog.Close>

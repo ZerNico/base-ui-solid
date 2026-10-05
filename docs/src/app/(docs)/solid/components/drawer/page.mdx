@@ -238,7 +238,7 @@ const demoDrawer = Drawer.createHandle();
 ```
 
 The drawer can render different content depending on which trigger opened it. This is achieved by passing a `payload` to the `<Drawer.Trigger>` and using the function-as-a-child pattern in `<Drawer.Root>`.
-The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>`. Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the drawer. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
+The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>` (see [Reactivity](/solid/handbook/composition#reactivity)). Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the drawer. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
 
 ```jsx title="Detached triggers with payload"
 // @highlight

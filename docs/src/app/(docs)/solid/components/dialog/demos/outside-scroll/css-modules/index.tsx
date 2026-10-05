@@ -5,7 +5,7 @@ import { ScrollArea } from 'base-ui-solid/scroll-area';
 import styles from './index.module.css';
 
 export default function OutsideScrollDialog() {
-  const popupRef = { current: null } as { current: HTMLDivElement | null };
+  let popup: HTMLDivElement | null = null;
   return (
     <Dialog.Root>
       <Dialog.Trigger class={styles.Button}>Open dialog</Dialog.Trigger>
@@ -17,10 +17,10 @@ export default function OutsideScrollDialog() {
               <ScrollArea.Content class={styles.ScrollContent}>
                 <Dialog.Popup
                   ref={(element) => {
-                    popupRef.current = element;
+                    popup = element;
                   }}
                   class={styles.Popup}
-                  initialFocus={() => popupRef.current}
+                  initialFocus={() => popup}
                 >
                   <div class={styles.PopupHeader}>
                     <Dialog.Title class={styles.Title}>Dialog</Dialog.Title>

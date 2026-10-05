@@ -16,12 +16,12 @@ export default function VaryingHeightsToast() {
 }
 function ToastButton() {
   const toastManager = Toast.useToastManager();
-  const countRef = { current: 0 };
+  let count = 0;
   function createToast() {
-    countRef.current += 1;
+    count += 1;
     const description = TEXTS[Math.floor(Math.random() * TEXTS.length)];
     toastManager.add({
-      title: `Toast ${countRef.current} created`,
+      title: `Toast ${count} created`,
       description,
     });
   }

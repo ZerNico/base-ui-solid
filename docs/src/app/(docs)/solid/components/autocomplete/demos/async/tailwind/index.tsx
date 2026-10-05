@@ -23,7 +23,7 @@ export default function ExampleAsyncAutocomplete() {
 
   const { contains } = Autocomplete.useFilter();
 
-  const abortControllerRef = { current: null } as { current: AbortController | null };
+  let abortController: AbortController | null = null;
 
   function getStatus(): JSX.Element | null {
     if (isPending()) {
@@ -63,8 +63,8 @@ export default function ExampleAsyncAutocomplete() {
         setSearchValue(nextSearchValue);
 
         const controller = new AbortController();
-        abortControllerRef.current?.abort();
-        abortControllerRef.current = controller;
+        abortController?.abort();
+        abortController = controller;
 
         if (nextSearchValue === '') {
           setSearchResults([]);

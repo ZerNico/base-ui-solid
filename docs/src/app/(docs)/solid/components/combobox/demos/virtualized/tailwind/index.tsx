@@ -5,7 +5,7 @@ import { useVirtualizer } from '../useVirtualizer';
 
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = createSignal(false);
-  const virtualizerRef = { current: null } as { current: Virtualizer | null };
+  let virtualizer: Virtualizer | null = null;
 
   return (
     <Combobox.Root
@@ -15,14 +15,14 @@ export default function ExampleVirtualizedCombobox() {
       onOpenChange={setOpen}
       itemToStringLabel={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
-        const virtualizer = virtualizerRef.current;
+        const instance = virtualizer;
 
-        if (!item || !virtualizer) {
+        if (!item || !instance) {
           return;
         }
 
         const isStart = index === 0;
-        const isEnd = index === virtualizer.options.count - 1;
+        const isEnd = index === instance.options.count - 1;
         // `imperative-action` can jump anywhere in the list, so it always needs a scroll:
         // unlike the arrow keys it can target an item that is not currently rendered.
         const shouldScroll =
@@ -32,7 +32,7 @@ export default function ExampleVirtualizedCombobox() {
 
         if (shouldScroll) {
           queueMicrotask(() => {
-            virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
+            instance.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
           });
         }
       }}
@@ -51,7 +51,12 @@ export default function ExampleVirtualizedCombobox() {
               </div>
             </Combobox.Empty>
             <Combobox.List class="p-0">
-              <VirtualizedList open={open()} virtualizerRef={virtualizerRef} />
+              <VirtualizedList
+                open={open()}
+                onVirtualizer={(nextVirtualizer) => {
+                  virtualizer = nextVirtualizer;
+                }}
+              />
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -62,11 +67,11 @@ export default function ExampleVirtualizedCombobox() {
 
 function VirtualizedList(props: {
   open: boolean;
-  virtualizerRef: { current: Virtualizer | null };
+  onVirtualizer: (virtualizer: Virtualizer | null) => void;
 }) {
   const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
 
-  const scrollElementRef = { current: null } as { current: HTMLDivElement | null };
+  let scrollElement: HTMLDivElement | null = null;
 
   const virtualizer = useVirtualizer({
     get enabled() {
@@ -75,7 +80,7 @@ function VirtualizedList(props: {
     get count() {
       return filteredItems().length;
     },
-    getScrollElement: () => scrollElementRef.current,
+    getScrollElement: () => scrollElement,
     estimateSize: () => 32,
     overscan: 20,
     paddingStart: 4,
@@ -85,14 +90,14 @@ function VirtualizedList(props: {
   });
 
   onSettled(() => {
-    props.virtualizerRef.current = virtualizer;
+    props.onVirtualizer(virtualizer);
     return () => {
-      props.virtualizerRef.current = null;
+      props.onVirtualizer(null);
     };
   });
 
   const handleScrollElementRef = (element: HTMLDivElement | null) => {
-    scrollElementRef.current = element;
+    scrollElement = element;
     if (element) {
       virtualizer.measure();
     }

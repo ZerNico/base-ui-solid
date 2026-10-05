@@ -5,7 +5,7 @@ import { useVirtualizer } from '../useVirtualizer';
 import styles from './index.module.css';
 
 export default function ExampleVirtualizedAutocomplete() {
-  const virtualizerRef = { current: null } as { current: Virtualizer | null };
+  let virtualizer: Virtualizer | null = null;
 
   return (
     <Autocomplete.Root
@@ -14,14 +14,14 @@ export default function ExampleVirtualizedAutocomplete() {
       openOnInputClick
       itemToStringValue={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
-        const virtualizer = virtualizerRef.current;
+        const instance = virtualizer;
 
-        if (!item || !virtualizer) {
+        if (!item || !instance) {
           return;
         }
 
         const isStart = index === 0;
-        const isEnd = index === virtualizer.options.count - 1;
+        const isEnd = index === instance.options.count - 1;
         // `imperative-action` can jump anywhere in the list, so it always needs a scroll:
         // unlike the arrow keys it can target an item that is not currently rendered.
         const shouldScroll =
@@ -31,7 +31,7 @@ export default function ExampleVirtualizedAutocomplete() {
 
         if (shouldScroll) {
           queueMicrotask(() => {
-            virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
+            instance.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
           });
         }
       }}
@@ -48,7 +48,11 @@ export default function ExampleVirtualizedAutocomplete() {
               <div class={styles.Empty}>No items found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List class={styles.List}>
-              <VirtualizedList virtualizerRef={virtualizerRef} />
+              <VirtualizedList
+                onVirtualizer={(nextVirtualizer) => {
+                  virtualizer = nextVirtualizer;
+                }}
+              />
             </Autocomplete.List>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
@@ -57,16 +61,16 @@ export default function ExampleVirtualizedAutocomplete() {
   );
 }
 
-function VirtualizedList(props: { virtualizerRef: { current: Virtualizer | null } }) {
+function VirtualizedList(props: { onVirtualizer: (virtualizer: Virtualizer | null) => void }) {
   const filteredItems = Autocomplete.useFilteredItems<VirtualizedItem>();
 
-  const scrollElementRef = { current: null } as { current: HTMLDivElement | null };
+  let scrollElement: HTMLDivElement | null = null;
 
   const virtualizer = useVirtualizer({
     get count() {
       return filteredItems().length;
     },
-    getScrollElement: () => scrollElementRef.current,
+    getScrollElement: () => scrollElement,
     estimateSize: () => 32,
     overscan: 20,
     paddingStart: 4,
@@ -76,14 +80,14 @@ function VirtualizedList(props: { virtualizerRef: { current: Virtualizer | null 
   });
 
   onSettled(() => {
-    props.virtualizerRef.current = virtualizer;
+    props.onVirtualizer(virtualizer);
     return () => {
-      props.virtualizerRef.current = null;
+      props.onVirtualizer(null);
     };
   });
 
   const handleScrollElementRef = (element: HTMLDivElement | null) => {
-    scrollElementRef.current = element;
+    scrollElement = element;
     if (element) {
       virtualizer.measure();
     }

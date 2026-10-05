@@ -26,7 +26,7 @@ export default function ExampleAsyncSingleCombobox() {
 
   const { contains } = Combobox.useFilter();
 
-  const abortControllerRef = { current: null } as { current: AbortController | null };
+  let abortController: AbortController | null = null;
 
   const trimmedSearchValue = createMemo(() => searchValue().trim());
 
@@ -94,8 +94,8 @@ export default function ExampleAsyncSingleCombobox() {
         setSearchValue(nextSearchValue);
 
         const controller = new AbortController();
-        abortControllerRef.current?.abort();
-        abortControllerRef.current = controller;
+        abortController?.abort();
+        abortController = controller;
 
         if (nextSearchValue === '') {
           setSearchResults([]);

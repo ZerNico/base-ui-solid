@@ -63,3 +63,17 @@ function App() {
     />
   );
 }
+
+// Port note: element props allow `data-*` attributes in object literals, like JSX attributes.
+const elementProps: useRender.ElementProps<'button'> = {
+  type: 'button',
+  'data-active': '',
+  'data-index': 1,
+  'data-open': true,
+};
+expectType<useRender.ElementProps<'button'>, typeof elementProps>(elementProps);
+const invalidElementProps: useRender.ElementProps<'button'> = {
+  // @ts-expect-error - not an attribute
+  notAnAttribute: true,
+};
+void invalidElementProps;

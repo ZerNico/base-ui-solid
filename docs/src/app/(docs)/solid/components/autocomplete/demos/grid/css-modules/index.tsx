@@ -9,21 +9,21 @@ export default function ExampleEmojiPicker() {
   const [textValue, setTextValue] = createSignal('');
   const [searchValue, setSearchValue] = createSignal('');
 
-  const textInputRef = { current: null } as { current: HTMLInputElement | null };
+  let textInput: HTMLInputElement | null = null;
 
   function handleInsertEmoji(value: string | null) {
-    if (!value || !textInputRef.current) {
+    if (!value || !textInput) {
       return;
     }
 
     const emoji = value;
-    const start = textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
-    const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
+    const start = textInput.selectionStart ?? textInput.value.length ?? 0;
+    const end = textInput.selectionEnd ?? textInput.value.length ?? 0;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
     setPickerOpen(false);
 
-    const input = textInputRef.current;
+    const input = textInput;
     if (input) {
       input.focus();
       const caretPos = start + emoji.length;
@@ -36,7 +36,7 @@ export default function ExampleEmojiPicker() {
       <div class={styles.InputGroup}>
         <input
           ref={(element) => {
-            textInputRef.current = element;
+            textInput = element;
           }}
           type="text"
           aria-label="Message"

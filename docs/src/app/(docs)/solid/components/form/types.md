@@ -14,7 +14,7 @@ Renders a `<form>` element.
 | Prop           | Type                                                                                                                                                | Default      | Description                                                                                                                                                                                                                                                                                                                                                |
 | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | errors         | `Errors`                                                                                                                                            | -            | Validation errors returned externally, typically after submission by a server or a form action.&#xA;This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,&#xA;and values correspond to error(s) related to that field.                                                                                                 |
-| actionsRef     | `React.RefObject<Form.Actions \| null>`                                                                                                             | -            | A ref to imperative actions. `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.                                                                                                                                                                                                                        |
+| actionsRef     | `((actions: Form.Actions) => void)`                                                                                                                 | -            | A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.                                                                                                                            |
 | onFormSubmit   | `((formValues: Record<string, any>, eventDetails: Form.SubmitEventDetails) => void)`                                                                | -            | Event handler called when the form is submitted.&#xA;`preventDefault()` is called on the native submit event when used.                                                                                                                                                                                                                                    |
 | validationMode | `Form.ValidationMode`                                                                                                                               | `'onSubmit'` | Determines when the form should be validated.&#xA;The `validationMode` prop on `<Field.Root>` takes precedence over this. `onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change.`onBlur`: validates a field when it loses focus.`onChange`: validates the field on every change to its value. |
 | className      | `string \| ((state: Form.State) => string \| undefined)`                                                                                            | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                   |
@@ -24,11 +24,15 @@ Renders a `<form>` element.
 **`actionsRef` Prop Example:**
 
 ```tsx
+let actions: Form.Actions | undefined;
+
+<Form actionsRef={(value) => (actions = value)} />;
+
 // validate all fields
-actionsRef.current?.validate();
+actions?.validate();
 
 // validate one field
-actionsRef.current?.validate('email');
+actions?.validate('email');
 ```
 
 ### Form.Props

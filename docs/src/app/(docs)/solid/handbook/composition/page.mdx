@@ -99,6 +99,7 @@ Base UI follows Solid's conventions for reactive values, so you can tell from a 
 - **A single reactive value is an accessor.** Call it in a reactive scope (JSX, a memo or an effect) to read the current value. For example `useDirection()`, `Combobox.useFilteredItems()` and `useMediaQuery()` return accessors.
 - **Structured state is a reactive object.** Its properties are getters that you read where you need them, like Solid props. Don't destructure it, because destructuring reads the values once. For example `useToastManager().toasts`, a handle's `isOpen`, the result of `mergeProps`, and the `props` and `state` passed to `render` functions.
 - **Methods are plain, stable functions.** You can destructure them and call them from event handlers. For example `useToastManager().add`, `handle.open()`, the actions passed to `actionsRef` and the `contains()` method of `Combobox.useFilter()`.
+- **Function children are called once, with accessors.** Like Solid's `<For>` and `<Show>`, parts that take a function child call it once and pass their values as accessors, for example the item of `<Combobox.List>`, the value of `<Select.Value>` or `<Progress.Value>`, and the `payload` of a popup root. Read them in JSX so the content updates in place.
 - **Options objects are read lazily.** To make an option of a hook reactive, pass a getter, like `Combobox.useFilter({ get locale() { return locale() } })`.
 
 ```tsx title="Reading reactive values"

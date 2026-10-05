@@ -12,13 +12,13 @@ export default function ExampleCreatableCombobox() {
   const [query, setQuery] = createSignal('');
   const [openDialog, setOpenDialog] = createSignal(false);
 
-  const createInputRef = { current: null } as { current: HTMLInputElement | null };
-  const comboboxInputRef = { current: null } as { current: HTMLInputElement | null };
-  const pendingQueryRef = { current: '' };
-  const highlightedItemRef = { current: undefined } as { current: LabelItem | undefined };
+  let createInput: HTMLInputElement | null = null;
+  let comboboxInput: HTMLInputElement | null = null;
+  let pendingQuery = '';
+  let highlightedItem: LabelItem | undefined;
 
   function handleInputKeyDown(event: KeyboardEvent) {
-    if (event.key !== 'Enter' || highlightedItemRef.current) {
+    if (event.key !== 'Enter' || highlightedItem) {
       return;
     }
 
@@ -40,12 +40,12 @@ export default function ExampleCreatableCombobox() {
       return;
     }
 
-    pendingQueryRef.current = currentTrimmed;
+    pendingQuery = currentTrimmed;
     setOpenDialog(true);
   }
 
   function handleCreate() {
-    const input = createInputRef.current || comboboxInputRef.current;
+    const input = createInput || comboboxInput;
     const value = input ? input.value.trim() : '';
     if (!value) {
       return;
@@ -115,7 +115,7 @@ export default function ExampleCreatableCombobox() {
           );
 
           if (creatableSelection && creatableSelection.creatable) {
-            pendingQueryRef.current = creatableSelection.creatable;
+            pendingQuery = creatableSelection.creatable;
             setOpenDialog(true);
             return;
           }
@@ -127,7 +127,7 @@ export default function ExampleCreatableCombobox() {
         inputValue={query()}
         onInputValueChange={setQuery}
         onItemHighlighted={(item) => {
-          highlightedItemRef.current = item;
+          highlightedItem = item;
         }}
       >
         <div class="max-w-md flex flex-col gap-1">
@@ -163,7 +163,7 @@ export default function ExampleCreatableCombobox() {
                   </For>
                   <Combobox.Input
                     ref={(element) => {
-                      comboboxInputRef.current = element;
+                      comboboxInput = element;
                     }}
                     id={id}
                     placeholder={value().length > 0 ? '' : 'e.g. bug'}
@@ -224,7 +224,7 @@ export default function ExampleCreatableCombobox() {
           <Dialog.Backdrop class="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity dark:opacity-70 data-starting-style:opacity-0 data-ending-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
           <Dialog.Popup
             class="fixed top-1/2 left-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 border border-neutral-950 bg-white p-6 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-all data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
-            initialFocus={() => createInputRef.current}
+            initialFocus={() => createInput}
           >
             <Dialog.Title class="text-sm leading-5 font-bold">Create new label</Dialog.Title>
             <Dialog.Description class="mb-4 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
@@ -233,11 +233,11 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={(element) => {
-                  createInputRef.current = element;
+                  createInput = element;
                 }}
                 class="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:text-white"
                 placeholder="Label name"
-                defaultValue={pendingQueryRef.current}
+                defaultValue={pendingQuery}
               />
               <div class="mt-4 flex justify-end gap-3">
                 <Dialog.Close class="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">

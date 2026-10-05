@@ -28,8 +28,8 @@ export default function ExampleAsyncMultipleCombobox() {
 
   const { contains } = Combobox.useFilter();
 
-  const abortControllerRef = { current: null } as { current: AbortController | null };
-  const selectedValuesRef = { current: [] } as { current: DirectoryUser[] };
+  let abortController: AbortController | null = null;
+  let latestSelectedValues: DirectoryUser[] = [];
 
   const trimmedSearchValue = createMemo(() => searchValue().trim());
 
@@ -94,12 +94,12 @@ export default function ExampleAsyncMultipleCombobox() {
       filter={null}
       onOpenChangeComplete={(open) => {
         if (!open) {
-          setSearchResults(selectedValuesRef.current);
+          setSearchResults(latestSelectedValues);
           setBlockStartStatus(false);
         }
       }}
       onValueChange={(nextSelectedValues) => {
-        selectedValuesRef.current = nextSelectedValues;
+        latestSelectedValues = nextSelectedValues;
         setSelectedValues(nextSelectedValues);
         setSearchValue('');
         setError(null);
@@ -115,11 +115,11 @@ export default function ExampleAsyncMultipleCombobox() {
         setSearchValue(nextSearchValue);
 
         const controller = new AbortController();
-        abortControllerRef.current?.abort();
-        abortControllerRef.current = controller;
+        abortController?.abort();
+        abortController = controller;
 
         if (nextSearchValue === '') {
-          setSearchResults(selectedValuesRef.current);
+          setSearchResults(latestSelectedValues);
           setError(null);
           setBlockStartStatus(false);
           return;

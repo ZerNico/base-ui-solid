@@ -14,7 +14,7 @@ export default function ExampleAccordion() {
         </Accordion.Header>
         <Accordion.Panel class={styles.Panel}>
           <div class={styles.Content}>
-            Base UI is a library of high-quality unstyled React components for design systems and
+            Base UI is a library of high-quality unstyled Solid components for design systems and
             web apps.
           </div>
         </Accordion.Panel>

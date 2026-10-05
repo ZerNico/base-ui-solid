@@ -4,7 +4,7 @@ import { Dialog } from 'base-ui-solid/dialog';
 import { ScrollArea } from 'base-ui-solid/scroll-area';
 
 export default function OutsideScrollDialog() {
-  const popupRef = { current: null } as { current: HTMLDivElement | null };
+  let popup: HTMLDivElement | null = null;
   return (
     <Dialog.Root>
       <Dialog.Trigger class="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
@@ -21,9 +21,9 @@ export default function OutsideScrollDialog() {
               <ScrollArea.Content class="flex min-h-full items-center justify-center">
                 <Dialog.Popup
                   ref={(element) => {
-                    popupRef.current = element;
+                    popup = element;
                   }}
-                  initialFocus={() => popupRef.current}
+                  initialFocus={() => popup}
                   class="outline-0 relative mx-auto my-16 flex w-[min(40rem,calc(100vw-2rem))] flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-starting-style:translate-y-[100dvh] data-ending-style:translate-y-[max(100dvh,100%)] data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
                   <div class="relative flex flex-col gap-1 pr-8">

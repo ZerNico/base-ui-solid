@@ -309,6 +309,7 @@ You can pass errors returned by (post-submission) server-side validation to the 
 This should be an object with field names as keys, and an error string or array of strings as the value. Once a field's value changes, any corresponding error in `errors` will be cleared from the field state.
 
 ```tsx title="Displaying errors returned by server-side validation"
+import { createSignal } from 'solid-js';
 import { Form } from 'base-ui-solid/form';
 import { Field } from 'base-ui-solid/field';
 
@@ -321,7 +322,7 @@ async function submitToServer(/* payload */) {
   };
 }
 
-const [errors, setErrors] = createSignal(); // @highlight-text "errors"
+const [errors, setErrors] = createSignal<Form.Props['errors']>(); // @highlight-text "errors"
 
 <Form
   errors={errors()} // @highlight-text "errors"
@@ -344,7 +345,7 @@ import { Field } from 'base-ui-solid/field';
 import { login } from './actions';
 
 function LoginForm() {
-  const [errors, setErrors] = createSignal({});
+  const [errors, setErrors] = createSignal<Form.Props['errors']>({});
   return (
     <Form
       errors={errors()}

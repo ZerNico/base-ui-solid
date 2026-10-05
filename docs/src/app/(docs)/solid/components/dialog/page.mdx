@@ -217,7 +217,7 @@ const demoDialog = Dialog.createHandle();
 
 The dialog can render different content depending on which trigger opened it.
 This is achieved by passing a `payload` to the `<Dialog.Trigger>` and using the function-as-a-child pattern in `<Dialog.Root>`.
-The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>`. Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the dialog. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
+The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>` (see [Reactivity](/solid/handbook/composition#reactivity)). Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the dialog. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
