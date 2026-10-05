@@ -203,19 +203,49 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
 `useSyncExternalStore`). The port keeps the same classes, names and methods
 (`@base-ui-solid/utils/store`) so popup code ports 1:1:
 
-- `Store` is unchanged and framework-agnostic: `state` is a plain object, updated synchronously by
-  `setState` / `set` / `update`, and `subscribe` listeners run synchronously. Reading
-  `store.state` (or `select()`) is **not tracked**: use it in event handlers and effects, like
-  upstream.
+- `Store` is framework-agnostic and identical to upstream, except that `setState` notifies through
+  a protected `notify()` (so `SolidStore` can notify without a `setState`): `state` is a plain
+  object, updated synchronously by `setState` / `set` / `update`, and `subscribe` listeners run
+  synchronously. Reading `store.state` (or `select()`) is **not tracked**: use it in event handlers
+  and effects, like upstream.
 - `store.useState(key, ...args)`, `store.use(selector, ...args)` and `useStore(store, selector, ...args)`
-  return an **accessor** backed by a memo: the hook subscribes to the store, re-runs the selector
-  when Solid flushes and notifies readers only when the selected value changed (`Object.is`).
+  return an **accessor** backed by a memo that re-runs the selector when Solid flushes and notifies
+  readers only when the selected value changed (`Object.is`). A plain `Store` notifies the memo
+  from a `subscribe` listener. A `SolidStore` is tracked directly (`trackSelector`, see below).
   Selector arguments may be accessors (`store.useState('isActive', () => index())`). An argument
   that is itself a function must be wrapped (`() => fn`).
 - `SolidStore` keeps its name. Values synced into the store are passed as accessors:
   `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
   `useControlledProp(key, () => props.open)` and `useSyncedValues(() => ({ a: a(), b: props.b }))`.
-  They write in an effect (`useIsoLayoutEffect`), like upstream's layout effects.
+  Upstream writes them from layout effects, so selectors see them one render late. Here they
+  register the accessor as the source of its keys (`SolidStore.register`):
+  - Each key is provided by the imperative state or by one source, and the last writer wins. A
+    source provides its keys from registration and whenever one of its values changes.
+    `setState` / `set` / `update` take over every key whose value they change.
+    `useControlledProp`'s source doesn't provide `undefined`: like upstream, a controlled value that
+    becomes `undefined` stays in the state.
+  - `store.state` reads the sources when it's read, also during server rendering, and keeps its
+    identity until a value changes. Writes stay synchronous: `get()` after `set()` returns the new
+    value.
+  - `useState` runs its selector through `SolidStore.trackSelector`, which tracks the sources of
+    the keys the selector reads, so it updates in the same flush as the synced props (no
+    one-update tear). Like upstream, every imperative write re-runs every selector, because
+    selectors can read values outside the state (an element's `id`, another store). For the same
+    reason, sources of keys a selector didn't read re-run it in a microtask after they change. It
+    can't track every source in the same flush: sources often read the same store's `useState`,
+    which would be a cycle. A source registering or unregistering re-runs only the selectors that
+    read its keys.
+  - `subscribe` / `observe` listeners are notified after the flush in which a source changed, like
+    upstream's layout effects. On unmount, a source hands its last value (`undefined` for
+    `useSyncedValueWithCleanup`) back to the imperative state. `NullStore` ignores registrations.
+  - When porting upstream changes to `ReactStore.ts`, a helper that writes a value into the store
+    from a layout effect becomes a `register` call (see the Port note at the top of
+    `SolidStore.ts`). Upstream code that seeds the store during render because the layout effect
+    runs after the children (`useOnFirstRender(() => store.update(...))` in `SelectRoot`, the
+    `mounted` seed in `popupStoreUtils`) is kept for parity, though it's redundant for values synced
+    through these helpers.
+  - Solid only brings a memo up to date on a tracked read, so an untracked read of a source during
+    a flush can return an older value. `SolidStore` stamps source values and ignores older ones.
 - `useContextCallback(key, () => props.onOpenChange)` stores a stable function that calls the latest
   callback (replaces `useStableCallback`). `useStateSetter(key)` returns a plain setter.
 - `createSelector` / `createSelectorMemoized` are copied verbatim (reselect-based).
@@ -380,12 +410,17 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   report about 36 warnings in a typical docs session. They're down to about 18 by keeping memo
   outputs stable (state, style and props memos compare shallowly) and deriving registrations
   (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules, the Collapsible
-  panel's forced idle status) instead of writing them from effects. The remaining ones follow
-  upstream's layout-effect design:
-  - `EFFECT_RELAY_TEAR` via `subscribeToStore.track` (Select, Combobox, Autocomplete, Popover,
-    Preview Card, Dialog, Drawer, Tooltip, Navigation Menu): popups sync their props into the
-    `Store` from layout effects (`useSyncedValue`, `store.update`), like upstream. Removing it needs
-    a store whose synced keys are derived, not written.
+  panel's forced idle status, the values synced into popup stores) instead of writing them from
+  effects. The remaining ones follow upstream's layout-effect design:
+  - `EFFECT_RELAY_TEAR` and `EFFECT_WRITES_OWN_SOURCE` via `SolidStore.version`: popups still write
+    derived state into the store from layout effects, often state they read, like upstream
+    (Select's `selectedIndex`, Tooltip's `instantType`, the trigger count and active trigger of
+    `useImplicitActiveTrigger`, Combobox's synced values, which go through its own effect for
+    `inputOwnsFormValue`). Values synced with `useSyncedValue` & co. no longer relay (see Stores
+    and popups). These reports went up when the store moved to one version signal (an app driving
+    every popup went from 18 store-related reports to 51), because Solid only reports a relay when
+    both runs share a written signal, and each `useState` used to have its own. The work went down:
+    in a Tooltip, Popover and Menu session, selectors ran 6% less and layout effects 14% less.
   - `useCollapsiblePanel.dimensions` and `useFloating.data`: DOM measurement, inherently an effect.
   - OTP Field `focusedIndex`: the effect moves DOM focus after the value commits, and the focus
     handler records the index.
