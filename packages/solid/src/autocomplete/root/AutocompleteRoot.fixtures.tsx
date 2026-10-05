@@ -4,6 +4,9 @@ import { Field } from '../../field';
 import { Form } from '../../form';
 import { Input } from '../../input';
 
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
+
 export function FormSSR1() {
   return (
     <Form>
@@ -11,7 +14,7 @@ export function FormSSR1() {
         <Autocomplete.Root items={['alpha', 'alpine']} inline>
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.List>
-            {(item) => <Autocomplete.Item value={item}>{item}</Autocomplete.Item>}
+            {(item) => <Autocomplete.Item value={item()}>{item()}</Autocomplete.Item>}
           </Autocomplete.List>
         </Autocomplete.Root>
       </Field.Root>
@@ -32,7 +35,7 @@ export function FormSSR2() {
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  {(item) => <Autocomplete.Item value={item}>{item}</Autocomplete.Item>}
+                  {(item) => <Autocomplete.Item value={item()}>{item()}</Autocomplete.Item>}
                 </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>
@@ -58,7 +61,7 @@ export function FormSSR3() {
                   render={(props) => <Input {...(props as Input.Props)} data-testid="input" />}
                 />
                 <Autocomplete.List>
-                  {(item) => <Autocomplete.Item value={item}>{item}</Autocomplete.Item>}
+                  {(item) => <Autocomplete.Item value={item()}>{item()}</Autocomplete.Item>}
                 </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>

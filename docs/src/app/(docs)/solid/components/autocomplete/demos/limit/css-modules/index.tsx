@@ -1,4 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
 
@@ -34,9 +35,9 @@ export default function ExampleAutocompleteLimit() {
             </Autocomplete.Empty>
 
             <Autocomplete.List>
-              {(tag: Tag) => (
-                <Autocomplete.Item class={styles.Item} value={tag}>
-                  {tag.value}
+              {(tag: Accessor<Tag>) => (
+                <Autocomplete.Item class={styles.Item} value={tag()}>
+                  {tag().value}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

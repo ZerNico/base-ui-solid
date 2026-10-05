@@ -1780,6 +1780,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     get flatFilteredValues() {
       return flatFilteredValues();
     },
+    get itemToValue() {
+      return itemToValue();
+    },
+    get itemToStringValue() {
+      return itemToStringValue();
+    },
   };
 
   const serializedValue = createMemo(() => {

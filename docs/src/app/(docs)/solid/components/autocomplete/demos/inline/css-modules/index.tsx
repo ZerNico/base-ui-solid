@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
 
@@ -13,9 +14,9 @@ export default function ExampleAutocompleteInline() {
         <Autocomplete.Positioner class={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup class={styles.Popup}>
             <Autocomplete.List class={styles.List}>
-              {(tag: Tag) => (
-                <Autocomplete.Item class={styles.Item} value={tag}>
-                  {tag.value}
+              {(tag: Accessor<Tag>) => (
+                <Autocomplete.Item class={styles.Item} value={tag()}>
+                  {tag().value}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

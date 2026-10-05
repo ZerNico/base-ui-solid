@@ -15,6 +15,14 @@ export interface ComboboxDerivedItemsContext {
    * items themselves unless `items` is a `createItems()` collection.
    */
   flatFilteredValues: any[];
+  /**
+   * Projects a source item to its value when `items` is a `createItems()` collection.
+   */
+  itemToValue: ((item: any) => any) | undefined;
+  /**
+   * The root's `itemToStringValue` prop.
+   */
+  itemToStringValue: ((itemValue: any) => string) | undefined;
 }
 
 export const ComboboxRootContext = createContext<ComboboxStore | null>(null);

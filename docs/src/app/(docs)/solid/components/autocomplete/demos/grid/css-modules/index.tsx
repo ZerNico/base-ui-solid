@@ -1,4 +1,5 @@
 import { createSignal, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
@@ -78,13 +79,13 @@ export default function ExampleEmojiPicker() {
                     class={styles.List}
                     style={{ '--cols': COLUMNS } as JSX.CSSProperties}
                   >
-                    {(group: EmojiGroup) => (
-                      <Autocomplete.Group items={group.items} class={styles.Group}>
+                    {(group: Accessor<EmojiGroup>) => (
+                      <Autocomplete.Group items={group().items} class={styles.Group}>
                         <Autocomplete.GroupLabel class={styles.GroupLabel}>
-                          {group.label}
+                          {group().label}
                         </Autocomplete.GroupLabel>
                         <div class={styles.Grid} role="presentation">
-                          <For each={chunkArray(group.items, COLUMNS)}>
+                          <For each={chunkArray(group().items, COLUMNS)}>
                             {(row, _rowIdx) => (
                               <Autocomplete.Row class={styles.Row}>
                                 <For each={row}>

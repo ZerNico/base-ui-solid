@@ -5,6 +5,9 @@ import { Combobox } from 'base-ui-solid/combobox';
 import { createRenderer, describeConformance, screen } from '#test-utils';
 import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../../internals/useInitialLiveRegionTextMutation';
 
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
+
 describe('<Combobox.Empty />', () => {
   const { render } = createRenderer();
   describeConformance((props) => <Combobox.Empty {...props} />, {
@@ -33,7 +36,7 @@ describe('<Combobox.Empty />', () => {
             <Combobox.Popup>
               <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
               <Combobox.List>
-                {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -52,7 +55,7 @@ describe('<Combobox.Empty />', () => {
             <Combobox.Popup>
               <Combobox.Empty>No results</Combobox.Empty>
               <Combobox.List>
-                {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -70,7 +73,7 @@ describe('<Combobox.Empty />', () => {
             <Combobox.Popup>
               <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
               <Combobox.List>
-                {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -88,7 +91,7 @@ describe('<Combobox.Empty />', () => {
             <Combobox.Popup>
               <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
               <Combobox.List>
-                {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>

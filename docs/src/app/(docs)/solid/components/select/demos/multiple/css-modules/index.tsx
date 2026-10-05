@@ -1,4 +1,5 @@
 import { For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
 import styles from './index.module.css';
@@ -36,7 +37,9 @@ export default function MultiSelectExample() {
       <Select.Root multiple defaultValue={['javascript', 'typescript']}>
         <Select.Label class={styles.Label}>Languages</Select.Label>
         <Select.Trigger class={styles.Select}>
-          <Select.Value class={styles.Value}>{renderValue}</Select.Value>
+          <Select.Value class={styles.Value}>
+            {(value: Accessor<Language[]>) => <>{renderValue(value())}</>}
+          </Select.Value>
           <Select.Icon>
             <CaretUpDownIcon />
           </Select.Icon>

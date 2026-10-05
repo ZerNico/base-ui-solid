@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
 export default function ExampleAutocomplete() {
@@ -20,12 +21,12 @@ export default function ExampleAutocomplete() {
               </div>
             </Autocomplete.Empty>
             <Autocomplete.List class="outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-empty:p-0">
-              {(tag: Tag) => (
+              {(tag: Accessor<Tag>) => (
                 <Autocomplete.Item
                   class="flex cursor-default items-center gap-2 py-2 pr-2 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                  value={tag}
+                  value={tag()}
                 >
-                  {tag.value}
+                  {tag().value}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 
@@ -170,20 +171,20 @@ export default function ExampleAsyncSingleCombobox() {
                 ) : null}
               </Combobox.Empty>
               <Combobox.List>
-                {(user: DirectoryUser) => (
+                {(user: Accessor<DirectoryUser>) => (
                   <Combobox.Item
-                    value={user}
+                    value={user()}
                     class="grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 px-2 py-2 text-sm leading-[1.2rem] outline-none select-none [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-neutral-950 [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-100 dark:[@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:before:bg-neutral-800"
                   >
                     <Combobox.ItemIndicator class="col-start-1 mt-1">
                       <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span class="col-start-2 flex flex-col gap-1">
-                      <span class="text-sm leading-5 font-bold">{user.name}</span>
-                      <span class="text-xs">{user.email}</span>
+                      <span class="text-sm leading-5 font-bold">{user().name}</span>
+                      <span class="text-xs">{user().email}</span>
                       <span class="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        <span>@{user.username}</span>
-                        <span>{user.title}</span>
+                        <span>@{user().username}</span>
+                        <span>{user().title}</span>
                       </span>
                     </span>
                   </Combobox.Item>

@@ -1,4 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
 const limit = 8;
@@ -38,12 +39,12 @@ export default function ExampleAutocompleteLimit() {
             </Autocomplete.Empty>
 
             <Autocomplete.List>
-              {(tag: Tag) => (
+              {(tag: Accessor<Tag>) => (
                 <Autocomplete.Item
                   class="flex cursor-default py-2 pr-2 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                  value={tag}
+                  value={tag()}
                 >
-                  {tag.value}
+                  {tag().value}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

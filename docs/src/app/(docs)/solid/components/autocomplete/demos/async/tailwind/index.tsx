@@ -1,4 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
@@ -111,15 +112,15 @@ export default function ExampleAsyncAutocomplete() {
                 )}
               </Autocomplete.Status>
               <Autocomplete.List>
-                {(movie: Movie) => (
+                {(movie: Accessor<Movie>) => (
                   <Autocomplete.Item
                     class="group flex cursor-default py-2 pr-2 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                    value={movie}
+                    value={movie()}
                   >
                     <span class="flex w-full flex-col gap-1">
-                      <span class="font-bold leading-5">{movie.title}</span>
+                      <span class="font-bold leading-5">{movie().title}</span>
                       <span class="text-sm leading-4 text-neutral-500 dark:text-neutral-400 group-data-highlighted:text-neutral-300 dark:group-data-highlighted:text-neutral-500">
-                        {movie.year}
+                        {movie().year}
                       </span>
                     </span>
                   </Autocomplete.Item>

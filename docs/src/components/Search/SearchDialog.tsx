@@ -1,4 +1,5 @@
 import { createSignal, For, onSettled, Show } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import { ScrollArea } from 'base-ui-solid/scroll-area';
@@ -137,20 +138,20 @@ export function SearchDialog(props: { mobileTriggerClass?: string } = {}) {
                                   {group.group.replace(/ Pages$/, '')}
                                 </Autocomplete.GroupLabel>
                                 <Autocomplete.Collection>
-                                  {(result: SearchResult) => (
+                                  {(result: Accessor<SearchResult>) => (
                                     <Autocomplete.Item
-                                      value={result}
+                                      value={result()}
                                       class="SearchOptionItem"
                                       render={(itemProps) => (
                                         <RouterLink
                                           {...itemProps}
-                                          href={engine?.buildResultUrl(result)}
+                                          href={engine?.buildResultUrl(result())}
                                           tabindex="-1"
                                           onClick={() => changeOpen(false)}
                                         />
                                       )}
                                     >
-                                      <For each={result.title?.split(' ‣ ')}>
+                                      <For each={result().title?.split(' ‣ ')}>
                                         {(part, index) => (
                                           <>
                                             <Show when={index() > 0}>
@@ -172,7 +173,7 @@ export function SearchDialog(props: { mobileTriggerClass?: string } = {}) {
                                                 {
                                                   last:
                                                     index() ===
-                                                    (result.title?.split(' ‣ ').length ?? 0) - 1,
+                                                    (result().title?.split(' ‣ ').length ?? 0) - 1,
                                                 },
                                               ]}
                                             >

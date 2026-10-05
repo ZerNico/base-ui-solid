@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
 
@@ -16,15 +17,15 @@ export default function ExampleGroupAutocomplete() {
               <div class={styles.Empty}>No tags found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List class={styles.List}>
-              {(group: TagGroup) => (
-                <Autocomplete.Group items={group.items} class={styles.Group}>
+              {(group: Accessor<TagGroup>) => (
+                <Autocomplete.Group items={group().items} class={styles.Group}>
                   <Autocomplete.GroupLabel class={styles.GroupLabel}>
-                    {group.value}
+                    {group().value}
                   </Autocomplete.GroupLabel>
                   <Autocomplete.Collection>
-                    {(tag: Tag) => (
-                      <Autocomplete.Item class={styles.Item} value={tag}>
-                        {tag.label}
+                    {(tag: Accessor<Tag>) => (
+                      <Autocomplete.Item class={styles.Item} value={tag()}>
+                        {tag().label}
                       </Autocomplete.Item>
                     )}
                   </Autocomplete.Collection>

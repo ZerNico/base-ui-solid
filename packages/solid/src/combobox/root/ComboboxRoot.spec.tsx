@@ -1,4 +1,5 @@
 import { createSignal, createMemo, flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -6,6 +7,9 @@ import type { ComboboxItemCollection, CreateComboboxItemsOptions } from 'base-ui
 import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
 import { REASONS } from '../../internals/reasons';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -37,7 +41,9 @@ const groupItemsReadonly = [
 ] as const;
 <Combobox.Root items={objectItems} defaultValue={objectItems[0]}>
   <Combobox.List>
-    {(item: (typeof objectItems)[number]) => <Combobox.Item>{item.label}</Combobox.Item>}
+    {(item: Accessor<(typeof objectItems)[number]>) => (
+      <Combobox.Item>{item().label}</Combobox.Item>
+    )}
   </Combobox.List>
 </Combobox.Root>;
 <Combobox.Root

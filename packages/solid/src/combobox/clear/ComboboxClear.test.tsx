@@ -1,4 +1,5 @@
 import { flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { expect, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -11,6 +12,9 @@ import {
   waitFor,
 } from '#test-utils';
 import { SelectionlessCombobox as Autocomplete } from '../root/SelectionlessCombobox.test-utils';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Clear />', () => {
   const { render } = createRenderer();
@@ -62,7 +66,13 @@ describe('<Combobox.Clear />', () => {
       <Combobox.Root multiple defaultValue={['apple']}>
         <Combobox.Chips>
           <Combobox.Value>
-            {(value: string[]) => value.map((item) => <Combobox.Chip>{item}</Combobox.Chip>)}
+            {(value: Accessor<string[]>) => (
+              <>
+                {value().map((item) => (
+                  <Combobox.Chip>{item}</Combobox.Chip>
+                ))}
+              </>
+            )}
           </Combobox.Value>
           <Combobox.Input />
         </Combobox.Chips>
@@ -139,7 +149,7 @@ describe('<Combobox.Clear />', () => {
             <Combobox.Popup>
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>

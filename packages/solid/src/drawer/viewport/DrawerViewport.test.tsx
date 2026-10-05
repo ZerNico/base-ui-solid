@@ -20,10 +20,14 @@ import { Combobox } from 'base-ui-solid/combobox';
 import { Drawer } from 'base-ui-solid/drawer';
 import { Slider } from 'base-ui-solid/slider';
 import { flush, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { describe, expect, it, vi } from 'vitest';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Drawer.Viewport />', () => {
   const { render } = createRenderer();
@@ -1046,7 +1050,9 @@ describe('<Drawer.Viewport />', () => {
                       <Combobox.Positioner>
                         <Combobox.Popup>
                           <Combobox.List style={{ 'max-height': '40px', overflow: 'auto' }}>
-                            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                            {(item: Accessor<string>) => (
+                              <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                            )}
                           </Combobox.List>
                         </Combobox.Popup>
                       </Combobox.Positioner>

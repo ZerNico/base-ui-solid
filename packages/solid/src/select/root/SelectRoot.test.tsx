@@ -33,6 +33,9 @@ import { REASONS } from '../../internals/reasons';
 
 import { SelectWithLabel } from './SelectRoot.fixtures';
 
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
+
 // Port note: counterpart of React's `actPart1`: run the action, then apply Solid's batched updates.
 async function actPart1(callback: () => void) {
   callback();
@@ -3618,7 +3621,7 @@ describe('<Select.Root />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value()} onValueChange={setValue}>
             <Select.Trigger data-testid="trigger">
-              <Select.Value data-testid="value">{(val) => val ?? 'initial'}</Select.Value>
+              <Select.Value data-testid="value">{(val) => <>{val() ?? 'initial'}</>}</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>

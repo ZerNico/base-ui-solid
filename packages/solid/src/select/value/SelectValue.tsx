@@ -1,4 +1,5 @@
-import { createMemo, omit } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -40,15 +41,24 @@ export function SelectValue(componentProps: SelectValue.Props) {
     placeholder: !hasSelectedValue(),
   }));
 
+  // Port note: upstream calls a `children` function on every render. Here it's called once (again
+  // only if the function itself changes) with an accessor of the value, so its DOM updates in place.
+  const renderedChildren = createMemo(() => {
+    const currentChildren = childrenProp();
+    return typeof currentChildren === 'function'
+      ? untrack(() => currentChildren(value))
+      : undefined;
+  });
+
   // Port note: a stable children source whose getter is evaluated reactively by the rendered
   // element, so the label updates in place.
   const childrenSource = {
     get children(): JSX.Element {
       const currentChildren = childrenProp();
-      const currentValue = value();
       if (typeof currentChildren === 'function') {
-        return currentChildren(currentValue);
+        return renderedChildren();
       }
+      const currentValue = value();
       if (currentChildren != null) {
         return currentChildren;
       }
@@ -93,16 +103,17 @@ export interface SelectValueProps extends Omit<
 > {
   /**
    * Accepts a function that returns a `JSX.Element` to format the selected value.
+   * The function is called once with an accessor of the value.
    * Treat the value as read-only: in `multiple` mode it may be a shared frozen array
    * when nothing is selected.
    * @example
    * ```tsx
    * <Select.Value>
-   *   {(value: string | null) => value ? labels[value] : 'No value'}
+   *   {(value: Accessor<string | null>) => (value() ? labels[value()!] : 'No value')}
    * </Select.Value>
    * ```
    */
-  children?: JSX.Element | ((value: any) => JSX.Element) | undefined;
+  children?: JSX.Element | ((value: Accessor<any>) => JSX.Element) | undefined;
   /**
    * The placeholder value to display when no value is selected.
    * This is overridden by `children` if specified, or by a null item's label in `items`.

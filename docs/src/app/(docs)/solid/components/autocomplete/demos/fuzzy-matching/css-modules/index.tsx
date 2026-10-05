@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import { matchSorter } from 'match-sorter';
@@ -23,16 +24,18 @@ export default function ExampleFuzzyMatchingAutocomplete() {
             </Autocomplete.Empty>
 
             <Autocomplete.List class={styles.List}>
-              {(item: FuzzyItem) => (
-                <Autocomplete.Item value={item} class={styles.Item}>
+              {(item: Accessor<FuzzyItem>) => (
+                <Autocomplete.Item value={item()} class={styles.Item}>
                   <Autocomplete.Value>
                     {(value) => (
                       <span class={styles.ItemContent}>
                         <span class={styles.ItemHeader}>
-                          <span class={styles.ItemTitle}>{highlightText(item.title, value)}</span>
+                          <span class={styles.ItemTitle}>
+                            {highlightText(item().title, value())}
+                          </span>
                         </span>
                         <span class={styles.ItemDescription}>
-                          {highlightText(item.description, value)}
+                          {highlightText(item().description, value())}
                         </span>
                       </span>
                     )}

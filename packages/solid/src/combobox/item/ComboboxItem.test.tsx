@@ -1,4 +1,5 @@
 import { createSignal, flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -12,6 +13,9 @@ import {
   isJSDOM,
 } from '#test-utils';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Item />', () => {
   const { render } = createRenderer();
@@ -54,9 +58,9 @@ describe('<Combobox.Item />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item value={item} onClick={handleClick}>
-                      {item}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()} onClick={handleClick}>
+                      {item()}
                     </Combobox.Item>
                   )}
                 </Combobox.List>
@@ -80,9 +84,9 @@ describe('<Combobox.Item />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item value={item} onClick={handleClick}>
-                      {item}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()} onClick={handleClick}>
+                      {item()}
                     </Combobox.Item>
                   )}
                 </Combobox.List>
@@ -582,9 +586,9 @@ describe('<Combobox.Item />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item value={item} render={renderByItem.get(item)}>
-                      {item}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()} render={renderByItem.get(item())}>
+                      {item()}
                     </Combobox.Item>
                   )}
                 </Combobox.List>

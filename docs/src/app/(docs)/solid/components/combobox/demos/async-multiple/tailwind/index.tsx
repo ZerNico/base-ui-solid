@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 
@@ -155,12 +156,12 @@ export default function ExampleAsyncMultipleCombobox() {
         </label>
         <Combobox.InputGroup class="flex min-h-8 w-64 cursor-text flex-wrap items-center gap-0.5 border border-neutral-950 bg-white dark:bg-neutral-950 px-2 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white has-[button]:px-1 dark:border-white min-[32rem]:w-[22rem]">
           <Combobox.Value>
-            {(value: DirectoryUser[]) => (
+            {(value: Accessor<DirectoryUser[]>) => (
               <Combobox.Chips
                 class="flex w-full flex-wrap items-center gap-1"
-                aria-label={value.length > 0 ? 'Selected reviewers' : undefined}
+                aria-label={value().length > 0 ? 'Selected reviewers' : undefined}
               >
-                <For each={value}>
+                <For each={value()}>
                   {(user) => (
                     <Combobox.Chip
                       class="group flex min-h-[calc(1.5rem-2px)] cursor-default items-center gap-1 overflow-hidden bg-neutral-100 py-0 pr-[0.2rem] pl-[0.4rem] text-sm leading-none text-neutral-950 outline-none focus-within:bg-neutral-950 focus-within:text-white [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:bg-neutral-800 dark:text-white dark:focus-within:bg-white dark:focus-within:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
@@ -179,10 +180,10 @@ export default function ExampleAsyncMultipleCombobox() {
                 </For>
                 <Combobox.Input
                   id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  placeholder={value().length > 0 ? '' : 'e.g. Michael'}
                   aria-description={
-                    value.length > 0
-                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                    value().length > 0
+                      ? `${value().length} selected. From the start of the input, press Left Arrow to focus the selected items`
                       : undefined
                   }
                   class="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
@@ -215,20 +216,20 @@ export default function ExampleAsyncMultipleCombobox() {
                 ) : null}
               </Combobox.Empty>
               <Combobox.List>
-                {(user: DirectoryUser) => (
+                {(user: Accessor<DirectoryUser>) => (
                   <Combobox.Item
-                    value={user}
+                    value={user()}
                     class="grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 px-2 py-2 text-sm leading-[1.2rem] outline-none select-none [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-neutral-950 [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-100 dark:[@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:before:bg-neutral-800"
                   >
                     <Combobox.ItemIndicator class="col-start-1 mt-1">
                       <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span class="col-start-2 flex flex-col gap-1">
-                      <span class="text-sm leading-5 font-bold">{user.name}</span>
-                      <span class="text-xs">{user.email}</span>
+                      <span class="text-sm leading-5 font-bold">{user().name}</span>
+                      <span class="text-xs">{user().email}</span>
                       <span class="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        <span>@{user.username}</span>
-                        <span>{user.title}</span>
+                        <span>@{user().username}</span>
+                        <span>{user().title}</span>
                       </span>
                     </span>
                   </Combobox.Item>

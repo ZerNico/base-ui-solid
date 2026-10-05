@@ -14,6 +14,9 @@ import {
   describeConformance,
   isJSDOM,
 } from '#test-utils';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 // Port note: flush Solid updates after imperative actions, replacing React act.
 async function act(fn: () => unknown) {
   await fn();
@@ -736,9 +739,12 @@ describe('<Select.Popup />', () => {
             <Select.Root defaultValue={props.defaultValue} open={open()} onOpenChange={setOpen}>
               <Select.Trigger class="rtlFixtureTrigger">
                 <Select.Value data-testid="value">
-                  {(value) =>
-                    RTL_FIXTURE_OPTIONS.find((option) => option.value === value)?.label ?? 'اختر'
-                  }
+                  {(value) => (
+                    <>
+                      {RTL_FIXTURE_OPTIONS.find((option) => option.value === value())?.label ??
+                        'اختر'}
+                    </>
+                  )}
                 </Select.Value>
               </Select.Trigger>
 

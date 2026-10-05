@@ -1,8 +1,12 @@
 import { createSignal } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { expect, describe, it } from 'vitest';
 import { screen, createRenderer } from '#test-utils';
 import { Combobox } from 'base-ui-solid/combobox';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Value />', () => {
   const { render } = createRenderer();
@@ -10,7 +14,7 @@ describe('<Combobox.Value />', () => {
     it('renders current selected value via function child', async () => {
       await render(() => (
         <Combobox.Root defaultValue="b">
-          <Combobox.Value>{(val) => <div data-testid="value">{val}</div>}</Combobox.Value>
+          <Combobox.Value>{(val) => <div data-testid="value">{val()}</div>}</Combobox.Value>
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
@@ -29,7 +33,7 @@ describe('<Combobox.Value />', () => {
       await render(() => (
         <Combobox.Root>
           <Combobox.Value>
-            {(val) => <div data-testid="value">{val === null ? 'null' : String(val)}</div>}
+            {(val) => <div data-testid="value">{val() === null ? 'null' : String(val())}</div>}
           </Combobox.Value>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -49,7 +53,9 @@ describe('<Combobox.Value />', () => {
       await render(() => (
         <Combobox.Root defaultValue={complexValue}>
           <Combobox.Value>
-            {(val) => <div data-testid="value">{val ? `${val.name} (${val.id})` : 'No value'}</div>}
+            {(val) => (
+              <div data-testid="value">{val() ? `${val().name} (${val().id})` : 'No value'}</div>
+            )}
           </Combobox.Value>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -481,7 +487,9 @@ describe('<Combobox.Value />', () => {
               <Combobox.Popup>
                 <Combobox.Input />
                 <Combobox.List>
-                  {(item: any) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+                  {(item: Accessor<any>) => (
+                    <Combobox.Item value={item()}>{item().label}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -506,7 +514,9 @@ describe('<Combobox.Value />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: any) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+                  {(item: Accessor<any>) => (
+                    <Combobox.Item value={item()}>{item().label}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -692,7 +702,7 @@ describe('<Combobox.Value />', () => {
         <Combobox.Root>
           <Combobox.Trigger data-testid="value">
             <Combobox.Value placeholder="Select an option">
-              {(value) => value || 'Function fallback'}
+              {(value) => <>{value() || 'Function fallback'}</>}
             </Combobox.Value>
           </Combobox.Trigger>
           <Combobox.Portal>

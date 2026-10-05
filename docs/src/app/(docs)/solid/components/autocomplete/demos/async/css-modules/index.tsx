@@ -1,4 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
@@ -99,11 +100,11 @@ export default function ExampleAsyncAutocomplete() {
                 {status() && <div class={styles.Status}>{status()}</div>}
               </Autocomplete.Status>
               <Autocomplete.List>
-                {(movie: Movie) => (
-                  <Autocomplete.Item class={styles.Item} value={movie}>
+                {(movie: Accessor<Movie>) => (
+                  <Autocomplete.Item class={styles.Item} value={movie()}>
                     <span class={styles.MovieItem}>
-                      <span class={styles.MovieName}>{movie.title}</span>
-                      <span class={styles.MovieYear}>{movie.year}</span>
+                      <span class={styles.MovieName}>{movie().title}</span>
+                      <span class={styles.MovieYear}>{movie().year}</span>
                     </span>
                   </Autocomplete.Item>
                 )}

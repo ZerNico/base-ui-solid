@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -150,12 +151,12 @@ export default function ExampleAsyncMultipleCombobox() {
         </label>
         <Combobox.InputGroup class={styles.InputGroup}>
           <Combobox.Value>
-            {(value: DirectoryUser[]) => (
+            {(value: Accessor<DirectoryUser[]>) => (
               <Combobox.Chips
                 class={styles.Chips}
-                aria-label={value.length > 0 ? 'Selected reviewers' : undefined}
+                aria-label={value().length > 0 ? 'Selected reviewers' : undefined}
               >
-                <For each={value}>
+                <For each={value()}>
                   {(user) => (
                     <Combobox.Chip
                       class={styles.Chip}
@@ -174,10 +175,10 @@ export default function ExampleAsyncMultipleCombobox() {
                 </For>
                 <Combobox.Input
                   id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                  placeholder={value().length > 0 ? '' : 'e.g. Michael'}
                   aria-description={
-                    value.length > 0
-                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                    value().length > 0
+                      ? `${value().length} selected. From the start of the input, press Left Arrow to focus the selected items`
                       : undefined
                   }
                   class={styles.Input}
@@ -199,17 +200,17 @@ export default function ExampleAsyncMultipleCombobox() {
                 {emptyMessage() ? <div class={styles.Empty}>{emptyMessage()}</div> : null}
               </Combobox.Empty>
               <Combobox.List>
-                {(user: DirectoryUser) => (
-                  <Combobox.Item class={styles.Item} value={user}>
+                {(user: Accessor<DirectoryUser>) => (
+                  <Combobox.Item class={styles.Item} value={user()}>
                     <Combobox.ItemIndicator class={styles.ItemIndicator}>
                       <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span class={styles.ItemText}>
-                      <span class={styles.ItemTitle}>{user.name}</span>
-                      <span class={styles.ItemEmail}>{user.email}</span>
+                      <span class={styles.ItemTitle}>{user().name}</span>
+                      <span class={styles.ItemEmail}>{user().email}</span>
                       <span class={styles.ItemSubtitle}>
-                        <span>@{user.username}</span>
-                        <span>{user.title}</span>
+                        <span>@{user().username}</span>
+                        <span>{user().title}</span>
                       </span>
                     </span>
                   </Combobox.Item>

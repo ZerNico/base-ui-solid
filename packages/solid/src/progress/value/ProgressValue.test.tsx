@@ -41,6 +41,7 @@ describe('<Progress.Value />', () => {
 
     describe('it accepts a render function', () => {
       it('numerical value', async () => {
+        // Port note: the render function is called once with accessors of its arguments.
         const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
@@ -54,11 +55,12 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>
         ));
-        expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
-        expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
+        expect(renderSpy.mock.lastCall?.[0]()).toEqual(formatValue(30));
+        expect(renderSpy.mock.lastCall?.[1]()).toEqual(30);
       });
 
       it.each([null, Number.NaN])('indeterminate value %s', async (value) => {
+        // Port note: the render function is called once with accessors of its arguments.
         const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
@@ -69,8 +71,8 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>
         ));
-        expect(renderSpy.mock.lastCall?.[0]).toEqual('indeterminate');
-        expect(renderSpy.mock.lastCall?.[1]).toEqual(value);
+        expect(renderSpy.mock.lastCall?.[0]()).toEqual('indeterminate');
+        expect(renderSpy.mock.lastCall?.[1]()).toEqual(value);
       });
     });
   });

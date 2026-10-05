@@ -1,4 +1,5 @@
 import { createSignal, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
 export default function ExampleEmojiPicker() {
@@ -83,13 +84,13 @@ export default function ExampleEmojiPicker() {
                     aria-label="Emoji results"
                     class="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-1 scroll-pb-[0.35rem] overscroll-contain py-2 empty:p-0"
                   >
-                    {(group: EmojiGroup) => (
-                      <Autocomplete.Group items={group.items} class="block">
+                    {(group: Accessor<EmojiGroup>) => (
+                      <Autocomplete.Group items={group().items} class="block">
                         <Autocomplete.GroupLabel class="p-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
-                          {group.label}
+                          {group().label}
                         </Autocomplete.GroupLabel>
                         <div class="px-2 pb-1 pt-0" role="presentation">
-                          <For each={chunkArray(group.items, COLUMNS)}>
+                          <For each={chunkArray(group().items, COLUMNS)}>
                             {(row, _rowIdx) => (
                               <Autocomplete.Row class="grid grid-cols-5">
                                 <For each={row}>

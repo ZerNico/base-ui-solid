@@ -94,6 +94,7 @@ describe('<Slider.Value />', () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, format).format(v);
       }
+      // Port note: the render function is called once with accessors of its arguments.
       const renderSpy = vi.fn();
       await render(() => (
         <Slider.Root defaultValue={[40, 60]} format={format}>
@@ -101,8 +102,8 @@ describe('<Slider.Value />', () => {
         </Slider.Root>
       ));
 
-      expect(renderSpy.mock.lastCall?.[0]).toEqual([formatValue(40), formatValue(60)]);
-      expect(renderSpy.mock.lastCall?.[1]).toEqual([40, 60]);
+      expect(renderSpy.mock.lastCall?.[0]()).toEqual([formatValue(40), formatValue(60)]);
+      expect(renderSpy.mock.lastCall?.[1]()).toEqual([40, 60]);
     });
   });
 });

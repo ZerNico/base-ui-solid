@@ -77,8 +77,13 @@ import { Combobox } from 'base-ui-solid/combobox';
 Each `<Combobox.Item>` takes a `value` prop identifying it. Pass the item being rendered:
 
 ```jsx title="Using item objects as values"
-<Combobox.List>{(item) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}</Combobox.List>
+<Combobox.List>
+  {(item) => <Combobox.Item value={item()}>{item().label}</Combobox.Item>}
+</Combobox.List>
 ```
+
+Like Solid's `<For>` with a custom key, the function passed to `<Combobox.List>` or `<Combobox.Collection>` is called once per item with the item and its index as accessors. Read them in JSX so the row updates in place.
+Rows are keyed by the item's `createItems()` value, its `itemToStringValue` result, its `value` property, or the item itself, in that order. Items rebuilt as new objects (for example by a memo) keep their rows mounted.
 
 That item is what `value`, `defaultValue`, and `onValueChange` receive. To store IDs instead, see [Value selection with IDs](#value-selection-with-ids).
 
@@ -89,7 +94,7 @@ That item is what `value`, `defaultValue`, and `onValueChange` receive. To store
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
 ```tsx title="Specifying generic type parameters"
-import * as Solid from 'react';
+import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 
 export function MyCombobox<Value, Multiple extends boolean | undefined = false, Item = Value>(
@@ -115,7 +120,7 @@ const items = Combobox.createItems(users, {
 
 <Combobox.Root items={items}>
   <Combobox.List>
-    {(user) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+    {(user) => <Combobox.Item value={user().id}>{user().name}</Combobox.Item>}
   </Combobox.List>
 </Combobox.Root>;
 ```
@@ -175,20 +180,21 @@ import { DemoComboboxMultiple } from './demos/multiple';
 In order for screen readers to announce how to reach and remove the chips, add `aria-description` to `<Combobox.Chip>` and `<Combobox.Input>`, alongside the `aria-label` on `<Combobox.Chips>` and `<Combobox.ChipRemove>`.
 Base UI does not ship these strings. Translate them together with the rest of your interface.
 
-Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
+Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`.
+Its function is called once with an accessor of the selected value, so the chips and the input stay mounted while the selection changes:
 
 ```tsx title="Limiting visible chips"
 const CHIP_LIMIT = 3;
 
 <Combobox.Value>
-  {(selectedValue: string[]) => {
+  {(selectedValue: Accessor<string[]>) => {
     // @highlight-start
-    const visibleValue = selectedValue.slice(0, CHIP_LIMIT);
-    const hiddenCount = selectedValue.length - visibleValue.length;
+    const visibleValue = () => selectedValue().slice(0, CHIP_LIMIT);
+    const hiddenCount = () => selectedValue().length - visibleValue().length;
     // @highlight-end
     return (
       <>
-        <For each={visibleValue}>
+        <For each={visibleValue()}>
           {(item) => (
             <Combobox.Chip aria-description="Press Backspace or Delete to remove">
               {item}
@@ -197,12 +203,14 @@ const CHIP_LIMIT = 3;
           )}
         </For>
         {/* @highlight-start */}
-        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        <Show when={hiddenCount() > 0}>
+          <span>{`+${hiddenCount()} more`}</span>
+        </Show>
         {/* @highlight-end */}
         <Combobox.Input
           aria-description={
-            selectedValue.length > 0
-              ? `${selectedValue.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+            selectedValue().length > 0
+              ? `${selectedValue().length} selected. From the start of the input, press Left Arrow to focus the selected items`
               : undefined
           }
         />

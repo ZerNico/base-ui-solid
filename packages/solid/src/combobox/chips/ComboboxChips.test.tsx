@@ -1,9 +1,13 @@
 import { flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
 import { fireEvent, screen, waitFor, createRenderer, describeConformance } from '#test-utils';
 import { Field } from 'base-ui-solid/field';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Chips />', () => {
   const { render } = createRenderer();
@@ -233,7 +237,7 @@ describe('<Combobox.Chips />', () => {
             <Combobox.Popup>
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>

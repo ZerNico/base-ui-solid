@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -22,12 +23,12 @@ export default function ExamplePopoverCombobox() {
                   <div class={styles.Empty}>No countries found.</div>
                 </Combobox.Empty>
                 <Combobox.List class={styles.List}>
-                  {(country: Country) => (
-                    <Combobox.Item value={country} class={styles.Item}>
+                  {(country: Accessor<Country>) => (
+                    <Combobox.Item value={country()} class={styles.Item}>
                       <Combobox.ItemIndicator class={styles.ItemIndicator}>
                         <CheckIcon />
                       </Combobox.ItemIndicator>
-                      <span class={styles.ItemText}>{country.label}</span>
+                      <span class={styles.ItemText}>{country().label}</span>
                     </Combobox.Item>
                   )}
                 </Combobox.List>

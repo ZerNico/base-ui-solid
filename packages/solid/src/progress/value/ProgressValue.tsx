@@ -1,4 +1,5 @@
-import { omit } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -16,30 +17,33 @@ export function ProgressValue(componentProps: ProgressValue.Props) {
 
   const { value, formattedValue, state } = useProgressRootContext();
 
+  // Follow `status` rather than re-deriving it: a non-finite `value` is also indeterminate, and
+  // has no formatted text to show.
+  const indeterminate = () => state().status === 'indeterminate';
+  const formattedValueArg = () => (indeterminate() ? 'indeterminate' : formattedValue());
+
+  // Port note: upstream calls the `children` function on every render. Here it's called once (again
+  // only if the function itself changes) with accessors, so its DOM updates in place.
+  const childrenProp = createMemo(() => componentProps.children);
+  const renderedChildren = createMemo(() => {
+    const children = childrenProp();
+    return typeof children === 'function'
+      ? untrack(() => children(formattedValueArg, value))
+      : undefined;
+  });
+
+  const childrenSource = {
+    get children(): JSX.Element {
+      if (typeof childrenProp() === 'function') {
+        return renderedChildren();
+      }
+      return indeterminate() ? null : formattedValue();
+    },
+  };
+
   const element = useRenderElement('span', componentProps, {
     state,
-    props: () => {
-      // Follow `status` rather than re-deriving it: a non-finite `value` is also indeterminate, and
-      // has no formatted text to show.
-      const indeterminate = state().status === 'indeterminate';
-      const formattedValueArg = indeterminate ? 'indeterminate' : formattedValue();
-      const formattedValueDisplay = indeterminate ? null : formattedValue();
-      // Port note: read in the props accessor so the children are re-created when they change,
-      // like upstream's re-render calls the `children` function again.
-      const children = componentProps.children;
-      const currentValue = value();
-      return [
-        {
-          'aria-hidden': true,
-          get children() {
-            return typeof children === 'function'
-              ? children(formattedValueArg, currentValue)
-              : formattedValueDisplay;
-          },
-        },
-        elementProps,
-      ];
-    },
+    props: () => [{ 'aria-hidden': true }, childrenSource, elementProps],
     stateAttributesMapping: progressStateAttributesMapping,
   });
 
@@ -52,8 +56,14 @@ export interface ProgressValueProps extends Omit<
   BaseUIComponentProps<'span', ProgressValueState>,
   'children'
 > {
+  /**
+   * A function called once with accessors of the formatted value (`'indeterminate'` while the
+   * value is indeterminate) and the raw value.
+   */
   children?:
-    null | ((formattedValue: string | null, value: number | null) => JSX.Element) | undefined;
+    | null
+    | ((formattedValue: Accessor<string | null>, value: Accessor<number | null>) => JSX.Element)
+    | undefined;
 }
 
 export namespace ProgressValue {

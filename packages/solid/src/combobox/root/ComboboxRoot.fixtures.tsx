@@ -1,4 +1,8 @@
+import type { Accessor } from 'solid-js';
 import { Combobox } from 'base-ui-solid/combobox';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 export function SSRFixture1() {
   return (
@@ -44,7 +48,7 @@ export function InputOutsidePopupFixture() {
         <Combobox.Positioner>
           <Combobox.Popup>
             <Combobox.List>
-              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+              {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>

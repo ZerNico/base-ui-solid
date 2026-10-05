@@ -1,8 +1,12 @@
 import { flush, Errored } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
 import { createRenderer, describeConformance, act, fireEvent, screen, waitFor } from '#test-utils';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.ChipRemove />', () => {
   const { render } = createRenderer();
@@ -217,14 +221,16 @@ describe('<Combobox.ChipRemove />', () => {
         <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
           <Combobox.Chips>
             <Combobox.Value>
-              {(value: string[]) =>
-                value.map((item) => (
-                  <Combobox.Chip>
-                    {item}
-                    <Combobox.ChipRemove data-testid={`remove-${item}`} />
-                  </Combobox.Chip>
-                ))
-              }
+              {(value: Accessor<string[]>) => (
+                <>
+                  {value().map((item) => (
+                    <Combobox.Chip>
+                      {item}
+                      <Combobox.ChipRemove data-testid={`remove-${item}`} />
+                    </Combobox.Chip>
+                  ))}
+                </>
+              )}
             </Combobox.Value>
           </Combobox.Chips>
           <Combobox.Trigger>Open</Combobox.Trigger>
@@ -233,7 +239,9 @@ describe('<Combobox.ChipRemove />', () => {
               <Combobox.Popup>
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>

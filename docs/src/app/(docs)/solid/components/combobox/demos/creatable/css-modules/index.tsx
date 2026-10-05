@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import { Dialog } from 'base-ui-solid/dialog';
@@ -136,12 +137,12 @@ export default function ExampleCreatableCombobox() {
           </label>
           <Combobox.InputGroup class={styles.InputGroup}>
             <Combobox.Value>
-              {(value: LabelItem[]) => (
+              {(value: Accessor<LabelItem[]>) => (
                 <Combobox.Chips
                   class={styles.Chips}
-                  aria-label={value.length > 0 ? 'Selected labels' : undefined}
+                  aria-label={value().length > 0 ? 'Selected labels' : undefined}
                 >
-                  <For each={value}>
+                  <For each={value()}>
                     {(label) => (
                       <Combobox.Chip
                         class={styles.Chip}
@@ -163,10 +164,10 @@ export default function ExampleCreatableCombobox() {
                       comboboxInputRef.current = element;
                     }}
                     id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                    placeholder={value().length > 0 ? '' : 'e.g. bug'}
                     aria-description={
-                      value.length > 0
-                        ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                      value().length > 0
+                        ? `${value().length} selected. From the start of the input, press Left Arrow to focus the selected items`
                         : undefined
                     }
                     class={styles.Input}
@@ -185,20 +186,20 @@ export default function ExampleCreatableCombobox() {
                 <div class={styles.Empty}>No labels found.</div>
               </Combobox.Empty>
               <Combobox.List>
-                {(item: LabelItem) =>
-                  item.creatable ? (
-                    <Combobox.Item class={styles.Item} value={item}>
+                {(item: Accessor<LabelItem>) =>
+                  item().creatable ? (
+                    <Combobox.Item class={styles.Item} value={item()}>
                       <span class={styles.ItemIndicator}>
                         <PlusIcon />
                       </span>
-                      <span class={styles.ItemText}>Create "{item.creatable}"</span>
+                      <span class={styles.ItemText}>Create "{item().creatable}"</span>
                     </Combobox.Item>
                   ) : (
-                    <Combobox.Item class={styles.Item} value={item}>
+                    <Combobox.Item class={styles.Item} value={item()}>
                       <Combobox.ItemIndicator class={styles.ItemIndicator}>
                         <CheckIcon />
                       </Combobox.ItemIndicator>
-                      <span class={styles.ItemText}>{item.value}</span>
+                      <span class={styles.ItemText}>{item().value}</span>
                     </Combobox.Item>
                   )
                 }

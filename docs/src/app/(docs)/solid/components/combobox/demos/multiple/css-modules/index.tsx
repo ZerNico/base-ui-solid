@@ -1,4 +1,5 @@
 import { createUniqueId, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -14,12 +15,12 @@ export default function ExampleMultipleCombobox() {
         </label>
         <Combobox.InputGroup class={styles.InputGroup}>
           <Combobox.Value>
-            {(value: ProgrammingLanguage[]) => (
+            {(value: Accessor<ProgrammingLanguage[]>) => (
               <Combobox.Chips
                 class={styles.Chips}
-                aria-label={value.length > 0 ? 'Selected languages' : undefined}
+                aria-label={value().length > 0 ? 'Selected languages' : undefined}
               >
-                <For each={value}>
+                <For each={value()}>
                   {(language) => (
                     <Combobox.Chip
                       class={styles.Chip}
@@ -38,10 +39,10 @@ export default function ExampleMultipleCombobox() {
                 </For>
                 <Combobox.Input
                   id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                  placeholder={value().length > 0 ? '' : 'e.g. TypeScript'}
                   aria-description={
-                    value.length > 0
-                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                    value().length > 0
+                      ? `${value().length} selected. From the start of the input, press Left Arrow to focus the selected items`
                       : undefined
                   }
                   class={styles.Input}
@@ -59,12 +60,12 @@ export default function ExampleMultipleCombobox() {
               <div class={styles.Empty}>No languages found.</div>
             </Combobox.Empty>
             <Combobox.List>
-              {(language: ProgrammingLanguage) => (
-                <Combobox.Item class={styles.Item} value={language}>
+              {(language: Accessor<ProgrammingLanguage>) => (
+                <Combobox.Item class={styles.Item} value={language()}>
                   <Combobox.ItemIndicator class={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>
-                  <span class={styles.ItemText}>{language.value}</span>
+                  <span class={styles.ItemText}>{language().value}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

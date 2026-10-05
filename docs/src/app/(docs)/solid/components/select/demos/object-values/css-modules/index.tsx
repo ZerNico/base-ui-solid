@@ -1,4 +1,5 @@
 import { For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
 import styles from './index.module.css';
@@ -10,11 +11,11 @@ export default function ObjectValueSelect() {
         <Select.Label class={styles.Label}>Shipping method</Select.Label>
         <Select.Trigger class={styles.Select}>
           <Select.Value>
-            {(method: ShippingMethod) => (
+            {(method: Accessor<ShippingMethod>) => (
               <span class={styles.ValueText}>
-                <span class={styles.ValuePrimary}>{method.name}</span>
+                <span class={styles.ValuePrimary}>{method().name}</span>
                 <span class={styles.ValueSecondary}>
-                  {method.duration} ({method.price})
+                  {method().duration} ({method().price})
                 </span>
               </span>
             )}

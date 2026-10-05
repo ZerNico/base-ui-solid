@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, flush, merge, omit, Show, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import {
   createRenderer,
@@ -18,6 +19,9 @@ import { Combobox } from '../../combobox';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 // Port note: `fireEvent` doesn't flush Solid, so assertions after it are preceded by `flush()`;
 // `act(() => …)` becomes the call followed by `flush()` / `await flushMicrotasks()`, and
@@ -2545,9 +2549,9 @@ describe('<Popover.Root />', () => {
                             style={{ 'max-height': '200px', overflow: 'auto' }}
                           >
                             <Combobox.List>
-                              {(item: number) => (
-                                <Combobox.Item value={item} style={{ height: '100px' }}>
-                                  {item}
+                              {(item: Accessor<number>) => (
+                                <Combobox.Item value={item()} style={{ height: '100px' }}>
+                                  {item()}
                                 </Combobox.Item>
                               )}
                             </Combobox.List>

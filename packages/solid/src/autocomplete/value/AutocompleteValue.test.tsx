@@ -2,6 +2,9 @@ import { expect, describe, it } from 'vitest';
 import { screen, createRenderer } from '#test-utils';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
+
 describe('<Autocomplete.Value />', () => {
   const { render } = createRenderer();
 
@@ -10,7 +13,9 @@ describe('<Autocomplete.Value />', () => {
       await render((overrides) => (
         <Autocomplete.Root defaultValue="hel" {...overrides()}>
           <Autocomplete.Trigger>
-            <Autocomplete.Value>{(val) => <div data-testid="value">{val}</div>}</Autocomplete.Value>
+            <Autocomplete.Value>
+              {(val) => <div data-testid="value">{val()}</div>}
+            </Autocomplete.Value>
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
@@ -32,7 +37,7 @@ describe('<Autocomplete.Value />', () => {
       await render((overrides) => (
         <Autocomplete.Root {...overrides()}>
           <Autocomplete.Value>
-            {(val) => <div data-testid="value">{val === '' ? 'empty' : String(val)}</div>}
+            {(val) => <div data-testid="value">{val() === '' ? 'empty' : String(val())}</div>}
           </Autocomplete.Value>
           <Autocomplete.Portal>
             <Autocomplete.Positioner>

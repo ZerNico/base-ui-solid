@@ -108,7 +108,8 @@ const items = [
 </Select.Root>;
 ```
 
-A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value:
+A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value.
+It's called once with an accessor of the value, so read the value in JSX to keep the label up to date:
 
 ```jsx title="Lookup map"
 const items = {
@@ -119,9 +120,9 @@ const items = {
 
 <Select.Value>
   {/* @highlight-start */}
-  {(value: keyof typeof items) => (
-    <span style={{ 'font-family': value }}>
-      {items[value]}
+  {(value: Accessor<keyof typeof items>) => (
+    <span style={{ 'font-family': value() }}>
+      {items[value()]}
     </span>
   )}
   {/* @highlight-end */}

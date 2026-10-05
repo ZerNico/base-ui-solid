@@ -41,6 +41,7 @@ describe('<Meter.Value />', () => {
     });
 
     it('accepts a render function', async () => {
+      // Port note: the render function is called once with accessors of its arguments.
       const renderSpy = vi.fn();
       const format: Intl.NumberFormatOptions = {
         style: 'currency',
@@ -54,11 +55,12 @@ describe('<Meter.Value />', () => {
           <Meter.Value data-testid="value">{renderSpy}</Meter.Value>
         </Meter.Root>
       ));
-      expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
-      expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
+      expect(renderSpy.mock.lastCall?.[0]()).toEqual(formatValue(30));
+      expect(renderSpy.mock.lastCall?.[1]()).toEqual(30);
     });
 
     it('passes updated arguments to the render function when value changes', async () => {
+      // Port note: the render function is called once with accessors of its arguments.
       const renderSpy = vi.fn();
 
       const [value, setValue] = createSignal(30);
@@ -68,18 +70,18 @@ describe('<Meter.Value />', () => {
         </Meter.Root>
       ));
 
-      expect(renderSpy.mock.lastCall?.[0]).toEqual(
+      expect(renderSpy.mock.lastCall?.[0]()).toEqual(
         (0.3).toLocaleString(undefined, { style: 'percent' }),
       );
-      expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
+      expect(renderSpy.mock.lastCall?.[1]()).toEqual(30);
 
       setValue(60);
       flush();
 
-      expect(renderSpy.mock.lastCall?.[0]).toEqual(
+      expect(renderSpy.mock.lastCall?.[0]()).toEqual(
         (0.6).toLocaleString(undefined, { style: 'percent' }),
       );
-      expect(renderSpy.mock.lastCall?.[1]).toEqual(60);
+      expect(renderSpy.mock.lastCall?.[1]()).toEqual(60);
     });
   });
 });

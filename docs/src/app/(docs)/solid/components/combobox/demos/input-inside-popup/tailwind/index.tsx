@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 
@@ -31,15 +32,15 @@ export default function ExamplePopoverCombobox() {
                   </div>
                 </Combobox.Empty>
                 <Combobox.List class="max-h-[min(calc(24.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-1 scroll-py-1 empty:p-0">
-                  {(country: Country) => (
+                  {(country: Accessor<Country>) => (
                     <Combobox.Item
-                      value={country}
+                      value={country()}
                       class="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                     >
                       <Combobox.ItemIndicator class="col-start-1">
                         <CheckIcon />
                       </Combobox.ItemIndicator>
-                      <span class="col-start-2">{country.label}</span>
+                      <span class="col-start-2">{country().label}</span>
                     </Combobox.Item>
                   )}
                 </Combobox.List>

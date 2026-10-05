@@ -31,11 +31,11 @@ export default function ExampleCreateItemsCombobox() {
             </Combobox.Empty>
             <Combobox.List class={styles.List}>
               {(item) => (
-                <Combobox.Item value={item.id} class={styles.Item}>
+                <Combobox.Item value={item().id} class={styles.Item}>
                   <Combobox.ItemIndicator class={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>
-                  <span class={styles.ItemText}>{item.name}</span>
+                  <span class={styles.ItemText}>{item().name}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

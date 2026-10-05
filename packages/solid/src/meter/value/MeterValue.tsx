@@ -1,4 +1,5 @@
-import { omit } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
@@ -16,25 +17,24 @@ export function MeterValue(componentProps: MeterValue.Props) {
 
   const { value, formattedValue } = useMeterRootContext();
 
-  return useRenderElement('span', componentProps, {
-    props: () => {
-      // Port note: read in the props accessor so the children are re-created when they change,
-      // like upstream's re-render calls the `children` function again.
-      const children = componentProps.children;
-      const currentFormattedValue = formattedValue();
-      const currentValue = value();
-      return [
-        {
-          'aria-hidden': true,
-          get children() {
-            return typeof children === 'function'
-              ? children(currentFormattedValue, currentValue)
-              : currentFormattedValue;
-          },
-        },
-        elementProps,
-      ];
+  // Port note: upstream calls the `children` function on every render. Here it's called once (again
+  // only if the function itself changes) with accessors, so its DOM updates in place.
+  const childrenProp = createMemo(() => componentProps.children);
+  const renderedChildren = createMemo(() => {
+    const children = childrenProp();
+    return typeof children === 'function'
+      ? untrack(() => children(formattedValue, value))
+      : undefined;
+  });
+
+  const childrenSource = {
+    get children(): JSX.Element {
+      return typeof childrenProp() === 'function' ? renderedChildren() : formattedValue();
     },
+  };
+
+  return useRenderElement('span', componentProps, {
+    props: () => [{ 'aria-hidden': true }, childrenSource, elementProps],
   });
 }
 
@@ -44,7 +44,11 @@ export interface MeterValueProps extends Omit<
   BaseUIComponentProps<'span', MeterValueState>,
   'children'
 > {
-  children?: null | ((formattedValue: string, value: number) => JSX.Element) | undefined;
+  /**
+   * A function called once with accessors of the formatted value and the raw value.
+   */
+  children?:
+    null | ((formattedValue: Accessor<string>, value: Accessor<number>) => JSX.Element) | undefined;
 }
 
 export namespace MeterValue {

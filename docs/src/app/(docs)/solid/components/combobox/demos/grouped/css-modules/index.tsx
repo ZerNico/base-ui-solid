@@ -1,4 +1,5 @@
 import { createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -29,16 +30,18 @@ export default function ExampleGroupedCombobox() {
               <div class={styles.Empty}>No produce found.</div>
             </Combobox.Empty>
             <Combobox.List class={styles.List}>
-              {(group: ProduceGroup) => (
-                <Combobox.Group items={group.items} class={styles.Group}>
-                  <Combobox.GroupLabel class={styles.GroupLabel}>{group.value}</Combobox.GroupLabel>
+              {(group: Accessor<ProduceGroup>) => (
+                <Combobox.Group items={group().items} class={styles.Group}>
+                  <Combobox.GroupLabel class={styles.GroupLabel}>
+                    {group().value}
+                  </Combobox.GroupLabel>
                   <Combobox.Collection>
-                    {(item: Produce) => (
-                      <Combobox.Item class={styles.Item} value={item}>
+                    {(item: Accessor<Produce>) => (
+                      <Combobox.Item class={styles.Item} value={item()}>
                         <Combobox.ItemIndicator class={styles.ItemIndicator}>
                           <CheckIcon />
                         </Combobox.ItemIndicator>
-                        <span class={styles.ItemText}>{item.label}</span>
+                        <span class={styles.ItemText}>{item().label}</span>
                       </Combobox.Item>
                     )}
                   </Combobox.Collection>

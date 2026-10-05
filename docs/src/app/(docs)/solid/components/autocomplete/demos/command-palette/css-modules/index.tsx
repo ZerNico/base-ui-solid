@@ -1,4 +1,5 @@
 import { createSignal, createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Dialog } from 'base-ui-solid/dialog';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
@@ -46,21 +47,21 @@ export default function ExampleAutocompleteCommandPalette() {
                     </Autocomplete.Empty>
 
                     <Autocomplete.List class={styles.List}>
-                      {(group: Group) => (
-                        <Autocomplete.Group items={group.items} class={styles.Group}>
+                      {(group: Accessor<Group>) => (
+                        <Autocomplete.Group items={group().items} class={styles.Group}>
                           <Autocomplete.GroupLabel class={styles.GroupLabel}>
-                            {group.value}
+                            {group().value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>
-                            {(item: Item) => (
+                            {(item: Accessor<Item>) => (
                               <Autocomplete.Item
-                                value={item}
+                                value={item()}
                                 class={styles.Item}
                                 onClick={handleItemClick}
                               >
-                                <span class={styles.ItemLabel}>{item.label}</span>
+                                <span class={styles.ItemLabel}>{item().label}</span>
                                 <span class={styles.ItemType}>
-                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                                  {group().value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
                               </Autocomplete.Item>
                             )}

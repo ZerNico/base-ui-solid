@@ -1,4 +1,5 @@
-import { createMemo, omit } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -29,13 +30,19 @@ export function SliderValue(componentProps: SliderValue.Props): JSX.Element {
 
   const defaultDisplayValue = () => formattedValues().join(' – ');
 
-  // Port note: a stable children source, so the children are created once and update in place.
+  // Port note: upstream calls the `children` function on every render. Here it's called once (again
+  // only if the function itself changes) with accessors, so its DOM updates in place.
+  const childrenProp = createMemo(() => componentProps.children);
+  const renderedChildren = createMemo(() => {
+    const children = childrenProp();
+    return typeof children === 'function'
+      ? untrack(() => children(formattedValues, values))
+      : undefined;
+  });
+
   const childrenSource = {
-    get children() {
-      const children = componentProps.children;
-      return typeof children === 'function'
-        ? children(formattedValues(), values())
-        : defaultDisplayValue();
+    get children(): JSX.Element {
+      return typeof childrenProp() === 'function' ? renderedChildren() : defaultDisplayValue();
     },
   };
 
@@ -61,9 +68,15 @@ export interface SliderValueProps extends Omit<
   BaseUIComponentProps<'output', SliderValueState>,
   'children'
 > {
+  /**
+   * A function called once with accessors of the formatted values and the raw values.
+   */
   children?:
     | null
-    | ((formattedValues: readonly string[], values: readonly number[]) => JSX.Element)
+    | ((
+        formattedValues: Accessor<readonly string[]>,
+        values: Accessor<readonly number[]>,
+      ) => JSX.Element)
     | undefined;
 }
 

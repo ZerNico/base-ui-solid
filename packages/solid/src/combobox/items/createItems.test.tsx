@@ -1,4 +1,5 @@
 import { createSignal, createMemo, flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, it } from 'vitest';
@@ -13,6 +14,9 @@ import {
   waitFor,
 } from '#test-utils';
 import { ExternalWindowFixture } from './createItems.fixtures';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 interface User {
   id: number;
@@ -99,7 +103,9 @@ describe('Combobox.createItems', () => {
         >
           <Combobox.Input />
           <Combobox.List>
-            {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+            {(user: Accessor<User>) => (
+              <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+            )}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -115,7 +121,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -172,11 +180,11 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: ApiUser) => (
-                      <Combobox.Item value={user.id}>
-                        <strong>{user.name}</strong>
-                        <span>{user.role}</span>
-                        <span>{user.email}</span>
+                    {(user: Accessor<ApiUser>) => (
+                      <Combobox.Item value={user().id}>
+                        <strong>{user().name}</strong>
+                        <span>{user().role}</span>
+                        <span>{user().email}</span>
                       </Combobox.Item>
                     )}
                   </Combobox.List>
@@ -263,10 +271,10 @@ describe('Combobox.createItems', () => {
               <Combobox.Value />
             </span>
             <Combobox.List>
-              {(employee: Employee) => (
-                <Combobox.Item value={employee.id}>
-                  <strong>{employee.name}</strong>
-                  <span>{employee.department}</span>
+              {(employee: Accessor<Employee>) => (
+                <Combobox.Item value={employee().id}>
+                  <strong>{employee().name}</strong>
+                  <span>{employee().department}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -317,7 +325,9 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: ApiUser) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<ApiUser>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -344,8 +354,8 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} filteredItems={[users[0]]} defaultValue={1} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User | null) =>
-                user && <Combobox.Item value={user.id}>{user.name}</Combobox.Item>
+              {(user: Accessor<User | null>) =>
+                user() && <Combobox.Item value={user()!.id}>{user()!.name}</Combobox.Item>
               }
             </Combobox.List>
           </Combobox.Root>
@@ -376,8 +386,8 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={recordItems} defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(record: (typeof records)[number]) => (
-                <Combobox.Item value={record.id}>{record.name}</Combobox.Item>
+              {(record: Accessor<(typeof records)[number]>) => (
+                <Combobox.Item value={record().id}>{record().name}</Combobox.Item>
               )}
             </Combobox.List>
           </Combobox.Root>
@@ -427,7 +437,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} defaultValue={3}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -447,7 +459,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items()} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -488,7 +502,9 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<User>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -509,7 +525,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} inline open defaultValue={3}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -542,7 +560,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -559,7 +579,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} itemToStringLabel={(id: number) => `User ${id}`} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -606,7 +628,7 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} locale="tr" defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(city: string) => <Combobox.Item value={city}>{city}</Combobox.Item>}
+              {(city: Accessor<string>) => <Combobox.Item value={city()}>{city()}</Combobox.Item>}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -635,7 +657,9 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<User>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -672,8 +696,8 @@ describe('Combobox.createItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item value={user.name.toLowerCase()}>{user.name}</Combobox.Item>
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().name.toLowerCase()}>{user().name}</Combobox.Item>
               )}
             </Combobox.List>
           </Combobox.Root>
@@ -692,7 +716,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} filter={filter} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -715,7 +741,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} filter={filter} defaultValue={2} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -750,8 +778,8 @@ describe('Combobox.createItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(contact: Contact) => (
-                <Combobox.Item value={contact.id}>{contact.name}</Combobox.Item>
+              {(contact: Accessor<Contact>) => (
+                <Combobox.Item value={contact().id}>{contact().name}</Combobox.Item>
               )}
             </Combobox.List>
           </Combobox.Root>
@@ -807,7 +835,9 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<User>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -868,7 +898,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} multiple onValueChange={onValueChange} defaultOpen>
             <Combobox.Input />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -939,7 +971,8 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('Bob');
     });
     it('passes the derived value to the Combobox.Value render prop', async () => {
-      const renderValue = vi.fn((itemValue: number | null) => String(itemValue));
+      // Port note: the render function is called once with an accessor of the value.
+      const renderValue = vi.fn((itemValue: Accessor<number | null>) => String(itemValue()));
       function App() {
         const items = userItems;
         return (
@@ -951,7 +984,7 @@ describe('Combobox.createItems', () => {
         );
       }
       await render((overrides) => <App {...overrides()} />);
-      expect(renderValue).toHaveBeenCalledWith(2);
+      expect(renderValue.mock.calls[0]?.[0]()).toBe(2);
       expect(screen.getByTestId('value')).toHaveTextContent('2');
     });
     it('renders every selected label via Combobox.Value in multiple mode', async () => {
@@ -1049,8 +1082,8 @@ describe('Combobox.createItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item value={user.name.toLowerCase()}>{user.name}</Combobox.Item>
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().name.toLowerCase()}>{user().name}</Combobox.Item>
               )}
             </Combobox.List>
           </Combobox.Root>
@@ -1077,8 +1110,8 @@ describe('Combobox.createItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(apiUser: ApiUser) => (
-                <Combobox.Item value={apiUser.id}>{apiUser.name}</Combobox.Item>
+              {(apiUser: Accessor<ApiUser>) => (
+                <Combobox.Item value={apiUser().id}>{apiUser().name}</Combobox.Item>
               )}
             </Combobox.List>
           </Combobox.Root>
@@ -1102,7 +1135,9 @@ describe('Combobox.createItems', () => {
           >
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1125,7 +1160,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items()} filteredItems={props.results} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1242,7 +1279,9 @@ describe('Combobox.createItems', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<User>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1266,7 +1305,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} virtualized defaultOpen onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1299,7 +1340,7 @@ describe('Combobox.createItems', () => {
             <Combobox.Value placeholder="Pick one" />
           </span>
           <Combobox.List>
-            {(item) => <Combobox.Item value={item.value}>{item.label}</Combobox.Item>}
+            {(item) => <Combobox.Item value={item().value}>{item().label}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -1356,7 +1397,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} onValueChange={onValueChange}>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1438,7 +1481,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1475,7 +1520,9 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={collection} defaultValue={3} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+              {(user: Accessor<User>) => (
+                <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1523,11 +1570,13 @@ describe('Combobox.createItems', () => {
         <Combobox.Root items={items} {...props}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            {(group: Team) => (
-              <Combobox.Group items={group.items}>
-                <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+            {(group: Accessor<Team>) => (
+              <Combobox.Group items={group().items}>
+                <Combobox.GroupLabel>{group().value}</Combobox.GroupLabel>
                 <Combobox.Collection>
-                  {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                  {(user: Accessor<User>) => (
+                    <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                  )}
                 </Combobox.Collection>
               </Combobox.Group>
             )}
@@ -1628,10 +1677,12 @@ describe('Combobox.createItems', () => {
           <Combobox.Root items={items} defaultOpen>
             <Combobox.Input />
             <Combobox.List>
-              {(group: Team) => (
-                <Combobox.Group items={group.items}>
+              {(group: Accessor<Team>) => (
+                <Combobox.Group items={group().items}>
                   <Combobox.Collection>
-                    {(user: User) => <Combobox.Item value={user.id}>{user.name}</Combobox.Item>}
+                    {(user: Accessor<User>) => (
+                      <Combobox.Item value={user().id}>{user().name}</Combobox.Item>
+                    )}
                   </Combobox.Collection>
                 </Combobox.Group>
               )}

@@ -16,7 +16,7 @@ import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { Portal } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { Setter } from 'solid-js';
+import type { Accessor, Setter } from 'solid-js';
 import { Combobox, ComboboxSeparatorDataAttributes } from 'base-ui-solid/combobox';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Dialog } from 'base-ui-solid/dialog';
@@ -32,6 +32,9 @@ import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from './ComboboxRootContext';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 function AsyncItemsCombobox() {
   const [items, setItems] = createSignal<(string | null)[]>(['Apple', 'Banana', 'Cherry']);
@@ -53,7 +56,7 @@ function AsyncItemsCombobox() {
         <Combobox.Positioner>
           <Combobox.Popup>
             <Combobox.List>
-              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+              {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -109,7 +112,7 @@ function MultiplePopupCombobox(props: {
           <Combobox.Popup>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
-              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+              {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -516,7 +519,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Popup aria-label="Demo">
               <Combobox.Input data-testid="input" aria-label="combobox-input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -546,7 +549,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup aria-label="Fruits">
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -586,7 +591,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup aria-label="Fruits">
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -628,7 +635,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup aria-label="Fruits">
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -678,7 +687,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Input data-testid="input" />
                     <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -734,7 +745,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Input data-testid="input" />
                     <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -941,7 +954,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -968,7 +983,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup data-testid="popup">
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -988,7 +1003,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup data-testid="popup" aria-label="Demo">
                 <Combobox.Input aria-label="Combobox input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -1022,7 +1039,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup data-testid="popup">
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -1056,7 +1073,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1086,7 +1105,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1117,7 +1138,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1158,7 +1181,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1177,7 +1202,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1198,7 +1225,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1232,7 +1259,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1262,7 +1289,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1327,7 +1356,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1362,7 +1391,9 @@ describe('<Combobox.Root />', () => {
                   Change value
                 </button>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Root>
             );
@@ -1401,7 +1432,9 @@ describe('<Combobox.Root />', () => {
                 >
                   <Combobox.Input data-testid="input" />
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Root>
                 <button type="button">Blur target</button>
@@ -1439,7 +1472,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1473,7 +1506,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1514,7 +1547,9 @@ describe('<Combobox.Root />', () => {
                         Rerender
                       </button>
                       <Combobox.List>
-                        {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item: Accessor<string>) => (
+                          <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                        )}
                       </Combobox.List>
                     </Combobox.Popup>
                   </Combobox.Positioner>
@@ -1550,7 +1585,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1590,7 +1625,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1618,7 +1653,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1657,7 +1692,7 @@ describe('<Combobox.Root />', () => {
             >
               <Combobox.Input data-testid="input" />
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Root>
           ));
@@ -1732,7 +1767,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup>
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -1836,7 +1873,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1860,7 +1899,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1895,7 +1936,9 @@ describe('<Combobox.Root />', () => {
                       data-testid="list"
                       style={{ 'max-height': '100px', overflow: 'auto' }}
                     >
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -1945,7 +1988,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Popup>
                   <Combobox.Input data-testid="input" />
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1987,7 +2032,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Popup>
                   <Combobox.Input data-testid="input" />
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -2574,7 +2621,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup>
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -2958,7 +3007,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -2991,7 +3042,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -3024,7 +3077,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -3239,7 +3294,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -3264,9 +3321,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string, index: number) => (
-                    <Combobox.Item value={item} index={index}>
-                      {item}
+                  {(item: Accessor<string>, index: Accessor<number>) => (
+                    <Combobox.Item value={item()} index={index()}>
+                      {item()}
                     </Combobox.Item>
                   )}
                 </Combobox.List>
@@ -3296,7 +3353,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -3373,7 +3432,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root inline items={['Apple', 'Banana']} {...overrides()}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -3402,7 +3461,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner data-testid="positioner">
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -3434,7 +3495,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner data-testid="positioner">
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                   <Combobox.Empty>No results.</Combobox.Empty>
                 </Combobox.Popup>
@@ -3522,7 +3585,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root inline items={['apple', 'banana']} {...overrides()}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -3791,7 +3854,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -3822,7 +3885,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -3863,8 +3926,8 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(item: (typeof items)[1]) => (
-                  <Combobox.Item value={item}>{item.country}</Combobox.Item>
+                {(item: Accessor<(typeof items)[1]>) => (
+                  <Combobox.Item value={item()}>{item().country}</Combobox.Item>
                 )}
               </Combobox.List>
             </Combobox.Popup>
@@ -3911,8 +3974,8 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(item: (typeof items)[1]) => (
-                  <Combobox.Item value={item}>{item.country}</Combobox.Item>
+                {(item: Accessor<(typeof items)[1]>) => (
+                  <Combobox.Item value={item()}>{item().country}</Combobox.Item>
                 )}
               </Combobox.List>
             </Combobox.Popup>
@@ -4049,7 +4112,9 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(code: string) => <Combobox.Item value={code}>{countryNames[code]}</Combobox.Item>}
+                {(code: Accessor<string>) => (
+                  <Combobox.Item value={code()}>{countryNames[code()]}</Combobox.Item>
+                )}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -4079,7 +4144,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                {(code: string) => <Combobox.Item value={code}>{code}</Combobox.Item>}
+                {(code: Accessor<string>) => <Combobox.Item value={code()}>{code()}</Combobox.Item>}
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -4758,8 +4823,8 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: { country: string; code: string }) => (
-                    <Combobox.Item value={item}>{item.country}</Combobox.Item>
+                  {(item: Accessor<{ country: string; code: string }>) => (
+                    <Combobox.Item value={item()}>{item().country}</Combobox.Item>
                   )}
                 </Combobox.List>
               </Combobox.Popup>
@@ -4809,7 +4874,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -4837,7 +4904,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -4972,8 +5041,8 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Positioner>
                     <Combobox.Popup>
                       <Combobox.List>
-                        {(item: string) => (
-                          <Combobox.Item value={item}>{labels[item]}</Combobox.Item>
+                        {(item: Accessor<string>) => (
+                          <Combobox.Item value={item()}>{labels[item()]}</Combobox.Item>
                         )}
                       </Combobox.List>
                     </Combobox.Popup>
@@ -5126,7 +5195,7 @@ describe('<Combobox.Root />', () => {
           >
             <Combobox.Input />
             <Combobox.List>
-              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+              {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -5219,7 +5288,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5265,7 +5336,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5304,7 +5377,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup data-testid="popup" class="animation-test-popup">
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -5348,7 +5423,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup data-testid="popup" class="animation-test-popup">
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -5393,7 +5470,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5444,7 +5523,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5480,7 +5561,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup data-testid="popup">
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -5525,7 +5608,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5589,7 +5674,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -5632,7 +5719,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup data-testid="popup" class="animation-test-popup">
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -6163,7 +6252,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -6530,7 +6621,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -6588,7 +6681,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -6618,7 +6713,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -6647,7 +6744,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -6713,7 +6812,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Input data-testid="input" />
                     <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -6776,7 +6877,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Popup data-testid="popup" class="animation-test-popup">
                     <Combobox.Input data-testid="input" />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -6833,7 +6936,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Input data-testid="input" />
                     <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -6907,7 +7012,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Popup data-testid="popup" class="animation-test-popup">
                       <Combobox.Input data-testid="input" />
                       <Combobox.List>
-                        {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item: Accessor<string>) => (
+                          <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                        )}
                       </Combobox.List>
                     </Combobox.Popup>
                   </Combobox.Positioner>
@@ -7044,7 +7151,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -7099,7 +7206,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(movie: Movie) => <Combobox.Item value={movie}>{movie.english}</Combobox.Item>}
+                    {(movie: Accessor<Movie>) => (
+                      <Combobox.Item value={movie()}>{movie().english}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7193,10 +7302,10 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Popup>
                   <Combobox.Empty>No items found.</Combobox.Empty>
                   <Combobox.List>
-                    {(item: TestItem) => (
-                      <Combobox.Item value={item}>
+                    {(item: Accessor<TestItem>) => (
+                      <Combobox.Item value={item()}>
                         <Combobox.ItemIndicator />
-                        {item.label}
+                        {item().label}
                       </Combobox.Item>
                     )}
                   </Combobox.List>
@@ -7233,7 +7342,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner sideOffset={4}>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7279,7 +7390,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner sideOffset={4}>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7318,7 +7431,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -7344,11 +7459,13 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(group: (typeof groups)[number]) => (
-                    <Combobox.Group items={group.items}>
-                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                  {(group: Accessor<(typeof groups)[number]>) => (
+                    <Combobox.Group items={group().items}>
+                      <Combobox.GroupLabel>{group().value}</Combobox.GroupLabel>
                       <Combobox.Collection>
-                        {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item: Accessor<string>) => (
+                          <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                        )}
                       </Combobox.Collection>
                     </Combobox.Group>
                   )}
@@ -7427,7 +7544,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List style={{ 'max-height': '100px', 'overflow-y': 'auto' }}>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7509,7 +7628,9 @@ describe('<Combobox.Root />', () => {
                     style={{ 'max-height': '100px', 'overflow-y': 'auto' }}
                   >
                     <Combobox.List style={{ 'overflow-y': 'auto' }}>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </div>
                 </Combobox.Popup>
@@ -7538,7 +7659,9 @@ describe('<Combobox.Root />', () => {
                 <div data-testid="viewport" style={{ height: '100px', 'overflow-y': 'auto' }}>
                   <div style={{ 'overflow-y': 'clip' }}>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </div>
                 </div>
@@ -7567,7 +7690,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List style={{ 'max-height': '100px', 'overflow-y': 'auto' }}>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7604,9 +7729,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List style={{ 'max-height': '60px', 'overflow-y': 'auto' }}>
-                      {(item: string) => (
-                        <Combobox.Item value={item} style={{ height: '24px' }}>
-                          {item}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()} style={{ height: '24px' }}>
+                          {item()}
                         </Combobox.Item>
                       )}
                     </Combobox.List>
@@ -7645,7 +7770,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Input data-testid="input" />
               <div data-testid="viewport" style={{ height: '100px', 'overflow-y': 'auto' }}>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </div>
             </div>
@@ -7684,7 +7811,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7736,7 +7865,9 @@ describe('<Combobox.Root />', () => {
                 >
                   <Combobox.Empty>No matches</Combobox.Empty>
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -7986,7 +8117,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8011,7 +8144,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8032,7 +8167,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8057,7 +8194,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8184,7 +8323,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8209,7 +8350,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8241,7 +8384,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8270,9 +8415,9 @@ describe('<Combobox.Root />', () => {
         >
           <Combobox.Chips>
             <Combobox.Value>
-              {(value: string[]) => (
+              {(value: Accessor<string[]>) => (
                 <>
-                  {value.map((item) => (
+                  {value().map((item) => (
                     <Combobox.Chip>
                       {item}
                       <Combobox.ChipRemove aria-label={`Remove ${item}`} />
@@ -8288,7 +8433,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8318,8 +8465,8 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: (typeof items)[number]) => (
-                    <Combobox.Item value={item}>{item.value}</Combobox.Item>
+                  {(item: Accessor<(typeof items)[number]>) => (
+                    <Combobox.Item value={item()}>{item().value}</Combobox.Item>
                   )}
                 </Combobox.List>
               </Combobox.Popup>
@@ -8367,8 +8514,8 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: (typeof items)[number]) => (
-                    <Combobox.Item value={item}>{item.value}</Combobox.Item>
+                  {(item: Accessor<(typeof items)[number]>) => (
+                    <Combobox.Item value={item()}>{item().value}</Combobox.Item>
                   )}
                 </Combobox.List>
               </Combobox.Popup>
@@ -8400,9 +8547,9 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root items={items} multiple {...overrides()}>
           <Combobox.Chips>
             <Combobox.Value>
-              {(value: (typeof items)[number][]) => (
+              {(value: Accessor<(typeof items)[number][]>) => (
                 <>
-                  {value.map((item) => (
+                  {value().map((item) => (
                     <Combobox.Chip aria-label={item.value}>
                       {item.value}
                       <Combobox.ChipRemove aria-label={`Remove ${item.value}`} />
@@ -8418,8 +8565,8 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: (typeof items)[number]) => (
-                    <Combobox.Item value={item}>{item.value}</Combobox.Item>
+                  {(item: Accessor<(typeof items)[number]>) => (
+                    <Combobox.Item value={item()}>{item().value}</Combobox.Item>
                   )}
                 </Combobox.List>
               </Combobox.Popup>
@@ -8455,9 +8602,9 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root items={items} multiple defaultValue={[items[0], items[1]]} {...overrides()}>
           <Combobox.Chips>
             <Combobox.Value>
-              {(value: (typeof items)[number][]) => (
+              {(value: Accessor<(typeof items)[number][]>) => (
                 <>
-                  {value.map((item) => (
+                  {value().map((item) => (
                     <Combobox.Chip aria-label={item.value}>
                       {item.value}
                       <Combobox.ChipRemove aria-label={`Remove ${item.value}`} />
@@ -8473,8 +8620,8 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: (typeof items)[number]) => (
-                    <Combobox.Item value={item}>{item.value}</Combobox.Item>
+                  {(item: Accessor<(typeof items)[number]>) => (
+                    <Combobox.Item value={item()}>{item().value}</Combobox.Item>
                   )}
                 </Combobox.List>
               </Combobox.Popup>
@@ -8510,7 +8657,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8540,7 +8689,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8581,7 +8732,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8621,7 +8774,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8655,7 +8810,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8686,7 +8843,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8733,7 +8892,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8802,7 +8963,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup aria-label="Select item">
                 <Combobox.Input aria-label="Search" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8868,7 +9031,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup aria-label="Select item">
                 <Combobox.Input aria-label="Search" />
                 <Combobox.List>
-                  {(item: number[]) => <Combobox.Item value={item}>{item.join('-')}</Combobox.Item>}
+                  {(item: Accessor<number[]>) => (
+                    <Combobox.Item value={item()}>{item().join('-')}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8896,7 +9061,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -8950,7 +9117,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Root items={items} open inline {...overrides()}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -8977,7 +9144,9 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.Input data-testid="input" />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9039,7 +9208,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Positioner>
                     <Combobox.Popup data-testid="popup" class="animation-test-popup">
                       <Combobox.List>
-                        {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item: Accessor<string>) => (
+                          <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                        )}
                       </Combobox.List>
                     </Combobox.Popup>
                   </Combobox.Positioner>
@@ -9176,7 +9347,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9201,7 +9372,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9234,10 +9405,10 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.List>
                   {(group) => (
-                    <Combobox.Group items={group.items}>
-                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                    <Combobox.Group items={group().items}>
+                      <Combobox.GroupLabel>{group().value}</Combobox.GroupLabel>
                       <Combobox.Collection>
-                        {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                       </Combobox.Collection>
                     </Combobox.Group>
                   )}
@@ -9268,7 +9439,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9306,10 +9477,10 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.List>
                   {(group) => (
-                    <Combobox.Group items={group.items}>
-                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                    <Combobox.Group items={group().items}>
+                      <Combobox.GroupLabel>{group().value}</Combobox.GroupLabel>
                       <Combobox.Collection>
-                        {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                       </Combobox.Collection>
                     </Combobox.Group>
                   )}
@@ -9339,7 +9510,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9362,7 +9533,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9393,10 +9564,10 @@ describe('<Combobox.Root />', () => {
               <Combobox.Popup>
                 <Combobox.List>
                   {(group) => (
-                    <Combobox.Group items={group.items}>
-                      <Combobox.GroupLabel>Group {group.value.slice(-1)}</Combobox.GroupLabel>
+                    <Combobox.Group items={group().items}>
+                      <Combobox.GroupLabel>Group {group().value.slice(-1)}</Combobox.GroupLabel>
                       <Combobox.Collection>
-                        {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                        {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                       </Combobox.Collection>
                     </Combobox.Group>
                   )}
@@ -9448,7 +9619,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -9507,7 +9678,9 @@ describe('<Combobox.Root />', () => {
                   >
                     <Combobox.Input />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                     <Dialog.Close>Done</Dialog.Close>
                   </Dialog.Popup>
@@ -9560,7 +9733,9 @@ describe('<Combobox.Root />', () => {
               <Dialog.Popup aria-label="Fruit chooser">
                 <Combobox.Input />
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Dialog.Popup>
             </Dialog.Portal>
@@ -9621,7 +9796,9 @@ describe('<Combobox.Root />', () => {
                     <Combobox.Positioner>
                       <Combobox.Popup>
                         <Combobox.List>
-                          {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                          {(item: Accessor<string>) => (
+                            <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                          )}
                         </Combobox.List>
                       </Combobox.Popup>
                     </Combobox.Positioner>
@@ -9649,7 +9826,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Chips>
                   <Combobox.Input data-testid="dialog-input" />
                   <Combobox.List>
-                    {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Chips>
               </Dialog.Popup>
@@ -9666,7 +9845,9 @@ describe('<Combobox.Root />', () => {
           <Dialog.Root open={open()} onOpenChange={setOpen}>
             <Dialog.Trigger data-testid="dialog-trigger">
               <Combobox.Value>
-                {(value: string | null) => (value == null ? 'Select a fruit' : value)}
+                {(value: Accessor<string | null>) => (
+                  <>{value() == null ? 'Select a fruit' : value()}</>
+                )}
               </Combobox.Value>
             </Dialog.Trigger>
             <Dialog.Portal>
@@ -9680,7 +9861,9 @@ describe('<Combobox.Root />', () => {
                   />
                 </div>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
                 <Dialog.Close>Done</Dialog.Close>
               </Dialog.Popup>
@@ -9874,8 +10057,8 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: (typeof items)[number]) => (
-                        <Combobox.Item value={item}>{item.label}</Combobox.Item>
+                      {(item: Accessor<(typeof items)[number]>) => (
+                        <Combobox.Item value={item()}>{item().label}</Combobox.Item>
                       )}
                     </Combobox.List>
                   </Combobox.Popup>
@@ -9918,8 +10101,8 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: (typeof items)[number]) => (
-                      <Combobox.Item value={item}>{item.label}</Combobox.Item>
+                    {(item: Accessor<(typeof items)[number]>) => (
+                      <Combobox.Item value={item()}>{item().label}</Combobox.Item>
                     )}
                   </Combobox.List>
                 </Combobox.Popup>
@@ -9965,8 +10148,8 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: (typeof items)[number]) => (
-                        <Combobox.Item value={item}>{item.label}</Combobox.Item>
+                      {(item: Accessor<(typeof items)[number]>) => (
+                        <Combobox.Item value={item()}>{item().label}</Combobox.Item>
                       )}
                     </Combobox.List>
                   </Combobox.Popup>
@@ -10001,8 +10184,8 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: { value: string; label: string }) => (
-                      <Combobox.Item value={item}>{item.label}</Combobox.Item>
+                    {(item: Accessor<{ value: string; label: string }>) => (
+                      <Combobox.Item value={item()}>{item().label}</Combobox.Item>
                     )}
                   </Combobox.List>
                 </Combobox.Popup>
@@ -10030,8 +10213,8 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: { value: string; label: string }) => (
-                      <Combobox.Item value={item}>{item.label}</Combobox.Item>
+                    {(item: Accessor<{ value: string; label: string }>) => (
+                      <Combobox.Item value={item()}>{item().label}</Combobox.Item>
                     )}
                   </Combobox.List>
                 </Combobox.Popup>
@@ -10066,8 +10249,8 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item: { code: string; name: string }) => (
-                      <Combobox.Item value={item}>{item.name}</Combobox.Item>
+                    {(item: Accessor<{ code: string; name: string }>) => (
+                      <Combobox.Item value={item()}>{item().name}</Combobox.Item>
                     )}
                   </Combobox.List>
                 </Combobox.Popup>
@@ -10164,7 +10347,9 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -10200,7 +10385,9 @@ describe('<Combobox.Root />', () => {
                       )}
                     />
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -10272,7 +10459,7 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -10303,7 +10490,7 @@ describe('<Combobox.Root />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -10620,7 +10807,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    {(item) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+                    {(item) => <Combobox.Item value={item()}>{item().label}</Combobox.Item>}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -11256,7 +11443,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item().name}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11290,7 +11477,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item().name}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11330,7 +11517,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item().name}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11379,7 +11566,7 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item().name}</Combobox.Item>}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11430,7 +11617,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: Country) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+                  {(item: Accessor<Country>) => (
+                    <Combobox.Item value={item()}>{item().label}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11493,7 +11682,9 @@ describe('<Combobox.Root />', () => {
                   <Combobox.Input />
                   <Combobox.Empty data-testid="empty">No countries found.</Combobox.Empty>
                   <Combobox.List>
-                    {(item: Country) => <Combobox.Item value={item}>{item.label}</Combobox.Item>}
+                    {(item: Accessor<Country>) => (
+                      <Combobox.Item value={item()}>{item().label}</Combobox.Item>
+                    )}
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -11529,7 +11720,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11556,7 +11749,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11581,7 +11776,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11616,7 +11813,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11651,7 +11850,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11681,7 +11882,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11733,7 +11936,9 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -11752,7 +11957,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Input data-testid="inline-input" />
           <Combobox.Trigger>Toggle</Combobox.Trigger>
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -11797,7 +12002,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Input />
           <SelectedIndexProbe />
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -11809,7 +12014,7 @@ describe('<Combobox.Root />', () => {
           <Combobox.Input />
           <SelectedIndexProbe />
           <Combobox.List>
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: Accessor<string>) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
           </Combobox.List>
         </Combobox.Root>
       ));
@@ -11820,7 +12025,9 @@ describe('<Combobox.Root />', () => {
         <Autocomplete.Root defaultOpen autoHighlight="always" items={['apple']} {...overrides()}>
           <Autocomplete.Input />
           <Autocomplete.List>
-            {(item: string) => <Autocomplete.Item value={item}>{item}</Autocomplete.Item>}
+            {(item: Accessor<string>) => (
+              <Autocomplete.Item value={item()}>{item()}</Autocomplete.Item>
+            )}
           </Autocomplete.List>
         </Autocomplete.Root>
       ));
@@ -11842,10 +12049,10 @@ describe('<Combobox.Root />', () => {
           <Combobox.Input />
           <Combobox.List>
             {(group) => (
-              <Combobox.Group items={group.items}>
-                <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+              <Combobox.Group items={group().items}>
+                <Combobox.GroupLabel>{group().value}</Combobox.GroupLabel>
                 <Combobox.Collection>
-                  {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item) => <Combobox.Item value={item()}>{item()}</Combobox.Item>}
                 </Combobox.Collection>
               </Combobox.Group>
             )}
@@ -12078,12 +12285,12 @@ describe('<Combobox.Root />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => (
+                  {(item: Accessor<string>) => (
                     <Combobox.Item
-                      value={item}
-                      disabled={(props.disabledItems ?? []).includes(item)}
+                      value={item()}
+                      disabled={(props.disabledItems ?? []).includes(item())}
                     >
-                      {item}
+                      {item()}
                     </Combobox.Item>
                   )}
                 </Combobox.List>

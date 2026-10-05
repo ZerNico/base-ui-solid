@@ -1,4 +1,5 @@
 import { createSignal, flush } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, it } from 'vitest';
@@ -17,6 +18,9 @@ import { Field } from 'base-ui-solid/field';
 import { SelectionlessCombobox as Autocomplete } from '../root/SelectionlessCombobox.test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Trigger />', () => {
   const { render } = createRenderer();
@@ -842,7 +846,9 @@ describe('<Combobox.Trigger />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -871,7 +877,9 @@ describe('<Combobox.Trigger />', () => {
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                      {(item: Accessor<string>) => (
+                        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                      )}
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -1053,7 +1061,9 @@ describe('<Combobox.Trigger />', () => {
             <Combobox.Positioner side="right">
               <Combobox.Popup>
                 <Combobox.List>
-                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>

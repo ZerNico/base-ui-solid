@@ -1,4 +1,5 @@
 import { For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 // the same controlled values, validation, touched/dirty flags, and submission.
 import type { JSX } from '@solidjs/web';
 import { createControlledForm, Controller } from '../../solid-controller';
@@ -126,13 +127,13 @@ function ControlledForm() {
                   <Combobox.Popup>
                     <Combobox.Empty>No matches</Combobox.Empty>
                     <Combobox.List>
-                      {(region: string) => {
+                      {(region: Accessor<string>) => {
                         return (
-                          <Combobox.Item value={region}>
+                          <Combobox.Item value={region()}>
                             <Combobox.ItemIndicator>
                               <CheckIcon />
                             </Combobox.ItemIndicator>
-                            <span class="col-start-2">{region}</span>
+                            <span class="col-start-2">{region()}</span>
                           </Combobox.Item>
                         );
                       }}
@@ -179,12 +180,12 @@ function ControlledForm() {
                 <Autocomplete.Positioner>
                   <Autocomplete.Popup>
                     <Autocomplete.List>
-                      {(image: Image) => {
+                      {(image: Accessor<Image>) => {
                         return (
-                          <Autocomplete.Item value={image}>
-                            <span>{image.name}</span>
+                          <Autocomplete.Item value={image()}>
+                            <span>{image().name}</span>
                             <span class="font-mono whitespace-nowrap text-xs opacity-80">
-                              {image.url}
+                              {image().url}
                             </span>
                           </Autocomplete.Item>
                         );

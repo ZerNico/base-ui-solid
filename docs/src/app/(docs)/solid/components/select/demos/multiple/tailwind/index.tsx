@@ -1,4 +1,5 @@
 import { For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
 
@@ -38,7 +39,7 @@ export default function MultiSelectExample() {
         </Select.Label>
         <Select.Trigger class="flex h-8 min-w-[14rem] items-center justify-between gap-3 pl-2 pr-1 text-sm leading-none whitespace-nowrap border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-pressed:bg-neutral-100 dark:data-pressed:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
           <Select.Value class="data-placeholder:text-neutral-500 dark:data-placeholder:text-neutral-400">
-            {renderValue}
+            {(value: Accessor<Language[]>) => <>{renderValue(value())}</>}
           </Select.Value>
           <Select.Icon>
             <CaretUpDownIcon />

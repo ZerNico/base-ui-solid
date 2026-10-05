@@ -1,4 +1,5 @@
 import { createSignal, createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import { Dialog } from 'base-ui-solid/dialog';
@@ -55,21 +56,21 @@ export default function ExampleAutocompleteCommandPalette() {
                     </Autocomplete.Empty>
 
                     <Autocomplete.List class="py-1">
-                      {(group: Group) => (
-                        <Autocomplete.Group items={group.items} class="not-last:mb-1">
+                      {(group: Accessor<Group>) => (
+                        <Autocomplete.Group items={group().items} class="not-last:mb-1">
                           <Autocomplete.GroupLabel class="flex min-h-8 items-center pr-6 pl-3 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
-                            {group.value}
+                            {group().value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>
-                            {(item: Item) => (
+                            {(item: Accessor<Item>) => (
                               <Autocomplete.Item
-                                value={item}
+                                value={item()}
                                 onClick={handleItemClick}
                                 class="group grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-6 text-sm font-normal leading-[1.25] outline-none select-none [scroll-margin-block:0.25rem] data-highlighted:bg-neutral-200 dark:data-highlighted:bg-neutral-700"
                               >
-                                <span class="min-w-0 truncate font-normal">{item.label}</span>
+                                <span class="min-w-0 truncate font-normal">{item().label}</span>
                                 <span class="shrink-0 whitespace-nowrap text-sm text-neutral-500 group-data-highlighted:text-neutral-700 dark:text-neutral-400 dark:group-data-highlighted:text-neutral-300">
-                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                                  {group().value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
                               </Autocomplete.Item>
                             )}

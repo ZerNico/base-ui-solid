@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId, For } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import { Dialog } from 'base-ui-solid/dialog';
@@ -138,12 +139,12 @@ export default function ExampleCreatableCombobox() {
           </label>
           <Combobox.InputGroup class="flex min-h-8 w-64 cursor-text flex-wrap items-center gap-0.5 border border-neutral-950 bg-white dark:bg-neutral-950 px-2 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white has-[button]:px-1 dark:border-white min-[32rem]:w-[22rem]">
             <Combobox.Value>
-              {(value: LabelItem[]) => (
+              {(value: Accessor<LabelItem[]>) => (
                 <Combobox.Chips
                   class="flex w-full flex-wrap items-center gap-1"
-                  aria-label={value.length > 0 ? 'Selected labels' : undefined}
+                  aria-label={value().length > 0 ? 'Selected labels' : undefined}
                 >
-                  <For each={value}>
+                  <For each={value()}>
                     {(label) => (
                       <Combobox.Chip
                         class="group flex min-h-[calc(1.5rem-2px)] cursor-default items-center gap-1 overflow-hidden bg-neutral-100 py-0 pr-[0.2rem] pl-[0.4rem] text-sm leading-none text-neutral-950 outline-none focus-within:bg-neutral-950 focus-within:text-white [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:bg-neutral-800 dark:text-white dark:focus-within:bg-white dark:focus-within:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
@@ -165,10 +166,10 @@ export default function ExampleCreatableCombobox() {
                       comboboxInputRef.current = element;
                     }}
                     id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                    placeholder={value().length > 0 ? '' : 'e.g. bug'}
                     aria-description={
-                      value.length > 0
-                        ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                      value().length > 0
+                        ? `${value().length} selected. From the start of the input, press Left Arrow to focus the selected items`
                         : undefined
                     }
                     class="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
@@ -189,26 +190,26 @@ export default function ExampleCreatableCombobox() {
                 </div>
               </Combobox.Empty>
               <Combobox.List>
-                {(item: LabelItem) =>
-                  item.creatable ? (
+                {(item: Accessor<LabelItem>) =>
+                  item().creatable ? (
                     <Combobox.Item
                       class="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-selected:relative data-selected:z-0 data-selected:text-neutral-950 data-selected:before:absolute data-selected:before:inset-0 data-selected:before:z-[-1] [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-white [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-950 dark:data-selected:text-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:before:bg-white"
-                      value={item}
+                      value={item()}
                     >
                       <span class="col-start-1">
                         <PlusIcon />
                       </span>
-                      <span class="col-start-2">Create "{item.creatable}"</span>
+                      <span class="col-start-2">Create "{item().creatable}"</span>
                     </Combobox.Item>
                   ) : (
                     <Combobox.Item
                       class="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-none select-none data-selected:relative data-selected:z-0 data-selected:text-neutral-950 data-selected:before:absolute data-selected:before:inset-0 data-selected:before:z-[-1] [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-white [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-950 dark:data-selected:text-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:before:bg-white"
-                      value={item}
+                      value={item()}
                     >
                       <Combobox.ItemIndicator class="col-start-1">
                         <CheckIcon />
                       </Combobox.ItemIndicator>
-                      <span class="col-start-2">{item.value}</span>
+                      <span class="col-start-2">{item().value}</span>
                     </Combobox.Item>
                   )
                 }

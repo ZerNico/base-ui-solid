@@ -1,4 +1,5 @@
 import { createSignal, createMemo, createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -148,17 +149,17 @@ export default function ExampleAsyncSingleCombobox() {
                 {emptyMessage() ? <div class={styles.Empty}>{emptyMessage()}</div> : null}
               </Combobox.Empty>
               <Combobox.List>
-                {(user: DirectoryUser) => (
-                  <Combobox.Item class={styles.Item} value={user}>
+                {(user: Accessor<DirectoryUser>) => (
+                  <Combobox.Item class={styles.Item} value={user()}>
                     <Combobox.ItemIndicator class={styles.ItemIndicator}>
                       <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span class={styles.ItemText}>
-                      <span class={styles.ItemTitle}>{user.name}</span>
-                      <span class={styles.ItemEmail}>{user.email}</span>
+                      <span class={styles.ItemTitle}>{user().name}</span>
+                      <span class={styles.ItemEmail}>{user().email}</span>
                       <span class={styles.ItemSubtitle}>
-                        <span>@{user.username}</span>
-                        <span>{user.title}</span>
+                        <span>@{user().username}</span>
+                        <span>{user().title}</span>
                       </span>
                     </span>
                   </Combobox.Item>

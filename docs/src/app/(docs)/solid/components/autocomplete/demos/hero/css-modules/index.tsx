@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
 
@@ -16,9 +17,9 @@ export default function ExampleAutocomplete() {
               <div class={styles.Empty}>No tags found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List class={styles.List}>
-              {(tag: Tag) => (
-                <Autocomplete.Item class={styles.Item} value={tag}>
-                  {tag.value}
+              {(tag: Accessor<Tag>) => (
+                <Autocomplete.Item class={styles.Item} value={tag()}>
+                  {tag().value}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

@@ -1,4 +1,5 @@
-import { createMemo, omit, untrack } from 'solid-js';
+import { Show, createMemo, omit } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -37,13 +38,20 @@ export function ComboboxList(componentProps: ComboboxList.Props): JSX.Element {
   const multiple = () => selectionMode() === 'multiple';
   const empty = () => derivedItems.filteredItems.length === 0;
 
-  const setPositionerElement = (element: HTMLElement | null) => {
-    store.set('positionerElement', element);
-  };
-
-  const setListElement = (element: HTMLElement | null) => {
-    store.set('listElement', element);
-  };
+  // Port note: toggling `virtualized` recreates the list element, and the replaced element's refs
+  // are detached after the new one attached its own. Only detach an element that is still stored.
+  function createElementSetter(key: 'positionerElement' | 'listElement') {
+    let ownElement: HTMLElement | null = null;
+    return (element: HTMLElement | null) => {
+      if (element) {
+        ownElement = element;
+        store.set(key, element);
+      } else if (store.state[key] === ownElement) {
+        ownElement = null;
+        store.set(key, null);
+      }
+    };
+  }
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
@@ -75,7 +83,10 @@ export function ComboboxList(componentProps: ComboboxList.Props): JSX.Element {
   const renderElement = () =>
     useRenderElement('div', componentProps, {
       state,
-      ref: [setListElement, hasPositionerContext ? undefined : setPositionerElement],
+      ref: [
+        createElementSetter('listElement'),
+        hasPositionerContext ? undefined : createElementSetter('positionerElement'),
+      ],
       props: () => [
         listProps(),
         childrenSource,
@@ -115,18 +126,15 @@ export function ComboboxList(componentProps: ComboboxList.Props): JSX.Element {
   const labelsRef = () =>
     derivedItems.hasItems && !forceMounted() ? undefined : store.context.labelsRef;
 
-  // Port note: `virtualized` is read once to decide whether the list is wrapped. The element is
-  // rendered inside `CompositeList` so that its children can read the list context.
-
-  if (untrack(virtualized)) {
-    // eslint-disable-next-line solid/components-return-once -- The virtualized branch is fixed for this instance.
-    return renderElement();
-  }
-
+  // Port note: the element is rendered inside `CompositeList` so that its children can read the
+  // list context. Toggling `virtualized` swaps the structure and remounts the list element, like
+  // upstream, where the element moves in or out of the `CompositeList` wrapper.
   return (
-    <CompositeList elementsRef={store.context.listRef} labelsRef={labelsRef()}>
-      {renderElement()}
-    </CompositeList>
+    <Show when={!virtualized()} fallback={renderElement()}>
+      <CompositeList elementsRef={store.context.listRef} labelsRef={labelsRef()}>
+        {renderElement()}
+      </CompositeList>
+    </Show>
   );
 }
 
@@ -141,7 +149,12 @@ export interface ComboboxListProps extends Omit<
   BaseUIComponentProps<'div', ComboboxListState>,
   'children'
 > {
-  children?: JSX.Element | ((item: any, index: number) => JSX.Element) | undefined;
+  /**
+   * The list's content, or a function called once per item with the item and its index as
+   * accessors (implicitly wrapped in `Combobox.Collection`).
+   */
+  children?:
+    JSX.Element | ((item: Accessor<any>, index: Accessor<number>) => JSX.Element) | undefined;
 }
 
 export namespace ComboboxList {

@@ -1,10 +1,14 @@
 import { createSignal } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, it } from 'vitest';
 import { render as renderDOM } from '@solidjs/web';
 import { screen, waitFor, createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Combobox } from 'base-ui-solid/combobox';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Positioner />', () => {
   const { render } = createRenderer();
@@ -88,9 +92,9 @@ describe('<Combobox.Positioner />', () => {
                       'overflow-y': 'auto',
                     }}
                   >
-                    {(item: string) => (
-                      <Combobox.Item value={item} style={{ height: '30px' }}>
-                        {item}
+                    {(item: Accessor<string>) => (
+                      <Combobox.Item value={item()} style={{ height: '30px' }}>
+                        {item()}
                       </Combobox.Item>
                     )}
                   </Combobox.List>

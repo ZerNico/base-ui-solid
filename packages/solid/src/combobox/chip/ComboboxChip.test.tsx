@@ -1,7 +1,11 @@
+import type { Accessor } from 'solid-js';
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { createRenderer, describeConformance, act, screen, waitFor } from '#test-utils';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Combobox.Chip />', () => {
   const { render } = createRenderer();
@@ -378,11 +382,13 @@ describe('<Combobox.Chip />', () => {
         <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
           <Combobox.Chips>
             <Combobox.Value>
-              {(value: string[]) => (
+              {(value: Accessor<string[]>) => (
                 <>
-                  {value.slice(0, 2).map((item) => (
-                    <Combobox.Chip data-testid={`chip-${item}`}>{item}</Combobox.Chip>
-                  ))}
+                  {value()
+                    .slice(0, 2)
+                    .map((item) => (
+                      <Combobox.Chip data-testid={`chip-${item}`}>{item}</Combobox.Chip>
+                    ))}
                   <Combobox.Input data-testid="input" />
                 </>
               )}

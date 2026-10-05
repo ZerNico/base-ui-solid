@@ -2,6 +2,7 @@ import { For, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
+import type { ComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
 import { useGroupCollectionContext } from './GroupCollectionContext';
 
 function isGroup(item: unknown): item is { items: readonly unknown[] } & Record<string, unknown> {
@@ -12,37 +13,32 @@ function isGroup(item: unknown): item is { items: readonly unknown[] } & Record<
 
 /**
  * Port note: upstream re-renders `items.map(children)` and React reconciles by the `key` that the
- * consumer gives each element. Here each item is rendered once, keyed by identity. Filtering
- * copies groups (`{ ...group, items }`), so groups are keyed by their `value` (or `label`) and
- * rendered with a view that reads the current copy, so a group stays mounted while its items are
- * filtered.
+ * consumer gives each element. Here each item is rendered once, keyed by its logical identity, so
+ * rebuilt arrays (filtering, memos that create new objects) keep the rows mounted: the renderer
+ * receives the item and its index as accessors that update in place, like `<For keyed={fn}>`.
+ * - Groups are keyed by their `value` (or `label`), since filtering copies them.
+ * - Items are keyed by their `createItems()` value, else by `itemToStringValue`, else by their
+ *   `value` property, else by identity (primitives by value).
  */
-function getItemKey(item: unknown) {
+function getItemKey(item: unknown, derivedItems: ComboboxDerivedItemsContext) {
   if (isGroup(item)) {
     return item.value ?? item.label ?? item;
   }
+  if (item == null) {
+    return item;
+  }
+  const itemToValue = derivedItems.itemToValue;
+  if (itemToValue) {
+    return itemToValue(item);
+  }
+  const itemToStringValue = derivedItems.itemToStringValue;
+  if (itemToStringValue) {
+    return itemToStringValue(item);
+  }
+  if (typeof item === 'object' && 'value' in item) {
+    return (item as { value: unknown }).value;
+  }
   return item;
-}
-
-function createGroupView(item: Accessor<any>) {
-  return new Proxy(
-    {},
-    {
-      get(_, key) {
-        return item()[key];
-      },
-      has(_, key) {
-        return key in item();
-      },
-      ownKeys() {
-        return Reflect.ownKeys(item());
-      },
-      getOwnPropertyDescriptor(_, key) {
-        const descriptor = Reflect.getOwnPropertyDescriptor(item(), key);
-        return descriptor ? { ...descriptor, configurable: true } : undefined;
-      },
-    },
-  );
 }
 
 /**
@@ -50,6 +46,10 @@ function createGroupView(item: Accessor<any>) {
  * Doesn't render its own HTML element.
  *
  * If rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.
+ *
+ * The function is called once per item with the item and its index as accessors, like Solid's
+ * `<For>` with a custom key, so a row stays mounted while the list is filtered, reordered or
+ * rebuilt with new objects for the same items.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
@@ -60,13 +60,10 @@ export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element
   const itemsToRender = () => (groupContext ? groupContext.items : derivedItems.filteredItems);
 
   return (
-    <For each={itemsToRender()} keyed={getItemKey}>
+    <For each={itemsToRender()} keyed={(item) => getItemKey(item, derivedItems)}>
       {(item, index) => {
-        const currentItem = untrack(item);
-        const itemView = isGroup(currentItem) ? createGroupView(item) : currentItem;
-        // Port note: upstream invokes every renderer with the current numeric index. Track
-        // it regardless of function arity, which excludes defaulted and rest parameters.
-        return <>{props.children(itemView, index())}</>;
+        const children = untrack(() => props.children);
+        return children(item, index);
       }}
     </For>
   );
@@ -75,7 +72,10 @@ export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element
 export interface ComboboxCollectionState {}
 
 export interface ComboboxCollectionProps {
-  children: (item: any, index: number) => JSX.Element;
+  /**
+   * A function called once per item with the item and its index as accessors.
+   */
+  children: (item: Accessor<any>, index: Accessor<number>) => JSX.Element;
 }
 
 export namespace ComboboxCollection {

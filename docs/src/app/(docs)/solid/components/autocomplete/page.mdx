@@ -178,7 +178,7 @@ When using `highlightItem()`, scroll your virtualizer to the index reported by `
 
 #### Memoizing items
 
-Solid creates each item component once and updates its reactive bindings, so no component memoization wrapper is needed. Pass the item as a prop and read it through the props object. With a large enough number of items, the mount cost dominates, and virtualization becomes necessary to keep the open interaction fast on low-end devices.
+Solid creates each item component once and updates its reactive bindings, so no component memoization wrapper is needed. The list function receives the item as an accessor: pass `item()` as a prop and read it through the props object. With a large enough number of items, the mount cost dominates, and virtualization becomes necessary to keep the open interaction fast on low-end devices.
 
 ```tsx title="Memoizing list items"
 interface Suggestion {
@@ -196,7 +196,9 @@ function SuggestionItem(props: { item: Suggestion }) {
   );
 }
 
-<Autocomplete.List>{(item: Suggestion) => <SuggestionItem item={item} />}</Autocomplete.List>;
+<Autocomplete.List>
+  {(item: Accessor<Suggestion>) => <SuggestionItem item={item()} />}
+</Autocomplete.List>;
 ```
 
 ## API reference

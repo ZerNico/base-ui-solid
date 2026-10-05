@@ -1,4 +1,5 @@
 import { createUniqueId } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Combobox } from 'base-ui-solid/combobox';
 import styles from './index.module.css';
@@ -29,12 +30,12 @@ export default function ExampleCombobox() {
               <div class={styles.Empty}>No fruits found.</div>
             </Combobox.Empty>
             <Combobox.List class={styles.List}>
-              {(item: Fruit) => (
-                <Combobox.Item value={item} class={styles.Item}>
+              {(item: Accessor<Fruit>) => (
+                <Combobox.Item value={item()} class={styles.Item}>
                   <Combobox.ItemIndicator class={styles.ItemIndicator}>
                     <CheckIcon />
                   </Combobox.ItemIndicator>
-                  <span class={styles.ItemText}>{item.label}</span>
+                  <span class={styles.ItemText}>{item().label}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

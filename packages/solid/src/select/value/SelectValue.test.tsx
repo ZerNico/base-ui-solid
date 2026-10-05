@@ -9,6 +9,9 @@ import {
   describeConformance,
 } from '#test-utils';
 
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
+
 describe('<Select.Value />', () => {
   const { render } = createRenderer();
 
@@ -27,8 +30,8 @@ describe('<Select.Value />', () => {
           <Select.Trigger>
             <Select.Value>
               {(value) => {
-                children(value);
-                return value;
+                children(value());
+                return value();
               }}
             </Select.Value>
           </Select.Trigger>
@@ -415,7 +418,7 @@ describe('<Select.Value />', () => {
 
       await render(() => (
         <Select.Root value="sans" items={items}>
-          <Select.Value data-testid="value">{(value) => `Custom: ${value}`}</Select.Value>
+          <Select.Value data-testid="value">{(value) => <>{`Custom: ${value()}`}</>}</Select.Value>
         </Select.Root>
       ));
 
@@ -433,7 +436,7 @@ describe('<Select.Value />', () => {
           <button onClick={() => setValue(null)}>null</button>
           <Select.Root value={value()} onValueChange={setValue}>
             <Select.Trigger>
-              <Select.Value data-testid="value">{(val) => val ?? 'initial'}</Select.Value>
+              <Select.Value data-testid="value">{(val) => <>{val() ?? 'initial'}</>}</Select.Value>
             </Select.Trigger>
             <Select.Portal>
               <Select.Positioner>
@@ -570,8 +573,8 @@ describe('<Select.Value />', () => {
         <Select.Root value={['sans', 'serif']} items={items} multiple>
           <Select.Value>
             {(values) => {
-              children(values);
-              return `Selected: ${Array.isArray(values) ? values.join(' + ') : values}`;
+              children(values());
+              return `Selected: ${Array.isArray(values()) ? values().join(' + ') : values()}`;
             }}
           </Select.Value>
         </Select.Root>
@@ -597,6 +600,7 @@ describe('<Select.Value />', () => {
     });
 
     it('defaults to empty array when no value is provided', async () => {
+      // Port note: the render function is called once with an accessor of the value.
       const renderValue = vi.fn();
 
       await render(() => (
@@ -605,7 +609,7 @@ describe('<Select.Value />', () => {
         </Select.Root>
       ));
 
-      expect(renderValue.mock.calls[0]?.[0]).toEqual([]);
+      expect(renderValue.mock.calls[0]?.[0]()).toEqual([]);
     });
   });
 
@@ -663,7 +667,7 @@ describe('<Select.Value />', () => {
       await render(() => (
         <Select.Root>
           <Select.Value data-testid="value" placeholder="Select an option">
-            {(value) => value || 'Function fallback'}
+            {(value) => <>{value() || 'Function fallback'}</>}
           </Select.Value>
         </Select.Root>
       ));

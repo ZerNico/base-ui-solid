@@ -1,4 +1,5 @@
-import { createMemo } from 'solid-js';
+import { createMemo, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootContext';
 
@@ -10,12 +11,14 @@ import { useComboboxInputValueContext } from '../../combobox/root/ComboboxRootCo
  */
 export function AutocompleteValue(props: AutocompleteValue.Props): JSX.Element {
   const inputValue = useComboboxInputValueContext();
-  // Port note: resolve children in a memo so the current input value remains reactive.
+  const value = () => String(inputValue());
+  // Port note: upstream calls a `children` function on every render. Here it's called once (again
+  // only if the function itself changes) with an accessor of the value, so its DOM updates in place.
   const children = createMemo(() => props.children);
   const returnValue = createMemo(() => {
     const currentChildren = children();
     if (typeof currentChildren === 'function') {
-      return currentChildren(String(inputValue()));
+      return untrack(() => currentChildren(value));
     }
     return currentChildren != null ? currentChildren : inputValue();
   });
@@ -25,7 +28,10 @@ export function AutocompleteValue(props: AutocompleteValue.Props): JSX.Element {
 export interface AutocompleteValueState {}
 
 export interface AutocompleteValueProps {
-  children?: JSX.Element | ((value: string) => JSX.Element) | undefined;
+  /**
+   * The content, or a function called once with an accessor of the input value.
+   */
+  children?: JSX.Element | ((value: Accessor<string>) => JSX.Element) | undefined;
 }
 
 export namespace AutocompleteValue {

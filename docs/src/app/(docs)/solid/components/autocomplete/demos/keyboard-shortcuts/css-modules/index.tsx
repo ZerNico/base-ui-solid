@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 import styles from './index.module.css';
 
@@ -45,9 +46,9 @@ export default function ExampleAutocompleteKeyboardShortcuts() {
               <div class={styles.Empty}>No commands found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List class={styles.List}>
-              {(command: string) => (
-                <Autocomplete.Item class={styles.Item} value={command}>
-                  {command}
+              {(command: Accessor<string>) => (
+                <Autocomplete.Item class={styles.Item} value={command()}>
+                  {command()}
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

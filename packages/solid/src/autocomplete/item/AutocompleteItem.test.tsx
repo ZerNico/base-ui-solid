@@ -1,6 +1,10 @@
+import type { Accessor } from 'solid-js';
 import { expect, vi, describe, it } from 'vitest';
 import { screen, waitFor, createRenderer } from '#test-utils';
 import { Autocomplete } from 'base-ui-solid/autocomplete';
+
+// Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
+// the item and its index as accessors, and `*.Value` render functions receive accessors.
 
 describe('<Autocomplete.Item />', () => {
   const { render } = createRenderer();
@@ -15,9 +19,9 @@ describe('<Autocomplete.Item />', () => {
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  {(item: string) => (
-                    <Autocomplete.Item value={item} onClick={handleClick}>
-                      {item}
+                  {(item: Accessor<string>) => (
+                    <Autocomplete.Item value={item()} onClick={handleClick}>
+                      {item()}
                     </Autocomplete.Item>
                   )}
                 </Autocomplete.List>
@@ -45,9 +49,9 @@ describe('<Autocomplete.Item />', () => {
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  {(item: string) => (
-                    <Autocomplete.Item value={item} onClick={handleClick}>
-                      {item}
+                  {(item: Accessor<string>) => (
+                    <Autocomplete.Item value={item()} onClick={handleClick}>
+                      {item()}
                     </Autocomplete.Item>
                   )}
                 </Autocomplete.List>
