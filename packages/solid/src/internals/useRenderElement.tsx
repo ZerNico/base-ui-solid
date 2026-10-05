@@ -128,7 +128,12 @@ export function useRenderElement<
       });
     }
 
-    return untrack(() => evaluateRenderProp(tagName, render, outProps, state));
+    // React server-renders an input's defaults as attributes whatever renders it, so normalize
+    // them for an `<input>` part before a `render` prop replaces the element too.
+    const props =
+      isServer && render && readElement() === 'input' ? getServerInputProps(outProps) : outProps;
+
+    return untrack(() => evaluateRenderProp(tagName, render, props, state));
   });
 
   return <>{rendered()}</>;
@@ -272,7 +277,7 @@ function evaluateRenderProp<State>(
 
 function renderTag(Tag: IntrinsicTagName, props: HTMLProps, isDefaultElement: boolean) {
   const Component = dynamic(() => Tag, { static: true });
-  if (isServer && Tag === 'input') {
+  if (isServer && Tag === 'input' && !isServerInputProps(props)) {
     props = getServerInputProps(props);
   }
   if (isDefaultElement && Tag === 'button') {
@@ -283,6 +288,8 @@ function renderTag(Tag: IntrinsicTagName, props: HTMLProps, isDefaultElement: bo
   }
   return <Component {...props} />;
 }
+
+const SERVER_INPUT_PROPS = Symbol('base-ui.serverInputProps');
 
 /**
  * Port note: React server-renders an input's `defaultValue`/`defaultChecked` as its `value`/
@@ -295,7 +302,12 @@ function getServerInputProps(props: HTMLProps): HTMLProps {
     ...other,
     value: other.value ?? defaultValue,
     checked: other.checked ?? defaultChecked,
+    [SERVER_INPUT_PROPS]: true,
   } as HTMLProps;
+}
+
+function isServerInputProps(props: HTMLProps) {
+  return (props as Record<PropertyKey, unknown>)[SERVER_INPUT_PROPS] === true;
 }
 
 type RenderFunctionProps<TagName> = TagName extends IntrinsicTagName
