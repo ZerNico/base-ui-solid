@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from '@tanstack/solid-router';
 import docsStyles from '../css/docs.css?url';
 import { DocsLayout } from '../components/DocsLayout';
+import { DocsProviders } from '../components/DocsProviders';
 
 export const Route = createFileRoute('/_docs')({
   head: () => ({
@@ -16,8 +17,10 @@ export const Route = createFileRoute('/_docs')({
     ],
   }),
   component: () => (
-    <DocsLayout>
-      <Outlet />
-    </DocsLayout>
+    <DocsProviders>
+      <DocsLayout>
+        <Outlet />
+      </DocsLayout>
+    </DocsProviders>
   ),
 });

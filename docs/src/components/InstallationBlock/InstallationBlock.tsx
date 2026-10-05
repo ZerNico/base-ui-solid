@@ -1,21 +1,42 @@
 import { createSignal, For } from 'solid-js';
+import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { Tabs } from 'base-ui-solid/tabs';
+import { usePackageManagerSnippetContext } from '../../blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 import { CopyIcon } from '../../icons/CopyIcon';
 import { INSTALLATION_PACKAGE_MANAGERS, getInstallCommand } from './model';
 import '../CodeBlock/CodeBlock.css';
 import '../GhostButton.css';
 import './InstallationBlock.css';
 
-// Port note: the local preference replaces React docs-infra's package-manager provider.
 export function InstallationBlock(props: { package: string; class?: string }) {
-  const [value, setValue] = createSignal<string>('npm');
+  const { packageManager: globalPreference, setPackageManager: setGlobalPreference } =
+    usePackageManagerSnippetContext();
+  const [value, setValue] = createSignal<string>(INSTALLATION_PACKAGE_MANAGERS[0].value);
+
+  useIsoLayoutEffect(
+    ([preference]) => {
+      if (INSTALLATION_PACKAGE_MANAGERS.some((pm) => pm.value === preference)) {
+        setValue(preference);
+      }
+    },
+    () => [globalPreference()],
+  );
+
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue);
+    setGlobalPreference(newValue);
+  };
   const command = () =>
     getInstallCommand(
       INSTALLATION_PACKAGE_MANAGERS.find((pm) => pm.value === value())!,
       props.package,
     );
   return (
-    <Tabs.Root class={['InstallationBlock', props.class]} value={value()} onValueChange={setValue}>
+    <Tabs.Root
+      class={['InstallationBlock', props.class]}
+      value={value()}
+      onValueChange={handleValueChange}
+    >
       <figure class="CodeBlockRoot">
         <div class="CodeBlockPanel">
           <Tabs.List class="InstallationBlockTabsList" aria-label="Package manager" activateOnFocus>
