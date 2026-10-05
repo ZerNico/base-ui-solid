@@ -1,11 +1,13 @@
-import { createMemo, untrack } from 'solid-js';
-import type { Accessor } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import type { Accessor, Signal } from 'solid-js';
+import { isServer } from '@solidjs/web';
 import { Store } from './Store';
 import { useStore } from './useStore';
 import type { MaybeAccessorArgs } from './useStore';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 import { IS_DEV } from '../isDev';
+import { onCleanupWithWrites } from '../cleanup';
 
 /**
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for Solid.
@@ -33,6 +35,293 @@ export class SolidStore<
     super(state);
     this.context = context;
     this.selectors = selectors;
+    this.sources = new Set();
+    this.keySources = new Map();
+    this.winners = new Map();
+    this.snapshot = undefined;
+    this.lastNotified = this.base;
+    this.version = isServer
+      ? undefined
+      : createSignal(undefined, { equals: false, ownedWrite: true });
+    this.trackingHandler = {
+      get: (target, key) => {
+        this.trackKey(key as keyof State);
+        return target[key as keyof State];
+      },
+    };
+  }
+
+  /**
+   * The state written imperatively (`setState`, `set`, `update`, the constructor).
+   * Keys won by a registered source are overridden in the snapshot.
+   */
+  declare private base: State;
+
+  /** Whether `base` got a new identity since the snapshot was built. */
+  declare private baseChanged: boolean;
+
+  /** Whether the snapshot must be rebuilt even if no source changed. */
+  declare private dirty: boolean;
+
+  /** Registered sources, in registration order. */
+  declare private sources: Set<Source<State>>;
+
+  /** Registered sources per key, for tracked reads of that key. */
+  declare private keySources: Map<keyof State, Array<Source<State>>>;
+
+  /** The source that currently provides each key. Keys missing here are provided by `base`. */
+  declare private winners: Map<keyof State, Source<State>>;
+
+  /** The current snapshot, kept until an effective value (or `base`) changes. */
+  declare private snapshot: State | undefined;
+
+  /** The snapshot passed to the subscribers last. */
+  declare private lastNotified: State;
+
+  /** Changes when `base` changes or a source registers or unregisters. Client only. */
+  declare private version: Signal<undefined> | undefined;
+
+  declare private trackingHandler: ProxyHandler<State & object>;
+
+  /**
+   * The current state of the store: the imperative state, with the keys provided by registered
+   * sources read from them.
+   *
+   * Port note: upstream's `state` is a plain field written by `setState` and by the layout effects
+   * of `useSyncedValue` & co. Here those hooks register their accessor as the source of the key
+   * instead (see `register`), so the snapshot is resolved when read: imperative writes are visible
+   * right away (like upstream), and synced values are visible as soon as Solid committed them,
+   * also during server rendering. The snapshot keeps its identity until a value changes. The
+   * read is not tracked: use `useState`/`useStore` (or `track()`) to subscribe.
+   */
+  // @ts-expect-error `Store` declares `state` as a field. The accessor replaces it, including for
+  // `Store`'s constructor, which calls the setter.
+  get state(): State {
+    return untrack(() => this.resolve());
+  }
+
+  set state(value: State) {
+    this.base = value;
+    this.baseChanged = true;
+    this.dirty = true;
+  }
+
+  /**
+   * Updates the imperative state and notifies the subscribers. A key provided by a registered
+   * source is taken over by the imperative state if `newState` changes its value, until the source
+   * changes again (the last writer wins, like upstream's layout effects that only write when the
+   * synced value changes).
+   */
+  setState(newState: State) {
+    const current = this.state;
+    if (current === newState) {
+      return;
+    }
+
+    for (const key of this.winners.keys()) {
+      if (!Object.is(newState[key], current[key])) {
+        this.winners.delete(key);
+      }
+    }
+
+    this.state = newState;
+    this.bumpVersion();
+    this.notify(this.state);
+  }
+
+  protected notify(newState: State) {
+    this.lastNotified = newState;
+    super.notify(newState);
+  }
+
+  /**
+   * Returns the current state and, in a reactive scope, subscribes to it: to imperative changes,
+   * to sources registering or unregistering, and to the sources of the keys read from the returned
+   * object.
+   *
+   * Port note: Solid-only. `useStore` uses it in place of a `subscribe` listener, so a selected
+   * value updates in the same flush as the synced value it's computed from.
+   */
+  track(): State {
+    this.version?.[0]();
+    const snapshot = this.state;
+    if (this.version === undefined || this.sources.size === 0) {
+      return snapshot;
+    }
+    // A new view each time, so memoized selectors (keyed by the state object) read the keys
+    // again and every run tracks them.
+    return new Proxy(snapshot as State & object, this.trackingHandler);
+  }
+
+  /**
+   * Like `select`, but subscribes to the selected state when called in a reactive scope (see
+   * `track`).
+   */
+  selectTracked<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]>;
+
+  selectTracked(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
+    const selector = this.selectors![key];
+    return selector(this.track(), a1, a2, a3);
+  }
+
+  /**
+   * Makes `part` the source of its keys until the current owner is disposed.
+   *
+   * A registered source provides its keys (it "wins") when it registers and whenever its value
+   * changes, until an imperative write changes one of them. With `undefinedFallsBack`, an
+   * `undefined` value doesn't win, and a winning source that turns `undefined` hands its last value
+   * to the imperative state (a controlled prop becoming uncontrolled). On disposal, a winning
+   * source hands its last value (or `undefined` with `resetOnCleanup`) to the imperative state.
+   *
+   * Port note: Solid-only. This replaces the layout effects in which upstream's `useSyncedValue`,
+   * `useSyncedValues`, `useSyncedValueWithCleanup` and `useControlledProp` write their values.
+   *
+   * @param part Accessor of the synced keys and values. Its identity must change only when a value
+   * changes (a memo comparing the values). The keys are read once.
+   */
+  protected register<const Key extends keyof State>(
+    part: Accessor<Pick<State, Key>>,
+    options: RegisterOptions = {},
+  ) {
+    const source: Source<State> = {
+      part: part as Accessor<Partial<State>>,
+      keys: Object.keys(untrack(part)) as Array<keyof State>,
+      seen: undefined,
+      undefinedFallsBack: options.undefinedFallsBack ?? false,
+      resetOnCleanup: options.resetOnCleanup ?? false,
+    };
+
+    this.sources.add(source);
+    for (const key of source.keys) {
+      let keySources = this.keySources.get(key);
+      if (keySources === undefined) {
+        keySources = [];
+        this.keySources.set(key, keySources);
+      }
+      keySources.push(source);
+    }
+    this.dirty = true;
+    this.bumpVersion();
+
+    if (!isServer) {
+      // Subscribers (`subscribe`, `observe`) are notified after the flush that committed the new
+      // value, like upstream's layout effect notifies them after the render.
+      createEffect(part, () => {
+        this.notifyIfChanged();
+      });
+    }
+
+    onCleanupWithWrites(() => {
+      this.unregister(source);
+    });
+  }
+
+  private unregister(source: Source<State>) {
+    this.resolve();
+    this.sources.delete(source);
+    for (const key of source.keys) {
+      const keySources = this.keySources.get(key)!;
+      keySources.splice(keySources.indexOf(source), 1);
+      if (keySources.length === 0) {
+        this.keySources.delete(key);
+      }
+      if (this.winners.get(key) === source) {
+        this.winners.delete(key);
+        this.writeBase(
+          key,
+          source.resetOnCleanup ? (undefined as State[typeof key]) : source.seen![key]!,
+        );
+      }
+    }
+    this.dirty = true;
+    this.bumpVersion();
+    this.notifyIfChanged();
+  }
+
+  private notifyIfChanged() {
+    const snapshot = this.state;
+    if (snapshot !== this.lastNotified) {
+      this.notify(snapshot);
+    }
+  }
+
+  private bumpVersion() {
+    this.version?.[1](undefined);
+  }
+
+  /**
+   * Writes a key of the imperative state without changing the effective value (the key is handed
+   * over from a source), so the snapshot keeps its identity.
+   */
+  private writeBase<Key extends keyof State>(key: Key, value: State[Key]) {
+    this.base = { ...this.base, [key]: value };
+    this.dirty = true;
+  }
+
+  private trackKey(key: keyof State) {
+    const keySources = this.keySources.get(key);
+    if (keySources !== undefined) {
+      for (const source of keySources) {
+        source.part();
+      }
+    }
+  }
+
+  private resolve(): State {
+    let changed = this.dirty;
+
+    for (const source of this.sources) {
+      const part = source.part();
+      if (part === source.seen) {
+        continue;
+      }
+      const previous = source.seen;
+      source.seen = part;
+      changed = true;
+      for (const key of source.keys) {
+        if (source.undefinedFallsBack && part[key] === undefined) {
+          if (this.winners.get(key) === source) {
+            // Like upstream, a controlled value that becomes `undefined` keeps the last value.
+            this.winners.delete(key);
+            this.writeBase(key, previous![key]!);
+          }
+        } else {
+          this.winners.set(key, source);
+        }
+      }
+    }
+
+    if (!changed && this.snapshot !== undefined) {
+      return this.snapshot;
+    }
+
+    let next = this.base;
+    for (const [key, source] of this.winners) {
+      const value = source.seen![key];
+      if (!Object.is(next[key], value)) {
+        if (next === this.base) {
+          next = { ...this.base };
+        }
+        next[key] = value!;
+      }
+    }
+
+    if (
+      !this.baseChanged &&
+      this.snapshot !== undefined &&
+      next !== this.snapshot &&
+      haveSameEntries(next, this.snapshot)
+    ) {
+      next = this.snapshot;
+    }
+
+    this.snapshot = next;
+    this.dirty = false;
+    this.baseChanged = false;
+    return next;
   }
 
   /**
@@ -295,6 +584,34 @@ export class SolidStore<
       }
     });
   }
+}
+
+function haveSameEntries(a: object, b: object) {
+  const aKeys = Object.keys(a);
+  if (aKeys.length !== Object.keys(b).length) {
+    return false;
+  }
+  return aKeys.every(
+    (key) =>
+      Object.prototype.hasOwnProperty.call(b, key) &&
+      Object.is(a[key as keyof typeof a], b[key as keyof typeof b]),
+  );
+}
+
+interface RegisterOptions {
+  /** An `undefined` value doesn't win (a controlled prop that is uncontrolled). */
+  undefinedFallsBack?: boolean | undefined;
+  /** Hands `undefined` to the imperative state on disposal, instead of the last value. */
+  resetOnCleanup?: boolean | undefined;
+}
+
+interface Source<State> {
+  part: Accessor<Partial<State>>;
+  keys: Array<keyof State>;
+  /** The last value read by `resolve`. */
+  seen: Partial<State> | undefined;
+  undefinedFallsBack: boolean;
+  resetOnCleanup: boolean;
 }
 
 function haveSameValues(a: object, b: object) {
