@@ -17,7 +17,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
  *
  * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
-export function SelectValue(componentProps: SelectValue.Props) {
+export function SelectValue<Value = any>(componentProps: SelectValue.Props<Value>) {
   const elementProps = omit(componentProps, 'class', 'render', 'children', 'placeholder', 'style');
 
   const store = useSelectRootContext();
@@ -97,7 +97,7 @@ export interface SelectValueState {
   placeholder: boolean;
 }
 
-export interface SelectValueProps extends Omit<
+export interface SelectValueProps<Value = any> extends Omit<
   BaseUIComponentProps<'span', SelectValueState>,
   'children'
 > {
@@ -108,12 +108,12 @@ export interface SelectValueProps extends Omit<
    * when nothing is selected.
    * @example
    * ```tsx
-   * <Select.Value>
-   *   {(value: Accessor<string | null>) => (value() ? labels[value()!] : 'No value')}
+   * <Select.Value<string | null>>
+   *   {(value) => (value() ? labels[value()!] : 'No value')}
    * </Select.Value>
    * ```
    */
-  children?: JSX.Element | ((value: Accessor<any>) => JSX.Element) | undefined;
+  children?: JSX.Element | ((value: Accessor<Value>) => JSX.Element) | undefined;
   /**
    * The placeholder value to display when no value is selected.
    * This is overridden by `children` if specified, or by a null item's label in `items`.
@@ -123,5 +123,5 @@ export interface SelectValueProps extends Omit<
 
 export namespace SelectValue {
   export type State = SelectValueState;
-  export type Props = SelectValueProps;
+  export type Props<Value = any> = SelectValueProps<Value>;
 }

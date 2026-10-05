@@ -52,11 +52,17 @@ import { NOOP } from '../../internals/noop';
  * Groups all parts of the select.
  * Doesn't render its own HTML element.
  *
+ * Port note: the type parameters are `<ItemValue, Multiple, Value = ItemValue>` (upstream:
+ * `<Value, Multiple>`), so the value type defaults to the type of the `items`' values when neither
+ * `value` nor `defaultValue` determines it. `Select.Root<string>` still sets the value type.
+ *
  * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRoot.Props<Value, Multiple>,
-): JSX.Element {
+export function SelectRoot<
+  ItemValue,
+  Multiple extends boolean | undefined = false,
+  Value = ItemValue,
+>(props: SelectRoot.Props<Value, Multiple, ItemValue>): JSX.Element {
   const defaultValue = untrack(() => props.defaultValue) ?? null;
   const defaultOpen = untrack(() => props.defaultOpen) ?? false;
   const disabledProp = () => props.disabled ?? false;
@@ -651,7 +657,18 @@ type SelectOutputValue<Value, Multiple extends boolean | undefined> = Multiple e
   ? Value[]
   : Value;
 
-export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
+/**
+ * Port note: `items` is an inference site for the value type (upstream types it as `any`), used
+ * when `value`/`defaultValue` don't determine it. A flat item's value is inferred with a lower
+ * priority than a group's items, so a grouped array infers its items' values.
+ */
+type InferredItemValue<ItemValue> = ItemValue & {};
+
+export interface SelectRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  ItemValue = Value,
+> {
   children?: JSX.Element | undefined;
   /**
    * A ref callback that receives the hidden input element.
@@ -761,6 +778,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   items?:
     | Record<string, JSX.Element>
+    | ReadonlyArray<{ label: JSX.Element; value: InferredItemValue<ItemValue> }>
+    | ReadonlyArray<Group<{ label: JSX.Element; value: ItemValue }>>
     | ReadonlyArray<{ label: JSX.Element; value: any }>
     | ReadonlyArray<Group<any>>
     | undefined;
@@ -838,10 +857,11 @@ export type SelectRootOpenChangeEventDetails = SelectRootChangeEventDetails & {
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
 export namespace SelectRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
+  export type Props<
     Value,
-    Multiple
-  >;
+    Multiple extends boolean | undefined = false,
+    ItemValue = Value,
+  > = SelectRootProps<Value, Multiple, ItemValue>;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
   export type HighlightItemTarget = SelectRootHighlightItemTarget;

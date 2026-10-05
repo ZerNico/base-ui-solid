@@ -10,7 +10,7 @@ import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/res
  *
  * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
-export function ComboboxValue(props: ComboboxValue.Props): JSX.Element {
+export function ComboboxValue<Value = any>(props: ComboboxValue.Props<Value>): JSX.Element {
   const store = useComboboxRootContext();
 
   const itemToStringLabel = store.useState('itemToStringLabel');
@@ -62,14 +62,16 @@ export function ComboboxValue(props: ComboboxValue.Props): JSX.Element {
 
 export interface ComboboxValueState {}
 
-export interface ComboboxValueProps {
+export interface ComboboxValueProps<Value = any> {
   /**
    * Accepts a function that returns a `JSX.Element` to format the selected value.
    * The function is called once with an accessor of the selected value.
    * Treat the value as read-only: in `multiple` mode it may be a shared frozen array
    * when nothing is selected.
+   * Pass the value type as a type argument to type it: `<Combobox.Value<Fruit | null>>`
+   * (an array type in `multiple` mode).
    */
-  children?: JSX.Element | ((selectedValue: Accessor<any>) => JSX.Element) | undefined;
+  children?: JSX.Element | ((selectedValue: Accessor<Value>) => JSX.Element) | undefined;
   /**
    * The placeholder value to display when no value is selected.
    * This is overridden by `children` if specified, or by a null item's label in `items`.
@@ -79,5 +81,5 @@ export interface ComboboxValueProps {
 
 export namespace ComboboxValue {
   export type State = ComboboxValueState;
-  export type Props = ComboboxValueProps;
+  export type Props<Value = any> = ComboboxValueProps<Value>;
 }

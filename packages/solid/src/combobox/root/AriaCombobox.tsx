@@ -308,8 +308,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     state: 'selectedValue',
   });
 
-  const filter = createMemo(() => {
-    const filterProp = props.filter;
+  const filter = createMemo<
+    (item: Item, query: string, itemToString?: (item: Item) => string) => boolean
+  >(() => {
+    // The resolved item type of the public prop is the runtime item type here.
+    const filterProp = props.filter as
+      | ((item: Item, query: string, itemToString?: (item: Item) => string) => boolean)
+      | null
+      | undefined;
     if (filterProp === null) {
       return () => true;
     }
@@ -1966,6 +1972,20 @@ type ComboboxItemValueType<ItemValue, Mode extends SelectionMode> = Mode extends
   ? ItemValue[]
   : ItemValue;
 
+/**
+ * Port note: `items` is an inference site for the item type (upstream types it as `any[]`), so
+ * `Combobox.Root` can infer its value type from the items when `value`/`defaultValue` don't
+ * determine it. A flat item is inferred with a lower priority than a group's items, so a grouped
+ * array infers its leaf items.
+ */
+type FlatItem<Item> = Item & {};
+
+/**
+ * The item type `filter` receives: the items' type, or the value type when it can't be inferred
+ * (items registered by `<Combobox.Item>` only).
+ */
+type ResolvedItem<Item, ItemValue> = unknown extends Item ? ItemValue : Item;
+
 interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   children?: JSX.Element | undefined;
   /**
@@ -2111,7 +2131,12 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Nullish entries are not supported: remove them from the data before passing it.
    */
   items?:
-    readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, ItemValue> | undefined;
+    | readonly FlatItem<Item>[]
+    | readonly Group<Item>[]
+    | readonly any[]
+    | readonly Group<any>[]
+    | ComboboxItemCollection<Item, ItemValue>
+    | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list uses these items instead of filtering the `items` prop internally.
@@ -2128,7 +2153,11 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    */
   filter?:
     | null
-    | ((item: Item, query: string, itemToString?: (item: Item) => string) => boolean)
+    | ((
+        item: ResolvedItem<Item, ItemValue>,
+        query: string,
+        itemToString?: (item: ResolvedItem<Item, ItemValue>) => string,
+      ) => boolean)
     | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.

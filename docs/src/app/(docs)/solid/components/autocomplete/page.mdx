@@ -65,6 +65,24 @@ import { Autocomplete } from 'base-ui-solid/autocomplete';
 
 Each `<Autocomplete.Item>` takes a `value` prop identifying it. Pass the item being rendered, so that props like `itemToStringValue` receive it.
 
+The function passed to `<Autocomplete.List>` or `<Autocomplete.Collection>` is called once per item with the item and its index as accessors, so read them in JSX (see [Reactivity](/solid/handbook/composition#reactivity)).
+
+### TypeScript
+
+`<Autocomplete.Root>` infers the item type from `items`, so `itemToStringValue` and `filter` are typed without annotations.
+`<Autocomplete.List>` and `<Autocomplete.Collection>` don't know the root's types, so pass the item type as a type argument to type their function child:
+
+```tsx title="Typing function children"
+<Autocomplete.Root items={tags} itemToStringValue={(tag) => tag.label}>
+  {/* ... */}
+  <Autocomplete.List<Tag>>
+    {(tag) => <Autocomplete.Item value={tag()}>{tag().label}</Autocomplete.Item>}
+  </Autocomplete.List>
+</Autocomplete.Root>
+```
+
+Without a type argument, the function receives accessors of `any`.
+
 ## Examples
 
 ### Async search
@@ -196,9 +214,7 @@ function SuggestionItem(props: { item: Suggestion }) {
   );
 }
 
-<Autocomplete.List>
-  {(item: Accessor<Suggestion>) => <SuggestionItem item={item()} />}
-</Autocomplete.List>;
+<Autocomplete.List<Suggestion>>{(item) => <SuggestionItem item={item()} />}</Autocomplete.List>;
 ```
 
 ## API reference

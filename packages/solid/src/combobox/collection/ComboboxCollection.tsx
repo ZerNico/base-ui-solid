@@ -53,7 +53,7 @@ function getItemKey(item: unknown, derivedItems: ComboboxDerivedItemsContext) {
  *
  * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
-export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element {
+export function ComboboxCollection<Item = any>(props: ComboboxCollection.Props<Item>): JSX.Element {
   const derivedItems = useComboboxDerivedItemsContext();
   const groupContext = useGroupCollectionContext();
 
@@ -71,14 +71,15 @@ export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element
 
 export interface ComboboxCollectionState {}
 
-export interface ComboboxCollectionProps {
+export interface ComboboxCollectionProps<Item = any> {
   /**
    * A function called once per item with the item and its index as accessors.
+   * Pass the item type as a type argument to type the item: `<Combobox.Collection<Fruit>>`.
    */
-  children: (item: Accessor<any>, index: Accessor<number>) => JSX.Element;
+  children: (item: Accessor<Item>, index: Accessor<number>) => JSX.Element;
 }
 
 export namespace ComboboxCollection {
   export type State = ComboboxCollectionState;
-  export type Props = ComboboxCollectionProps;
+  export type Props<Item = any> = ComboboxCollectionProps<Item>;
 }

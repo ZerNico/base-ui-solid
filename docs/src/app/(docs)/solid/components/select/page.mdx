@@ -72,6 +72,26 @@ When set to `true` (its default) there are a few important points to note about 
 
 ## Examples
 
+### TypeScript
+
+`<Select.Root>` infers the value type from `value` or `defaultValue`, and otherwise from the values of its `items`, so `onValueChange` and `itemToStringLabel` are typed without annotations.
+
+`<Select.Value>` doesn't know the root's types, so pass the value type as a type argument to type its function child (an array in `multiple` mode):
+
+```tsx title="Typing the value"
+const fonts = [
+  { value: 'sans', label: 'Sans-serif' },
+  { value: 'serif', label: 'Serif' },
+];
+
+<Select.Root items={fonts} onValueChange={(font) => setFont(font)}>
+  {/* `font` is `string | null` */}
+  <Select.Value<string | null>>{(font) => font() ?? 'No font'}</Select.Value>
+</Select.Root>;
+```
+
+Without a type argument, the function receives an accessor of `any`.
+
 ### Typed wrapper component
 
 The following example shows a typed wrapper around the Select component with correct type inference and type safety:
@@ -80,12 +100,16 @@ The following example shows a typed wrapper around the Select component with cor
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
 
-export function MySelect<Value, Multiple extends boolean | undefined = false>(
-  props: Select.Root.Props<Value, Multiple>,
-): JSX.Element {
+export function MySelect<
+  ItemValue,
+  Multiple extends boolean | undefined = false,
+  Value = ItemValue,
+>(props: Select.Root.Props<Value, Multiple, ItemValue>): JSX.Element {
   return <Select.Root {...props}>{/* ... */}</Select.Root>;
 }
 ```
+
+`ItemValue` is the type of the `items`' values, and `Value` defaults to it, so the wrapper infers its value type from `items` like `<Select.Root>` does.
 
 ### Formatting the value
 
@@ -109,7 +133,7 @@ const items = [
 ```
 
 A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value.
-It's called once with an accessor of the value, so read the value in JSX to keep the label up to date:
+It's called once with an accessor of the value, so read the value in JSX to keep the label up to date (see [Reactivity](/solid/handbook/composition#reactivity)):
 
 ```jsx title="Lookup map"
 const items = {
@@ -118,9 +142,9 @@ const items = {
   'san-serif': 'Sans-serif',
 };
 
-<Select.Value>
+<Select.Value<keyof typeof items>>
   {/* @highlight-start */}
-  {(value: Accessor<keyof typeof items>) => (
+  {(value) => (
     <span style={{ 'font-family': value() }}>
       {items[value()]}
     </span>
@@ -194,6 +218,21 @@ This lets you access the full object in custom render functions, and can avoid n
 import { DemoSelectObjectValues } from './demos/object-values';
 
 <DemoSelectObjectValues />
+
+Object values are matched by reference by default, and `itemToStringValue` only converts them to strings for form submission.
+When the items are refetched as new objects (for example by an async data library), the selected object no longer matches any item, so use `isItemEqualToValue` to compare their IDs instead:
+
+```jsx title="Matching refetched object values"
+<Select.Root
+  value={shippingMethod()}
+  onValueChange={setShippingMethod}
+  itemToStringValue={(method) => method.id}
+  // @highlight
+  isItemEqualToValue={(method, value) => method.id === value.id}
+>
+  {/* ... */}
+</Select.Root>
+```
 
 ### Grouped
 

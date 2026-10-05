@@ -46,17 +46,17 @@ const groupItemsReadonly = [
     )}
   </Combobox.List>
 </Combobox.Root>;
+// Port note: without `value`/`defaultValue`, the value type is inferred from `items` (upstream
+// infers it only from `value`/`defaultValue`).
 <Combobox.Root
   items={objectItems}
   itemToStringValue={(item) => {
-    // @ts-expect-error - inference always comes from `value`/`defaultValue`
     return item.value;
   }}
 />;
 <Combobox.Root
   items={groupItemsReadonly}
   itemToStringValue={(item) => {
-    // @ts-expect-error - inference always comes from `value`/`defaultValue`
     return item.value;
   }}
 />;

@@ -20,7 +20,7 @@ import { clickHighlightedItem } from '../utils/parts';
  *
  * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
-export function ComboboxList(componentProps: ComboboxList.Props): JSX.Element {
+export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item>): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'children');
 
   const store = useComboboxRootContext();
@@ -145,19 +145,20 @@ export interface ComboboxListState {
   empty: boolean;
 }
 
-export interface ComboboxListProps extends Omit<
+export interface ComboboxListProps<Item = any> extends Omit<
   BaseUIComponentProps<'div', ComboboxListState>,
   'children'
 > {
   /**
    * The list's content, or a function called once per item with the item and its index as
    * accessors (implicitly wrapped in `Combobox.Collection`).
+   * Pass the item type as a type argument to type the item: `<Combobox.List<Fruit>>`.
    */
   children?:
-    JSX.Element | ((item: Accessor<any>, index: Accessor<number>) => JSX.Element) | undefined;
+    JSX.Element | ((item: Accessor<Item>, index: Accessor<number>) => JSX.Element) | undefined;
 }
 
 export namespace ComboboxList {
   export type State = ComboboxListState;
-  export type Props = ComboboxListProps;
+  export type Props<Item = any> = ComboboxListProps<Item>;
 }

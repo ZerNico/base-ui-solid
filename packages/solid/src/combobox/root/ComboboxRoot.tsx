@@ -7,9 +7,13 @@ import type { AriaComboboxState } from './AriaCombobox';
  * Groups all parts of the combobox.
  * Doesn't render its own HTML element.
  *
+ * Port note: the type parameters are `<Item, Multiple, Value = Item>` (upstream:
+ * `<Value, Multiple, Item = Value>`), so the value type defaults to the type of the `items` when
+ * neither `value` nor `defaultValue` determines it. `Combobox.Root<Fruit>` still sets both.
+ *
  * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, Item = Value>(
+export function ComboboxRoot<Item, Multiple extends boolean | undefined = false, Value = Item>(
   props: ComboboxRoot.Props<Value, Multiple, Item>,
 ): JSX.Element {
   const other = omit(props, 'multiple', 'defaultValue', 'value', 'onValueChange', 'autoComplete');
