@@ -234,7 +234,11 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     reason, sources of keys a selector didn't read re-run it in a microtask after they change. It
     can't track every source in the same flush: sources often read the same store's `useState`,
     which would be a cycle. A source registering or unregistering re-runs only the selectors that
-    read its keys.
+    read its keys. A source that reads its own keys through `useState`
+    (`() => local() ?? stored()`) gets them without itself (from the imperative state).
+  - Values now reach selectors in the same update as the parts mount, where they used to arrive one
+    update later. Code that relied on that delay to run after its children's effects (Solid runs
+    a parent's effects first) needs to wait for them, like `useListNavigation` waits for its list.
   - `subscribe` / `observe` listeners are notified after the flush in which a source changed, like
     upstream's layout effects. On unmount, a source hands its last value (`undefined` for
     `useSyncedValueWithCleanup`) back to the imperative state. `NullStore` ignores registrations.
