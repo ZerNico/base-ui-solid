@@ -1,7 +1,7 @@
 // Port note: one configuration shared by browser components and Node docs generators.
 // Set these before deploying the docs or publishing a source repository.
 export const SITE_URL = 'https://base-ui-solid.example';
-export const REPO_URL = 'https://github.com/OWNER/base-ui-solid';
+export const REPO_URL = 'https://github.com/ZerNico/base-ui-solid';
 export const REPO_BRANCH = 'main';
 
 export function sourceUrl(path: string) {

@@ -26,9 +26,8 @@ TanStack Start writes `sitemap.xml`. Nothing is generated into `public`.
 Netlify applies `public/_redirects`, and `pnpm serve` applies the shared redirect middleware with the same 301 migration.
 Deploy the host redirect rules with the export.
 
-Set `SITE_URL`, `REPO_URL`, and `REPO_BRANCH` in [src/config.ts](./src/config.ts) before
-publishing. The defaults `https://base-ui-solid.example` and
-`https://github.com/OWNER/base-ui-solid` are deliberate placeholders. Site navigation and
+`SITE_URL`, `REPO_URL`, and `REPO_BRANCH` live in [src/config.ts](./src/config.ts).
+`SITE_URL` is still the placeholder `https://base-ui-solid.example` until the docs are deployed. Site navigation and
 Markdown links are root relative. Canonical metadata and discovery files use `SITE_URL`.
 Source links use `sourceUrl`, which maps `packages/react/src` to `packages/solid/src`.
 Release PRs and the upstream changelog retain their upstream destinations.
