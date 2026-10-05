@@ -10,7 +10,9 @@ import { searchIndexPlugin } from './src/mdx/searchIndexPlugin.mjs';
 import { sourcePlugin } from './src/mdx/sourcePlugin.mjs';
 import { mdxOptions } from './src/mdx/options.mjs';
 import { listMarkdownPages } from './scripts/generateLlmTxt/index.mjs';
-import { SITE_URL } from './src/config';
+// Vite's upcoming native config loader needs the extension on local TypeScript imports.
+// eslint-disable-next-line import/extensions
+import { SITE_URL } from './src/config.ts';
 
 // Port note: the generated Markdown and llms.txt files aren't linked from rendered HTML in a way
 // the prerenderer follows, so list them explicitly. They stay out of the sitemap.
