@@ -56,16 +56,19 @@ export function useStore(
   a3?: unknown,
 ): Accessor<unknown> {
   if (isTrackable(store)) {
-    return createMemo(
-      () =>
-        store.trackSelector(
-          selector as (state: unknown, a1: unknown, a2: unknown, a3: unknown) => unknown,
-          resolve(a1),
-          resolve(a2),
-          resolve(a3),
-        ),
-      { equals: Object.is, name: 'useStore' },
-    );
+    const readKeys = new Set<unknown>();
+    const run = (keys: Set<unknown> | undefined, excludedSource?: object) =>
+      store.trackSelector(
+        selector as (state: unknown, a1: unknown, a2: unknown, a3: unknown) => unknown,
+        resolve(a1),
+        resolve(a2),
+        resolve(a3),
+        keys,
+        excludedSource,
+      );
+    const selected = createMemo(() => run(readKeys), { equals: Object.is, name: 'useStore' });
+    const rerun = (excludedSource: object) => run(undefined, excludedSource);
+    return () => store.readSelected(selected, readKeys, rerun);
   }
 
   const track = subscribeToStore(store);
@@ -104,9 +107,16 @@ export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'
 interface TrackableStore<State> {
   trackSelector(
     selector: (state: State, a1: unknown, a2: unknown, a3: unknown) => unknown,
-    a1?: unknown,
-    a2?: unknown,
-    a3?: unknown,
+    a1: unknown,
+    a2: unknown,
+    a3: unknown,
+    readKeys: Set<unknown> | undefined,
+    excludedSource: object | undefined,
+  ): unknown;
+  readSelected(
+    selected: Accessor<unknown>,
+    readKeys: Set<unknown>,
+    rerun: (excludedSource: object) => unknown,
   ): unknown;
 }
 

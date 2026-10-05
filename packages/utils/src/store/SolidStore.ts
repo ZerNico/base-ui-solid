@@ -9,6 +9,9 @@ import { NOOP } from '../empty';
 import { IS_DEV } from '../isDev';
 import { onCleanupWithWrites } from '../cleanup';
 
+/** The source whose accessor is running, if any (see `SolidStore.readSelected`). */
+let computingSource: Source<any> | undefined;
+
 /**
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for Solid.
  *
@@ -163,6 +166,8 @@ export class SolidStore<
     a1?: unknown,
     a2?: unknown,
     a3?: unknown,
+    readKeys?: Set<keyof State>,
+    excludedSource?: object,
   ): Value {
     const snapshot = this.state;
     if (this.version === undefined) {
@@ -170,11 +175,15 @@ export class SolidStore<
     }
     this.version[0]();
 
+    readKeys?.clear();
     const readSources = new Set<Source<State>>();
     // A new view each time, so memoized selectors (keyed by the state object) read the keys
     // again and every run tracks them.
     const view = new Proxy(snapshot as State & object, {
-      get: (target, key) => this.readTracked(target, key as keyof State, readSources),
+      get: (target, key) => {
+        readKeys?.add(key as keyof State);
+        return this.readTracked(target, key as keyof State, readSources, excludedSource);
+      },
     });
     const value = selector(view, a1, a2, a3);
     for (const source of this.sources) {
@@ -199,6 +208,29 @@ export class SolidStore<
   }
 
   /**
+   * Reads a memo running `trackSelector` with `readKeys`. When a source of this store reads it
+   * while computing a key the selector read (`useSyncedValue('x', () => local ?? x())`), the
+   * selector tracks that source, so reading the memo from the source would be a cycle. The
+   * selector runs again in the source's scope instead, without that source (`rerun`).
+   * @internal
+   */
+  readSelected<Value>(
+    selected: Accessor<Value>,
+    readKeys: Set<keyof State>,
+    rerun: (excludedSource: object) => Value,
+  ): Value {
+    const source = computingSource;
+    if (
+      source !== undefined &&
+      source.store === this &&
+      (source.keys as Array<keyof State>).some((key) => readKeys.has(key))
+    ) {
+      return rerun(source);
+    }
+    return selected();
+  }
+
+  /**
    * Makes `read` the source of its keys until the current owner is disposed.
    *
    * A registered source provides its keys (it "wins") when it registers and whenever its value
@@ -220,12 +252,34 @@ export class SolidStore<
     const stamps = new WeakMap<object, number>();
     let latest: Partial<State> | undefined;
     let stamp = 0;
+
+    const source: Source<State> = {
+      store: this as SolidStore<State, unknown, any>,
+      part: undefined!,
+      stamps,
+      keys: Object.keys(untrack(read)) as Array<keyof State>,
+      seen: undefined,
+      seenStamp: 0,
+      undefinedFallsBack: options.undefinedFallsBack ?? false,
+      resetOnCleanup: options.resetOnCleanup ?? false,
+      late: isServer
+        ? undefined
+        : createSignal(undefined, { equals: false, ownedWrite: true, name: 'SolidStore.late' }),
+    };
+
     // Each new value gets a higher stamp. Solid only brings a memo up to date when it's read in a
     // tracked scope, so an untracked read during a flush can return an older value than a tracked
     // read before it: the stamps let `observe` ignore it.
-    const part = createMemo(
+    source.part = createMemo(
       () => {
-        const next = read() as Partial<State>;
+        const previousSource = computingSource;
+        computingSource = source as Source<any>;
+        let next: Partial<State>;
+        try {
+          next = read() as Partial<State>;
+        } finally {
+          computingSource = previousSource;
+        }
         if (latest !== undefined && haveSameValues(latest, next)) {
           return latest;
         }
@@ -236,19 +290,7 @@ export class SolidStore<
       },
       { name: 'SolidStore.source' },
     );
-
-    const source: Source<State> = {
-      part,
-      stamps,
-      keys: Object.keys(untrack(part)) as Array<keyof State>,
-      seen: undefined,
-      seenStamp: 0,
-      undefinedFallsBack: options.undefinedFallsBack ?? false,
-      resetOnCleanup: options.resetOnCleanup ?? false,
-      late: isServer
-        ? undefined
-        : createSignal(undefined, { equals: false, ownedWrite: true, name: 'SolidStore.late' }),
-    };
+    const part = source.part;
 
     this.sources.add(source);
     for (const key of source.keys) {
@@ -359,7 +401,12 @@ export class SolidStore<
    * Reads a key of a `trackSelector` view: the sources of the key are read in the tracked scope,
    * which also brings them up to date during a flush.
    */
-  private readTracked(target: State, key: keyof State, readSources: Set<Source<State>>) {
+  private readTracked(
+    target: State,
+    key: keyof State,
+    readSources: Set<Source<State>>,
+    excludedSource: object | undefined,
+  ) {
     let keyVersion = this.keyVersions.get(key);
     if (keyVersion === undefined) {
       keyVersion = createSignal(undefined, {
@@ -375,11 +422,13 @@ export class SolidStore<
       return target[key];
     }
     for (const source of keySources) {
-      readSources.add(source);
-      this.observeSource(source, source.part());
+      if (source !== excludedSource) {
+        readSources.add(source);
+        this.observeSource(source, source.part());
+      }
     }
     const winner = this.winners.get(key);
-    return winner === undefined ? this.base[key] : winner.seen![key];
+    return winner === undefined || winner === excludedSource ? this.base[key] : winner.seen![key];
   }
 
   /**
@@ -688,6 +737,7 @@ interface RegisterOptions {
 }
 
 interface Source<State> {
+  store: SolidStore<any, any, any>;
   part: Accessor<Partial<State>>;
   /** The order in which the values of `part` were computed. */
   stamps: WeakMap<object, number>;
