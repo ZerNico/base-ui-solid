@@ -5,6 +5,8 @@ const RENAMES = [
   [/(^|\/)floating-ui-react(?=\/|$)/, '$1floating-ui-solid'],
   // The store class that binds a Store to the framework's reactivity.
   [/(^|\/)ReactStore(?=\.)/, '$1SolidStore'],
+  // Docs pages live under `/solid/` instead of `/react/`.
+  [/(^|\/)\(docs\)\/react(?=\/|$)/, '$1(docs)/solid'],
 ];
 
 /**

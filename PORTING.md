@@ -22,6 +22,7 @@ the right files. Add new renames there and here.
 | `packages/react/src/floating-ui-react/`     | `packages/solid/src/floating-ui-solid/`     |
 | `packages/utils/src/store/ReactStore.ts(x)` | `packages/utils/src/store/SolidStore.ts(x)` |
 | `ReactStore` (class and test names)         | `SolidStore`                                |
+| `docs/src/app/(docs)/react/`                | `docs/src/app/(docs)/solid/`                |
 
 Test-only names that mention React (`advanceReactClock`, `*.react17.test.tsx`) keep their upstream
 names so test diffs stay mechanical.
