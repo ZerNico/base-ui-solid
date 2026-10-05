@@ -46,3 +46,17 @@ This static site has no server functions. Remove the custom entry once Start's b
 the current Solid Web API. No package sources or installed packages are patched.
 
 See [PORTING-DOCS.md](./PORTING-DOCS.md) for the repeatable content port workflow.
+
+## Deployment
+
+The docs deploy to Cloudflare Pages, which builds the site from the repository on every push
+(nothing built is committed). Project settings:
+
+- Production branch: `main`
+- Build command: `corepack enable && pnpm install --frozen-lockfile && pnpm docs:build`
+- Build output directory: `docs/export`
+- Environment variables: `SKIP_DEPENDENCY_INSTALL=1` (the build command installs with the pnpm
+  version pinned in `packageManager`)
+
+The Node version comes from `.node-version`. Cloudflare applies `public/_redirects` and
+`public/_headers`, which the build copies into the export.

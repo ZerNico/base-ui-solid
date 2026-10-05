@@ -1,4 +1,5 @@
-/_next/static/*
+# Port note: Vite emits hashed assets to /assets/ (upstream: Next.js's /_next/static/).
+/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
 /static/favicon.ico
