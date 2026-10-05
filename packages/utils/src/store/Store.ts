@@ -74,6 +74,18 @@ export class Store<State> {
     }
 
     this.state = newState;
+    this.notify(newState);
+  }
+
+  /**
+   * Notifies all registered listeners of a new state.
+   *
+   * Port note: upstream runs this loop inline in `setState`. It is split out so `SolidStore` can
+   * also notify when a value it reads from a registered source changes, without a `setState`.
+   *
+   * @param newState The state passed to the listeners.
+   */
+  protected notify(newState: State) {
     this.updateTick += 1;
 
     const currentTick = this.updateTick;
