@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const html = await readFile(
-  new URL('../export/solid/components/collapsible/index.html', import.meta.url),
+  new URL('../export/solid/components/collapsible.html', import.meta.url),
   'utf8',
 );
 assert.match(html, /Recovery keys/);

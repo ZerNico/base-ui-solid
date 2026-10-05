@@ -25,6 +25,6 @@
 /solid/components/radio /solid/components/radio-group 301
 
 # Permanent Solid framework URL migration (upstream Netlify host format).
-/react/components/radio /solid/components/radio-group 301!
-/react /solid 301!
-/react/* /solid/:splat 301!
+/react/components/radio /solid/components/radio-group 301
+/react /solid 301
+/react/* /solid/:splat 301

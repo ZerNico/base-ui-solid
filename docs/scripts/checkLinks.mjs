@@ -149,6 +149,14 @@ try {
       /* Try directory index. */
     }
     try {
+      const page = `${file}.html`;
+      if ((await stat(page)).isFile()) {
+        return page;
+      }
+    } catch {
+      /* Try directory index. */
+    }
+    try {
       const index = path.join(file, 'index.html');
       if ((await stat(index)).isFile()) {
         return index;

@@ -14,6 +14,9 @@ async function routes(directory, prefix = '/solid') {
       if (entry.name === 'index.html') {
         return [prefix, `${prefix}/`];
       }
+      if (entry.name.endsWith('.html') && entry.name !== '404.html') {
+        return [`${prefix}/${entry.name.slice(0, -'.html'.length)}`];
+      }
       return entry.name.endsWith('.md') ? [`${prefix}/${entry.name}`] : [];
     }),
   );

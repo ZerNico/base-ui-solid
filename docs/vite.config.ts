@@ -60,7 +60,9 @@ export default defineConfig({
     searchIndexPlugin(),
     { ...mdx(mdxOptions), enforce: 'pre' },
     tanstackStart({
-      prerender: { enabled: true, crawlLinks: false, failOnError: true },
+      // Port note: write `page.html` rather than `page/index.html`, so static hosts serve `/page`
+      // directly instead of redirecting to `/page/`.
+      prerender: { enabled: true, crawlLinks: false, failOnError: true, autoSubfolderIndex: false },
       pages: [...generatedFiles, ...unlistedPages],
       sitemap: { enabled: true, host: SITE_URL },
     }),
