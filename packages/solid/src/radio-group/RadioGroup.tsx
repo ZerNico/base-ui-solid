@@ -66,8 +66,10 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
 
   const disabled = () => fieldDisabled() || componentProps.disabled;
   const name = () => fieldName() ?? componentProps.name;
-  // Port note: upstream re-derives the id from `idProp` on every render; it's read once here.
-  const id = useBaseUiId(untrack(() => componentProps.id) as string | undefined);
+  // Port note: the fallback id is generated once, and the effective id follows `id` like upstream's
+  // per-render `useBaseUiId(idProp)`.
+  const generatedId = useBaseUiId();
+  const id = () => (componentProps.id as string | undefined) ?? generatedId;
 
   const [checkedValue, setCheckedValueUnwrapped] = useControlled<Value | undefined>({
     controlled: () => componentProps.value,
@@ -207,7 +209,7 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
 
   useRegisterFieldControl(
     controlRef,
-    () => id,
+    id,
     () => checkedValue() ?? null,
     getFormValue,
     () => !disabled(),

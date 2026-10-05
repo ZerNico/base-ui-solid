@@ -4,6 +4,8 @@ import { dynamic, isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { error } from '@base-ui-solid/utils/error';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
 import { getStateAttributesProps } from './getStateAttributesProps';
@@ -230,6 +232,20 @@ function evaluateRenderProp<State>(
   if (render) {
     if (typeof render === 'function') {
       return render(props, state);
+    }
+
+    if (typeof render !== 'string') {
+      // Port note: upstream clones a React element passed as `render={<a />}`. Solid creates the
+      // element right away and can't clone it, so it's not supported.
+      if (IS_DEV) {
+        error(
+          'The `render` prop received an element (for example `render={<a />}`), which Solid ' +
+            "can't clone, so nothing was rendered. Pass a render function that spreads the props " +
+            'instead: `render={(props) => <a {...props} />}`, or a tag name (`render="a"`) or a ' +
+            'component.',
+        );
+      }
+      return null;
     }
 
     return renderTag(render, props, false);
