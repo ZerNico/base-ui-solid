@@ -3,7 +3,15 @@ name: Publish
 # Port note: upstream publishes with `code-infra publish` from a maintainer machine. This port
 # publishes from GitHub Actions with npm Trusted Publishing (OIDC), so no npm token is stored in
 # the repository. Pushing a version tag (`v*`) publishes that version. Running the workflow by hand
-# defaults to a dry run. See README.md.
+# defaults to a dry run.
+#
+# To release, set the version of both packages, push, wait for CI, then push the tag. The tag also
+# deploys the docs (deploy-docs.yml). Versions with a prerelease part (`0.1.0-beta.1`) are
+# published under the `next` dist-tag.
+#
+#   pnpm release:version 0.1.0
+#   git commit -am "v0.1.0" && git push
+#   git tag v0.1.0 && git push origin v0.1.0
 on:
   push:
     tags:
