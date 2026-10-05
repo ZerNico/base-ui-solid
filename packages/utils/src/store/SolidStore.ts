@@ -206,13 +206,12 @@ export class SolidStore<
     this.dirty = true;
     this.bumpVersion();
 
-    if (!isServer) {
-      // Subscribers (`subscribe`, `observe`) are notified after the flush that committed the new
-      // value, like upstream's layout effect notifies them after the render.
-      createEffect(part, () => {
-        this.notifyIfChanged();
-      });
-    }
+    // Subscribers (`subscribe`, `observe`) are notified after the flush that committed the new
+    // value, like upstream's layout effect notifies them after the render. Created on the server
+    // too (where it doesn't run) so hydration sees the same owners.
+    createEffect(part, () => {
+      this.notifyIfChanged();
+    });
 
     onCleanupWithWrites(() => {
       this.unregister(source);
@@ -334,47 +333,26 @@ export class SolidStore<
   /**
    * Synchronizes a single external value into the store.
    *
-   * Note that the while the value in `state` is updated immediately, the value returned
-   * by `useState` is updated when Solid flushes (similarly to React's `useState`).
+   * Port note: upstream writes the value from a layout effect, so `useState` sees it one render
+   * later. Here the accessor is registered as the source of the key (see `register`): `state`
+   * reads it right away and `useState` in the same flush as the value changes.
    */
   useSyncedValue<Key extends keyof State>(key: Key, value: Accessor<State[Key]>) {
-    // eslint-disable-next-line consistent-this
-    const store = this;
-    useIsoLayoutEffect(
-      ([nextValue]) => {
-        if (store.state[key] !== nextValue) {
-          store.set(key, nextValue);
-        }
-      },
-      () => [value()],
-    );
+    this.register(createSyncedPart(key, value));
   }
 
   /**
    * Synchronizes a single external value into the store and
    * cleans it up (sets to `undefined`) on unmount.
    *
-   * Note that the while the value in `state` is updated immediately, the value returned
-   * by `useState` is updated when Solid flushes (similarly to React's `useState`).
+   * Port note: see `useSyncedValue`. On unmount, the key is set to `undefined` if this value
+   * still provides it.
    */
   public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
     key: Key,
     value: Accessor<State[Key]>,
   ) {
-    // eslint-disable-next-line consistent-this
-    const store = this;
-    useIsoLayoutEffect(
-      ([nextValue]) => {
-        if (store.state[key] !== nextValue) {
-          store.set(key, nextValue);
-        }
-
-        return () => {
-          store.set(key, undefined as State[Key]);
-        };
-      },
-      () => [value()],
-    );
+    this.register(createSyncedPart(key, value), { resetOnCleanup: true });
   }
 
   /**
@@ -382,18 +360,14 @@ export class SolidStore<
    * Each value must match its state key. Pass an exact known subset rather than a broad
    * `Partial<State>`, which may contain `undefined` for required state fields.
    *
-   * Note that the while the values in `state` are updated immediately, the values returned
-   * by `useState` are updated when Solid flushes (similarly to React's `useState`).
-   *
-   * Port note: takes an accessor returning the state part (`() => ({ a: a(), b: props.b })`).
-   * Like upstream's effect dependencies (`[store, ...Object.values(statePart)]`), the store is
-   * updated only when one of the values changed, not when only the object identity did.
+   * Port note: takes an accessor returning the state part (`() => ({ a: a(), b: props.b })`),
+   * registered as the source of its keys (see `useSyncedValue`). Like upstream's effect
+   * dependencies (`[store, ...Object.values(statePart)]`), the part takes its keys back from
+   * imperative writes when one of its values changes, not when only the object identity does.
    *
    * @param statePart An exact subset of state fields to synchronize. Unknown keys are not accepted.
    */
   public useSyncedValues<const Key extends keyof State>(statePart: Accessor<Pick<State, Key>>) {
-    // eslint-disable-next-line consistent-this
-    const store = this;
     let keys: string[] | undefined;
 
     const part = createMemo(
@@ -418,12 +392,7 @@ export class SolidStore<
       { equals: haveSameValues },
     );
 
-    useIsoLayoutEffect(
-      ([nextPart]) => {
-        store.update(nextPart);
-      },
-      () => [part()],
-    );
+    this.register(part);
   }
 
   /**
@@ -584,6 +553,13 @@ export class SolidStore<
       }
     });
   }
+}
+
+function createSyncedPart<State, Key extends keyof State>(
+  key: Key,
+  value: Accessor<State[Key]>,
+): Accessor<Pick<State, Key>> {
+  return createMemo(() => ({ [key]: value() }) as Pick<State, Key>, { equals: haveSameValues });
 }
 
 function haveSameEntries(a: object, b: object) {

@@ -213,8 +213,12 @@ describe('SolidStore', () => {
     function Test(props: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
 
+      // Port note: the values are read from the accessor rather than written with `update`
+      // (see `useSyncedValues`), so this counts the store's notifications instead.
       if (!updateSpy) {
-        updateSpy = vi.spyOn(store, 'update');
+        const listener = vi.fn();
+        updateSpy = listener;
+        store.subscribe(listener);
       }
 
       store.useSyncedValues(() => props.props);

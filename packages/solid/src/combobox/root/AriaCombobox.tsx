@@ -1706,6 +1706,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   // The prop bags must be in the store before the parts render: they read them with `useStore`
   // during render, and a layout effect commits only after all children have rendered.
+  // Port note: unlike Select, still needed here: this root syncs its values from its own effect
+  // below (for `inputOwnsFormValue`), not through `useSyncedValues`.
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp(),

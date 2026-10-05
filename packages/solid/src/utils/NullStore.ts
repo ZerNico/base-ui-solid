@@ -23,4 +23,8 @@ export class NullStore<
   set<Key extends keyof State>(_key: Key, _value: State[Key]) {}
 
   notifyAll() {}
+
+  // Port note: `useSyncedValue` & co. register their accessor as the source of a key instead of
+  // writing it (see `SolidStore.register`), so registering is a no-op as well.
+  protected register() {}
 }

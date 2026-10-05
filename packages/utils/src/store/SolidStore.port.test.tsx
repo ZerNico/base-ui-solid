@@ -1,7 +1,11 @@
 import { expect, describe, it } from 'vitest';
 import { createMemo, createRoot, createSignal, flush } from 'solid-js';
 import type { Accessor } from 'solid-js';
+import { screen } from '@solidjs/testing-library';
+// eslint-disable-next-line import/no-relative-packages
+import { renderToString } from '../../../solid/test/renderToString';
 import { SolidStore } from './SolidStore';
+import { SyncedValues } from './SolidStore.port.fixtures';
 
 type TestState = { value: number; label: string; node: string | undefined };
 
@@ -199,6 +203,110 @@ describe('SolidStore (port)', () => {
       expect(selected()).toEqual([2, 9]);
 
       dispose();
+    });
+  });
+
+  describe('synced values', () => {
+    it('reads synced values right away and lets the last writer win', () => {
+      const store = new SolidStore<TestState>(initialState);
+      const [value, setValue] = createSignal(1);
+      const [label, setLabel] = createSignal('a');
+      const dispose = createRoot((disposeRoot) => {
+        store.useSyncedValue('value', value);
+        store.useSyncedValues(() => ({ label: label() }));
+        return disposeRoot;
+      });
+
+      // Before any flush.
+      expect(store.state.value).toBe(1);
+      expect(store.state.label).toBe('a');
+
+      store.set('value', 5);
+      store.update({ label: 'b' });
+      store.set('node', 'node');
+      expect(store.state).toEqual({ value: 5, label: 'b', node: 'node' });
+
+      setValue(2);
+      flush();
+      expect(store.state).toEqual({ value: 2, label: 'b', node: 'node' });
+
+      setLabel('c');
+      flush();
+      expect(store.state).toEqual({ value: 2, label: 'c', node: 'node' });
+
+      dispose();
+    });
+
+    it('syncs from a separate root and stops when it is disposed', () => {
+      // Like a detached trigger registering into a handle's store.
+      const store = new SolidStore<TestState>(initialState);
+      const [node, setNode] = createSignal<string | undefined>('first');
+      const [value, setValue] = createSignal(1);
+
+      const dispose = createRoot((disposeRoot) => {
+        store.useSyncedValueWithCleanup('node', node);
+        store.useSyncedValue('value', value);
+        return disposeRoot;
+      });
+      expect(store.state.node).toBe('first');
+      expect(store.state.value).toBe(1);
+
+      setNode('second');
+      flush();
+      expect(store.state.node).toBe('second');
+
+      dispose();
+      expect(store.state.node).toBe(undefined);
+      expect(store.state.value).toBe(1);
+
+      setNode('third');
+      setValue(2);
+      flush();
+      expect(store.state.node).toBe(undefined);
+      expect(store.state.value).toBe(1);
+    });
+
+    it('keeps the snapshot identity while the synced values are unchanged', () => {
+      const store = new SolidStore<TestState>(initialState);
+      const [part, setPart] = createSignal({ value: 1, label: 'a' });
+      const dispose = createRoot((disposeRoot) => {
+        store.useSyncedValues(part);
+        return disposeRoot;
+      });
+
+      const snapshot = store.state;
+      setPart({ value: 1, label: 'a' });
+      flush();
+      expect(store.state).toBe(snapshot);
+      expect(store.getSnapshot()).toBe(snapshot);
+
+      setPart({ value: 2, label: 'a' });
+      flush();
+      expect(store.state).not.toBe(snapshot);
+      expect(store.state.value).toBe(2);
+
+      dispose();
+    });
+
+    it('renders synced values on the server', async () => {
+      await renderToString(SyncedValues, { value: 'server' });
+
+      const output = screen.getByTestId('output');
+      expect(output).toHaveTextContent('server');
+      expect(output).toHaveAttribute('data-label', 'server-label');
+    });
+
+    it('hydrates synced values without a mismatch', async () => {
+      const { hydrate } = await renderToString(SyncedValues, { value: 'server' });
+      const { setProps } = hydrate();
+
+      const output = screen.getByTestId('output');
+      expect(output).toHaveTextContent('server');
+
+      setProps({ value: 'client' });
+      flush();
+      expect(output).toHaveTextContent('client');
+      expect(output).toHaveAttribute('data-label', 'client-label');
     });
   });
 });

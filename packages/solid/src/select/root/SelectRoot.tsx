@@ -482,6 +482,8 @@ export function SelectRoot<
 
   // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
   // layout effect, after all descendants have rendered.
+  // Port note: kept for parity with upstream. `useSyncedValues` below registers its values as
+  // the store's source, so the parts already read them on their first render.
   useOnFirstRender(() => {
     store.update({
       popupProps: popupProps(),
