@@ -379,8 +379,9 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
 - **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, internals used to
   report about 36 warnings in a typical docs session. They're down to about 18 by keeping memo
   outputs stable (state, style and props memos compare shallowly) and deriving registrations
-  (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules) instead of
-  writing them from effects. The remaining ones follow upstream's layout-effect design:
+  (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules, the Collapsible
+  panel's forced idle status) instead of writing them from effects. The remaining ones follow
+  upstream's layout-effect design:
   - `EFFECT_RELAY_TEAR` via `subscribeToStore.track` (Select, Combobox, Autocomplete, Popover,
     Preview Card, Dialog, Drawer, Tooltip, Navigation Menu): popups sync their props into the
     `Store` from layout effects (`useSyncedValue`, `store.update`), like upstream. Removing it needs

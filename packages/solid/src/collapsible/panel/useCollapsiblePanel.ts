@@ -63,7 +63,13 @@ export function useCollapsiblePanel(
   // Some open paths intentionally bypass motion, but the shared root transition
   // status still advances asynchronously. Override the panel to idle so its data
   // attributes and dimension cleanup reflect the immediate open state.
-  const [forcePanelIdle, setForcePanelIdle] = createSignal(false);
+  // Port note: upstream clears it from a layout effect once the root transition state leaves
+  // `starting`. A writable memo applies that rule in the same flush, so the effect doesn't write
+  // its own input.
+  const [forcePanelIdle, setForcePanelIdle] = createSignal<boolean>((prev) => {
+    const status = transitionStatus();
+    return (prev ?? false) && status === 'starting';
+  });
   let pendingTemporaryStyleRestore: (() => void) | null = null;
 
   // Only used to handle panel close
@@ -113,20 +119,6 @@ export function useCollapsiblePanel(
       restore();
     };
   }
-
-  useIsoLayoutEffect(
-    ([isForcedIdle, status]) => {
-      // `forcePanelIdle` is only a temporary override for open paths that skip
-      // motion. Keep it active while the shared root still reports `starting`,
-      // then drop it once the root transition state catches up.
-      if (!isForcedIdle || status === 'starting') {
-        return;
-      }
-
-      setForcePanelIdle(false);
-    },
-    () => [forcePanelIdle(), transitionStatus()],
-  );
 
   onCleanupWithWrites(() => {
     restorePendingTemporaryStyle();
