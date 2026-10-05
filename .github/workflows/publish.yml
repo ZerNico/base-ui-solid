@@ -3,7 +3,7 @@ name: Publish
 # Port note: upstream publishes with `code-infra publish` from a maintainer machine. This port
 # publishes from GitHub Actions with npm Trusted Publishing (OIDC), so no npm token is stored in
 # the repository. Pushing a version tag (`v*`) publishes that version. Running the workflow by hand
-# defaults to a dry run. See RELEASING.md.
+# defaults to a dry run. See README.md.
 on:
   push:
     tags:

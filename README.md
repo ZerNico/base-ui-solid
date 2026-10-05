@@ -37,7 +37,20 @@ pnpm docs:build            # static docs export in docs/export
 pnpm build                 # publishable packages in packages/*/build
 ```
 
-[`RELEASING.md`](/RELEASING.md) describes how the packages are built and published to npm.
+## Releasing
+
+`base-ui-solid` and `@base-ui-solid/utils` are released together with the same version. The
+[Publish](/.github/workflows/publish.yml) workflow publishes them to npm with
+[Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (no npm token), and the
+[Deploy docs](/.github/workflows/deploy-docs.yml) workflow updates the docs site.
+
+```bash
+pnpm release:version 0.1.0   # sets the version of both packages
+git commit -am "v0.1.0" && git push   # wait for CI
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+Versions with a prerelease part (`0.1.0-beta.1`) are published under the `next` dist-tag.
 
 ## License
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // Port note: replaces upstream's `lerna version --no-changelog --no-push --no-git-tag-version`.
 // Sets the same version on every published package. Committing, tagging and pushing stay manual
-// (see RELEASING.md).
+// (see README.md).
 // Usage: pnpm release:version <version>
 import fs from 'node:fs';
 import path from 'node:path';
