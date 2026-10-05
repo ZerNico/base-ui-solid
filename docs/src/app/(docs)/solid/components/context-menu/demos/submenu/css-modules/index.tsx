@@ -1,7 +1,6 @@
 import { mergeProps } from 'base-ui-solid/merge-props';
 import type { JSX } from '@solidjs/web';
 import { ContextMenu } from 'base-ui-solid/context-menu';
-import { Menu } from 'base-ui-solid/menu';
 import styles from './index.module.css';
 
 export default function ExampleContextMenu() {
@@ -24,7 +23,7 @@ export default function ExampleContextMenu() {
                     <ContextMenu.Item class={styles.Item}>Get Up!</ContextMenu.Item>
                     <ContextMenu.Item class={styles.Item}>Inside Out</ContextMenu.Item>
                     <ContextMenu.Item class={styles.Item}>Night Beats</ContextMenu.Item>
-                    <Menu.Separator class={styles.Separator} />
+                    <ContextMenu.Separator class={styles.Separator} />
                     <ContextMenu.Item class={styles.Item}>New playlist…</ContextMenu.Item>
                   </ContextMenu.Popup>
                 </ContextMenu.Positioner>
