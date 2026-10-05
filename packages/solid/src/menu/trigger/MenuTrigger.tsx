@@ -37,7 +37,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 
 /**
  * A button that opens the menu.
@@ -287,7 +287,7 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
   });
 
   const localInteractionProps = () =>
-    mergeProps(
+    mergePropsSnapshot(
       interactions().focus.reference as HTMLProps,
       interactions().click.reference as HTMLProps,
     );

@@ -11,7 +11,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 
 function MenuLinkItemPlain(componentProps: MenuLinkItem.Props) {
   const forwardedRef = useMergedRefs<HTMLElement>(
@@ -60,7 +60,7 @@ function MenuLinkItemPlain(componentProps: MenuLinkItem.Props) {
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {
-    return mergeProps<any>(commonProps(), externalProps, getButtonProps);
+    return mergePropsSnapshot<any>(commonProps(), externalProps, getButtonProps);
   }
 
   const state = createMemo<MenuLinkItemState>(() => ({ highlighted: highlighted() }));

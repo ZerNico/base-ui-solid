@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useButton } from '../../internals/use-button';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import type { HTMLProps } from '../../internals/types';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
@@ -44,7 +44,7 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
   });
 
   const getItemProps = (externalProps?: HTMLProps): HTMLProps => {
-    return mergeProps<any>(
+    return mergePropsSnapshot<any>(
       commonProps(),
       {
         onMouseEnter(event: MouseEvent) {

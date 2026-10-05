@@ -9,7 +9,25 @@
 `mergeProps` helps you combine multiple prop objects (for example, internal props + user props) into a single set of props you can spread onto an element.
 It behaves like `Object.assign` (rightmost wins) with a few special cases, so common Solid patterns work as expected.
 
-`mergeProps` returns a props snapshot except for lazy children. Call it in JSX, a memo, or a props accessor to keep reactive values up to date. Solid bound event handlers (`[handler, data]`) are supported.
+Solid bound event handlers (`[handler, data]`) are supported.
+
+## Reactivity
+
+Like Solid's `merge`, `mergeProps` returns a reactive object. Its properties read the source objects when they're accessed, so you can call it once (for example in a component body) and it stays up to date when a source prop changes:
+
+```tsx title="Merging internal props with the component's props"
+function Button(props: JSX.HTMLAttributes<HTMLButtonElement>) {
+  // `props.class` and `props.title` stay reactive in the merged props.
+  const merged = mergeProps({ class: 'Button', type: 'button' }, props);
+  return <button {...merged} />;
+}
+```
+
+- Read its properties in a reactive scope (JSX, a memo or an effect), and don't destructure it, like Solid props.
+- Merged event handlers are stable functions that call the sources' current handlers.
+- `class`, `style` and `ref` are merged from the current source values each time they're read.
+- `children` are read lazily from the source that provides them, so the merge doesn't create them.
+- A function passed as an argument is called once, with a reactive view of the props merged before it.
 
 ## How merging works
 

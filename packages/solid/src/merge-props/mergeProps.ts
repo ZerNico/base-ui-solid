@@ -39,8 +39,11 @@ export const CHILDREN_SOURCE = Symbol('base-ui.childrenSource');
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
  * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
  *
- * The result is a plain object snapshot (except `children`): call it inside a reactive scope
- * (JSX, a memo) to keep it up to date.
+ * Port note: the result is reactive, like Solid's `merge`. Its properties are getters that read
+ * the sources when accessed, so a source prop that changes (a Solid props object, a getter) is
+ * picked up in a reactive scope. Merged event handlers are stable functions that call the
+ * sources' current handlers. Functions passed as props are called once, with a reactive view of
+ * the props merged before them. Don't destructure the result.
  *
  * @param a Props object to merge.
  * @param b Props object to merge. The function will overwrite conflicting props from `a`.
@@ -70,6 +73,45 @@ export function mergeProps<T extends object>(
 ): PropsOf<T>;
 export function mergeProps<T extends object>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
+  return createReactiveMergedProps([a, b, c, d, e]);
+}
+
+/**
+ * Merges an arbitrary number of Solid props using the same logic as {@link mergeProps}.
+ * This function accepts an array of props instead of individual arguments.
+ *
+ * This has slightly lower performance than {@link mergeProps} due to accepting an array
+ * instead of a fixed number of arguments. Prefer {@link mergeProps} when merging 5 or
+ * fewer prop sets for better performance.
+ *
+ * Port note: the result is reactive, see {@link mergeProps}.
+ *
+ * @param props Array of props to merge.
+ * @returns The merged props.
+ * @see mergeProps
+ * @public
+ */
+export function mergePropsN<T extends object>(props: InputProps<T>[]): PropsOf<T> {
+  return createReactiveMergedProps(props) as PropsOf<T>;
+}
+
+/**
+ * Same merge as {@link mergeProps}, but returns a plain object snapshot (except for the lazy
+ * `children`).
+ *
+ * Port note: used internally, where props are merged inside a reactive scope (a props accessor
+ * or a memo) that re-runs when a source changes. Snapshots are cheaper to spread than the
+ * reactive public result.
+ * @internal
+ */
+export function mergePropsSnapshot<T extends object>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c?: InputProps<T>,
+  d?: InputProps<T>,
+  e?: InputProps<T>,
+): PropsOf<T>;
+export function mergePropsSnapshot(a: any, b: any, c?: any, d?: any, e?: any) {
   if (!c && !d && !e && !a) {
     return createInitialMergedProps(b);
   }
@@ -95,19 +137,10 @@ export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
 /* eslint-enable id-denylist */
 
 /**
- * Merges an arbitrary number of Solid props using the same logic as {@link mergeProps}.
- * This function accepts an array of props instead of individual arguments.
- *
- * This has slightly lower performance than {@link mergeProps} due to accepting an array
- * instead of a fixed number of arguments. Prefer {@link mergeProps} when merging 5 or
- * fewer prop sets for better performance.
- *
- * @param props Array of props to merge.
- * @returns The merged props.
- * @see mergeProps
- * @public
+ * Array form of {@link mergePropsSnapshot}.
+ * @internal
  */
-export function mergePropsN<T extends object>(props: InputProps<T>[]): PropsOf<T> {
+export function mergePropsSnapshotN<T extends object>(props: InputProps<T>[]): PropsOf<T> {
   if (props.length === 0) {
     return EMPTY_PROPS as PropsOf<T>;
   }
@@ -123,6 +156,196 @@ export function mergePropsN<T extends object>(props: InputProps<T>[]): PropsOf<T
   }
 
   return merged as PropsOf<T>;
+}
+
+type Layer = Record<PropertyKey, any>;
+
+/**
+ * Builds the reactive result of {@link mergeProps}: the props objects are kept as layers (left
+ * to right) and read when a property is accessed. A props function replaces the layers before it
+ * with the object it returns, like it replaces the accumulated props in the snapshot merge.
+ */
+function createReactiveMergedProps(sources: ReadonlyArray<InputProps<any>>) {
+  let layers: Layer[] = [];
+  for (const source of sources) {
+    if (isPropsGetter(source)) {
+      layers = [source(createLayeredProps(layers) as PropsOf<any>) ?? EMPTY_PROPS];
+    } else if (source) {
+      layers.push(source);
+    }
+  }
+  return createLayeredProps(layers);
+}
+
+function createLayeredProps(layersParam: Layer[]): Record<string, any> {
+  const layers = layersParam.slice();
+  // One stable function per event handler key, calling the layers' current handlers.
+  const handlers = new Map<string, Function>();
+
+  const getChildrenSource = () => {
+    for (let i = layers.length - 1; i >= 0; i -= 1) {
+      if ('children' in layers[i]) {
+        return layers[i][CHILDREN_SOURCE as any] ?? layers[i];
+      }
+    }
+    return undefined;
+  };
+
+  const getEventHandler = (key: string) => {
+    let value: unknown;
+    let hasHandler = false;
+    for (const layer of layers) {
+      if (!(key in layer)) {
+        continue;
+      }
+      const layerValue = layer[key];
+      if (layerValue === undefined) {
+        // An undefined handler doesn't remove the handlers merged before it.
+        continue;
+      }
+      if (typeof layerValue === 'function' || isBoundEventHandler(layerValue)) {
+        hasHandler = true;
+        value = undefined;
+      } else {
+        // Not a handler: it replaces whatever was merged before it, like other props.
+        hasHandler = false;
+        value = layerValue;
+      }
+    }
+    if (!hasHandler) {
+      return value;
+    }
+    let handler = handlers.get(key);
+    if (!handler) {
+      handler = (...args: unknown[]) => callLayeredEventHandlers(layers, key, args);
+      handlers.set(key, handler);
+    }
+    return handler;
+  };
+
+  const getValue = (key: PropertyKey) => {
+    if (key === CHILDREN_SOURCE) {
+      return getChildrenSource();
+    }
+    if (typeof key !== 'string') {
+      return undefined;
+    }
+    switch (key) {
+      case 'children':
+        return getChildrenSource()?.children;
+      case 'class':
+        return foldLayers(layers, key, mergeClassNames);
+      case 'style':
+        return foldLayers(layers, key, mergeStyles);
+      case 'ref':
+        return foldLayers(layers, key, mergeRefs);
+      default:
+        if (isEventHandlerKey(key)) {
+          return getEventHandler(key);
+        }
+        for (let i = layers.length - 1; i >= 0; i -= 1) {
+          if (key in layers[i]) {
+            return layers[i][key];
+          }
+        }
+        return undefined;
+    }
+  };
+
+  const getKeys = () => {
+    const keys = new Set<string>();
+    for (const layer of layers) {
+      for (const key of Object.keys(layer)) {
+        keys.add(key);
+      }
+    }
+    return Array.from(keys);
+  };
+
+  const hasKey = (key: PropertyKey) => {
+    if (key === CHILDREN_SOURCE) {
+      return getChildrenSource() !== undefined;
+    }
+    return layers.some((layer) => key in layer);
+  };
+
+  return new Proxy(
+    {},
+    {
+      get: (_target, key) => getValue(key),
+      has: (_target, key) => hasKey(key),
+      ownKeys: () => getKeys(),
+      getOwnPropertyDescriptor: (_target, key) => {
+        if (typeof key !== 'string' || !hasKey(key)) {
+          return undefined;
+        }
+        return {
+          configurable: true,
+          enumerable: true,
+          get: () => getValue(key),
+        };
+      },
+      set: () => false,
+      defineProperty: () => false,
+      deleteProperty: () => false,
+    },
+  );
+}
+
+function foldLayers(layers: Layer[], key: string, merge: (ours: any, theirs: any) => unknown): any {
+  let result: unknown;
+  for (const layer of layers) {
+    if (key in layer) {
+      result = merge(result, layer[key]);
+    }
+  }
+  return result;
+}
+
+/**
+ * Calls the layers' handlers for `key` right to left, like nested `mergeEventHandlers` calls:
+ * for DOM events, a handler calling `event.preventBaseUIHandler()` stops the ones to its left.
+ */
+function callLayeredEventHandlers(layers: Layer[], key: string, args: unknown[]) {
+  const event = args[0];
+  const domEvent = isDOMEvent(event) ? (event as BaseUIEvent<Event>) : null;
+  if (domEvent) {
+    makeEventPreventable(domEvent);
+  }
+
+  let result: unknown;
+  let isRightmost = true;
+  for (let i = layers.length - 1; i >= 0; i -= 1) {
+    if (!(key in layers[i])) {
+      continue;
+    }
+    const value = layers[i][key];
+    if (value === undefined) {
+      continue;
+    }
+    if (typeof value !== 'function' && !isBoundEventHandler(value)) {
+      // A non-handler value replaced the handlers to its left.
+      break;
+    }
+    if (!isRightmost && domEvent?.baseUIHandlerPrevented) {
+      break;
+    }
+    const handlerResult = normalizeEventHandler(value)!(...args);
+    if (isRightmost) {
+      result = handlerResult;
+      isRightmost = false;
+    }
+  }
+  return result;
+}
+
+function isEventHandlerKey(key: string) {
+  const code0 = key.charCodeAt(0);
+  const code1 = key.charCodeAt(1);
+  const code2 = key.charCodeAt(2);
+  return (
+    code0 === 111 /* o */ && code1 === 110 /* n */ && code2 >= 65 /* A */ && code2 <= 90
+  ); /* Z */
 }
 
 function createInitialMergedProps<T extends object>(inputProps: InputProps<T>) {

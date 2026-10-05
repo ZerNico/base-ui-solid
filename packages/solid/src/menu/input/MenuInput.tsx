@@ -6,7 +6,7 @@ import type {
   FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -30,7 +30,7 @@ export function MenuInput(componentProps: MenuInput.Props) {
   const handleKeyDown = useMenuFilterKeyDown(() => value() !== '');
 
   const inputProps = merge(() =>
-    mergeProps<typeof FilterDropdownInput>({ onKeyDown: handleKeyDown }, componentProps),
+    mergePropsSnapshot<typeof FilterDropdownInput>({ onKeyDown: handleKeyDown }, componentProps),
   );
 
   return (

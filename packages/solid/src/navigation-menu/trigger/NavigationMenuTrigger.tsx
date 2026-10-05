@@ -52,7 +52,7 @@ import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 import * as NavigationMenuPopupCssVars from '../popup/NavigationMenuPopupCssVars';
 import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -581,7 +581,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
       return clickToggleOverride ?? isActiveItem();
     },
   });
-  const referenceProps = () => mergeProps(click.reference, hoverProps());
+  const referenceProps = () => mergePropsSnapshot(click.reference, hoverProps());
 
   useIsoLayoutEffect(
     ([isActive, trigger]) => {

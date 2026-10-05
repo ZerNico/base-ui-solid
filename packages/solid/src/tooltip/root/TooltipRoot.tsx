@@ -15,7 +15,7 @@ import {
   usePopupInteractionProps,
 } from '../../utils/popups';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { TooltipStore } from '../store/TooltipStore';
 import type { State as TooltipStoreState } from '../store/TooltipStore';
 import type { TooltipHandle } from '../store/TooltipHandle';
@@ -310,7 +310,7 @@ function TooltipInteractions<Payload>(props: {
   // Both hooks return `trigger: reference` (same object identity), so the active and
   // inactive trigger props can never differ. `useClientPoint` has no floating-side props.
   const triggerProps = createMemo(
-    () => mergeProps(clientPoint.reference, dismiss.reference) as HTMLProps,
+    () => mergePropsSnapshot(clientPoint.reference, dismiss.reference) as HTMLProps,
   );
   usePopupInteractionProps(store, () => ({
     activeTriggerProps: triggerProps(),

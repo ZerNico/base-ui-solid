@@ -19,7 +19,7 @@ import { REASONS } from '../../internals/reasons';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { ScrollAxis } from '../../utils/scrollable';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
@@ -829,7 +829,7 @@ export const DrawerViewport = function DrawerViewport(props: DrawerViewport.Prop
       class={props.class}
       style={props.style}
       render={props.render}
-      {...mergeProps(elementProps, {
+      {...mergePropsSnapshot(elementProps, {
         onPointerDown(event) {
           lastPointerTypeRef.current = event.pointerType;
           ignoreNextTouchStartFromPenRef.current = event.pointerType === 'pen';

@@ -6,7 +6,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { activeElement, getTarget } from '../../floating-ui-solid/utils';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useMenuFilterKeyDown } from './useMenuFilterKeyDown';
 import { isMainOrientationKey } from '../../floating-ui-solid/hooks/useListNavigation';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -132,7 +132,7 @@ export function MenuFilterList(componentProps: MenuList.Props) {
     );
   };
   const listProps = merge(() =>
-    mergeProps<typeof FilterDropdownList>(
+    mergePropsSnapshot<typeof FilterDropdownList>(
       {
         role: 'menu',
         ref: setRenderedElement,

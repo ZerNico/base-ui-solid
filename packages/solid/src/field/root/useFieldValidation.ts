@@ -4,7 +4,7 @@ import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { DEFAULT_VALIDITY_STATE } from '../../internals/field-constants/constants';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { Form } from '../../form';
@@ -367,7 +367,7 @@ export function useFieldValidation(
   // Reads reactive state: call it inside a reactive scope (e.g. a `props` accessor).
   const getValidationProps = (disabled: boolean, externalProps: HTMLProps = {}) => {
     const state = params.state();
-    return mergeProps<any>(
+    return mergePropsSnapshot<any>(
       getDescriptionProps(externalProps),
       state.valid === false && !state.disabled && !disabled
         ? // Port note: a string, since Solid renders a boolean `true` as an empty attribute

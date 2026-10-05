@@ -4,7 +4,7 @@ import type { FloatingFocusManagerProps } from '../../floating-ui-solid/componen
 import { MenuPopupPlain } from '../popup/MenuPopup';
 import type { MenuPopupProps } from '../popup/MenuPopup';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { REASONS } from '../../internals/reasons';
 /**
  * A container for the filter input and item list.
@@ -38,6 +38,8 @@ export function MenuFilterPopup(props: MenuPopupProps) {
       return store.context.virtualFocusRef?.current ?? false;
     };
   };
-  const popupProps = merge(() => mergeProps<typeof MenuPopupPlain>(interactionProps, props));
+  const popupProps = merge(() =>
+    mergePropsSnapshot<typeof MenuPopupPlain>(interactionProps, props),
+  );
   return <MenuPopupPlain {...popupProps} role="dialog" initialFocus={initialFocus()} />;
 }

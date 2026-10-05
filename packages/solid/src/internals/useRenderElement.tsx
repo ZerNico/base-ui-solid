@@ -12,8 +12,8 @@ import { resolveStyle } from '../utils/resolveStyle';
 import {
   CHILDREN_SOURCE,
   mergeClassNames,
-  mergeProps,
-  mergePropsN,
+  mergePropsSnapshot,
+  mergePropsSnapshotN,
   mergeStyles,
 } from '../merge-props/mergeProps';
 
@@ -194,10 +194,10 @@ function resolveRenderFunctionProps(
   props: NonNullable<RenderElementPropsParam>,
 ): Record<string, any> {
   if (Array.isArray(props)) {
-    return mergePropsN(props as any[]) as Record<string, any>;
+    return mergePropsSnapshotN(props as any[]) as Record<string, any>;
   }
 
-  return mergeProps(undefined, props as any) as Record<string, any>;
+  return mergePropsSnapshot(undefined, props as any) as Record<string, any>;
 }
 
 /**

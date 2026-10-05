@@ -29,20 +29,21 @@ names so test diffs stay mechanical.
 
 ## Public API differences
 
-| Upstream (React)                                                        | Port (Solid)                                                                                                      |
-| :---------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| `className` (string or `(state) => …`)                                  | `class` (any Solid class value, or `(state) => …`)                                                                |
-| `style` object (camelCase)                                              | `style` object (kebab-case) or string, or `(state) => …`                                                          |
-| `render={<a />}` (element, cloned)                                      | **Not supported** — Solid can't clone elements                                                                    |
-| `render={(props, state) => <a {...props} />}`                           | Same. `props`/`state` are reactive: spread/read them, don't destructure                                           |
-| —                                                                       | `render="a"` (tag name) and `render={Component}`                                                                  |
-| `ref` (object or callback)                                              | `ref` callback (Solid semantics, not called with `null` on unmount)                                               |
-| `event.preventBaseUIHandler()`                                          | Same, on native events                                                                                            |
-| `tabIndex`, other camelCase attributes                                  | Lowercase attributes (`tabindex`)                                                                                 |
-| `actionsRef` ref object (`{ current }`)                                 | `actionsRef` callback, called once with the actions on setup (not with `null` on unmount, like `ref`)             |
-| `inputRef` ref object or callback                                       | `inputRef` callback only                                                                                          |
-| `container`, `anchor`, `initialFocus`, `finalFocus` accept a ref object | Pass the element itself, e.g. from a signal set by a `ref` callback (`null` = not set yet). Other forms unchanged |
-| `ToastObject.ref` ref object                                            | `ref()` getter returning the toast element                                                                        |
+| Upstream (React)                                                        | Port (Solid)                                                                                                                         |
+| :---------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `className` (string or `(state) => …`)                                  | `class` (any Solid class value, or `(state) => …`)                                                                                   |
+| `style` object (camelCase)                                              | `style` object (kebab-case) or string, or `(state) => …`                                                                             |
+| `render={<a />}` (element, cloned)                                      | **Not supported** — Solid can't clone elements                                                                                       |
+| `render={(props, state) => <a {...props} />}`                           | Same. `props`/`state` are reactive: spread/read them, don't destructure                                                              |
+| —                                                                       | `render="a"` (tag name) and `render={Component}`                                                                                     |
+| `ref` (object or callback)                                              | `ref` callback (Solid semantics, not called with `null` on unmount)                                                                  |
+| `event.preventBaseUIHandler()`                                          | Same, on native events                                                                                                               |
+| `tabIndex`, other camelCase attributes                                  | Lowercase attributes (`tabindex`)                                                                                                    |
+| `actionsRef` ref object (`{ current }`)                                 | `actionsRef` callback, called once with the actions on setup (not with `null` on unmount, like `ref`)                                |
+| `inputRef` ref object or callback                                       | `inputRef` callback only                                                                                                             |
+| `container`, `anchor`, `initialFocus`, `finalFocus` accept a ref object | Pass the element itself, e.g. from a signal set by a `ref` callback (`null` = not set yet). Other forms unchanged                    |
+| `ToastObject.ref` ref object                                            | `ref()` getter returning the toast element                                                                                           |
+| `mergeProps` / `mergePropsN` return a new plain object each render      | Return a reactive object like Solid's `merge` (getters read the sources, stable merged handlers). Internals use `mergePropsSnapshot` |
 
 ## Translation rules
 
@@ -158,6 +159,9 @@ names so test diffs stay mechanical.
   - `onMouseEnter` / `onMouseLeave` don't bubble in either framework.
 - `mergeProps` merges `class` into a class array, `style` objects/strings, event handlers
   (including Solid's `[handler, data]` form) and `ref`s (composed, unlike upstream).
+- The public `mergeProps`/`mergePropsN` return a reactive object (a proxy over the sources).
+  Internal code merges inside reactive scopes (props accessors, memos) and uses the snapshot
+  versions `mergePropsSnapshot`/`mergePropsSnapshotN` from `merge-props/mergeProps` instead.
 - Don't use object rest on props that may contain `children`. Use `omitProps` from
   `merge-props/mergeProps` instead.
 

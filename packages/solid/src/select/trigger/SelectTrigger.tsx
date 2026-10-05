@@ -15,7 +15,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-solid/utils';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -138,7 +138,7 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
     const currentListElement = listElement();
     const isDisabled = disabled();
 
-    const mergedProps: HTMLProps = mergeProps<any>(
+    const mergedProps: HTMLProps = mergePropsSnapshot<any>(
       triggerProps(),
       {
         id: id(),

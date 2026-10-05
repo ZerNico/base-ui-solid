@@ -45,7 +45,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import type { HTMLProps } from '../../internals/types';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';
 
 /**
@@ -447,7 +447,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = createMemo(() =>
-    mergeProps<any>(
+    mergePropsSnapshot<any>(
       typeahead.reference,
       listNavigation.reference,
       dismiss.reference,
@@ -457,7 +457,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const popupProps = createMemo(() =>
-    mergeProps<any>(
+    mergePropsSnapshot<any>(
       FOCUSABLE_POPUP_PROPS,
       typeahead.floating,
       listNavigation.floating,

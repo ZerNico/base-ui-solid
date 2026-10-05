@@ -56,7 +56,7 @@ import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import type { Group } from '../../internals/resolveValueLabel';
 import {
   stringifyAsLabel,
@@ -1644,7 +1644,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const inputProps = createMemo(() => {
     const isGrid = grid();
-    return mergeProps(
+    return mergePropsSnapshot(
       listNavigation.reference,
       {
         onKeyDown(event: BaseUIEvent<KeyboardEvent>) {
@@ -1667,11 +1667,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const popupProps = createMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS as HTMLProps, dismiss.floating) as HTMLProps,
+    () => mergePropsSnapshot(FOCUSABLE_POPUP_PROPS as HTMLProps, dismiss.floating) as HTMLProps,
   );
 
   const listProps = createMemo(
-    () => mergeProps(listNavigation.floating, role().floating) as HTMLProps,
+    () => mergePropsSnapshot(listNavigation.floating, role().floating) as HTMLProps,
   );
 
   const itemProps = createMemo<HTMLProps>(() => {

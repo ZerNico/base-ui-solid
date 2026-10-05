@@ -34,7 +34,7 @@ import { REASONS } from '../../internals/reasons';
 import { getHighlightReason } from '../../utils/getHighlightReason';
 import type { ContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { mergeProps } from '../../merge-props';
+import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
 import type { State as MenuStoreState } from '../store/MenuStore';
@@ -708,7 +708,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   );
 
   const activeTriggerProps = createMemo(() => {
-    const mergedProps = mergeProps(
+    const mergedProps = mergePropsSnapshot(
       typeahead.reference as HTMLProps,
       openTriggerProps() as HTMLProps,
       dismiss.reference as HTMLProps,
@@ -727,7 +727,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   });
 
   const inactiveTriggerProps = createMemo(() => {
-    const mergedProps = mergeProps(
+    const mergedProps = mergePropsSnapshot(
       listNavigation.trigger as HTMLProps,
       dismiss.trigger as HTMLProps,
       interactionTypeProps as HTMLProps,
@@ -745,7 +745,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
 
   const popupProps = createMemo(
     () =>
-      mergeProps(
+      mergePropsSnapshot(
         FOCUSABLE_POPUP_PROPS as HTMLProps,
         {
           onMouseMove() {

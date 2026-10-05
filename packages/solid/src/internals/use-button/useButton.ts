@@ -4,8 +4,8 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { makeEventPreventable, mergeProps } from '../../merge-props';
-import { omitProps } from '../../merge-props/mergeProps';
+import { makeEventPreventable } from '../../merge-props';
+import { mergePropsSnapshot, omitProps } from '../../merge-props/mergeProps';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import type { BaseUIEvent } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
@@ -111,7 +111,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     const isNative = isNativeButton();
     const isComposite = isCompositeItem();
 
-    return mergeProps<Record<string, any>>(
+    return mergePropsSnapshot<Record<string, any>>(
       {
         onClick(event: MouseEvent) {
           if (isDisabled) {
