@@ -27,7 +27,7 @@ Netlify applies `public/_redirects`, and `pnpm serve` applies the shared redirec
 Deploy the host redirect rules with the export.
 
 `SITE_URL`, `REPO_URL`, and `REPO_BRANCH` live in [src/config.ts](./src/config.ts).
-`SITE_URL` is still the placeholder `https://base-ui-solid.example` until the docs are deployed. Site navigation and
+The site is deployed at `https://base-ui-solid.pages.dev` (`SITE_URL`). Site navigation and
 Markdown links are root relative. Canonical metadata and discovery files use `SITE_URL`.
 Source links use `sourceUrl`, which maps `packages/react/src` to `packages/solid/src`.
 Release PRs and the upstream changelog retain their upstream destinations.
