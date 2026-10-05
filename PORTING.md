@@ -44,6 +44,8 @@ names so test diffs stay mechanical.
 | `container`, `anchor`, `initialFocus`, `finalFocus` accept a ref object | Pass the element itself, e.g. from a signal set by a `ref` callback (`null` = not set yet). Other forms unchanged                    |
 | `ToastObject.ref` ref object                                            | `ref()` getter returning the toast element                                                                                           |
 | `mergeProps` / `mergePropsN` return a new plain object each render      | Return a reactive object like Solid's `merge` (getters read the sources, stable merged handlers). Internals use `mergePropsSnapshot` |
+| Popup handle `isOpen` getter (read on render)                           | Same getter, also tracked (reactive in JSX, memos and effects)                                                                       |
+| `Autocomplete.useFilter(options)`                                       | Options read lazily (pass getters for reactive options), like `Combobox.useFilter`                                                   |
 
 ## Translation rules
 
@@ -58,6 +60,17 @@ names so test diffs stay mechanical.
 - Initial-only props (`defaultOpen`, `defaultValue`) are read once with `untrack(() => props.x)`.
 - Component `state` is a `createMemo(() => ({ … }))`, passed to `useRenderElement` and contexts as
   the accessor.
+
+### Public hook and function conventions
+
+What the public API returns (see the Reactivity section of the docs' Composition handbook):
+
+- A single reactive value is an `Accessor` (`useDirection()`, `useFilteredItems()`, `useMediaQuery()`).
+- Structured state is a reactive object with getters, not destructurable (`useToastManager()`'s
+  `toasts`, a handle's `isOpen`, the `mergeProps` result, `render`'s `props`/`state`).
+- Methods are plain, stable functions (`useToastManager().add`, `handle.open()`, `actionsRef`
+  actions, filter methods).
+- Options objects are read lazily, so callers pass getters for reactive options.
 
 ### Hooks → primitives
 

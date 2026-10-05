@@ -1,3 +1,4 @@
+import { createSignal } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -48,6 +49,8 @@ export interface PopupHandleStoreWithTriggers {
  * omit `setOpen` entirely (as Dialog and PreviewCard's do) since it is never called while detached.
  */
 export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
+  select(key: 'open'): boolean;
+  subscribe(listener: () => void): () => void;
   setOpen(
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction>,
@@ -86,6 +89,16 @@ export class BasePopupHandle<
    * Listeners notified when `attachedStore` changes, so detached triggers can follow the store pointer.
    */
   private readonly storeListeners = new Set<() => void>();
+
+  /**
+   * Port note: `isOpen` is read from the store like upstream (so it's up to date right after
+   * `open()`/`close()`), and also tracks this signal, which changes when the attached root's open
+   * state changes. That makes `handle.isOpen` reactive in JSX, memos and effects.
+   * `ownedWrite`: the store notifies its subscribers synchronously, also from effects.
+   */
+  private readonly openStateVersion = createSignal(0, { ownedWrite: true });
+
+  private unsubscribeOpenState: (() => void) | null = null;
 
   /**
    * Creates a handle backed by the store used while no root is attached.
@@ -186,12 +199,39 @@ export class BasePopupHandle<
   }
 
   /**
+   * Whether the attached root is open (`false` while no root is attached). Reactive: see
+   * `openStateVersion`.
+   */
+  protected readOpenState(): boolean {
+    this.openStateVersion[0]();
+    return this.attachedStoreValue?.select('open') ?? false;
+  }
+
+  private followOpenState(store: Store | null) {
+    this.unsubscribeOpenState?.();
+    this.unsubscribeOpenState = null;
+    const bump = () => this.openStateVersion[1]((version) => version + 1);
+    if (store) {
+      let open = store.select('open');
+      this.unsubscribeOpenState = store.subscribe(() => {
+        const nextOpen = store.select('open');
+        if (nextOpen !== open) {
+          open = nextOpen;
+          bump();
+        }
+      });
+    }
+    bump();
+  }
+
+  /**
    * Sets the store that currently controls the handle and notifies subscribers when it changes, so
    * detached triggers re-render and migrate their registration to the new store.
    */
   private setActiveStore(store: Store | null) {
     if (this.attachedStoreValue !== store) {
       this.attachedStoreValue = store;
+      this.followOpenState(store);
       this.storeListeners.forEach((listener) => {
         listener();
       });

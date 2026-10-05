@@ -92,6 +92,35 @@ Use a function, component, or tag name for `render`. Solid cannot clone JSX elem
 
 Using a function gives you complete control over spreading props and also allows you to render different content based on the component's state.
 
+## Reactivity
+
+Base UI follows Solid's conventions for reactive values, so you can tell from a value's shape how to read it:
+
+- **A single reactive value is an accessor.** Call it in a reactive scope (JSX, a memo or an effect) to read the current value. For example `useDirection()`, `Combobox.useFilteredItems()` and `useMediaQuery()` return accessors.
+- **Structured state is a reactive object.** Its properties are getters that you read where you need them, like Solid props. Don't destructure it, because destructuring reads the values once. For example `useToastManager().toasts`, a handle's `isOpen`, the result of `mergeProps`, and the `props` and `state` passed to `render` functions.
+- **Methods are plain, stable functions.** You can destructure them and call them from event handlers. For example `useToastManager().add`, `handle.open()`, the actions passed to `actionsRef` and the `contains()` method of `Combobox.useFilter()`.
+- **Options objects are read lazily.** To make an option of a hook reactive, pass a getter, like `Combobox.useFilter({ get locale() { return locale() } })`.
+
+```tsx title="Reading reactive values"
+const direction = useDirection();
+const toastManager = useToastManager();
+const { add } = toastManager; // methods are safe to destructure
+
+<p dir={direction()}>{toastManager.toasts.length} notifications</p>;
+```
+
+Props that hand you something are callbacks, like Solid's `ref`: `ref`, `actionsRef` and `inputRef`.
+Props that take one of your elements (`container`, `anchor`, `initialFocus` and `finalFocus`) take the element itself.
+Keep it in a signal set by a `ref` callback and pass the signal's value:
+
+```tsx title="Passing an element to a prop"
+const [input, setInput] = createSignal<HTMLInputElement | null>(null);
+
+<Dialog.Popup initialFocus={input()}>
+  <input ref={setInput} />
+</Dialog.Popup>;
+```
+
 export const metadata = {
   keywords: [
     'Base UI Composition',
@@ -107,5 +136,6 @@ export const metadata = {
     'As Prop',
     'Custom Elements',
     'Wrapper Components',
+    'Reactivity',
   ],
 };

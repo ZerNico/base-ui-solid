@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
-import { useCoreFilter } from '../../combobox/root/utils/useFilter';
+import { getFilter } from '../../internals/filter';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -79,7 +79,7 @@ export function AutocompleteRoot<ItemValue>(props: AutocompleteRoot.Props<ItemVa
     }
     return isControlled() ? (props.value ?? '') : internalValue();
   });
-  const collator = createMemo(() => useCoreFilter({ locale: other.locale }));
+  const collator = createMemo(() => getFilter({ locale: other.locale }));
   const resolvedQuery = () => String((isControlled() ? props.value : internalValue()) ?? '').trim();
   const resolvedFilter = () =>
     staticItems() || other.filter === null ? null : (other.filter ?? collator().contains);

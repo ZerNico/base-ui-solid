@@ -48,7 +48,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter } from './utils';
 import type { FilterItemToString } from './utils';
-import { useCoreFilter } from './utils/useFilter';
+import { getFilter } from '../../internals/filter';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
@@ -145,7 +145,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const direction = useDirection();
   const id = useLabelableId({ id: () => props.id });
-  const collatorFilter = createMemo(() => useCoreFilter({ locale: props.locale }));
+  const collatorFilter = createMemo(() => getFilter({ locale: props.locale }));
 
   // Plain items are arrays; normalized `createItems()` collections are objects.
   const collection = createMemo(() => {

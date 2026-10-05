@@ -6,8 +6,19 @@ export type { Filter, UseFilterOptions };
 
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.
+ *
+ * Port note: like `useComboboxFilter`, the options are read lazily like Solid props, so pass an
+ * object with getters for reactive options (e.g. `get locale() { return locale(); }`). The returned
+ * filter is stable and its methods use the latest options.
  */
-export const useCoreFilter = getFilter;
+export function useCoreFilter(options: UseFilterOptions = {}): Filter {
+  const filter = () => getFilter(options);
+  return {
+    contains: (item, query, itemToString) => filter().contains(item, query, itemToString),
+    startsWith: (item, query, itemToString) => filter().startsWith(item, query, itemToString),
+    endsWith: (item, query, itemToString) => filter().endsWith(item, query, itemToString),
+  };
+}
 
 export interface UseComboboxFilterOptions extends UseFilterOptions {
   /**

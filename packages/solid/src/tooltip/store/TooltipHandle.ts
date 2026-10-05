@@ -41,9 +41,10 @@ export class TooltipHandle<Payload> extends BasePopupHandle<
 
   /**
    * Whether the tooltip is currently open. Returns `false` while no root is attached to the handle.
+   * Port note: reactive, so it can be read in JSX, a memo or an effect.
    */
   get isOpen() {
-    return this.attachedStore?.select('open') ?? false;
+    return this.readOpenState();
   }
 }
 
