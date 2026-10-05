@@ -68,9 +68,15 @@ export function adjustRefProp(prop) {
   const renderFunction = /\(\(((?:\w+: [^()]+?)(?:, \w+: [^()]+?)*)\) => JSX\.Element\)/;
   const renderMatch = prop.name.startsWith('children') ? renderFunction.exec(prop.type) : null;
   if (renderMatch && !/^(?:arg|state):/.test(renderMatch[1])) {
+    // Arrays are passed as read-only arrays (e.g. `Slider.Value`'s values), since the render
+    // function shares them with the component.
     const params = renderMatch[1]
       .split(', ')
-      .map((param) => param.replace(/^(\w+): (?!Accessor<)(.+)$/, '$1: Accessor<$2>'));
+      .map((param) =>
+        param
+          .replace(/^(\w+): (?!Accessor<)(.+)$/, '$1: Accessor<$2>')
+          .replace(/^(\w+): Accessor<(\w+)\[\]>$/, '$1: Accessor<readonly $2[]>'),
+      );
     prop.type = prop.type.replace(renderMatch[0], `((${params.join(', ')}) => JSX.Element)`);
     const note = renderMatch[1].startsWith('item:')
       ? 'A render function is called once per item with the item and its index as accessors, like `<For>` with a custom key, so read them in JSX.'
