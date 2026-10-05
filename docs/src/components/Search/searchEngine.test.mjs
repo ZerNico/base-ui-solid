@@ -45,7 +45,7 @@ describe('docs search', () => {
     const engine = await loadSearch();
     const result = await engine.search('Initialize the form');
     const urls = result.results.flatMap((group) => group.items.map(buildResultUrl));
-    expect(urls).toContain('/solid/handbook/forms#react-hook-form-initialize-the-form');
+    expect(urls).toContain('/solid/handbook/forms#formisch-initialize-the-form');
     expect(urls).toContain('/solid/handbook/forms#tanstack-form-initialize-the-form');
   });
 });

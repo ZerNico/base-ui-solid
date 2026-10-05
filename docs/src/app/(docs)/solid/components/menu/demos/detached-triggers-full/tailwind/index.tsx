@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
 
 type MenuContent = {
@@ -94,22 +94,27 @@ export default function MenuDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0
                   `}
                 >
-                  {payload() &&
-                    MENUS[payload()!].groups.map((group, groupIndex) => [
-                      <Menu.Group>
-                        {groupIndex === 0 && (
-                          <Menu.GroupLabel class="px-4 py-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
-                            {MENUS[payload()!].heading}
-                          </Menu.GroupLabel>
-                        )}
-                        <For each={group}>
-                          {(item) => <Menu.Item class={itemClass}>{item}</Menu.Item>}
-                        </For>
-                      </Menu.Group>,
-                      groupIndex < MENUS[payload()!].groups.length - 1 && (
-                        <Menu.Separator class="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
-                      ),
-                    ])}
+                  <For each={payload() ? MENUS[payload()!].groups : []}>
+                    {(group, groupIndex) => (
+                      <>
+                        <Menu.Group>
+                          <Show when={groupIndex() === 0}>
+                            <Menu.GroupLabel class="px-4 py-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+                              {payload() ? MENUS[payload()!].heading : null}
+                            </Menu.GroupLabel>
+                          </Show>
+                          <For each={group}>
+                            {(item) => <Menu.Item class={itemClass}>{item}</Menu.Item>}
+                          </For>
+                        </Menu.Group>
+                        <Show
+                          when={payload() && groupIndex() < MENUS[payload()!].groups.length - 1}
+                        >
+                          <Menu.Separator class="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
+                        </Show>
+                      </>
+                    )}
+                  </For>
                 </Menu.Viewport>
               </Menu.Popup>
             </Menu.Positioner>

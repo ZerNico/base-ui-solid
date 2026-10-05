@@ -1,12 +1,14 @@
 import { createSignal, flush, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 
-type Rules = { required?: string; minlength?: { value: number; message: string } };
+// A small local stand-in for `@tanstack/solid-form`, which doesn't support Solid 2.0 yet. It mirrors
+// the parts of TanStack Form's API this example uses (`form.Field`, `field.state.meta` and form-level
+// validators), so the example can switch to the adapter once it does.
+
 type FieldModel = {
   field: {
     name: string;
     value: any;
-    ref: (element: HTMLElement | null) => void;
     onChange: (value: any) => void;
     onFocusOut: () => void;
   };
@@ -26,26 +28,9 @@ export function createControlledForm<T extends Record<string, any>>(options: {
   const [touched, setTouched] = createSignal<Record<string, boolean>>({});
   const [errors, setErrors] = createSignal<Record<string, string>>({});
   let submitted = false;
-  const rules = new Map<string, Rules>();
-  const elements = new Map<string, HTMLElement>();
   function validate(next: T) {
     const result: Record<string, string> =
       options.validators?.onDynamic({ value: next })?.fields ?? {};
-    rules.forEach((rule, name) => {
-      const value = next[name];
-      if (
-        rule.required &&
-        (value == null || value === '' || (Array.isArray(value) && !value.length))
-      ) {
-        result[name] = rule.required;
-      } else if (
-        rule.minlength &&
-        typeof value === 'string' &&
-        value.length < rule.minlength.value
-      ) {
-        result[name] = rule.minlength.message;
-      }
-    });
     setErrors(result);
     return !Object.keys(result).length;
   }
@@ -55,13 +40,6 @@ export function createControlledForm<T extends Record<string, any>>(options: {
         name,
         get value() {
           return values()[name];
-        },
-        ref(element) {
-          if (element) {
-            elements.set(name, element);
-          } else {
-            elements.delete(name);
-          }
         },
         onChange(value) {
           const next = { ...values(), [name]: value };
@@ -90,35 +68,13 @@ export function createControlledForm<T extends Record<string, any>>(options: {
       },
     };
   }
-  const control = {
-    model,
-    register(name: string, rule?: Rules) {
-      if (rule) {
-        rules.set(name, rule);
-      }
-    },
-  };
-  function focusFirstError() {
-    // Like react-hook-form's `shouldFocusError`: focus the first invalid field, in registration
-    // order.
-    for (const name of rules.keys()) {
-      const element = elements.get(name);
-      if (errors()[name] && element) {
-        element.focus();
-        return;
-      }
-    }
-  }
-  function handleSubmit(callback: (value: T) => void, shouldFocusError = true) {
+  function handleSubmit(callback: (value: T) => void) {
     return (event?: Event) => {
       event?.preventDefault();
       submitted = true;
       flush();
       if (validate(values())) {
         callback(values());
-      } else if (shouldFocusError) {
-        flush();
-        focusFirstError();
       }
     };
   }
@@ -151,20 +107,8 @@ export function createControlledForm<T extends Record<string, any>>(options: {
     return <div style={{ display: 'contents' }}>{props.children(field)}</div>;
   }
   return {
-    control,
-    handleSubmit,
     Field,
     // TanStack Form doesn't move focus on submit.
-    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }), false)(),
+    handleSubmitForm: () => handleSubmit((value) => options.onSubmit?.({ value }))(),
   };
-}
-export function Controller(props: {
-  name: string;
-  control: ReturnType<typeof createControlledForm>['control'];
-  rules?: Rules;
-  render: (model: FieldModel) => JSX.Element;
-}) {
-  untrack(() => props.control.register(props.name, props.rules));
-  const model = untrack(() => props.control.model(props.name));
-  return <div style={{ display: 'contents' }}>{props.render(model)}</div>;
 }

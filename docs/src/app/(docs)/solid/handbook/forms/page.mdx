@@ -3,7 +3,8 @@
 <Subtitle>A guide to building forms with Base UI components.</Subtitle>
 <Meta name="description" content="A guide to building forms with Base UI components." />
 
-Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. Their controlled values and validation state can be integrated with form libraries. The upstream [React Hook Form](#react-hook-form) and [TanStack Form](#tanstack-form) examples are adapted below for Solid 2.0.
+Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. Their controlled values and validation state can be integrated with form libraries such as [Formisch](#formisch) and [TanStack Form](#tanstack-form).
+Neither library supports Solid 2.0 yet, so these demos use small local helpers that mirror each library's API until it does.
 
 import { DemoBaseUIForm } from './demos/hero';
 
@@ -370,95 +371,91 @@ Use `<Field.Error>` without `children` to automatically display the field's nati
 <Field.Error match="valueMissing">You must create a username</Field.Error>
 ```
 
-## React Hook Form
+## Formisch
 
-React Hook Form is a React library, but the same integration pattern works with any controlled-form solution in Solid. The demo below uses a small Solid helper (included in its source) that manages values, validation, touched and dirty flags, and submission, and wires them to Base UI's `Field` props.
+[Formisch](https://formisch.dev) (`@formisch/solid`) is a schema-based form library for Solid that validates with [Valibot](https://valibot.dev). The demo below uses a small local helper (included in its source) that mirrors the Formisch and Valibot APIs it needs, and wires the field state to Base UI's `Field` props.
 
-import { DemoReactHookForm } from './demos/react-hook-form';
+import { DemoFormisch } from './demos/formisch';
 
-<DemoReactHookForm />
+<DemoFormisch />
 
 ### Initialize the form
 
-Create a controller with initial values for each field. This example uses the local Solid controller included in the demo source.
+Describe the values with a Valibot schema and create a form store with the initial input.
 
-```tsx title="Initialize a form instance"
-import { createControlledForm } from './solid-controller';
+```tsx title="Initialize a form store"
+import { createForm } from '@formisch/solid';
+import * as v from 'valibot';
 
-const form = createControlledForm({
-  defaultValues: { username: '', email: '' },
+const AccountSchema = v.object({
+  username: v.pipe(v.string(), v.nonEmpty('This field is required.')),
+  email: v.pipe(v.string(), v.email('Enter a valid email.')),
+});
+
+const form = createForm({
+  schema: AccountSchema,
+  initialInput: { username: '', email: '' },
 });
 ```
 
 ### Integrate components
 
-Forward the controller's reactive field values and state to Base UI. Keep the object intact so its getters remain reactive. Forward `ref` to the input so the controller can focus invalid fields.
+Use `<Field>` to connect each control. Its render function receives a reactive field store: read it in JSX and don't destructure it. Base UI controls aren't native inputs that `field.props` can be spread on, so pass `field.input` as the value and `field.onInput` as the change handler, and forward `ref` and the focus handlers so the field can be focused and marked as touched.
 
-```tsx title="Integrating a controlled field with Base UI components"
-import { Controller } from './solid-controller';
+```tsx title="Integrating a field with Base UI components"
+import { Field as FormField } from '@formisch/solid';
 import { Field } from 'base-ui-solid/field';
 
-<Controller
-  name="username"
-  control={form.control}
-  render={(model) => (
+<FormField of={form} path={['username']}>
+  {(field) => (
     <Field.Root
-      name={model.field.name}
-      invalid={model.fieldState.invalid}
-      touched={model.fieldState.isTouched}
-      dirty={model.fieldState.isDirty}
+      name={field.props.name}
+      invalid={!field.isValid}
+      touched={field.isTouched}
+      dirty={field.isDirty}
     >
       <Field.Label>Username</Field.Label>
       <Field.Control
-        value={model.field.value}
-        onValueChange={model.field.onChange}
-        onFocusOut={model.field.onFocusOut}
-        ref={model.field.ref}
+        value={field.input ?? ''}
+        onValueChange={field.onInput}
+        ref={field.props.ref}
+        onFocus={field.props.onFocus}
+        onBlur={field.props.onBlur}
       />
-      <Field.Error match={model.fieldState.invalid}>{model.fieldState.error?.message}</Field.Error>
+      <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
     </Field.Root>
   )}
-/>;
+</FormField>;
 ```
 
 ### Field validation
 
-Assign validation rules to the controller. The example controller validates on submission and revalidates when an invalid field changes.
+Validation rules live in the schema. By default, the form validates when it's submitted and revalidates a field on input afterwards. Use the `validate` and `revalidate` options of `createForm` to change when validation runs.
 
-```tsx title="Defining validation rules and displaying errors"
-<Controller
-  name="username"
-  control={form.control}
-  rules={{
-    required: 'This is a required field',
-    minlength: { value: 2, message: 'Too short' },
-  }}
-  render={(model) => (
-    <Field.Root name={model.field.name} invalid={model.fieldState.invalid}>
-      <Field.Control value={model.field.value} onValueChange={model.field.onChange} />
-      <Field.Error match={model.fieldState.invalid}>{model.fieldState.error?.message}</Field.Error>
-    </Field.Root>
-  )}
-/>
+```tsx title="Defining validation rules"
+const AccountSchema = v.object({
+  username: v.pipe(v.string(), v.nonEmpty('This field is required.'), v.minLength(2, 'Too short.')),
+});
 ```
 
 ### Submitting data
 
-Wrap a submit handler with `handleSubmit` to validate the fields before receiving the form values.
+Pass the handler to `handleSubmit` to validate the form before receiving its output.
 
 ```tsx title="Form submission handler"
+import { handleSubmit } from '@formisch/solid';
 import { Form } from 'base-ui-solid/form';
 
 <Form
-  onSubmit={form.handleSubmit(async (values) => {
-    await fetch('/api/account', { method: 'POST', body: JSON.stringify(values) });
+  onSubmit={handleSubmit(form, async (output) => {
+    await fetch('/api/account', { method: 'POST', body: JSON.stringify(output) });
   })}
 />;
 ```
 
 ## TanStack Form
 
-TanStack Form's Solid adapter (`@tanstack/solid-form`) targets Solid 1.x. The demo below shows the same integration with a small Solid 2.0 helper (included in its source) that mirrors TanStack Form's field API and validation flow, so it can be swapped for the adapter once that supports Solid 2.0.
+TanStack Form's Solid adapter (`@tanstack/solid-form`) doesn't support Solid 2.0 yet. The demo below uses a small local helper (included in its source) that mirrors TanStack Form's field API and validation flow, so it can be swapped for the adapter once it does.
 
 import { DemoTanstackForm } from './demos/tanstack-form';
 
@@ -566,7 +563,7 @@ export const metadata = {
     'Base UI Forms',
     'Solid Accessible Forms',
     'Field Validation Handbook',
-    'Solid Hook Form Integration',
+    'Formisch Integration',
     'TanStack Form Guide',
     'Constraint Validation API',
     'Handbook Forms',

@@ -7,7 +7,7 @@ import { stringToUrl } from './rehypeSlug.mjs';
 export default function rehypeConcatHeadings() {
   return (tree) => {
     /**
-     * Forms page: prefix <h3>s under React Hook Form/TanStack Form with the library name
+     * Forms page: prefix <h3>s under Formisch/TanStack Form with the library name
      */
     visit(tree, 'element', (node, _, parent) => {
       if (headingRank(node) === 1 && toString(node) !== 'Forms') {
@@ -20,7 +20,7 @@ export default function rehypeConcatHeadings() {
           const candidate = parent.children[index];
           if (headingRank(candidate) === 2) {
             const h2Text = toString(candidate);
-            if (h2Text === 'React Hook Form' || h2Text === 'TanStack Form') {
+            if (h2Text === 'Formisch' || h2Text === 'TanStack Form') {
               const h3Text = toString(node);
               node.properties.id = stringToUrl(`${h2Text} ${h3Text}`);
               break;

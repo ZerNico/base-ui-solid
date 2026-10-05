@@ -1,8 +1,6 @@
 import { For } from 'solid-js';
 import type { Accessor } from 'solid-js';
-// the same controlled values, validation, touched/dirty flags, and submission.
 import type { JSX } from '@solidjs/web';
-import { createControlledForm, Controller } from '../../solid-controller';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { Form } from '../../components/form';
@@ -18,24 +16,34 @@ import * as Radio from '../../components/radio';
 import * as Select from '../../components/select';
 import * as Slider from '../../components/slider';
 import * as Switch from '../../components/switch';
+// A local stand-in mirroring `@formisch/solid` and `valibot` until they support Solid 2.0.
+import { createForm, Field as FormField, handleSubmit, v } from '../../local-formisch';
+import type { InferOutput } from '../../local-formisch';
 
-interface FormValues {
-  serverName: string;
-  region: string | null;
-  containerImage: string;
-  serverType: string | null;
-  numOfInstances: number | null;
-  scalingThreshold: number[];
-  storageType: 'ssd' | 'hdd';
-  restartOnFailure: boolean;
-  allowedNetworkProtocols: string[];
-}
+const FormSchema = v.object({
+  serverName: v.pipe(
+    v.string(),
+    v.nonEmpty('This field is required.'),
+    v.minLength(3, 'At least 3 characters.'),
+  ),
+  region: v.string('This field is required.'),
+  containerImage: v.pipe(v.string(), v.nonEmpty('This field is required.')),
+  serverType: v.string('This field is required.'),
+  numOfInstances: v.number('This field is required.'),
+  scalingThreshold: v.array(v.number()),
+  storageType: v.picklist(['ssd', 'hdd']),
+  restartOnFailure: v.boolean(),
+  allowedNetworkProtocols: v.array(v.string()),
+});
 
-function ControlledForm() {
+type FormValues = InferOutput<typeof FormSchema>;
+
+function FormischForm() {
   const toastManager = useToastManager();
 
-  const { control, handleSubmit } = createControlledForm<FormValues>({
-    defaultValues: {
+  const form = createForm({
+    schema: FormSchema,
+    initialInput: {
       serverName: '',
       region: null,
       containerImage: '',
@@ -57,62 +65,47 @@ function ControlledForm() {
   }
 
   return (
-    <Form aria-label="Launch new cloud server" onSubmit={handleSubmit(submitForm)}>
-      <Controller
-        name="serverName"
-        control={control}
-        rules={{
-          required: 'This field is required.',
-          minlength: { value: 3, message: 'At least 3 characters.' },
-        }}
-        render={(model) => (
+    <Form aria-label="Launch new cloud server" onSubmit={handleSubmit(form, submitForm)}>
+      <FormField of={form} path={['serverName']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Field.Label>Server name</Field.Label>
             <Field.Control
-              ref={model.field.ref}
-              value={model.field.value}
-              onFocusOut={model.field.onFocusOut}
-              onValueChange={model.field.onChange}
+              ref={field.props.ref}
+              value={field.input ?? ''}
+              onFocus={field.props.onFocus}
+              onBlur={field.props.onBlur}
+              onValueChange={field.onInput}
               placeholder="e.g. api-server-01"
             />
             <Field.Description>Must be 3 or more characters long</Field.Description>
-            <Field.Error match={!!model.fieldState.error}>
-              {model.fieldState.error?.message}
-            </Field.Error>
+            <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="region"
-        control={control}
-        rules={{
-          required: 'This field is required.',
-        }}
-        render={(model) => (
+      <FormField of={form} path={['region']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
-            <Combobox.Root
-              items={REGIONS}
-              value={model.field.value}
-              onValueChange={model.field.onChange}
-            >
+            <Combobox.Root items={REGIONS} value={field.input} onValueChange={field.onInput}>
               <div class="relative text-sm leading-5 font-bold text-neutral-950 dark:text-white">
                 <Field.Label class="mb-1 block">Region</Field.Label>
                 <Combobox.InputGroup>
                   <Combobox.Input
                     placeholder="e.g. eu-central-1"
-                    ref={model.field.ref}
-                    onFocusOut={model.field.onFocusOut}
+                    ref={field.props.ref}
+                    onFocus={field.props.onFocus}
+                    onBlur={field.props.onBlur}
                   />
                   <div class="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
                     <Combobox.Clear />
@@ -142,38 +135,32 @@ function ControlledForm() {
                 </Combobox.Positioner>
               </Combobox.Portal>
             </Combobox.Root>
-            <Field.Error match={!!model.fieldState.error}>
-              {model.fieldState.error?.message}
-            </Field.Error>
+            <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="containerImage"
-        control={control}
-        rules={{
-          required: 'This field is required.',
-        }}
-        render={(model) => (
+      <FormField of={form} path={['containerImage']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Autocomplete.Root
               items={IMAGES}
               mode="both"
               itemToStringValue={(itemValue: Image) => itemValue.url}
-              value={model.field.value}
-              onValueChange={model.field.onChange}
+              value={field.input ?? ''}
+              onValueChange={field.onInput}
             >
               <Field.Label>Container image</Field.Label>
               <Autocomplete.Input
                 placeholder="e.g. docker.io/library/node:latest"
-                ref={model.field.ref}
-                onFocusOut={model.field.onFocusOut}
+                ref={field.props.ref}
+                onFocus={field.props.onFocus}
+                onBlur={field.props.onBlur}
               />
               <Field.Description>Enter a registry URL with optional tags</Field.Description>
               <Autocomplete.Portal>
@@ -195,35 +182,32 @@ function ControlledForm() {
                 </Autocomplete.Positioner>
               </Autocomplete.Portal>
             </Autocomplete.Root>
-            <Field.Error match={!!model.fieldState.error}>
-              {model.fieldState.error?.message}
-            </Field.Error>
+            <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="serverType"
-        control={control}
-        rules={{
-          required: 'This field is required.',
-        }}
-        render={(model) => (
+      <FormField of={form} path={['serverType']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Select.Root
               items={SERVER_TYPES}
-              value={model.field.value}
-              onValueChange={model.field.onChange}
-              inputRef={model.field.ref}
+              value={field.input}
+              onValueChange={field.onInput}
+              inputRef={field.props.ref}
             >
               <div class="w-fit space-y-1">
                 <Select.Label>Server type</Select.Label>
-                <Select.Trigger class="w-48" onFocusOut={model.field.onFocusOut}>
+                <Select.Trigger
+                  class="w-48"
+                  onFocus={field.props.onFocus}
+                  onBlur={field.props.onBlur}
+                >
                   <Select.Value />
                   <Select.Icon>
                     <CaretUpDownIcon />
@@ -253,66 +237,54 @@ function ControlledForm() {
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
-            <Field.Error match={!!model.fieldState.error}>
-              {model.fieldState.error?.message}
-            </Field.Error>
+            <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="numOfInstances"
-        control={control}
-        rules={{
-          required: 'This field is required.',
-        }}
-        render={(model) => (
+      <FormField of={form} path={['numOfInstances']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
-            <NumberField.Root
-              value={model.field.value}
-              min={1}
-              max={64}
-              onValueChange={model.field.onChange}
-            >
+            <NumberField.Root value={field.input} min={1} max={64} onValueChange={field.onInput}>
               <Field.Label>Number of instances</Field.Label>
               <NumberField.Group>
                 <NumberField.Decrement>
                   <MinusIcon />
                 </NumberField.Decrement>
-                <NumberField.Input ref={model.field.ref} onFocusOut={model.field.onFocusOut} />
+                <NumberField.Input
+                  ref={field.props.ref}
+                  onFocus={field.props.onFocus}
+                  onBlur={field.props.onBlur}
+                />
                 <NumberField.Increment>
                   <PlusIcon />
                 </NumberField.Increment>
               </NumberField.Group>
             </NumberField.Root>
-            <Field.Error match={!!model.fieldState.error}>
-              {model.fieldState.error?.message}
-            </Field.Error>
+            <Field.Error match={!!field.errors}>{field.errors?.[0]}</Field.Error>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="scalingThreshold"
-        control={control}
-        render={(model) => (
+      <FormField of={form} path={['scalingThreshold']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Fieldset.Root
               render={(renderProps) => (
                 <Slider.Root
-                  value={model.field.value}
-                  onValueChange={model.field.onChange}
-                  onValueCommitted={model.field.onChange}
+                  value={field.input}
+                  onValueChange={field.onInput}
+                  onValueCommitted={field.onInput}
                   thumbAlignment="edge"
                   min={0}
                   max={1}
@@ -335,38 +307,38 @@ function ControlledForm() {
                   <Slider.Thumb
                     index={0}
                     aria-label="Minimum threshold"
-                    onFocusOut={model.field.onFocusOut}
-                    inputRef={model.field.ref}
+                    onFocus={field.props.onFocus}
+                    onBlur={field.props.onBlur}
+                    inputRef={field.props.ref}
                   />
                   <Slider.Thumb
                     index={1}
                     aria-label="Maximum threshold"
-                    onFocusOut={model.field.onFocusOut}
+                    onFocus={field.props.onFocus}
+                    onBlur={field.props.onBlur}
                   />
                 </Slider.Track>
               </Slider.Control>
             </Fieldset.Root>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="storageType"
-        control={control}
-        render={(model) => (
+      <FormField of={form} path={['storageType']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Fieldset.Root
               render={(renderProps) => (
                 <RadioGroup
                   class="gap-4"
-                  value={model.field.value}
-                  onValueChange={model.field.onChange}
-                  inputRef={model.field.ref}
+                  value={field.input}
+                  onValueChange={field.onInput}
+                  inputRef={field.props.ref}
                   {...(renderProps as any)}
                 />
               )}
@@ -374,7 +346,7 @@ function ControlledForm() {
               <Fieldset.Legend class="-mt-px">Storage type</Fieldset.Legend>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="ssd" onFocusOut={model.field.onFocusOut}>
+                  <Radio.Root value="ssd" onFocus={field.props.onFocus} onBlur={field.props.onBlur}>
                     <Radio.Indicator />
                   </Radio.Root>
                   SSD
@@ -382,7 +354,7 @@ function ControlledForm() {
               </Field.Item>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="hdd" onFocusOut={model.field.onFocusOut}>
+                  <Radio.Root value="hdd" onFocus={field.props.onFocus} onBlur={field.props.onBlur}>
                     <Radio.Indicator />
                   </Radio.Root>
                   HDD
@@ -391,48 +363,45 @@ function ControlledForm() {
             </Fieldset.Root>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="restartOnFailure"
-        control={control}
-        render={(model) => (
+      <FormField of={form} path={['restartOnFailure']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Field.Label class="gap-2">
               Restart on failure
               <Switch.Root
-                checked={model.field.value}
-                inputRef={model.field.ref}
-                onCheckedChange={model.field.onChange}
-                onFocusOut={model.field.onFocusOut}
+                checked={field.input ?? false}
+                inputRef={field.props.ref}
+                onCheckedChange={field.onInput}
+                onFocus={field.props.onFocus}
+                onBlur={field.props.onBlur}
               >
                 <Switch.Thumb />
               </Switch.Root>
             </Field.Label>
           </Field.Root>
         )}
-      />
+      </FormField>
 
-      <Controller
-        name="allowedNetworkProtocols"
-        control={control}
-        render={(model) => (
+      <FormField of={form} path={['allowedNetworkProtocols']}>
+        {(field) => (
           <Field.Root
-            name={model.field.name}
-            invalid={model.fieldState.invalid}
-            touched={model.fieldState.isTouched}
-            dirty={model.fieldState.isDirty}
+            name={field.props.name}
+            invalid={!field.isValid}
+            touched={field.isTouched}
+            dirty={field.isDirty}
           >
             <Fieldset.Root
               render={(renderProps) => (
                 <CheckboxGroup
-                  value={model.field.value}
-                  onValueChange={model.field.onChange}
+                  value={field.input}
+                  onValueChange={field.onInput}
                   {...(renderProps as any)}
                 />
               )}
@@ -446,8 +415,9 @@ function ControlledForm() {
                         <Field.Label class="uppercase">
                           <Checkbox.Root
                             value={val}
-                            inputRef={val === 'http' ? model.field.ref : undefined}
-                            onFocusOut={model.field.onFocusOut}
+                            inputRef={val === 'http' ? field.props.ref : undefined}
+                            onFocus={field.props.onFocus}
+                            onBlur={field.props.onBlur}
                           >
                             <Checkbox.Indicator>
                               <CheckIcon />
@@ -463,7 +433,7 @@ function ControlledForm() {
             </Fieldset.Root>
           </Field.Root>
         )}
-      />
+      </FormField>
 
       <Button type="submit" class="mt-3">
         Launch server
@@ -475,7 +445,7 @@ function ControlledForm() {
 export default function App() {
   return (
     <ToastProvider>
-      <ControlledForm />
+      <FormischForm />
     </ToastProvider>
   );
 }

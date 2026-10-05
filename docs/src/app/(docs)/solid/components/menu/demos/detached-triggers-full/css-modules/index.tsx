@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
 import styles from '../../_index.module.css';
 import transitionStyles from './index.module.css';
@@ -55,22 +55,27 @@ export default function MenuDetachedTriggersFullDemo() {
             >
               <Menu.Popup class={[styles.Popup, transitionStyles.Popup]}>
                 <Menu.Viewport class={transitionStyles.Viewport}>
-                  {payload() &&
-                    MENUS[payload()!].groups.map((group, groupIndex) => [
-                      <Menu.Group>
-                        {groupIndex === 0 && (
-                          <Menu.GroupLabel class={styles.Label}>
-                            {MENUS[payload()!].heading}
-                          </Menu.GroupLabel>
-                        )}
-                        <For each={group}>
-                          {(item) => <Menu.Item class={styles.Item}>{item}</Menu.Item>}
-                        </For>
-                      </Menu.Group>,
-                      groupIndex < MENUS[payload()!].groups.length - 1 && (
-                        <Menu.Separator class={styles.Separator} />
-                      ),
-                    ])}
+                  <For each={payload() ? MENUS[payload()!].groups : []}>
+                    {(group, groupIndex) => (
+                      <>
+                        <Menu.Group>
+                          <Show when={groupIndex() === 0}>
+                            <Menu.GroupLabel class={styles.Label}>
+                              {payload() ? MENUS[payload()!].heading : null}
+                            </Menu.GroupLabel>
+                          </Show>
+                          <For each={group}>
+                            {(item) => <Menu.Item class={styles.Item}>{item}</Menu.Item>}
+                          </For>
+                        </Menu.Group>
+                        <Show
+                          when={payload() && groupIndex() < MENUS[payload()!].groups.length - 1}
+                        >
+                          <Menu.Separator class={styles.Separator} />
+                        </Show>
+                      </>
+                    )}
+                  </For>
                 </Menu.Viewport>
               </Menu.Popup>
             </Menu.Positioner>

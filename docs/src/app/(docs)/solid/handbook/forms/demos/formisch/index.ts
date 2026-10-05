@@ -18,15 +18,15 @@ import helperSource11 from '../components/fieldset.tsx?highlight';
 import helperSource12 from '../components/select.tsx?highlight';
 import helperSource13 from '../components/autocomplete.tsx?highlight';
 import helperSource14 from '../components/form.tsx?highlight';
-import helperSource15 from '../solid-controller.tsx?highlight';
+import helperSource15 from '../local-formisch.tsx?highlight';
 
-export const DemoReactHookForm = createDemoWithVariants([
+export const DemoFormisch = createDemoWithVariants([
   {
     name: 'Tailwind',
     component: Variant1,
     files: {
       'index.tsx': source1_0,
-      'solid-controller.tsx': helperSource15,
+      'local-formisch.tsx': helperSource15,
       'button.tsx': helperSource8,
       'checkbox-group.tsx': helperSource6,
       'form.tsx': helperSource14,

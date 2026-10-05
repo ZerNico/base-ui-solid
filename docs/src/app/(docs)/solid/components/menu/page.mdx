@@ -286,9 +286,9 @@ const demoMenu = Menu.createHandle<{ items: string[] }>();
       <Menu.Positioner>
         <Menu.Popup>
           <Menu.Viewport>
-            {(payload()?.items ?? []).map((item) => ( // @highlight-text "payload"
-              <Menu.Item>{item}</Menu.Item>
-            ))}
+            <For each={payload()?.items ?? []}> // @highlight-text "payload"
+              {(item) => <Menu.Item>{item}</Menu.Item>}
+            </For>
           </Menu.Viewport>
         </Menu.Popup>
       </Menu.Positioner>

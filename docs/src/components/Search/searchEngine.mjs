@@ -317,7 +317,7 @@ async function createSearch() {
   const enableStemming = true;
   const generateSlug = (title, parents) =>
     stringToUrl(
-      parents[0] === 'React Hook Form' || parents[0] === 'TanStack Form'
+      parents[0] === 'Formisch' || parents[0] === 'TanStack Form'
         ? `${parents[0]} ${title}`
         : title,
     );
