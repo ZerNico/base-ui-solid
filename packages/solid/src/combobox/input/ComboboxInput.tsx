@@ -13,6 +13,7 @@ import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui-solid/utils/platform';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -164,14 +165,17 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
     });
   }
 
-  const state = createMemo<ComboboxInputState>(() => ({
-    ...fieldStateForInput(),
-    open: open(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    popupSide: popupSide(),
-    listEmpty: listEmpty(),
-  }));
+  const state = createMemo<ComboboxInputState>(
+    () => ({
+      ...fieldStateForInput(),
+      open: open(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      popupSide: popupSide(),
+      listEmpty: listEmpty(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!comboboxChipsContext) {

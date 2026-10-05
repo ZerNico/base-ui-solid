@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -22,10 +23,13 @@ export function ToolbarGroup(componentProps: ToolbarGroup.Props) {
     disabled,
   };
 
-  const state = createMemo<ToolbarRootState>(() => ({
-    disabled: disabled(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<ToolbarRootState>(
+    () => ({
+      disabled: disabled(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <ToolbarGroupContext value={contextValue}>

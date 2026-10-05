@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import type { ToolbarRootItemMetadata, ToolbarRootState } from '../root/ToolbarRoot';
@@ -44,11 +45,14 @@ export function ToolbarButton(componentProps: ToolbarButton.Props) {
     native: () => componentProps.nativeButton,
   });
 
-  const state = createMemo<ToolbarButtonState>(() => ({
-    disabled: disabled(),
-    orientation: orientation(),
-    focusable: focusableWhenDisabled(),
-  }));
+  const state = createMemo<ToolbarButtonState>(
+    () => ({
+      disabled: disabled(),
+      orientation: orientation(),
+      focusable: focusableWhenDisabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <CompositeItem

@@ -6,6 +6,7 @@ import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   safePolygon,
   useClick,
@@ -308,10 +309,13 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
     triggerElementRef,
   );
 
-  const state = createMemo<MenuTriggerState>(() => ({
-    disabled: disabled(),
-    open: isOpenedByThisTrigger(),
-  }));
+  const state = createMemo<MenuTriggerState>(
+    () => ({
+      disabled: disabled(),
+      open: isOpenedByThisTrigger(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const ref = [
     (element: HTMLElement | null) => {

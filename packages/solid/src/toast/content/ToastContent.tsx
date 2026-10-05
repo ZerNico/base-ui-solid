@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -42,10 +43,13 @@ export function ToastContent(componentProps: ToastContent.Props) {
 
   const behind = () => visibleIndex() > 0;
 
-  const state = createMemo<ToastContentState>(() => ({
-    expanded: expanded(),
-    behind: behind(),
-  }));
+  const state = createMemo<ToastContentState>(
+    () => ({
+      expanded: expanded(),
+      behind: behind(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     ref: (element: HTMLDivElement | null) => {

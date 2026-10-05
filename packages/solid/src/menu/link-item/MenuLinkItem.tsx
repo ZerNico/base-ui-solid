@@ -2,6 +2,7 @@ import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { createMemo, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -63,7 +64,9 @@ function MenuLinkItemPlain(componentProps: MenuLinkItem.Props) {
     return mergePropsSnapshot<any>(commonProps(), externalProps, getButtonProps);
   }
 
-  const state = createMemo<MenuLinkItemState>(() => ({ highlighted: highlighted() }));
+  const state = createMemo<MenuLinkItemState>(() => ({ highlighted: highlighted() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   return useRenderElement('a', componentProps, {
     state,

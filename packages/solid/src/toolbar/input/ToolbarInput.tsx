@@ -1,4 +1,5 @@
 import { createMemo, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import type { ToolbarRootItemMetadata, ToolbarRootState } from '../root/ToolbarRoot';
@@ -43,11 +44,14 @@ export function ToolbarInput(componentProps: ToolbarInput.Props) {
     isNativeButton: () => false,
   });
 
-  const state = createMemo<ToolbarInputState>(() => ({
-    disabled: disabled(),
-    orientation: orientation(),
-    focusable: focusableWhenDisabled(),
-  }));
+  const state = createMemo<ToolbarInputState>(
+    () => ({
+      disabled: disabled(),
+      orientation: orientation(),
+      focusable: focusableWhenDisabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const preventWhenDisabled = (event: Event) => {
     if (untrack(disabled)) {

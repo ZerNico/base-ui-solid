@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -17,9 +18,12 @@ export function FieldsetLegend(componentProps: FieldsetLegend.Props) {
 
   const id = useRegisteredLabelId(() => componentProps.id || undefined, setLegendId);
 
-  const state = createMemo<FieldsetLegendState>(() => ({
-    disabled: disabled(),
-  }));
+  const state = createMemo<FieldsetLegendState>(
+    () => ({
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

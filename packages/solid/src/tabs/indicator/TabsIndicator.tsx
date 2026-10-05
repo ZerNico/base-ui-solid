@@ -4,6 +4,7 @@ import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-u
 import { ownerWindow } from '@base-ui-solid/utils/owner';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { script as prehydrationScript } from '#prehydration/tabs/indicator';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
@@ -143,15 +144,18 @@ export function TabsIndicator(componentProps: TabsIndicator.Props) {
     return isTabSelected && width > 0 && height > 0;
   };
 
-  const state = createMemo<TabsIndicatorState>(() => {
-    const { left, right, top, bottom, width, height, isTabSelected } = measurement();
-    return {
-      orientation: orientation(),
-      activeTabPosition: isTabSelected ? { left, right, top, bottom } : null,
-      activeTabSize: isTabSelected ? { width, height } : null,
-      tabActivationDirection: tabActivationDirection(),
-    };
-  });
+  const state = createMemo<TabsIndicatorState>(
+    () => {
+      const { left, right, top, bottom, width, height, isTabSelected } = measurement();
+      return {
+        orientation: orientation(),
+        activeTabPosition: isTabSelected ? { left, right, top, bottom } : null,
+        activeTabSize: isTabSelected ? { width, height } : null,
+        tabActivationDirection: tabActivationDirection(),
+      };
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   // Port note: React's `suppressHydrationWarning` has no Solid counterpart; Solid doesn't compare
   // attributes while hydrating.

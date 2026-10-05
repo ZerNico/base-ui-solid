@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
@@ -22,10 +23,13 @@ export function PopoverBackdrop(props: PopoverBackdrop.Props) {
   const transitionStatus = store.useState('transitionStatus');
   const openReason = store.useState('openChangeReason');
 
-  const state = createMemo<PopoverBackdropState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<PopoverBackdropState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('div', props, {
     state,

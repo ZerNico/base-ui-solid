@@ -2,6 +2,7 @@ import { createMemo, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import { useListEmpty } from '../utils/parts';
@@ -120,13 +121,16 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
     triggerElement,
   );
 
-  const state = createMemo<ComboboxPositionerState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    empty: empty(),
-  }));
+  const state = createMemo<ComboboxPositionerState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      empty: empty(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useIsoLayoutEffect(
     ([side]) => {

@@ -1,6 +1,7 @@
 import { createMemo, omit, Show, untrack } from 'solid-js';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -70,12 +71,15 @@ export function SelectScrollArrow(componentProps: SelectScrollArrow.Props) {
     },
   });
 
-  const state = createMemo<SelectScrollArrowState>(() => ({
-    direction: componentProps.direction,
-    visible: visible(),
-    side: positioner.side,
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<SelectScrollArrowState>(
+    () => ({
+      direction: componentProps.direction,
+      visible: visible(),
+      side: positioner.side,
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const defaultProps = {
     'aria-hidden': true,

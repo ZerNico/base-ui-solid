@@ -1,5 +1,6 @@
 import { children as resolveChildren, createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { omitProps } from '../../merge-props/mergeProps';
 import { useToastRootContext } from '../root/ToastRootContext';
@@ -36,9 +37,12 @@ export function ToastAction(componentProps: ToastAction.Props) {
     native: () => componentProps.nativeButton ?? true,
   });
 
-  const state = createMemo<ToastActionState>(() => ({
-    type: toast().type,
-  }));
+  const state = createMemo<ToastActionState>(
+    () => ({
+      type: toast().type,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const childrenProps = {
     get children() {

@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -21,12 +22,15 @@ export function ComboboxArrow(componentProps: ComboboxArrow.Props): JSX.Element 
 
   const open = store.useState('open');
 
-  const state = createMemo<ComboboxArrowState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-  }));
+  const state = createMemo<ComboboxArrowState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     ref: [

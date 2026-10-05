@@ -1,6 +1,7 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -36,10 +37,13 @@ export function SelectValue<Value = any>(componentProps: SelectValue.Props<Value
     !hasSelectedValue() && placeholder() != null && childrenProp() == null;
   const hasNullLabel = store.useState('hasNullItemLabel', shouldCheckNullItemLabel);
 
-  const state = createMemo<SelectValueState>(() => ({
-    value: value(),
-    placeholder: !hasSelectedValue(),
-  }));
+  const state = createMemo<SelectValueState>(
+    () => ({
+      value: value(),
+      placeholder: !hasSelectedValue(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   // Port note: upstream calls a `children` function on every render. Here it's called once (again
   // only if the function itself changes) with an accessor of the value, so its DOM updates in place.

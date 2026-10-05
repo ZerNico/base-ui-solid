@@ -8,6 +8,7 @@ import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayout
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { warn } from '@base-ui-solid/utils/warn';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { contains } from '../../floating-ui-solid/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -334,17 +335,20 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
     return index === 0 ? currentId : `${currentId}-${index + 1}`;
   }
 
-  const state = createMemo<OTPFieldRootState>(() => ({
-    ...fieldState(),
-    complete: value().length === length(),
-    disabled: disabled(),
-    filled: filled(),
-    focused: focused(),
-    length: length(),
-    readOnly: readOnly(),
-    required: required(),
-    value: value(),
-  }));
+  const state = createMemo<OTPFieldRootState>(
+    () => ({
+      ...fieldState(),
+      complete: value().length === length(),
+      disabled: disabled(),
+      filled: filled(),
+      focused: focused(),
+      length: length(),
+      readOnly: readOnly(),
+      required: required(),
+      value: value(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: OTPFieldRootContext = {
     autoComplete,

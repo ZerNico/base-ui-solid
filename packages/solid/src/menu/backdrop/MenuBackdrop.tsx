@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -24,10 +25,13 @@ export function MenuBackdrop(componentProps: MenuBackdrop.Props) {
 
   const contextMenuContext = useContextMenuRootContext();
 
-  const state = createMemo<MenuBackdropState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<MenuBackdropState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     // Port note: the forwarded ref is part of `elementProps`; the context menu's ref object is

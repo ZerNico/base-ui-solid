@@ -6,6 +6,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visual
 import { ownerWindow } from '@base-ui-solid/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui-solid/utils/getDefaultFormSubmitter';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -355,14 +356,17 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
     () => [parentContext(), disabled(), value()] as const,
   );
 
-  const state = createMemo<CheckboxRootState>(() => ({
-    ...fieldState(),
-    checked: computedChecked(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    required: required(),
-    indeterminate: computedIndeterminate(),
-  }));
+  const state = createMemo<CheckboxRootState>(
+    () => ({
+      ...fieldState(),
+      checked: computedChecked(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      required: required(),
+      indeterminate: computedIndeterminate(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   let rootElement: HTMLElement | null = null;
 

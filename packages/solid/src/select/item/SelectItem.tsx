@@ -2,6 +2,7 @@ import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
@@ -138,11 +139,14 @@ export function SelectItem(componentProps: SelectItem.Props) {
     composite: () => true,
   });
 
-  const state = createMemo<SelectItemState>(() => ({
-    disabled: disabled(),
-    selected: selected(),
-    highlighted: highlighted(),
-  }));
+  const state = createMemo<SelectItemState>(
+    () => ({
+      disabled: disabled(),
+      selected: selected(),
+      highlighted: highlighted(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function commitSelection(event: MouseEvent | KeyboardEvent | PointerEvent) {
     // A forced-open select (`open`/`defaultOpen`) can still receive item activations even

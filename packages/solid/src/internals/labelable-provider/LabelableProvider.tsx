@@ -1,4 +1,7 @@
-import { createSignal } from 'solid-js';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
+import type { Accessor } from 'solid-js';
+import { isServer } from '@solidjs/web';
+import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import type { JSX } from '@solidjs/web';
 import type { HTMLProps } from '../types';
 import { omitProps } from '../../merge-props/mergeProps';
@@ -10,7 +13,47 @@ export function LabelableProvider(props: LabelableProvider.Props) {
 
   const [controlIdState, setControlIdState] = createSignal<string | null | undefined>(defaultId);
   const [labelId, setLabelId] = createSignal<string | undefined>();
-  const [messageIds, setMessageIds] = createSignal<string[]>([]);
+  // Port note: upstream's description and error parts append their id to `messageIds` from an
+  // effect when they render, and remove it on cleanup. Here they register an accessor of their id
+  // once, and `messageIds` is derived from the registered accessors, so the control's
+  // `aria-describedby` updates in the same flush as the part. Ids keep upstream's order: the
+  // order in which they became active.
+  const [messageIdSources, setMessageIdSources] = createSignal<
+    Accessor<MessageIdEntry | undefined>[]
+  >([], { ownedWrite: true });
+  let activationCount = 0;
+
+  const registerMessageId = (id: Accessor<string | false | null | undefined>) => {
+    if (isServer) {
+      // Like upstream's effects, registrations don't run on the server.
+      return;
+    }
+    const entry = createMemo<MessageIdEntry | undefined>((prev) => {
+      const currentId = id();
+      if (!currentId) {
+        return undefined;
+      }
+      if (prev?.id === currentId) {
+        return prev;
+      }
+      activationCount += 1;
+      return { id: currentId, order: activationCount };
+    });
+    setMessageIdSources((prev) => [...prev, entry]);
+    onCleanup(() => {
+      setMessageIdSources((prev) => prev.filter((item) => item !== entry));
+    });
+  };
+
+  const messageIds = createMemo(
+    () =>
+      messageIdSources()
+        .map((source) => source())
+        .filter((entry): entry is MessageIdEntry => entry !== undefined)
+        .sort((a, b) => a.order - b.order)
+        .map((entry) => entry.id),
+    { equals: areArraysEqual },
+  );
 
   // Do not use `??`: `null` deliberately suppresses `for`.
   const controlId = () => {
@@ -79,11 +122,16 @@ export function LabelableProvider(props: LabelableProvider.Props) {
     labelId,
     setLabelId,
     messageIds,
-    setMessageIds,
+    registerMessageId,
     getDescriptionProps,
   };
 
   return <LabelableContext value={contextValue}>{props.children}</LabelableContext>;
+}
+
+interface MessageIdEntry {
+  id: string;
+  order: number;
 }
 
 export interface LabelableProviderState {}

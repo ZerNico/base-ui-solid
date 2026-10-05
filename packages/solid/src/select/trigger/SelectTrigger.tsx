@@ -4,6 +4,7 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -230,15 +231,18 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
     return validationProps;
   });
 
-  const state = createMemo<SelectTriggerState>(() => ({
-    ...fieldState(),
-    open: open(),
-    disabled: disabled(),
-    value: value(),
-    readOnly: readOnly(),
-    popupSide: popupSide(),
-    placeholder: !hasSelectedValue(),
-  }));
+  const state = createMemo<SelectTriggerState>(
+    () => ({
+      ...fieldState(),
+      open: open(),
+      disabled: disabled(),
+      value: value(),
+      readOnly: readOnly(),
+      popupSide: popupSide(),
+      placeholder: !hasSelectedValue(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('button', componentProps, {
     ref: [triggerRef, buttonRef, setTriggerElement],

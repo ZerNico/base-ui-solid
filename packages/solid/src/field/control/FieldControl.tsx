@@ -3,6 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -63,10 +64,13 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
   const nameProp = () => componentProps.name || undefined;
   const name = () => fieldName() ?? nameProp();
 
-  const state = createMemo<FieldControlState>(() => ({
-    ...fieldState(),
-    disabled: disabled(),
-  }));
+  const state = createMemo<FieldControlState>(
+    () => ({
+      ...fieldState(),
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const { labelId } = useLabelableContext();
 

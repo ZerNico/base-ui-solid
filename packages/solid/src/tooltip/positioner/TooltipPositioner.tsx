@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -101,13 +102,16 @@ export function TooltipPositioner(componentProps: TooltipPositioner.Props): JSX.
     },
   });
 
-  const state = createMemo<TooltipPositionerState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: trackCursorAxis() !== 'none' ? 'tracking-cursor' : instantType(),
-  }));
+  const state = createMemo<TooltipPositionerState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      instant: trackCursorAxis() !== 'none' ? 'tracking-cursor' : instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const setPositionerElement = store.useStateSetter('positionerElement');
 

@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
@@ -66,20 +67,26 @@ export function AccordionItem(componentProps: AccordionItem.Props) {
   const collapsibleContext: CollapsibleRootContext = {
     ...collapsible,
     onOpenChange,
-    state: createMemo(() => ({
-      open: collapsible.open(),
-      disabled: collapsible.disabled(),
-      transitionStatus: collapsible.transitionStatus(),
-    })),
+    state: createMemo(
+      () => ({
+        open: collapsible.open(),
+        disabled: collapsible.disabled(),
+        transitionStatus: collapsible.transitionStatus(),
+      }),
+      { equals: fastObjectShallowCompare },
+    ),
   };
 
-  const state = createMemo<AccordionItemState>(() => ({
-    ...rootState(),
-    hidden: !isOpen() && !collapsible.mounted(),
-    index: index(),
-    disabled: disabled(),
-    open: isOpen(),
-  }));
+  const state = createMemo<AccordionItemState>(
+    () => ({
+      ...rootState(),
+      hidden: !isOpen() && !collapsible.mounted(),
+      index: index(),
+      disabled: disabled(),
+      open: isOpen(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const defaultTriggerId = useBaseUiId();
   // `undefined` uses the initial generated fallback; `null` means the trigger unmounted.

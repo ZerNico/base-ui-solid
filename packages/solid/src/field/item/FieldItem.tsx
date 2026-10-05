@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
@@ -19,7 +20,9 @@ export function FieldItem(componentProps: FieldItem.Props) {
   const { state: fieldState, disabled: rootDisabled } = useFieldRootContext(false);
 
   const disabled = () => (rootDisabled() ?? false) || (componentProps.disabled ?? false);
-  const state = createMemo<FieldItemState>(() => ({ ...fieldState(), disabled: disabled() }));
+  const state = createMemo<FieldItemState>(() => ({ ...fieldState(), disabled: disabled() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   const fieldItemContext: FieldItemContext = { disabled };
 

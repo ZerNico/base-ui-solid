@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -41,9 +42,12 @@ export function ComboboxChipRemove(componentProps: ComboboxChipRemove.Props): JS
     focusableWhenDisabled: () => true,
   });
 
-  const state = createMemo<ComboboxChipRemoveState>(() => ({
-    disabled: disabled(),
-  }));
+  const state = createMemo<ComboboxChipRemoveState>(
+    () => ({
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function clearActiveIndexForRemovedItem(removedItem: any, event: Event) {
     const activeIndex = store.state.activeIndex;

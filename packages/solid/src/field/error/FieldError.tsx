@@ -1,6 +1,6 @@
 import { For, Show, createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { FieldRootState, FieldValidityData } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -33,7 +33,7 @@ export function FieldError(componentProps: FieldError.Props) {
   const id = () => componentProps.id ?? generatedId;
 
   const { validityData, state: fieldState, name } = useFieldRootContext(false);
-  const { setMessageIds } = useLabelableContext();
+  const { registerMessageId } = useLabelableContext();
 
   const { errors } = useFormContext();
 
@@ -66,20 +66,7 @@ export function FieldError(componentProps: FieldError.Props) {
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  useIsoLayoutEffect(
-    ([isRendered, currentId]) => {
-      if (!isRendered || !currentId) {
-        return undefined;
-      }
-
-      setMessageIds((v) => v.concat(currentId));
-
-      return () => {
-        setMessageIds((v) => v.filter((item) => item !== currentId));
-      };
-    },
-    () => [rendered(), id()],
-  );
+  registerMessageId(() => (rendered() ? id() : undefined));
 
   let errorElement: HTMLDivElement | null = null;
 
@@ -134,10 +121,13 @@ export function FieldError(componentProps: FieldError.Props) {
     },
   });
 
-  const state = createMemo<FieldErrorState>(() => ({
-    ...fieldState(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<FieldErrorState>(
+    () => ({
+      ...fieldState(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <Show when={mounted()}>

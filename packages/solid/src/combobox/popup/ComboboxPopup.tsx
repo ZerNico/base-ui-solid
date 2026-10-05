@@ -2,6 +2,7 @@ import { createMemo, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager } from '../../floating-ui-solid';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -80,14 +81,17 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
     },
   });
 
-  const state = createMemo<ComboboxPopupState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    transitionStatus: transitionStatus(),
-    empty: empty(),
-  }));
+  const state = createMemo<ComboboxPopupState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      transitionStatus: transitionStatus(),
+      empty: empty(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const renderElement = () =>
     useRenderElement('div', componentProps, {

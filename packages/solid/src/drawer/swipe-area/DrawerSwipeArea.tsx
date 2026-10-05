@@ -2,6 +2,7 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { isVirtualClick } from '../../floating-ui-solid/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -415,12 +416,15 @@ export const DrawerSwipeArea = function DrawerSwipeArea(componentProps: DrawerSw
     },
     () => [store],
   );
-  const state = createMemo<DrawerSwipeAreaState>(() => ({
-    open: open(),
-    swiping: swipe.swiping,
-    swipeDirection: resolvedSwipeDirection(),
-    disabled: componentProps.disabled ?? false,
-  }));
+  const state = createMemo<DrawerSwipeAreaState>(
+    () => ({
+      open: open(),
+      swiping: swipe.swiping,
+      swipeDirection: resolvedSwipeDirection(),
+      disabled: componentProps.disabled ?? false,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   return useRenderElement('div', componentProps, {
     state,
     ref: [

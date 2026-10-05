@@ -1,6 +1,7 @@
 import { Show, createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -159,13 +160,16 @@ export function AvatarImage(componentProps: AvatarImage.Props) {
     },
   });
 
-  const state = createMemo<AvatarImageState>(() => ({
-    imageLoadingStatus: imageLoadingStatus(),
-    // The element never unmounts with `keepMounted`, so an exit transition would play and then
-    // reverse itself once the status is cleared. `data-loading`/`data-error` cover that state.
-    transitionStatus:
-      keepMounted() && transitionStatus() === 'ending' ? undefined : transitionStatus(),
-  }));
+  const state = createMemo<AvatarImageState>(
+    () => ({
+      imageLoadingStatus: imageLoadingStatus(),
+      // The element never unmounts with `keepMounted`, so an exit transition would play and then
+      // reverse itself once the status is cleared. `data-loading`/`data-error` cover that state.
+      transitionStatus:
+        keepMounted() && transitionStatus() === 'ending' ? undefined : transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const shouldRender = () => keepMounted() || mounted();
 

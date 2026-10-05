@@ -1,6 +1,7 @@
 import { createMemo, createSignal, omit } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
@@ -83,10 +84,13 @@ export function TabsList(componentProps: TabsList.Props) {
     };
   };
 
-  const state = createMemo<TabsListState>(() => ({
-    orientation: orientation(),
-    tabActivationDirection: tabActivationDirection(),
-  }));
+  const state = createMemo<TabsListState>(
+    () => ({
+      orientation: orientation(),
+      tabActivationDirection: tabActivationDirection(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const defaultProps = (): HTMLProps => ({
     'aria-orientation': orientation() === 'vertical' ? 'vertical' : undefined,

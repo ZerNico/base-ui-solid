@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -22,9 +23,12 @@ export function ToolbarLink(componentProps: ToolbarLink.Props) {
 
   const { orientation } = useToolbarRootContext();
 
-  const state = createMemo<ToolbarLinkState>(() => ({
-    orientation: orientation(),
-  }));
+  const state = createMemo<ToolbarLinkState>(
+    () => ({
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <CompositeItem

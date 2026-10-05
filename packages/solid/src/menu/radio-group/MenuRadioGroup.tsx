@@ -1,6 +1,7 @@
 import { createMemo, createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { MenuGroupContext } from '../group/MenuGroupContext';
@@ -43,7 +44,9 @@ export function MenuRadioGroupPlain(componentProps: MenuRadioGroup.Props) {
     setValueUnwrapped(newValue);
   };
 
-  const state = createMemo<MenuRadioGroupState>(() => ({ disabled: disabled() }));
+  const state = createMemo<MenuRadioGroupState>(() => ({ disabled: disabled() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   const context: MenuRadioGroupContext = {
     get value() {

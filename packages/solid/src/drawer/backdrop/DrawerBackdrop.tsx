@@ -1,5 +1,6 @@
 import type { JSX } from '@solidjs/web';
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -20,10 +21,13 @@ export const DrawerBackdrop = function DrawerBackdrop(componentProps: DrawerBack
   const nested = store.useState('nested');
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
-  const state = createMemo<DrawerBackdropState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<DrawerBackdropState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   return useRenderElement('div', componentProps, {
     state,
     ref: (element) => {

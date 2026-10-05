@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -28,12 +29,15 @@ export function DialogViewport(componentProps: DialogViewport.Props) {
 
   const nestedDialogOpen = () => nestedOpenDialogCount() > 0;
 
-  const state = createMemo<DialogViewportState>(() => ({
-    open: open(),
-    nested: nested(),
-    transitionStatus: transitionStatus(),
-    nestedDialogOpen: nestedDialogOpen(),
-  }));
+  const state = createMemo<DialogViewportState>(
+    () => ({
+      open: open(),
+      nested: nested(),
+      transitionStatus: transitionStatus(),
+      nestedDialogOpen: nestedDialogOpen(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const shouldRender = () => keepMounted() || mounted();
 

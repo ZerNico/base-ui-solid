@@ -1391,14 +1391,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // This render-scoped flag prevents duplicate callbacks and resets so canceled writes can retry.
   // Port note: there's no render scope, so the flag is tied to a token that changes whenever the
   // values the triggers read change (the counterpart of a new render).
+  // A counter rather than a fresh object, so each run produces a distinct value.
+  let renderCount = 0;
   const renderToken = createMemo(() => {
     inputValue();
     selectedLabelString();
     items();
     selectedValue();
-    return {};
+    renderCount += 1;
+    return renderCount;
   });
-  let syncedSelectedLabelToken: object | undefined;
+  let syncedSelectedLabelToken: number | undefined;
 
   function syncInputToSelectedLabel() {
     const token = untrack(renderToken);

@@ -4,6 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -275,9 +276,12 @@ export function TooltipTrigger<Payload>(
   const shouldApplyRootTriggerProps = () =>
     isMountedByThisTrigger() || storeParts().trackCursorAxis() !== 'none';
 
-  const state = createMemo<TooltipTriggerState>(() => ({
-    open: storeParts().isOpenedByThisTrigger(),
-  }));
+  const state = createMemo<TooltipTriggerState>(
+    () => ({
+      open: storeParts().isOpenedByThisTrigger(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   // React's `onFocus` bubbles, so it maps to `onFocusIn`.
   const ownProps: HTMLProps = {

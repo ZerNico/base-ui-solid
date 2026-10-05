@@ -2,6 +2,7 @@ import { createMemo, omit } from 'solid-js';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
@@ -26,10 +27,13 @@ export function FieldLabel(componentProps: FieldLabel.Props) {
 
   const nativeLabel = () => componentProps.nativeLabel ?? true;
 
-  const state = createMemo<FieldLabelState>(() => ({
-    ...fieldRootContext.state(),
-    disabled: (fieldRootContext.disabled() ?? false) || fieldItemContext.disabled(),
-  }));
+  const state = createMemo<FieldLabelState>(
+    () => ({
+      ...fieldRootContext.state(),
+      disabled: (fieldRootContext.disabled() ?? false) || fieldItemContext.disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   let labelElement: HTMLElement | null = null;
   const labelProps = useLabel({

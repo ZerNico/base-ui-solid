@@ -1,4 +1,5 @@
 import { createMemo, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -36,12 +37,15 @@ export function MenuRadioItemIndicator(componentProps: MenuRadioItemIndicator.Pr
     },
   });
 
-  const state = createMemo<MenuRadioItemIndicatorState>(() => ({
-    checked: item().checked,
-    disabled: item().disabled,
-    highlighted: item().highlighted,
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<MenuRadioItemIndicatorState>(
+    () => ({
+      checked: item().checked,
+      disabled: item().disabled,
+      highlighted: item().highlighted,
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('span', componentProps, {
     state,

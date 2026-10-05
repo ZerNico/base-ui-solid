@@ -6,6 +6,7 @@ import { warn } from '@base-ui-solid/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { AccordionRootContext } from './AccordionRootContext';
@@ -95,11 +96,14 @@ export function AccordionRoot<Value = any>(
       setValue(nextValue);
     });
 
-  const state = createMemo<AccordionRoot.State<Value>>(() => ({
-    value: value(),
-    disabled: disabled(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<AccordionRoot.State<Value>>(
+    () => ({
+      value: value(),
+      disabled: disabled(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: AccordionRootContext<Value> = {
     disabled,

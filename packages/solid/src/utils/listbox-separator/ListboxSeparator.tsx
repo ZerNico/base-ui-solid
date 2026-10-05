@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 
@@ -11,9 +12,12 @@ import { useRenderElement } from '../../internals/useRenderElement';
 export function ListboxSeparator(componentProps: ListboxSeparator.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'orientation', 'style');
 
-  const state = createMemo<ListboxSeparatorState>(() => ({
-    orientation: componentProps.orientation ?? 'horizontal',
-  }));
+  const state = createMemo<ListboxSeparatorState>(
+    () => ({
+      orientation: componentProps.orientation ?? 'horizontal',
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -54,13 +55,16 @@ export function TooltipPopup(componentProps: TooltipPopup.Props): JSX.Element {
 
   const setPopupElement = store.useStateSetter('popupElement');
 
-  const state = createMemo<TooltipPopupState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    instant: instantType(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<TooltipPopupState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      instant: instantType(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

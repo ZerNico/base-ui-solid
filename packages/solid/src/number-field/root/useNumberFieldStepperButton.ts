@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -180,10 +181,13 @@ export function useNumberFieldStepperButton(
     focusableWhenDisabled: () => true,
   });
 
-  const buttonState = createMemo<NumberFieldRootState>(() => ({
-    ...state(),
-    disabled: disabled(),
-  }));
+  const buttonState = createMemo<NumberFieldRootState>(
+    () => ({
+      ...state(),
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('button', componentProps, {
     ref: buttonRef,

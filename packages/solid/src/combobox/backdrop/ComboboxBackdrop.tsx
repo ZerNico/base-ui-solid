@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -28,10 +29,13 @@ export function ComboboxBackdrop(componentProps: ComboboxBackdrop.Props): JSX.El
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state = createMemo<ComboboxBackdropState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<ComboboxBackdropState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

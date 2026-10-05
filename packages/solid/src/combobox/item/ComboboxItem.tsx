@@ -3,6 +3,7 @@ import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   useComboboxRootContext,
   useComboboxHasItemsContext,
@@ -164,11 +165,14 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     composite: () => true,
   });
 
-  const state = createMemo<ComboboxItemState>(() => ({
-    disabled: disabled(),
-    selected: selected(),
-    highlighted: highlighted(),
-  }));
+  const state = createMemo<ComboboxItemState>(
+    () => ({
+      disabled: disabled(),
+      selected: selected(),
+      highlighted: highlighted(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function commitSelection(nativeEvent: MouseEvent) {
     function selectItem() {

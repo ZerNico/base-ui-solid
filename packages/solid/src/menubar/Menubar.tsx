@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   FloatingNode,
   FloatingTree,
@@ -52,11 +53,14 @@ export function Menubar(props: Menubar.Props) {
   const generatedId = useBaseUiId();
   const id = () => (typeof props.id === 'string' ? props.id : generatedId);
 
-  const state = createMemo<MenubarState>(() => ({
-    orientation: orientation(),
-    modal: modal(),
-    hasSubmenuOpen: hasSubmenuOpen(),
-  }));
+  const state = createMemo<MenubarState>(
+    () => ({
+      orientation: orientation(),
+      modal: modal(),
+      hasSubmenuOpen: hasSubmenuOpen(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   const allowMouseUpTriggerRef = refObject(false);
   // Port note: context getters retain prop and signal reactivity.
   const context: MenubarContext = {

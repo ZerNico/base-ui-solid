@@ -4,6 +4,7 @@ import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
 import { ownerWindow } from '@base-ui-solid/utils/owner';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -168,13 +169,16 @@ export function NavigationMenuPositioner(componentProps: NavigationMenuPositione
     adaptiveOrigin,
   });
 
-  const state = createMemo<NavigationMenuPositionerState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instant(),
-  }));
+  const state = createMemo<NavigationMenuPositionerState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      instant: instant(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useEffect(
     ([isOpen, positioner]) => {

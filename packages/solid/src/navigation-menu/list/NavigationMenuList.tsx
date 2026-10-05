@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-solid';
 import type { ElementProps } from '../../floating-ui-solid';
 import { closest, getTarget } from '../../floating-ui-solid/utils';
@@ -78,9 +79,12 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
   const dismissProps = (): ElementProps | undefined =>
     floatingRootContext() ? dismiss() : undefined;
 
-  const state = createMemo<NavigationMenuListState>(() => ({
-    open: open(),
-  }));
+  const state = createMemo<NavigationMenuListState>(
+    () => ({
+      open: open(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
   // but we want to block it in this case.

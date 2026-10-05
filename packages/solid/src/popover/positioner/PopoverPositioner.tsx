@@ -1,5 +1,6 @@
 import { createMemo, omit, Show } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-solid';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -134,13 +135,16 @@ export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
 
   const setPositionerElement = store.useStateSetter('positionerElement');
 
-  const state = createMemo<PopoverPositionerState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instantType(),
-  }));
+  const state = createMemo<PopoverPositionerState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <PopoverPositionerContext value={positioning}>

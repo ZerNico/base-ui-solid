@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -149,12 +150,15 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
   const positionerStyles = () =>
     alignItemWithTriggerActive() ? FIXED : positioning.positionerStyles;
 
-  const state = createMemo<SelectPositionerState>(() => ({
-    open: open(),
-    side: renderedSide(),
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-  }));
+  const state = createMemo<SelectPositionerState>(
+    () => ({
+      open: open(),
+      side: renderedSide(),
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useIsoLayoutEffect(
     ([side]) => {

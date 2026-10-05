@@ -5,6 +5,7 @@ import type { Rect } from '@floating-ui/utils';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   autoUpdate,
   flip,
@@ -559,44 +560,47 @@ export function useAnchorPositioningWithHook(
   const resolvedPosition = (): 'absolute' | 'fixed' =>
     floating.isPositioned ? positionMethod() : 'fixed';
 
-  const floatingStyles = createMemo<JSX.CSSProperties>(() => {
-    const isPositioned = floating.isPositioned;
-    let base: JSX.CSSProperties & Record<string, unknown>;
-    if (!isPositioned) {
-      // Until a position for the current open is computed, ignore any coordinates retained from a
-      // previous open (or from a pass that measured the hidden popup as 0x0). Rendering the
-      // full-size popup at such stale coordinates can overflow the layout viewport, which makes
-      // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
-      base = { position: resolvedPosition(), top: 0, left: 0 };
-    } else if (adaptiveOrigin()) {
-      const { sideX, sideY } = floating.middlewareData.adaptiveOrigin || DEFAULT_SIDES;
-      // Port note: Solid doesn't add `px` to numeric style values.
-      base = {
-        position: resolvedPosition(),
-        [sideX]: `${floating.x}px`,
-        [sideY]: `${floating.y}px`,
-      };
-    } else {
-      base = { ...floating.floatingStyles, position: resolvedPosition() };
-    }
+  const floatingStyles = createMemo<JSX.CSSProperties>(
+    () => {
+      const isPositioned = floating.isPositioned;
+      let base: JSX.CSSProperties & Record<string, unknown>;
+      if (!isPositioned) {
+        // Until a position for the current open is computed, ignore any coordinates retained from a
+        // previous open (or from a pass that measured the hidden popup as 0x0). Rendering the
+        // full-size popup at such stale coordinates can overflow the layout viewport, which makes
+        // mobile Chrome zoom the page out and reflow everything the popup is anchored to.
+        base = { position: resolvedPosition(), top: 0, left: 0 };
+      } else if (adaptiveOrigin()) {
+        const { sideX, sideY } = floating.middlewareData.adaptiveOrigin || DEFAULT_SIDES;
+        // Port note: Solid doesn't add `px` to numeric style values.
+        base = {
+          position: resolvedPosition(),
+          [sideX]: `${floating.x}px`,
+          [sideY]: `${floating.y}px`,
+        };
+      } else {
+        base = { ...floating.floatingStyles, position: resolvedPosition() };
+      }
 
-    // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
-    // resolve to a valid length on the first positioning pass, before `size()` writes the real
-    // values. Without a fallback the unresolved `var()` invalidates the whole declaration, so the
-    // popup is measured unconstrained while `flip()` picks its side, against the full content
-    // height rather than the capped one. Seeded unconditionally (not only while `!isPositioned`):
-    // the keys must stay present with a constant value so React's per-property style diff never
-    // rewrites them after mount, preserving the px values `size()` sets imperatively. Moving them
-    // into the `!isPositioned` branch makes React remove them once positioned, wiping `size()`'s
-    // values and leaving the popup unconstrained.
-    base[AVAILABLE_WIDTH_VAR] = '100vw';
-    base[AVAILABLE_HEIGHT_VAR] = '100vh';
+      // Seed the available size vars so consumer `max-height: min(x, var(--available-height))` rules
+      // resolve to a valid length on the first positioning pass, before `size()` writes the real
+      // values. Without a fallback the unresolved `var()` invalidates the whole declaration, so the
+      // popup is measured unconstrained while `flip()` picks its side, against the full content
+      // height rather than the capped one. Seeded unconditionally (not only while `!isPositioned`):
+      // the keys must stay present with a constant value so React's per-property style diff never
+      // rewrites them after mount, preserving the px values `size()` sets imperatively. Moving them
+      // into the `!isPositioned` branch makes React remove them once positioned, wiping `size()`'s
+      // values and leaving the popup unconstrained.
+      base[AVAILABLE_WIDTH_VAR] = '100vw';
+      base[AVAILABLE_HEIGHT_VAR] = '100vh';
 
-    if (!isPositioned) {
-      base.opacity = 0;
-    }
-    return base;
-  });
+      if (!isPositioned) {
+        base.opacity = 0;
+      }
+      return base;
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   let registeredPositionReference: Element | VirtualElement | null = null;
 
@@ -690,15 +694,18 @@ export function useAnchorPositioningWithHook(
     ],
   );
 
-  const arrowStyles = createMemo<JSX.CSSProperties>(() => {
-    const arrowData = floating.middlewareData.arrow;
-    // Port note: Solid doesn't add `px` to numeric style values.
-    return {
-      position: 'absolute' as const,
-      top: arrowData?.y != null ? `${arrowData.y}px` : undefined,
-      left: arrowData?.x != null ? `${arrowData.x}px` : undefined,
-    };
-  });
+  const arrowStyles = createMemo<JSX.CSSProperties>(
+    () => {
+      const arrowData = floating.middlewareData.arrow;
+      // Port note: Solid doesn't add `px` to numeric style values.
+      return {
+        position: 'absolute' as const,
+        top: arrowData?.y != null ? `${arrowData.y}px` : undefined,
+        left: arrowData?.x != null ? `${arrowData.x}px` : undefined,
+      };
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   const arrowUncentered = createMemo(() => floating.middlewareData.arrow?.centerOffset !== 0);
 

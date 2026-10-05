@@ -1,6 +1,7 @@
 import { createSignal, createMemo, omit, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui-solid/utils/platform';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -39,11 +40,14 @@ export function FilterDropdownInput(componentProps: FilterDropdownInputHostProps
     const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
     context.onValueChange(nextValue, createChangeEventDetails(reason, nativeEvent));
   }
-  const state = createMemo<FilterDropdownInputState>(() => ({
-    highlighted:
-      context.inputFocusVisible &&
-      (!context.keyboardModality || componentProps.activeItemId == null),
-  }));
+  const state = createMemo<FilterDropdownInputState>(
+    () => ({
+      highlighted:
+        context.inputFocusVisible &&
+        (!context.keyboardModality || componentProps.activeItemId == null),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   let inputElement: HTMLInputElement | null = null;
   // Port note: Solid reapplies value on spreads; write only when different to preserve the caret.
   useIsoLayoutEffect(

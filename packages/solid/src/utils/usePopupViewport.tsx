@@ -7,6 +7,7 @@ import { usePreviousValue } from '@base-ui-solid/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import type { SolidStore } from '@base-ui-solid/utils/store';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
@@ -368,10 +369,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
     },
   });
 
-  const state = createMemo<PopupViewportState>(() => ({
-    activationDirection: getActivationDirection(newTriggerOffset()),
-    transitioning: isTransitioning(),
-  }));
+  const state = createMemo<PopupViewportState>(
+    () => ({
+      activationDirection: getActivationDirection(newTriggerOffset()),
+      transitioning: isTransitioning(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return { children: childrenToRender, state };
 }

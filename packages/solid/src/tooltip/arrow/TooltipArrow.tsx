@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -22,13 +23,16 @@ export function TooltipArrow(componentProps: TooltipArrow.Props): JSX.Element {
   const open = store.useState('open');
   const instantType = store.useState('instantType');
 
-  const state = createMemo<TooltipArrowState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-    instant: instantType(),
-  }));
+  const state = createMemo<TooltipArrowState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

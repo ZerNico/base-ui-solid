@@ -4,6 +4,7 @@ import { computePosition } from '@floating-ui/dom';
 import type { ComputePositionConfig } from '@floating-ui/dom';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { deepEqual, getDPR, roundByDPR } from './utils';
 import type {
   ReferenceType,
@@ -145,37 +146,40 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     () => [referenceEl(), floatingEl(), config(), options.whileElementsMounted != null] as const,
   );
 
-  const floatingStyles = createMemo<JSX.CSSProperties>(() => {
-    const initialStyles = {
-      position: strategy(),
-      left: 0,
-      top: 0,
-    } as JSX.CSSProperties;
+  const floatingStyles = createMemo<JSX.CSSProperties>(
+    () => {
+      const initialStyles = {
+        position: strategy(),
+        left: 0,
+        top: 0,
+      } as JSX.CSSProperties;
 
-    const floatingElement = floatingEl();
-    if (!floatingElement) {
-      return initialStyles;
-    }
+      const floatingElement = floatingEl();
+      if (!floatingElement) {
+        return initialStyles;
+      }
 
-    const { x: dataX, y: dataY } = data();
-    const x = roundByDPR(floatingElement, dataX);
-    const y = roundByDPR(floatingElement, dataY);
+      const { x: dataX, y: dataY } = data();
+      const x = roundByDPR(floatingElement, dataX);
+      const y = roundByDPR(floatingElement, dataY);
 
-    if (transform()) {
+      if (transform()) {
+        return {
+          ...initialStyles,
+          transform: `translate(${x}px, ${y}px)`,
+          ...(getDPR(floatingElement) >= 1.5 && { 'will-change': 'transform' }),
+        };
+      }
+
+      // Port note: Solid doesn't add `px` to numeric style values.
       return {
-        ...initialStyles,
-        transform: `translate(${x}px, ${y}px)`,
-        ...(getDPR(floatingElement) >= 1.5 && { 'will-change': 'transform' }),
+        position: strategy(),
+        left: `${x}px`,
+        top: `${y}px`,
       };
-    }
-
-    // Port note: Solid doesn't add `px` to numeric style values.
-    return {
-      position: strategy(),
-      left: `${x}px`,
-      top: `${y}px`,
-    };
-  });
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   const refs = {
     reference: referenceRef,

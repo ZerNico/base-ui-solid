@@ -1,5 +1,6 @@
 import { createMemo, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -86,9 +87,12 @@ export function ComboboxChip(componentProps: ComboboxChip.Props): JSX.Element {
     return nextIndex;
   }
 
-  const state = createMemo<ComboboxChipState>(() => ({
-    disabled: disabled(),
-  }));
+  const state = createMemo<ComboboxChipState>(
+    () => ({
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: ComboboxChipContext = {
     index,

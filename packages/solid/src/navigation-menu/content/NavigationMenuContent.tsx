@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingNode } from '../../floating-ui-solid';
 import { contains, getTarget } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -99,11 +100,14 @@ export function NavigationMenuContent(componentProps: NavigationMenuContent.Prop
     () => [open(), currentContentRef],
   );
 
-  const state = createMemo<NavigationMenuContentState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-    activationDirection: activationDirection(),
-  }));
+  const state = createMemo<NavigationMenuContentState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+      activationDirection: activationDirection(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const handleCurrentContentRef = (node: HTMLDivElement | null) => {
     // Inactive `keepMounted` content also mounts in the viewport; only the

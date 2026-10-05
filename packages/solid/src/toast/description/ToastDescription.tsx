@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -19,7 +20,9 @@ export function ToastDescription(componentProps: ToastDescription.Props) {
 
   const { id, children, type, setId } = useToastLabelPart(componentProps, 'description');
 
-  const state = createMemo<ToastDescriptionState>(() => ({ type: type() }));
+  const state = createMemo<ToastDescriptionState>(() => ({ type: type() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   const childrenProps = {
     get children() {

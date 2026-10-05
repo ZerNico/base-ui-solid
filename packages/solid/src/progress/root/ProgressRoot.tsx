@@ -3,6 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { clamp } from '@base-ui-solid/utils/clamp';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
@@ -72,7 +73,9 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
   const formattedValue = () => derived().formattedValue;
   const percentageValue = () => derived().percentageValue;
 
-  const state = createMemo<ProgressRootState>(() => ({ status: status() }));
+  const state = createMemo<ProgressRootState>(() => ({ status: status() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   // Port note: `children` are provided through a getter on a stable object so they're created once.
   const childrenProps: HTMLProps = {

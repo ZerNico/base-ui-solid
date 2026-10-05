@@ -1,4 +1,5 @@
 import { createMemo, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../internals/types';
 import { useTransitionStatus } from '../internals/useTransitionStatus';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
@@ -18,10 +19,13 @@ export function ItemIndicator(componentProps: ItemIndicatorProps) {
 
   const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-  const state = createMemo<ItemIndicatorState>(() => ({
-    selected: selected(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<ItemIndicatorState>(
+    () => ({
+      selected: selected(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('span', componentProps, {
     ref: [

@@ -7,6 +7,7 @@ import { clamp } from '@base-ui-solid/utils/clamp';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
@@ -189,9 +190,12 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
   const labelableId = useLabelableId();
   const inputId = () => (range() ? defaultInputId : labelableId());
 
-  const thumbMetadata = createMemo(() => ({
-    inputId: inputId(),
-  }));
+  const thumbMetadata = createMemo(
+    () => ({
+      inputId: inputId(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const { ref: listItemRef, index: compositeIndex } = useCompositeListItem<ThumbMetadata>({
     metadata: thumbMetadata,

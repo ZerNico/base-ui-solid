@@ -1,6 +1,7 @@
 import { createMemo, createSignal, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useFloating as usePosition } from '../dom';
 import type { VirtualElement } from '../dom';
 import type { FloatingRootStore } from '../components/FloatingRootStore';
@@ -32,16 +33,19 @@ export function useBaseUIFloating(
 
   const store = createMemo(() => options.rootContext);
   // The subscriptions are owned by the memo, so they're disposed when the store changes.
-  const storeState = createMemo(() => {
-    const currentStore = store();
-    return {
-      referenceElement: currentStore.useState('referenceElement'),
-      floatingElement: currentStore.useState('floatingElement'),
-      domReferenceElement: currentStore.useState('domReferenceElement'),
-      open: currentStore.useState('open'),
-      floatingId: currentStore.useState('floatingId'),
-    };
-  });
+  const storeState = createMemo(
+    () => {
+      const currentStore = store();
+      return {
+        referenceElement: currentStore.useState('referenceElement'),
+        floatingElement: currentStore.useState('floatingElement'),
+        domReferenceElement: currentStore.useState('domReferenceElement'),
+        open: currentStore.useState('open'),
+        floatingId: currentStore.useState('floatingId'),
+      };
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   const referenceElement = () => storeState().referenceElement();
   const floatingElement = () => storeState().floatingElement();

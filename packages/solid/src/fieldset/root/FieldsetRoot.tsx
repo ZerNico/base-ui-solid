@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FieldsetRootContext, useFieldsetRootContext } from './FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -17,9 +18,12 @@ export function FieldsetRoot(componentProps: FieldsetRoot.Props) {
   const parentDisabled = useFieldsetRootContext(true)?.disabled;
   const disabled = () => (parentDisabled?.() ?? false) || (componentProps.disabled ?? false);
 
-  const state = createMemo<FieldsetRootState>(() => ({
-    disabled: disabled(),
-  }));
+  const state = createMemo<FieldsetRootState>(
+    () => ({
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: FieldsetRootContext = {
     legendId,

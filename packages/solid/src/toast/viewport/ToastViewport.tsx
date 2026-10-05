@@ -6,6 +6,8 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { activeElement, contains, getTarget } from '../../floating-ui-solid/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -40,8 +42,9 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
   const hasTransitioningToasts = createMemo(() =>
     toasts().some((toast) => toast.transitionStatus === 'ending'),
   );
-  const highPriorityToasts = createMemo(() =>
-    toasts().filter((toast) => toast.priority === 'high'),
+  const highPriorityToasts = createMemo(
+    () => toasts().filter((toast) => toast.priority === 'high'),
+    { equals: areArraysEqual },
   );
 
   useEffect(
@@ -245,9 +248,12 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
     };
   };
 
-  const state = createMemo<ToastViewportState>(() => ({
-    expanded: expanded(),
-  }));
+  const state = createMemo<ToastViewportState>(
+    () => ({
+      expanded: expanded(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const showFocusGuard = () => !isEmpty() && prevFocusElement() != null;
 

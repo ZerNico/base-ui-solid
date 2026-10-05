@@ -1,6 +1,7 @@
 import { createMemo, omit, onCleanup, untrack } from 'solid-js';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -203,12 +204,15 @@ export function TabsTab(componentProps: TabsTab.Props) {
   };
   onCleanup(() => keyDownCaptureRef(null));
 
-  const state = createMemo<TabsTabState>(() => ({
-    disabled: disabled(),
-    active: active(),
-    orientation: orientation(),
-    tabActivationDirection: tabActivationDirection(),
-  }));
+  const state = createMemo<TabsTabState>(
+    () => ({
+      disabled: disabled(),
+      active: active(),
+      orientation: orientation(),
+      tabActivationDirection: tabActivationDirection(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('button', componentProps, {
     state,

@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -32,11 +33,14 @@ export function PopoverViewport(componentProps: PopoverViewport.Props) {
     },
   });
 
-  const state = createMemo<PopoverViewportState>(() => ({
-    activationDirection: viewportState().activationDirection,
-    transitioning: viewportState().transitioning,
-    instant: instantType(),
-  }));
+  const state = createMemo<PopoverViewportState>(
+    () => ({
+      activationDirection: viewportState().activationDirection,
+      transitioning: viewportState().transitioning,
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

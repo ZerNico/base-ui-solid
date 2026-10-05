@@ -2,6 +2,7 @@ import { Show, createMemo, merge, omit } from 'solid-js';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-solid/utils/warn';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { resolveStyle } from '../../utils/resolveStyle';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -83,10 +84,13 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
     transitionStatus,
   });
 
-  const panelState = createMemo<CollapsiblePanelState>(() => ({
-    ...state(),
-    transitionStatus: panel.transitionStatus(),
-  }));
+  const panelState = createMemo<CollapsiblePanelState>(
+    () => ({
+      ...state(),
+      transitionStatus: panel.transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <Show when={panel.shouldRender()}>

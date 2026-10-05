@@ -1,6 +1,6 @@
 import { createSignal, flush, Show } from 'solid-js';
 import { it, expect } from 'vitest';
-import { render, flushMicrotasks } from '#test-utils';
+import { render, flushMicrotasks, screen } from '#test-utils';
 import { Field } from '..';
 import { Combobox } from '../../combobox';
 import { Select } from '../../select';
@@ -51,4 +51,37 @@ it('renders aria-invalid="true" on hidden inputs of invalid fields', async () =>
   invalidInputs.forEach((input) => {
     expect(input).toHaveAttribute('aria-invalid', 'true');
   });
+});
+
+// The control's `aria-describedby` follows the order in which the messages appeared, like
+// upstream's effects appending their ids, and updates in the same flush as the messages.
+it('orders aria-describedby by the order the messages appeared', async () => {
+  const [showError, setShowError] = createSignal(false);
+  const [showDescription, setShowDescription] = createSignal(true);
+  await render(() => (
+    <Field.Root invalid>
+      <Show when={showError()}>
+        <Field.Error match id="error" />
+      </Show>
+      <Field.Control data-testid="control" />
+      <Show when={showDescription()}>
+        <Field.Description id="description" />
+      </Show>
+    </Field.Root>
+  ));
+  const control = screen.getByTestId('control');
+  await flushMicrotasks();
+  expect(control).toHaveAttribute('aria-describedby', 'description');
+
+  setShowError(true);
+  flush();
+  expect(control).toHaveAttribute('aria-describedby', 'description error');
+
+  setShowDescription(false);
+  flush();
+  expect(control).toHaveAttribute('aria-describedby', 'error');
+
+  setShowDescription(true);
+  flush();
+  expect(control).toHaveAttribute('aria-describedby', 'error description');
 });

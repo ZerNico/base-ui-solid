@@ -2,6 +2,7 @@ import { createMemo, omit, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -92,10 +93,13 @@ export const DialogTrigger = function DialogTrigger(componentProps: DialogTrigge
     },
   );
 
-  const state = createMemo<DialogTriggerState>(() => ({
-    disabled: disabled(),
-    open: isOpenedByThisTrigger(),
-  }));
+  const state = createMemo<DialogTriggerState>(
+    () => ({
+      disabled: disabled(),
+      open: isOpenedByThisTrigger(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const rootTriggerProps = useCurrentStoreState((s) =>
     s.useState('triggerProps', isMountedByThisTrigger),

@@ -7,6 +7,7 @@ import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import {
   safePolygon,
   useClick,
@@ -704,10 +705,13 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     handleValueChange(popup, positioner, width, height);
   };
 
-  const state = createMemo<NavigationMenuTriggerState>(() => ({
-    open: isActiveItem(),
-    disabled: disabled(),
-  }));
+  const state = createMemo<NavigationMenuTriggerState>(
+    () => ({
+      open: isActiveItem(),
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function handleSetPointerType(event: PointerEvent) {
     setPointerType(event.pointerType as 'mouse' | 'touch' | 'pen' | '');

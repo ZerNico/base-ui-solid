@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit, onCleanup, Show, untrack } from 'solid-
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -169,10 +170,13 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
     triggerElementRef,
   );
 
-  const state = createMemo<PopoverTriggerState>(() => ({
-    disabled: disabled(),
-    open: isOpenedByThisTrigger(),
-  }));
+  const state = createMemo<PopoverTriggerState>(
+    () => ({
+      disabled: disabled(),
+      open: isOpenedByThisTrigger(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('button', componentProps, {
     state,

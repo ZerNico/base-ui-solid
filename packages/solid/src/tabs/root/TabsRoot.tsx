@@ -1,6 +1,7 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
@@ -338,10 +339,13 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
     () => [firstEnabledTabValue(), isControlled(), selectedTabMetadata(), tabMap(), value()],
   );
 
-  const state = createMemo<TabsRootState>(() => ({
-    orientation: orientation(),
-    tabActivationDirection: tabActivationDirection(),
-  }));
+  const state = createMemo<TabsRootState>(
+    () => ({
+      orientation: orientation(),
+      tabActivationDirection: tabActivationDirection(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <TabsRootContext value={tabsContextValue}>

@@ -3,6 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { contains } from '../floating-ui-solid/utils';
@@ -233,12 +234,15 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
 
   const ariaLabelledby = () => labelId() ?? fieldsetContext?.legendId();
 
-  const state = createMemo<RadioGroupState>(() => ({
-    ...fieldState(),
-    disabled: disabled() ?? false,
-    required: componentProps.required ?? false,
-    readOnly: componentProps.readOnly ?? false,
-  }));
+  const state = createMemo<RadioGroupState>(
+    () => ({
+      ...fieldState(),
+      disabled: disabled() ?? false,
+      required: componentProps.required ?? false,
+      readOnly: componentProps.readOnly ?? false,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: RadioGroupContext<Value> = {
     checkedValue,

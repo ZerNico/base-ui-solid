@@ -1,5 +1,5 @@
 import { createMemo, omit } from 'solid-js';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -23,27 +23,17 @@ export function FieldDescription(componentProps: FieldDescription.Props) {
 
   const fieldRootContext = useFieldRootContext(false);
   const fieldItemContext = useFieldItemContext();
-  const { setMessageIds } = useLabelableContext();
+  const { registerMessageId } = useLabelableContext();
 
-  const state = createMemo<FieldDescriptionState>(() => ({
-    ...fieldRootContext.state(),
-    disabled: (fieldRootContext.disabled() ?? false) || fieldItemContext.disabled(),
-  }));
-
-  useIsoLayoutEffect(
-    ([currentId]) => {
-      if (!currentId) {
-        return undefined;
-      }
-
-      setMessageIds((v) => v.concat(currentId));
-
-      return () => {
-        setMessageIds((v) => v.filter((item) => item !== currentId));
-      };
-    },
-    () => [id()],
+  const state = createMemo<FieldDescriptionState>(
+    () => ({
+      ...fieldRootContext.state(),
+      disabled: (fieldRootContext.disabled() ?? false) || fieldItemContext.disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
   );
+
+  registerMessageId(id);
 
   return useRenderElement('p', componentProps, {
     state,

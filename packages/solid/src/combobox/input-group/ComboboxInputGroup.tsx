@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -34,15 +35,18 @@ export function ComboboxInputGroup(componentProps: ComboboxInputGroup.Props): JS
   const listEmpty = useListEmpty();
   const placeholder = () => (selectionMode() === 'none' ? false : !hasSelectedValue());
 
-  const state = createMemo<ComboboxInputGroup.State>(() => ({
-    ...fieldState(),
-    open: open(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    popupSide: popupSide(),
-    listEmpty: listEmpty(),
-    placeholder: placeholder(),
-  }));
+  const state = createMemo<ComboboxInputGroup.State>(
+    () => ({
+      ...fieldState(),
+      open: open(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      popupSide: popupSide(),
+      listEmpty: listEmpty(),
+      placeholder: placeholder(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const setInputGroupElement = (element: HTMLDivElement | null) => {
     store.set('inputGroupElement', element);

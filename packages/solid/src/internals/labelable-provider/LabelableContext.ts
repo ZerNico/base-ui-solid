@@ -23,7 +23,11 @@ export interface LabelableContext {
    * An array of `id`s of elements that provide an accessible description.
    */
   messageIds: Accessor<string[]>;
-  setMessageIds: StateSetter<string[]>;
+  /**
+   * Registers an accessor of a message element's `id` (`undefined` while it isn't rendered) for
+   * the lifetime of the calling owner. Call it once, when the part is set up.
+   */
+  registerMessageId: (id: Accessor<string | false | null | undefined>) => void;
   /**
    * Reads reactive state: call it inside a reactive scope (e.g. a `props` accessor).
    */
@@ -43,7 +47,7 @@ export const LabelableContext = createContext<LabelableContext>({
   labelId: () => undefined,
   setLabelId: NOOP,
   messageIds: () => EMPTY_MESSAGE_IDS,
-  setMessageIds: NOOP,
+  registerMessageId: NOOP,
   getDescriptionProps: (externalProps: HTMLProps) => externalProps,
 });
 

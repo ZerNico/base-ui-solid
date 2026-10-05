@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
@@ -75,10 +76,13 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
     native: () => componentProps.nativeButton ?? true,
   });
 
-  const state = createMemo<ToggleState>(() => ({
-    disabled: disabled(),
-    pressed: pressed(),
-  }));
+  const state = createMemo<ToggleState>(
+    () => ({
+      disabled: disabled(),
+      pressed: pressed(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const refs = [buttonRef];
   const props = (ownElementProps: object = elementProps) => [

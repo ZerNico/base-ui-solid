@@ -1,5 +1,6 @@
 import { Show, createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { RadioRootState } from '../root/RadioRoot';
@@ -24,10 +25,13 @@ export function RadioIndicator(componentProps: RadioIndicator.Props): JSX.Elemen
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const state = createMemo<RadioIndicatorState>(() => ({
-    ...rootState(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<RadioIndicatorState>(
+    () => ({
+      ...rootState(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   let indicatorElement: HTMLSpanElement | null = null;
 

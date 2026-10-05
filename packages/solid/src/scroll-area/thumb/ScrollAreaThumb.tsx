@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
@@ -27,10 +28,13 @@ export function ScrollAreaThumb(componentProps: ScrollAreaThumb.Props) {
   const orientation = useScrollAreaScrollbarContext();
   const vertical = () => orientation() === 'vertical';
 
-  const state = createMemo<ScrollAreaThumbState>(() => ({
-    scrolling: vertical() ? scrollingY() : scrollingX(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<ScrollAreaThumbState>(
+    () => ({
+      scrolling: vertical() ? scrollingY() : scrollingX(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     ref: (element: HTMLDivElement | null) => {

@@ -4,6 +4,7 @@ import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { contains, getTarget, stopEvent } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -194,7 +195,9 @@ export function ContextMenuTrigger(componentProps: ContextMenuTrigger.Props) {
     () => [backdropRef, disabled(), internalBackdropRef],
   );
 
-  const state = createMemo<ContextMenuTriggerState>(() => ({ open: open() }));
+  const state = createMemo<ContextMenuTriggerState>(() => ({ open: open() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   const element = useRenderElement('div', componentProps, {
     state,

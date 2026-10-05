@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { isElement } from '@floating-ui/utils/dom';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
@@ -134,11 +135,14 @@ export function ToastPositioner(componentProps: ToastPositioner.Props): JSX.Elem
     },
   });
 
-  const state = createMemo<ToastPositionerState>(() => ({
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-  }));
+  const state = createMemo<ToastPositionerState>(
+    () => ({
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <ToastPositionerContext value={positioning}>

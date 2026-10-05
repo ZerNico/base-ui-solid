@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useButton } from '../internals/use-button/useButton';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
@@ -28,9 +29,12 @@ export function Button(componentProps: Button.Props) {
     native: () => componentProps.nativeButton ?? true,
   });
 
-  const state = createMemo<ButtonState>(() => ({
-    disabled: disabled(),
-  }));
+  const state = createMemo<ButtonState>(
+    () => ({
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('button', componentProps, {
     state,

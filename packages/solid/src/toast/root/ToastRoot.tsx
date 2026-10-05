@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { activeElement, closest, contains, getTarget } from '../../floating-ui-solid/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -517,14 +518,17 @@ export function ToastRoot(componentProps: ToastRoot.Props) {
     expanded,
   };
 
-  const state = createMemo<ToastRootState>(() => ({
-    transitionStatus: toast().transitionStatus,
-    expanded: expanded(),
-    limited: toast().limited || false,
-    type: toast().type,
-    swiping: isSwiping(),
-    swipeDirection: currentSwipeDirection(),
-  }));
+  const state = createMemo<ToastRootState>(
+    () => ({
+      transitionStatus: toast().transitionStatus,
+      expanded: expanded(),
+      limited: toast().limited || false,
+      type: toast().type,
+      swiping: isSwiping(),
+      swipeDirection: currentSwipeDirection(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <ToastRootContext value={toastRoot}>

@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -23,7 +24,9 @@ export function FilterDropdownClear(componentProps: FilterDropdownClear.Props) {
   });
   // `visible` is deliberately absent from the state: the component renders nothing when it is
   // false, so a `data-visible` attribute would be present on every rendered instance.
-  const state = createMemo<FilterDropdownClearState>(() => ({ disabled: disabled() }));
+  const state = createMemo<FilterDropdownClearState>(() => ({ disabled: disabled() }), {
+    equals: fastObjectShallowCompare,
+  });
   return useRenderElement('button', componentProps, {
     enabled: visible,
     state,

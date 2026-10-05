@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
@@ -28,10 +29,13 @@ export function CheckboxIndicator(componentProps: CheckboxIndicator.Props): JSX.
 
   let indicatorElement: HTMLSpanElement | null = null;
 
-  const state = createMemo<CheckboxIndicatorState>(() => ({
-    ...rootState(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<CheckboxIndicatorState>(
+    () => ({
+      ...rootState(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useOpenChangeComplete({
     batch: true,

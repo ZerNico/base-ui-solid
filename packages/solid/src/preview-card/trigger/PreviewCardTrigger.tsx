@@ -1,6 +1,7 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -115,9 +116,12 @@ export function PreviewCardTrigger<Payload>(
     };
   }
 
-  const state = createMemo<PreviewCardTriggerState>(() => ({
-    open: storeParts().isOpenedByThisTrigger(),
-  }));
+  const state = createMemo<PreviewCardTriggerState>(
+    () => ({
+      open: storeParts().isOpenedByThisTrigger(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('a', componentProps, {
     state,

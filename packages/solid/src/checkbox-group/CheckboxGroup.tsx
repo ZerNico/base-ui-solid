@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
@@ -155,10 +156,13 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
     validation.change(currentValue);
   });
 
-  const state = createMemo<CheckboxGroupState>(() => ({
-    ...fieldState(),
-    disabled: disabled(),
-  }));
+  const state = createMemo<CheckboxGroupState>(
+    () => ({
+      ...fieldState(),
+      disabled: disabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: CheckboxGroupContext = {
     allValues,

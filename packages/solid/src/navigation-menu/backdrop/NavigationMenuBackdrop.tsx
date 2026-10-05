@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
@@ -16,10 +17,13 @@ export function NavigationMenuBackdrop(componentProps: NavigationMenuBackdrop.Pr
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
-  const state = createMemo<NavigationMenuBackdropState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<NavigationMenuBackdropState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

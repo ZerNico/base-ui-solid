@@ -1,4 +1,5 @@
 import { createMemo, merge, onCleanup, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { Accessor } from 'solid-js';
 import { dynamic, isServer } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
@@ -65,8 +66,11 @@ export function useRenderElement<
     return typeof enabledParam === 'function' ? enabledParam() : enabledParam !== false;
   });
 
-  const computed = createMemo(() =>
-    computeRenderElementProps(componentProps, params, readState, enabled()),
+  // Equal results (e.g. a state change that doesn't change any attribute) don't notify, so the
+  // element's props aren't re-applied.
+  const computed = createMemo(
+    () => computeRenderElementProps(componentProps, params, readState, enabled()),
+    { equals: areComputedPropsEqual },
   );
 
   // `children` are kept out of the memo: they must only be created once by the rendered element,
@@ -130,6 +134,14 @@ interface ComputedRenderElementProps {
   props: Record<string, any>;
   ref: unknown;
   childrenSource: { children?: JSX.Element | undefined } | undefined;
+}
+
+function areComputedPropsEqual(a: ComputedRenderElementProps, b: ComputedRenderElementProps) {
+  return (
+    a.ref === b.ref &&
+    a.childrenSource === b.childrenSource &&
+    fastObjectShallowCompare(a.props, b.props)
+  );
 }
 
 const EMPTY_COMPUTED: ComputedRenderElementProps = {

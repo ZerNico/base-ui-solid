@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRoot } from './useCollapsibleRoot';
@@ -39,11 +40,14 @@ export function CollapsibleRoot(componentProps: CollapsibleRoot.Props) {
     disabled: () => componentProps.disabled ?? false,
   });
 
-  const state = createMemo<CollapsibleRootState>(() => ({
-    open: collapsible.open(),
-    disabled: collapsible.disabled(),
-    transitionStatus: collapsible.transitionStatus(),
-  }));
+  const state = createMemo<CollapsibleRootState>(
+    () => ({
+      open: collapsible.open(),
+      disabled: collapsible.disabled(),
+      transitionStatus: collapsible.transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: CollapsibleRootContext = {
     ...collapsible,

@@ -2,6 +2,7 @@ import { createMemo, omit, untrack, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-solid';
 import type { FloatingFocusManagerProps } from '../../floating-ui-solid/components/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -159,14 +160,17 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
     virtualFocus,
   );
 
-  const state = createMemo<MenuPopupState>(() => ({
-    transitionStatus: transitionStatus(),
-    side: positionerContext.side,
-    align: positionerContext.align,
-    open: open(),
-    nested: parent().type === 'menu',
-    instant: instantType(),
-  }));
+  const state = createMemo<MenuPopupState>(
+    () => ({
+      transitionStatus: transitionStatus(),
+      side: positionerContext.side,
+      align: positionerContext.align,
+      open: open(),
+      nested: parent().type === 'menu',
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const returnFocus = () => {
     let value = parent().type === undefined || isContextMenu();

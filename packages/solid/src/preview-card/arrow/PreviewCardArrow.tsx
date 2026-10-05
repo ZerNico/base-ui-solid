@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
@@ -21,12 +22,15 @@ export function PreviewCardArrow(componentProps: PreviewCardArrow.Props): JSX.El
 
   const open = store.useState('open');
 
-  const state = createMemo<PreviewCardArrowState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-  }));
+  const state = createMemo<PreviewCardArrowState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

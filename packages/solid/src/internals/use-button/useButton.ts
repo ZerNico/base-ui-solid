@@ -4,6 +4,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { makeEventPreventable } from '../../merge-props';
 import { mergePropsSnapshot, omitProps } from '../../merge-props/mergeProps';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
@@ -64,11 +65,14 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  const disabledUpdate = createMemo(() => ({
-    disabled: disabled(),
-    focusableDisabled: focusableWhenDisabledProps().disabled,
-    isCompositeItem: isCompositeItem(),
-  }));
+  const disabledUpdate = createMemo(
+    () => ({
+      disabled: disabled(),
+      focusableDisabled: focusableWhenDisabledProps().disabled,
+      isCompositeItem: isCompositeItem(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function updateDisabled(values = untrack(disabledUpdate)) {
     if (!isButtonElement(element)) {

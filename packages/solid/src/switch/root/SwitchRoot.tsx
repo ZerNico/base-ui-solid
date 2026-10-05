@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -233,13 +234,16 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
     },
   ];
 
-  const state = createMemo<SwitchRootState>(() => ({
-    ...fieldState(),
-    checked: checked(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    required: required(),
-  }));
+  const state = createMemo<SwitchRootState>(
+    () => ({
+      ...fieldState(),
+      checked: checked(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      required: required(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <SwitchRootContext value={state}>

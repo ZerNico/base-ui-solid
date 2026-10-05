@@ -8,6 +8,7 @@ import { clamp } from '@base-ui-solid/utils/clamp';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
@@ -316,18 +317,21 @@ export function SliderRoot<Value extends number | readonly number[]>(
     () => [active(), disabled()],
   );
 
-  const state = createMemo<SliderRootState>(() => ({
-    ...fieldState(),
-    activeThumbIndex: active(),
-    disabled: disabled(),
-    dragging: dragging(),
-    orientation: orientation(),
-    max: max(),
-    min: min(),
-    minStepsBetweenValues: minStepsBetweenValues(),
-    step: step(),
-    values: values(),
-  }));
+  const state = createMemo<SliderRootState>(
+    () => ({
+      ...fieldState(),
+      activeThumbIndex: active(),
+      disabled: disabled(),
+      dragging: dragging(),
+      orientation: orientation(),
+      max: max(),
+      min: min(),
+      minStepsBetweenValues: minStepsBetweenValues(),
+      step: step(),
+      values: values(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: SliderRootContext = {
     active,

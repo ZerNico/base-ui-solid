@@ -1,6 +1,7 @@
 import { createMemo, omit } from 'solid-js';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-solid';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
@@ -86,13 +87,16 @@ export function PopoverPopup(componentProps: PopoverPopup.Props) {
 
   const setPopupElement = store.useStateSetter('popupElement');
 
-  const state = createMemo<PopoverPopupState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    instant: instantType(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<PopoverPopupState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      instant: instantType(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <FloatingFocusManager

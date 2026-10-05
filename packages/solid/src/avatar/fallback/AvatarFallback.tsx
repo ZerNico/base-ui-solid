@@ -1,6 +1,7 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
@@ -36,9 +37,12 @@ export function AvatarFallback(componentProps: AvatarFallback.Props) {
     () => [delay()],
   );
 
-  const state = createMemo<AvatarFallbackState>(() => ({
-    imageLoadingStatus: imageLoadingStatus(),
-  }));
+  const state = createMemo<AvatarFallbackState>(
+    () => ({
+      imageLoadingStatus: imageLoadingStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('span', componentProps, {
     state,

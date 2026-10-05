@@ -2,6 +2,7 @@ import { Show, createMemo, merge, omit } from 'solid-js';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-solid/utils/warn';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { resolveStyle } from '../../utils/resolveStyle';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
@@ -94,10 +95,13 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const panelState = createMemo<AccordionPanelState>(() => ({
-    ...state(),
-    transitionStatus: panel.transitionStatus(),
-  }));
+  const panelState = createMemo<AccordionPanelState>(
+    () => ({
+      ...state(),
+      transitionStatus: panel.transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <Show when={panel.shouldRender()}>

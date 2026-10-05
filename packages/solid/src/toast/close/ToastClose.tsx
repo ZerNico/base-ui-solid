@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
@@ -24,9 +25,12 @@ export function ToastClose(componentProps: ToastClose.Props) {
     native: () => componentProps.nativeButton ?? true,
   });
 
-  const state = createMemo<ToastCloseState>(() => ({
-    type: toast().type,
-  }));
+  const state = createMemo<ToastCloseState>(
+    () => ({
+      type: toast().type,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('button', componentProps, {
     ref: buttonRef,

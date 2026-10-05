@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useToastPositionerContext } from '../positioner/ToastPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -16,11 +17,14 @@ export function ToastArrow(componentProps: ToastArrow.Props): JSX.Element {
 
   const positioner = useToastPositionerContext();
 
-  const state = createMemo<ToastArrowState>(() => ({
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-  }));
+  const state = createMemo<ToastArrowState>(
+    () => ({
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

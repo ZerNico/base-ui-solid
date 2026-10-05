@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, Orientation } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
 
@@ -13,7 +14,9 @@ export function Separator(componentProps: Separator.Props) {
 
   const orientation = () => componentProps.orientation ?? 'horizontal';
 
-  const state = createMemo<SeparatorState>(() => ({ orientation: orientation() }));
+  const state = createMemo<SeparatorState>(() => ({ orientation: orientation() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   return useRenderElement('div', componentProps, {
     state,

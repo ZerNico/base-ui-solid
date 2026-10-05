@@ -1,6 +1,7 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-solid';
@@ -119,13 +120,16 @@ export function PreviewCardPositioner(componentProps: PreviewCardPositioner.Prop
     () => [open(), mounted(), updatePosition],
   );
 
-  const state = createMemo<PreviewCardPositionerState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instantType(),
-  }));
+  const state = createMemo<PreviewCardPositionerState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const setPositionerElement = store.useStateSetter('positionerElement');
 

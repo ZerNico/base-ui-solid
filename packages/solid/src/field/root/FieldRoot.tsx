@@ -2,6 +2,7 @@ import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import {
@@ -123,14 +124,17 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
   // is suppressed when disabled, matching `:disabled` not participating in constraint validation.
   const valid = () => !invalid() && (disabled() ? null : validityData().state.valid);
 
-  const state = createMemo<FieldRootState>(() => ({
-    disabled: disabled(),
-    touched: touched(),
-    dirty: dirty(),
-    valid: valid(),
-    filled: filled(),
-    focused: focused(),
-  }));
+  const state = createMemo<FieldRootState>(
+    () => ({
+      disabled: disabled(),
+      touched: touched(),
+      dirty: dirty(),
+      valid: valid(),
+      filled: filled(),
+      focused: focused(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const validation = useFieldValidation({
     setValidityData,

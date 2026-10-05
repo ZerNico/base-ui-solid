@@ -2,6 +2,7 @@ import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
@@ -87,11 +88,14 @@ export function ToggleGroup<Value extends string>(
       setValueState(newGroupValue);
     });
 
-  const state = createMemo<ToggleGroupState>(() => ({
-    disabled: disabled(),
-    multiple: multiple(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<ToggleGroupState>(
+    () => ({
+      disabled: disabled(),
+      multiple: multiple(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: ToggleGroupContext<Value> = {
     disabled,

@@ -1,6 +1,7 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager } from '../../floating-ui-solid';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -75,12 +76,15 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
     }
   }
 
-  const state = createMemo<DialogPopupState>(() => ({
-    open: open(),
-    nested: nested(),
-    transitionStatus: transitionStatus(),
-    nestedDialogOpen: nestedDialogOpen(),
-  }));
+  const state = createMemo<DialogPopupState>(
+    () => ({
+      open: open(),
+      nested: nested(),
+      transitionStatus: transitionStatus(),
+      nestedDialogOpen: nestedDialogOpen(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('div', componentProps, {
     state,

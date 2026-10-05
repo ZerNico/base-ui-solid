@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -24,7 +25,9 @@ export function DialogClose(componentProps: DialogClose.Props) {
     native: () => componentProps.nativeButton ?? true,
   });
 
-  const state = createMemo<DialogCloseState>(() => ({ disabled: disabled() }));
+  const state = createMemo<DialogCloseState>(() => ({ disabled: disabled() }), {
+    equals: fastObjectShallowCompare,
+  });
 
   function handleClick(event: MouseEvent) {
     if (open()) {

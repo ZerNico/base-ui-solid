@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -71,12 +72,15 @@ export function ComboboxClear(componentProps: ComboboxClear.Props): JSX.Element 
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state = createMemo<ComboboxClearState>(() => ({
-    disabled: disabled(),
-    visible: visible(),
-    open: open(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<ComboboxClearState>(
+    () => ({
+      disabled: disabled(),
+      visible: visible(),
+      open: open(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useOpenChangeComplete({
     open: visible,

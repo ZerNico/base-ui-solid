@@ -8,6 +8,7 @@ import { platform } from '@base-ui-solid/utils/platform';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { getTarget } from '@base-ui-solid/utils/shadowDom';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-solid';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
@@ -237,11 +238,14 @@ function MenuSubmenuTriggerPlain(
     return rest;
   });
 
-  const state = createMemo<MenuSubmenuTriggerState>(() => ({
-    disabled: disabled(),
-    highlighted: highlighted(),
-    open: open(),
-  }));
+  const state = createMemo<MenuSubmenuTriggerState>(
+    () => ({
+      disabled: disabled(),
+      highlighted: highlighted(),
+      open: open(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');

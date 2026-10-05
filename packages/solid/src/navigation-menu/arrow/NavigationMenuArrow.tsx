@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
@@ -21,12 +22,15 @@ export function NavigationMenuArrow(componentProps: NavigationMenuArrow.Props) {
   const positioning = useNavigationMenuPositionerContext();
   const { arrowRef } = positioning;
 
-  const state = createMemo<NavigationMenuArrowState>(() => ({
-    open: open(),
-    side: positioning.side,
-    align: positioning.align,
-    uncentered: positioning.arrowUncentered,
-  }));
+  const state = createMemo<NavigationMenuArrowState>(
+    () => ({
+      open: open(),
+      side: positioning.side,
+      align: positioning.align,
+      uncentered: positioning.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

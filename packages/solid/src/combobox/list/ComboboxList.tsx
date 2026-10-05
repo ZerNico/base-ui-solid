@@ -1,6 +1,7 @@
 import { Show, createMemo, omit } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -74,9 +75,12 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
     },
   };
 
-  const state = createMemo<ComboboxListState>(() => ({
-    empty: empty(),
-  }));
+  const state = createMemo<ComboboxListState>(
+    () => ({
+      empty: empty(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const floatingId = floatingRootContext.useState('floatingId');
 

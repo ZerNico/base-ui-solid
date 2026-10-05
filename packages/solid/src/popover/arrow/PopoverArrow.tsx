@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
@@ -19,12 +20,15 @@ export function PopoverArrow(componentProps: PopoverArrow.Props) {
   const open = store.useState('open');
   const positioner = usePopoverPositionerContext();
 
-  const state = createMemo<PopoverArrowState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-  }));
+  const state = createMemo<PopoverArrowState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('div', componentProps, {
     state,

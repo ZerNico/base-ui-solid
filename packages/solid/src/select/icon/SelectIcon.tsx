@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -16,9 +17,12 @@ export function SelectIcon(componentProps: SelectIcon.Props) {
   const store = useSelectRootContext();
   const open = store.useState('open');
 
-  const state = createMemo<SelectIconState>(() => ({
-    open: open(),
-  }));
+  const state = createMemo<SelectIconState>(
+    () => ({
+      open: open(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('span', componentProps, {
     state,

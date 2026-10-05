@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type {
   BaseUIComponentProps,
   Orientation as BaseOrientation,
@@ -49,10 +50,13 @@ export function ToolbarRoot(componentProps: ToolbarRoot.Props) {
     orientation,
   };
 
-  const state = createMemo<ToolbarRootState>(() => ({
-    disabled: disabled(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<ToolbarRootState>(
+    () => ({
+      disabled: disabled(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const defaultProps = (): HTMLProps => ({
     'aria-orientation': orientation(),

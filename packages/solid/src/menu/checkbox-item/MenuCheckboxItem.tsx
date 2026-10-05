@@ -2,6 +2,7 @@ import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { createMemo, omit, Show, untrack } from 'solid-js';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { NOOP } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
@@ -60,11 +61,14 @@ function MenuCheckboxItemPlain(componentProps: MenuCheckboxItem.Props) {
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state = createMemo<MenuCheckboxItemState>(() => ({
-    disabled: disabled(),
-    highlighted: highlighted(),
-    checked: checked(),
-  }));
+  const state = createMemo<MenuCheckboxItemState>(
+    () => ({
+      disabled: disabled(),
+      highlighted: highlighted(),
+      checked: checked(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function handleClick(event: MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event, undefined, {

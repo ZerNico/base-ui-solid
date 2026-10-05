@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { AvatarRootContext } from './AvatarRootContext';
@@ -15,9 +16,12 @@ export function AvatarRoot(componentProps: AvatarRoot.Props) {
 
   const [imageLoadingStatus, setImageLoadingStatus] = createSignal<ImageLoadingStatus>('idle');
 
-  const state = createMemo<AvatarRootState>(() => ({
-    imageLoadingStatus: imageLoadingStatus(),
-  }));
+  const state = createMemo<AvatarRootState>(
+    () => ({
+      imageLoadingStatus: imageLoadingStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextValue: AvatarRootContext = {
     imageLoadingStatus,

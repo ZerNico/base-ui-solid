@@ -35,7 +35,7 @@ describe('<Tabs.Indicator />', () => {
     const indicatorStates: Tabs.Indicator.State[] = [];
 
     // Port note: Solid calls the render function once, so the states are recorded reactively
-    // (once per state change) instead of once per render.
+    // (once per state change, and an equal state isn't emitted again) instead of once per render.
     function renderIndicator(
       props: JSX.HTMLAttributes<HTMLSpanElement>,
       state: Tabs.Indicator.State,
@@ -59,7 +59,8 @@ describe('<Tabs.Indicator />', () => {
 
     // Wait for Tabs.List to register its element; before that no tab can be measured.
     await waitFor(() => {
-      expect(indicatorStates.length).toBeGreaterThan(1);
+      expect(indicatorStates.length).toBeGreaterThan(0);
+      expect(screen.getByTestId('bubble')).toHaveAttribute('hidden');
     });
 
     const state = indicatorStates.at(-1)!;

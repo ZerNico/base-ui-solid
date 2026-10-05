@@ -1,5 +1,6 @@
 import { Show, createMemo, createSignal, omit } from 'solid-js';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -240,20 +241,23 @@ export function ScrollAreaRoot(componentProps: ScrollAreaRoot.Props) {
     }
   }
 
-  const state = createMemo<ScrollAreaRootState>(() => {
-    const currentHiddenState = hiddenState();
-    const currentOverflowEdges = overflowEdges();
-    return {
-      scrolling: scrollingX() || scrollingY(),
-      hasOverflowX: !currentHiddenState.x,
-      hasOverflowY: !currentHiddenState.y,
-      overflowXStart: currentOverflowEdges.xStart,
-      overflowXEnd: currentOverflowEdges.xEnd,
-      overflowYStart: currentOverflowEdges.yStart,
-      overflowYEnd: currentOverflowEdges.yEnd,
-      cornerHidden: currentHiddenState.corner,
-    };
-  });
+  const state = createMemo<ScrollAreaRootState>(
+    () => {
+      const currentHiddenState = hiddenState();
+      const currentOverflowEdges = overflowEdges();
+      return {
+        scrolling: scrollingX() || scrollingY(),
+        hasOverflowX: !currentHiddenState.x,
+        hasOverflowY: !currentHiddenState.y,
+        overflowXStart: currentOverflowEdges.xStart,
+        overflowXEnd: currentOverflowEdges.xEnd,
+        overflowYStart: currentOverflowEdges.yStart,
+        overflowYEnd: currentOverflowEdges.yEnd,
+        cornerHidden: currentHiddenState.corner,
+      };
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   const props = (): HTMLProps => ({
     role: 'presentation',

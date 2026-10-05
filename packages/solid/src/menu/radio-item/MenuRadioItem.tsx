@@ -1,6 +1,7 @@
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { createMemo, omit, Show, untrack } from 'solid-js';
 import { NOOP } from '@base-ui-solid/utils/empty';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -60,11 +61,14 @@ function MenuRadioItemPlain(componentProps: MenuRadioItem.Props) {
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state = createMemo<MenuRadioItemState>(() => ({
-    disabled: disabled(),
-    highlighted: highlighted(),
-    checked: checked(),
-  }));
+  const state = createMemo<MenuRadioItemState>(
+    () => ({
+      disabled: disabled(),
+      highlighted: highlighted(),
+      checked: checked(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   function handleClick(event: MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event, undefined, {

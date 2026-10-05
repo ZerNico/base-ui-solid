@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -24,9 +25,12 @@ export const DrawerIndentBackground = function DrawerIndentBackground(
   const elementProps = omit(componentProps, 'render', 'class', 'style');
   const providerContext = useDrawerProviderContext();
   const active = createMemo(() => providerContext?.active() ?? false);
-  const state = createMemo<DrawerIndentBackgroundState>(() => ({
-    active: active(),
-  }));
+  const state = createMemo<DrawerIndentBackgroundState>(
+    () => ({
+      active: active(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   return useRenderElement('div', componentProps, {
     state,
     props: elementProps,

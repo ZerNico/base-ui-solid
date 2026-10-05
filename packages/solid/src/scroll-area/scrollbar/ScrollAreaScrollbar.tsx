@@ -1,6 +1,7 @@
 import { Show, createMemo, omit } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { contains, getTarget } from '../../floating-ui-solid/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -54,12 +55,15 @@ export function ScrollAreaScrollbar(componentProps: ScrollAreaScrollbar.Props) {
 
   const vertical = () => orientation() === 'vertical';
 
-  const state = createMemo<ScrollAreaScrollbarState>(() => ({
-    ...viewportState(),
-    hovering: hovering(),
-    scrolling: vertical() ? scrollingY() : scrollingX(),
-    orientation: orientation(),
-  }));
+  const state = createMemo<ScrollAreaScrollbarState>(
+    () => ({
+      ...viewportState(),
+      hovering: hovering(),
+      scrolling: vertical() ? scrollingY() : scrollingX(),
+      orientation: orientation(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const direction = useDirection();
   const hideTrackUntilMeasured = () => !hasMeasuredScrollbar() && !keepMounted();

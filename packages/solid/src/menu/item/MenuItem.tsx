@@ -1,5 +1,6 @@
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { createMemo, omit, Show } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -50,10 +51,13 @@ function MenuItemPlain(componentProps: MenuItem.Props) {
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state = createMemo<MenuItemState>(() => ({
-    disabled: disabled(),
-    highlighted: highlighted(),
-  }));
+  const state = createMemo<MenuItemState>(
+    () => ({
+      disabled: disabled(),
+      highlighted: highlighted(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

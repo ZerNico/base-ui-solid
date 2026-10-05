@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -21,12 +22,15 @@ export function SelectArrow(componentProps: SelectArrow.Props) {
 
   const open = store.useState('open');
 
-  const state = createMemo<SelectArrowState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    uncentered: positioner.arrowUncentered,
-  }));
+  const state = createMemo<SelectArrowState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      uncentered: positioner.arrowUncentered,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const element = useRenderElement('div', componentProps, {
     enabled: () => !positioner.alignItemWithTriggerActive,

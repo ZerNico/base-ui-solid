@@ -2,6 +2,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { JSX } from '@solidjs/web';
 import { createMemo, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -60,9 +61,12 @@ export const DrawerIndent = function DrawerIndent(componentProps: DrawerIndent.P
     },
     () => [visualStateStore],
   );
-  const state = createMemo<DrawerIndentState>(() => ({
-    active: active(),
-  }));
+  const state = createMemo<DrawerIndentState>(
+    () => ({
+      active: active(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   return useRenderElement('div', componentProps, {
     ref: (element) => {
       indentRef.current = element;

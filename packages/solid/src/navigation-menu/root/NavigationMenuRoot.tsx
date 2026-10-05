@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import {
   FloatingNode,
@@ -336,10 +337,13 @@ function TreeContext<Value>(props: { componentProps: NavigationMenuRoot.Props<Va
   const nodeId = useFloatingNodeId();
   const { rootRef, nested, open } = useNavigationMenuRootContext();
 
-  const state = createMemo<NavigationMenuRootState>(() => ({
-    open: open(),
-    nested,
-  }));
+  const state = createMemo<NavigationMenuRootState>(
+    () => ({
+      open: open(),
+      nested,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return (
     <NavigationMenuTreeContext value={nodeId ?? null}>

@@ -8,6 +8,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui-solid/utils/clamp';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-solid';
 import type { ClientRectObject } from '../../floating-ui-solid';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -183,12 +184,15 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
     },
   });
 
-  const state = createMemo<SelectPopupState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-    side: positioner.side,
-    align: positioner.align,
-  }));
+  const state = createMemo<SelectPopupState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+      side: positioner.side,
+      align: positioner.align,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   useIsoLayoutEffect(
     ([currentPositionerElement]) => {

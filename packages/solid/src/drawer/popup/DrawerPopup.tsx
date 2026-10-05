@@ -5,6 +5,7 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { FloatingFocusManager } from '../../floating-ui-solid';
@@ -286,16 +287,19 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
     componentProps.initialFocus === undefined ? popupRef : componentProps.initialFocus,
   );
   const setPopupElement = store.useStateSetter('popupElement');
-  const state = createMemo<DrawerPopupState>(() => ({
-    open: open(),
-    nested: nested(),
-    transitionStatus: transitionStatus(),
-    expanded: snapPointData.activeSnapPoint() === 1,
-    nestedDrawerOpen: nestedDrawerOpen(),
-    nestedDrawerSwiping: drawerContext.nestedSwiping(),
-    swipeDirection: drawerContext.swipeDirection(),
-    swiping: swiping(),
-  }));
+  const state = createMemo<DrawerPopupState>(
+    () => ({
+      open: open(),
+      nested: nested(),
+      transitionStatus: transitionStatus(),
+      expanded: snapPointData.activeSnapPoint() === 1,
+      nestedDrawerOpen: nestedDrawerOpen(),
+      nestedDrawerSwiping: drawerContext.nestedSwiping(),
+      swipeDirection: drawerContext.swipeDirection(),
+      swiping: swiping(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
   const popupHeightCssVarValue = () =>
     popupHeight() && (drawerContext.hasNestedDrawer() || transitionStatus() === 'ending')
       ? `${popupHeight()}px`

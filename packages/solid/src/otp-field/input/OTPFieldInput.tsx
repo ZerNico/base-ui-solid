@@ -6,6 +6,7 @@ import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-solid/utils/warn';
 import { platform } from '@base-ui-solid/utils/platform';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { stopEvent } from '../../floating-ui-solid/utils';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -89,7 +90,9 @@ export function OTPFieldInput(componentProps: OTPFieldInput.Props): JSX.Element 
     }
   });
 
-  const inputState = createMemo(() => getOTPFieldInputState(state(), slotValue(), index()));
+  const inputState = createMemo(() => getOTPFieldInputState(state(), slotValue(), index()), {
+    equals: fastObjectShallowCompare,
+  });
   const slotAriaLabel = () => componentProps['aria-label'];
   const inheritedLabel = () => componentProps['aria-labelledby'] ?? inputAriaLabelledBy();
   const ariaLabel = () => (index() === 0 ? undefined : slotAriaLabel());

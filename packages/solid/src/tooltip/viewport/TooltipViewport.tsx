@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -32,11 +33,14 @@ export function TooltipViewport(componentProps: TooltipViewport.Props): JSX.Elem
     },
   });
 
-  const state = createMemo<TooltipViewportState>(() => ({
-    activationDirection: viewportState().activationDirection,
-    transitioning: viewportState().transitioning,
-    instant: instantType(),
-  }));
+  const state = createMemo<TooltipViewportState>(
+    () => ({
+      activationDirection: viewportState().activationDirection,
+      transitioning: viewportState().transitioning,
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

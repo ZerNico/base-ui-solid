@@ -1,4 +1,5 @@
 import { createMemo, omit } from 'solid-js';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
@@ -18,9 +19,12 @@ export function NavigationMenuIcon(componentProps: NavigationMenuIcon.Props) {
 
   const isActiveItem = () => open() && value() === itemValue();
 
-  const state = createMemo<NavigationMenuIconState>(() => ({
-    open: isActiveItem(),
-  }));
+  const state = createMemo<NavigationMenuIconState>(
+    () => ({
+      open: isActiveItem(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('span', componentProps, {
     state,

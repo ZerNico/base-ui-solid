@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -48,13 +49,16 @@ export function PreviewCardPopup(componentProps: PreviewCardPopup.Props): JSX.El
     },
   });
 
-  const state = createMemo<PreviewCardPopupState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    instant: instantType(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<PreviewCardPopupState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      instant: instantType(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   return useRenderElement('div', componentProps, {
     state,

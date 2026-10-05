@@ -1,5 +1,6 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useFloatingTree } from '../../floating-ui-solid';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
@@ -26,9 +27,12 @@ export function NavigationMenuLink(componentProps: NavigationMenuLink.Props) {
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const state = createMemo<NavigationMenuLinkState>(() => ({
-    active: active(),
-  }));
+  const state = createMemo<NavigationMenuLinkState>(
+    () => ({
+      active: active(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   // Port note: React's `onBlur` bubbles, so it's `onFocusOut`.
   const defaultProps = (): HTMLProps => ({

@@ -1,5 +1,6 @@
 import { createMemo, merge, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { FieldValidityData } from '../root/FieldRoot';
@@ -23,11 +24,14 @@ export function FieldValidity(props: FieldValidity.Props): JSX.Element {
   const isInvalid = () => combinedFieldValidityData().state.valid === false;
   const { transitionStatus } = useTransitionStatus(isInvalid);
 
-  const fieldValidityState = createMemo<FieldValidityState>(() => ({
-    ...combinedFieldValidityData(),
-    validity: combinedFieldValidityData().state,
-    transitionStatus: transitionStatus(),
-  }));
+  const fieldValidityState = createMemo<FieldValidityState>(
+    () => ({
+      ...combinedFieldValidityData(),
+      validity: combinedFieldValidityData().state,
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const stateView = merge(fieldValidityState) as FieldValidityState;
 

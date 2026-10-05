@@ -2,6 +2,7 @@ import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -141,15 +142,18 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     disabled,
   });
 
-  const state = createMemo<ComboboxTriggerState>(() => ({
-    ...fieldState(),
-    readOnly: readOnly(),
-    open: open(),
-    disabled: disabled(),
-    popupSide: popupSide(),
-    listEmpty: listEmpty(),
-    placeholder: selectionMode() === 'none' ? false : !hasSelectedValue(),
-  }));
+  const state = createMemo<ComboboxTriggerState>(
+    () => ({
+      ...fieldState(),
+      readOnly: readOnly(),
+      open: open(),
+      disabled: disabled(),
+      popupSide: popupSide(),
+      listEmpty: listEmpty(),
+      placeholder: selectionMode() === 'none' ? false : !hasSelectedValue(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const setTriggerElement = (element: HTMLElement | null) => {
     store.set('triggerElement', element);

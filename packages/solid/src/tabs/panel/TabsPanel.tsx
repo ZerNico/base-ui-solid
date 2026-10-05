@@ -1,6 +1,7 @@
 import { Show, createMemo, omit } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
@@ -50,12 +51,15 @@ export function TabsPanel(componentProps: TabsPanel.Props) {
 
   const correspondingTabId = () => getTabIdByPanelValue(componentProps.value);
 
-  const state = createMemo<TabsPanelState>(() => ({
-    hidden: hidden(),
-    orientation: orientation(),
-    tabActivationDirection: tabActivationDirection(),
-    transitionStatus: transitionStatus(),
-  }));
+  const state = createMemo<TabsPanelState>(
+    () => ({
+      hidden: hidden(),
+      orientation: orientation(),
+      tabActivationDirection: tabActivationDirection(),
+      transitionStatus: transitionStatus(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   let panelElement: HTMLDivElement | null = null;
 

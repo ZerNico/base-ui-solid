@@ -2,6 +2,7 @@ import { createMemo, omit, Show, untrack } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingNode } from '../../floating-ui-solid';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -297,14 +298,17 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
     open,
   });
 
-  const state = createMemo<MenuPositionerState>(() => ({
-    open: open(),
-    side: positioner.side,
-    align: positioner.align,
-    anchorHidden: positioner.anchorHidden,
-    nested: parent().type === 'menu',
-    instant: instantType(),
-  }));
+  const state = createMemo<MenuPositionerState>(
+    () => ({
+      open: open(),
+      side: positioner.side,
+      align: positioner.align,
+      anchorHidden: positioner.anchorHidden,
+      nested: parent().type === 'menu',
+      instant: instantType(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const menubarModal = () => {
     const parentValue = parent();

@@ -10,6 +10,7 @@ import { platform } from '@base-ui-solid/utils/platform';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { activeElement } from '../../floating-ui-solid/utils';
 import type { InputMode } from './NumberFieldRootContext';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
@@ -350,15 +351,18 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
     );
   }
 
-  const state = createMemo<NumberFieldRootState>(() => ({
-    ...fieldState(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    required: required(),
-    value: value(),
-    inputValue: inputValue(),
-    scrubbing: isScrubbing(),
-  }));
+  const state = createMemo<NumberFieldRootState>(
+    () => ({
+      ...fieldState(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      required: required(),
+      value: value(),
+      inputValue: inputValue(),
+      scrubbing: isScrubbing(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   // Port note: upstream's `useValueAsRef` syncs the ref after every render. Re-run it whenever
   // the value changes or `setValue` forces a render.

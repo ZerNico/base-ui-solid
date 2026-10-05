@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -268,13 +269,16 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
     };
   };
 
-  const state = createMemo<RadioRootState>(() => ({
-    ...fieldState(),
-    required: required(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    checked: checked(),
-  }));
+  const state = createMemo<RadioRootState>(
+    () => ({
+      ...fieldState(),
+      required: required(),
+      disabled: disabled(),
+      readOnly: readOnly(),
+      checked: checked(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const refs = [
     (element: HTMLElement | null) => {

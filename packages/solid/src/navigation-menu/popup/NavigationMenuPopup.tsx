@@ -1,5 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
@@ -27,13 +28,16 @@ export function NavigationMenuPopup(componentProps: NavigationMenuPopup.Props) {
   const generatedId = useBaseUiId();
   const id = () => componentProps.id ?? generatedId;
 
-  const state = createMemo<NavigationMenuPopupState>(() => ({
-    open: open(),
-    transitionStatus: transitionStatus(),
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-  }));
+  const state = createMemo<NavigationMenuPopupState>(
+    () => ({
+      open: open(),
+      transitionStatus: transitionStatus(),
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const style = (): JSX.CSSProperties => {
     // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
