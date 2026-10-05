@@ -21,15 +21,44 @@ export function RouterLink(props: JSX.IntrinsicElements['a']) {
     return { path, hash };
   };
 
-  const other = omit(props, 'href', 'children');
+  const other = omit(props, 'href', 'children', 'class');
 
   return (
     <Show when={route()} fallback={<a {...props} />}>
       {(target) => (
-        <Link {...(other as any)} to={target().path} hash={target().hash}>
+        // TanStack's `Link` passes `class` through as a plain attribute, so flatten Solid's
+        // class arrays and objects, and don't add its default `active` class.
+        <Link
+          {...(other as any)}
+          class={toClassName(props.class)}
+          activeProps={{}}
+          to={target().path}
+          hash={target().hash}
+        >
           {props.children}
         </Link>
       )}
     </Show>
   );
+}
+
+function toClassName(value: unknown): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(toClassName).filter(Boolean).join(' ') || undefined;
+  }
+  if (typeof value === 'object') {
+    return (
+      Object.entries(value)
+        .filter(([, enabled]) => enabled)
+        .map(([name]) => name)
+        .join(' ') || undefined
+    );
+  }
+  return undefined;
 }
