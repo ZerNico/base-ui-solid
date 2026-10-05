@@ -1,5 +1,7 @@
+import { createProjection } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import type { StoredToast } from './store';
 import { useToastProviderContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 
@@ -8,15 +10,22 @@ import type { ToastPositionerProps } from './positioner/ToastPositioner';
  *
  * Port note: `toasts` is a getter that reads the store reactively: read it in a reactive scope
  * (JSX, a memo or an effect) and don't destructure it. The methods are stable.
+ *
+ * Port note: the store replaces a toast object on every update, like upstream. React lists are
+ * keyed by `toast.id`, while Solid's `<For>` tracks items by reference, so an unkeyed list would
+ * remount a toast on each update (and loop, since a mounted toast records its height). The toasts
+ * are therefore reconciled by `id`: each toast keeps one object for its lifetime and updates
+ * change its fields in place.
  */
 export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
   const store = useToastProviderContext();
 
-  const toasts = store.useState('toasts');
+  const storeToasts = store.useState('toasts');
+  const toasts = createProjection(() => storeToasts(), [] as StoredToast[], { key: 'id' });
 
   return {
     get toasts() {
-      return toasts();
+      return toasts as ToastObject<Data>[];
     },
     add: store.addToast,
     close: store.closeToast,
