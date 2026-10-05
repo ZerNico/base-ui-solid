@@ -18,10 +18,11 @@ export type MaybeAccessorArgs<Args extends readonly any[]> = {
 
 /**
  * Port note: upstream subscribes a component to the store with `useSyncExternalStore` and returns
- * the selected value for the current render. In Solid it returns an accessor backed by a memo:
- * the store notifies a local signal, and the memo re-runs the selector when Solid flushes,
- * notifying its readers only when the selected value changed (`Object.is`), like upstream.
- * Arguments may be accessors (see {@link MaybeAccessor}).
+ * the selected value for the current render. In Solid it returns an accessor backed by a memo
+ * that re-runs the selector when Solid flushes, notifying its readers only when the selected value
+ * changed (`Object.is`), like upstream. A `SolidStore` is tracked directly (`trackSelector`), so
+ * values synced into it from props update in the same flush as the props. Other stores notify a
+ * local signal from a `subscribe` listener. Arguments may be accessors (see {@link MaybeAccessor}).
  *
  * Must be called under an owner (a component or a root). The subscription is removed on disposal.
  */
@@ -54,6 +55,19 @@ export function useStore(
   a2?: unknown,
   a3?: unknown,
 ): Accessor<unknown> {
+  if (isTrackable(store)) {
+    return createMemo(
+      () =>
+        store.trackSelector(
+          selector as (state: unknown, a1: unknown, a2: unknown, a3: unknown) => unknown,
+          resolve(a1),
+          resolve(a2),
+          resolve(a3),
+        ),
+      { equals: Object.is },
+    );
+  }
+
   const track = subscribeToStore(store);
 
   return createMemo(
@@ -82,6 +96,24 @@ export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'
   });
   onCleanup(unsubscribe);
   return track;
+}
+
+/**
+ * A store that can be tracked in a reactive scope without a `subscribe` listener (`SolidStore`).
+ */
+interface TrackableStore<State> {
+  trackSelector(
+    selector: (state: State, a1: unknown, a2: unknown, a3: unknown) => unknown,
+    a1?: unknown,
+    a2?: unknown,
+    a3?: unknown,
+  ): unknown;
+}
+
+function isTrackable<State>(
+  store: ReadonlyStore<State>,
+): store is ReadonlyStore<State> & TrackableStore<State> {
+  return typeof (store as Partial<TrackableStore<State>>).trackSelector === 'function';
 }
 
 function resolve(value: unknown) {

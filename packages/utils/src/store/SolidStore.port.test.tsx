@@ -1,7 +1,20 @@
 import { expect, describe, it, vi } from 'vitest';
-import { createMemo, createRoot, createSignal, flush } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createRoot,
+  createSignal,
+  flush,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 import type { Accessor } from 'solid-js';
-import { screen } from '@solidjs/testing-library';
+import { attribution } from 'solid-js/attribution';
+import { render, screen } from '@solidjs/testing-library';
+// eslint-disable-next-line import/no-relative-packages
+import { Select } from '../../../solid/src/select';
+// eslint-disable-next-line import/no-relative-packages
+import { Popover } from '../../../solid/src/popover';
 // eslint-disable-next-line import/no-relative-packages
 import { renderToString } from '../../../solid/test/renderToString';
 import { SolidStore } from './SolidStore';
@@ -168,7 +181,7 @@ describe('SolidStore (port)', () => {
       expect(notified).toEqual([1, 2]);
     });
 
-    it('track() subscribes to the sources of the keys read', () => {
+    it('trackSelector() subscribes to the sources of the keys read', () => {
       const store = new TestStore(initialState);
       const [value, setValue] = createSignal(1);
       const [label, setLabel] = createSignal('a');
@@ -179,7 +192,7 @@ describe('SolidStore (port)', () => {
         store.sync(partOf('label', label));
         const selectedValue = createMemo(() => {
           valueRuns += 1;
-          return [value(), store.track().value];
+          return [value(), store.trackSelector((state) => state.value)];
         });
         return { dispose: disposeRoot, selected: selectedValue };
       });
@@ -192,10 +205,12 @@ describe('SolidStore (port)', () => {
       expect(selected()).toEqual([2, 2]);
       expect(valueRuns).toBe(runs + 1);
 
-      // A source of another key doesn't re-run the memo.
+      // A source of another key re-runs it once, after the flush (a selector can read values
+      // that aren't in the state), without changing its value.
       setLabel('b');
       flush();
-      expect(valueRuns).toBe(runs + 1);
+      expect(valueRuns).toBe(runs + 2);
+      expect(selected()).toEqual([2, 2]);
 
       // An imperative write does.
       store.set('value', 9);
@@ -319,20 +334,183 @@ describe('SolidStore (port)', () => {
       errorSpy.mockRestore();
       dispose();
     });
+  });
 
-    it('renders synced values on the server', async () => {
-      await renderToString(SyncedValues, { value: 'server' });
+  describe('reactivity', () => {
+    const selectors = {
+      value: (state: TestState) => state.value,
+      label: (state: TestState) => state.label,
+      node: (state: TestState) => state.node,
+    };
+
+    it('updates selected values in the same flush as the synced values', () => {
+      const [value, setValue] = createSignal(1);
+      const [label, setLabel] = createSignal('a');
+      const [node, setNode] = createSignal<string | undefined>('x');
+      const seen: Array<readonly unknown[]> = [];
+
+      function Test(props: { value: number; label: string; node: string | undefined }) {
+        const store = new SolidStore<TestState, Record<string, never>, typeof selectors>(
+          initialState,
+          undefined,
+          selectors,
+        );
+        store.useSyncedValue('value', () => props.value);
+        store.useSyncedValues(() => ({ label: props.label }));
+        store.useControlledProp('node', () => props.node);
+        const storeValue = store.useState('value');
+        const storeLabel = store.useState('label');
+        const storeNode = store.useState('node');
+
+        createEffect(
+          () => [props.value, storeValue(), props.label, storeLabel(), props.node, storeNode()],
+          (values) => {
+            seen.push(values);
+          },
+        );
+        return null;
+      }
+
+      render(() => <Test value={value()} label={label()} node={node()} />);
+      flush();
+
+      setValue(2);
+      flush();
+      setLabel('b');
+      flush();
+      setNode('y');
+      flush();
+      setValue(3);
+      setLabel('c');
+      flush();
+
+      expect(seen.length).toBeGreaterThan(1);
+      for (const values of seen) {
+        expect([values[1], values[3], values[5]]).toEqual([values[0], values[2], values[4]]);
+      }
+      expect(seen[seen.length - 1]).toEqual([3, 3, 'c', 'c', 'y', 'y']);
+    });
+
+    it('notifies observers once per change, with the selected state up to date', () => {
+      const [value, setValue] = createSignal(1);
+      const calls: Array<[number, number, number]> = [];
+
+      function Test(props: { value: number }) {
+        const store = new SolidStore<TestState, Record<string, never>, typeof selectors>(
+          initialState,
+          undefined,
+          selectors,
+        );
+        store.useSyncedValue('value', () => props.value);
+        const storeValue = store.useState('value');
+        onCleanup(
+          store.observe('value', (newValue, oldValue) => {
+            calls.push([newValue, oldValue, untrack(storeValue)]);
+          }),
+        );
+        return null;
+      }
+
+      render(() => <Test value={value()} />);
+      flush();
+      // The initial call, with the synced value.
+      expect(calls).toEqual([[1, 1, 1]]);
+
+      setValue(2);
+      flush();
+      expect(calls).toEqual([
+        [1, 1, 1],
+        [2, 1, 2],
+      ]);
+
+      setValue(2);
+      flush();
+      setValue(3);
+      flush();
+      expect(calls).toEqual([
+        [1, 1, 1],
+        [2, 1, 2],
+        [3, 2, 3],
+      ]);
+    });
+
+    it('does not relay synced values through effects when opening and closing popups', async () => {
+      // Solid reports relay tears when its attribution engine is enabled.
+      const disableAttribution = attribution.enable();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const [selectOpen, setSelectOpen] = createSignal(false);
+      const [popoverOpen, setPopoverOpen] = createSignal(false);
+
+      render(() => (
+        <div>
+          <Select.Root open={selectOpen()} onOpenChange={setSelectOpen} defaultValue="a">
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Popover.Root open={popoverOpen()} onOpenChange={setPopoverOpen}>
+            <Popover.Trigger>Toggle</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Title>Title</Popover.Title>
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+      ));
+
+      for (const setOpen of [setSelectOpen, setPopoverOpen]) {
+        for (const open of [true, false, true, false]) {
+          setOpen(open);
+          flush();
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve, 20);
+          });
+          flush();
+        }
+      }
+
+      // Synced values used to reach `useState` through a `subscribe` listener that wrote a signal
+      // one flush late. Imperative writes from effects (upstream's layout effects, e.g. Select's
+      // `selectedIndex`) still reach it through the store's version signal.
+      const relayed = warnSpy.mock.calls
+        .map((call) => String(call[0]))
+        .filter(
+          (message) =>
+            message.startsWith('[EFFECT_RELAY_TEAR]') &&
+            /by writing "(subscribeToStore\.track|SolidStore\.source|SolidStore\.late)"/.test(
+              message,
+            ),
+        );
+      warnSpy.mockRestore();
+      disableAttribution();
+      expect(relayed).toEqual([]);
+    });
+  });
+
+  describe('server rendering', () => {
+    it('renders synced values on the server and hydrates them', async () => {
+      const { hydrate } = await renderToString(SyncedValues, { value: 'server' });
 
       const output = screen.getByTestId('output');
       expect(output).toHaveTextContent('server');
       expect(output).toHaveAttribute('data-label', 'server-label');
-    });
 
-    it('hydrates synced values without a mismatch', async () => {
-      const { hydrate } = await renderToString(SyncedValues, { value: 'server' });
       const { setProps } = hydrate();
 
-      const output = screen.getByTestId('output');
+      expect(screen.getByTestId('output')).toBe(output);
       expect(output).toHaveTextContent('server');
 
       setProps({ value: 'client' });

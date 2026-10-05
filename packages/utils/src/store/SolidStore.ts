@@ -42,13 +42,7 @@ export class SolidStore<
     this.lastNotified = this.base;
     this.version = isServer
       ? undefined
-      : createSignal(undefined, { equals: false, ownedWrite: true });
-    this.trackingHandler = {
-      get: (target, key) => {
-        this.trackKey(key as keyof State);
-        return target[key as keyof State];
-      },
-    };
+      : createSignal(undefined, { equals: false, ownedWrite: true, name: 'SolidStore.version' });
   }
 
   /**
@@ -80,8 +74,6 @@ export class SolidStore<
 
   /** Changes when `base` changes or a source registers or unregisters. Client only. */
   declare private version: Signal<undefined> | undefined;
-
-  declare private trackingHandler: ProxyHandler<State & object>;
 
   /**
    * The current state of the store: the imperative state, with the keys provided by registered
@@ -135,27 +127,48 @@ export class SolidStore<
   }
 
   /**
-   * Returns the current state and, in a reactive scope, subscribes to it: to imperative changes,
-   * to sources registering or unregistering, and to the sources of the keys read from the returned
-   * object.
+   * Runs `selector` on the current state and, in a reactive scope, subscribes to the result:
+   * - to imperative changes and to sources registering or unregistering,
+   * - to the sources of the keys the selector read, in the same flush as they change,
+   * - to the other sources after the flush they changed in, since a selector can also read values
+   *   that aren't in the state (an element's `id`), which upstream reads again whenever the store
+   *   changes.
    *
-   * Port note: Solid-only. `useStore` uses it in place of a `subscribe` listener, so a selected
-   * value updates in the same flush as the synced value it's computed from.
+   * Port note: Solid-only. `useStore` calls it in place of subscribing a listener, so a selected
+   * value updates in the same flush as the synced values it's computed from. Sources often read
+   * the store themselves (`useSyncedValues(() => ({ modal: parent().type ... }))`), so the
+   * selector can't track every source in the same flush without creating a cycle.
    */
-  track(): State {
+  trackSelector<Value>(
+    selector: (state: State, a1: any, a2: any, a3: any) => Value,
+    a1?: unknown,
+    a2?: unknown,
+    a3?: unknown,
+  ): Value {
     this.version?.[0]();
     const snapshot = this.state;
     if (this.version === undefined || this.sources.size === 0) {
-      return snapshot;
+      return selector(snapshot, a1, a2, a3);
     }
+
+    const readSources = new Set<Source<State>>();
     // A new view each time, so memoized selectors (keyed by the state object) read the keys
     // again and every run tracks them.
-    return new Proxy(snapshot as State & object, this.trackingHandler);
+    const view = new Proxy(snapshot as State & object, {
+      get: (target, key) => this.readTracked(target, key as keyof State, readSources),
+    });
+    const value = selector(view, a1, a2, a3);
+    for (const source of this.sources) {
+      if (!readSources.has(source)) {
+        source.late?.[0]();
+      }
+    }
+    return value;
   }
 
   /**
    * Like `select`, but subscribes to the selected state when called in a reactive scope (see
-   * `track`).
+   * `trackSelector`).
    */
   selectTracked<Key extends keyof Selectors>(
     key: Key,
@@ -163,12 +176,11 @@ export class SolidStore<
   ): ReturnType<Selectors[Key]>;
 
   selectTracked(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
-    const selector = this.selectors![key];
-    return selector(this.track(), a1, a2, a3);
+    return this.trackSelector(this.selectors![key], a1, a2, a3);
   }
 
   /**
-   * Makes `part` the source of its keys until the current owner is disposed.
+   * Makes `read` the source of its keys until the current owner is disposed.
    *
    * A registered source provides its keys (it "wins") when it registers and whenever its value
    * changes, until an imperative write changes one of them. With `undefinedFallsBack`, an
@@ -179,19 +191,44 @@ export class SolidStore<
    * Port note: Solid-only. This replaces the layout effects in which upstream's `useSyncedValue`,
    * `useSyncedValues`, `useSyncedValueWithCleanup` and `useControlledProp` write their values.
    *
-   * @param part Accessor of the synced keys and values. Its identity must change only when a value
-   * changes (a memo comparing the values). The keys are read once.
+   * @param read Accessor of the synced keys and values. It is a change when one of the values
+   * changes, not when only the object identity does. The keys are read once.
    */
   protected register<const Key extends keyof State>(
-    part: Accessor<Pick<State, Key>>,
+    read: Accessor<Pick<State, Key>>,
     options: RegisterOptions = {},
   ) {
+    const stamps = new WeakMap<object, number>();
+    let latest: Partial<State> | undefined;
+    let stamp = 0;
+    // Each new value gets a higher stamp. Solid only brings a memo up to date when it's read in a
+    // tracked scope, so an untracked read during a flush can return an older value than a tracked
+    // read before it: the stamps let `observe` ignore it.
+    const part = createMemo(
+      () => {
+        const next = read() as Partial<State>;
+        if (latest !== undefined && haveSameValues(latest, next)) {
+          return latest;
+        }
+        latest = next;
+        stamp += 1;
+        stamps.set(next, stamp);
+        return next;
+      },
+      { name: 'SolidStore.source' },
+    );
+
     const source: Source<State> = {
-      part: part as Accessor<Partial<State>>,
+      part,
+      stamps,
       keys: Object.keys(untrack(part)) as Array<keyof State>,
       seen: undefined,
+      seenStamp: 0,
       undefinedFallsBack: options.undefinedFallsBack ?? false,
       resetOnCleanup: options.resetOnCleanup ?? false,
+      late: isServer
+        ? undefined
+        : createSignal(undefined, { equals: false, ownedWrite: true, name: 'SolidStore.late' }),
     };
 
     this.sources.add(source);
@@ -206,10 +243,17 @@ export class SolidStore<
     this.dirty = true;
     this.bumpVersion();
 
-    // Subscribers (`subscribe`, `observe`) are notified after the flush that committed the new
-    // value, like upstream's layout effect notifies them after the render. Created on the server
-    // too (where it doesn't run) so hydration sees the same owners.
+    // Subscribers (`subscribe`, `observe`) and the selectors that didn't read this source's keys
+    // are notified after the flush that committed the new value, like upstream's layout effect
+    // notifies them after the render. Created on the server too (where it doesn't run) so
+    // hydration sees the same owners.
+    let registering = true;
     createEffect(part, () => {
+      if (registering) {
+        registering = false;
+      } else {
+        source.late?.[1](undefined);
+      }
       this.notifyIfChanged();
     });
 
@@ -260,40 +304,54 @@ export class SolidStore<
     this.dirty = true;
   }
 
-  private trackKey(key: keyof State) {
+  /**
+   * Reads a key of a `trackSelector` view: the sources of the key are read in the tracked scope,
+   * which also brings them up to date during a flush.
+   */
+  private readTracked(target: State, key: keyof State, readSources: Set<Source<State>>) {
     const keySources = this.keySources.get(key);
-    if (keySources !== undefined) {
-      for (const source of keySources) {
-        source.part();
+    if (keySources === undefined) {
+      return target[key];
+    }
+    for (const source of keySources) {
+      readSources.add(source);
+      this.observeSource(source, source.part());
+    }
+    const winner = this.winners.get(key);
+    return winner === undefined ? this.base[key] : winner.seen![key];
+  }
+
+  /**
+   * Records a value read from a source. A new value makes the source provide its keys.
+   */
+  private observeSource(source: Source<State>, part: Partial<State>) {
+    const stamp = source.stamps.get(part)!;
+    if (stamp <= source.seenStamp) {
+      return;
+    }
+    const previous = source.seen;
+    source.seen = part;
+    source.seenStamp = stamp;
+    this.dirty = true;
+    for (const key of source.keys) {
+      if (source.undefinedFallsBack && part[key] === undefined) {
+        if (this.winners.get(key) === source) {
+          // Like upstream, a controlled value that becomes `undefined` keeps the last value.
+          this.winners.delete(key);
+          this.writeBase(key, previous![key]!);
+        }
+      } else {
+        this.winners.set(key, source);
       }
     }
   }
 
   private resolve(): State {
-    let changed = this.dirty;
-
     for (const source of this.sources) {
-      const part = source.part();
-      if (part === source.seen) {
-        continue;
-      }
-      const previous = source.seen;
-      source.seen = part;
-      changed = true;
-      for (const key of source.keys) {
-        if (source.undefinedFallsBack && part[key] === undefined) {
-          if (this.winners.get(key) === source) {
-            // Like upstream, a controlled value that becomes `undefined` keeps the last value.
-            this.winners.delete(key);
-            this.writeBase(key, previous![key]!);
-          }
-        } else {
-          this.winners.set(key, source);
-        }
-      }
+      this.observeSource(source, source.part());
     }
 
-    if (!changed && this.snapshot !== undefined) {
+    if (!this.dirty && this.snapshot !== undefined) {
       return this.snapshot;
     }
 
@@ -370,29 +428,24 @@ export class SolidStore<
   public useSyncedValues<const Key extends keyof State>(statePart: Accessor<Pick<State, Key>>) {
     let keys: string[] | undefined;
 
-    const part = createMemo(
-      () => {
-        const nextPart = statePart();
-        if (IS_DEV) {
-          // Check that an object with the same shape is passed on every render
-          const nextKeys = Object.keys(nextPart);
-          if (keys === undefined) {
-            keys = nextKeys;
-          } else if (
-            keys.length !== nextKeys.length ||
-            keys.some((k, index) => k !== nextKeys[index])
-          ) {
-            console.error(
-              'SolidStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
-            );
-          }
+    this.register(() => {
+      const nextPart = statePart();
+      if (IS_DEV) {
+        // Check that an object with the same shape is passed on every render
+        const nextKeys = Object.keys(nextPart);
+        if (keys === undefined) {
+          keys = nextKeys;
+        } else if (
+          keys.length !== nextKeys.length ||
+          keys.some((k, index) => k !== nextKeys[index])
+        ) {
+          console.error(
+            'SolidStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+          );
         }
-        return nextPart;
-      },
-      { equals: haveSameValues },
-    );
-
-    this.register(part);
+      }
+      return nextPart;
+    });
   }
 
   /**
@@ -551,7 +604,7 @@ function createSyncedPart<State, Key extends keyof State>(
   key: Key,
   value: Accessor<State[Key]>,
 ): Accessor<Pick<State, Key>> {
-  return createMemo(() => ({ [key]: value() }) as Pick<State, Key>, { equals: haveSameValues });
+  return () => ({ [key]: value() }) as Pick<State, Key>;
 }
 
 function haveSameEntries(a: object, b: object) {
@@ -575,11 +628,16 @@ interface RegisterOptions {
 
 interface Source<State> {
   part: Accessor<Partial<State>>;
+  /** The order in which the values of `part` were computed. */
+  stamps: WeakMap<object, number>;
   keys: Array<keyof State>;
-  /** The last value read by `resolve`. */
+  /** The newest value read from `part`. */
   seen: Partial<State> | undefined;
+  seenStamp: number;
   undefinedFallsBack: boolean;
   resetOnCleanup: boolean;
+  /** Changes after the flush in which `part` changed. Client only. */
+  late: Signal<undefined> | undefined;
 }
 
 function haveSameValues(a: object, b: object) {

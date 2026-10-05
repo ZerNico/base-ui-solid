@@ -143,9 +143,11 @@ describe('select store synchronization', () => {
 
     // The root synchronizes its props in a layout effect, after descendant ref callbacks run.
     // The item receives the new state in the follow-up render.
+    // Port note: the root registers its props as the store's sources (see
+    // `SolidStore.useSyncedValues`) instead of writing them from a layout effect, so the item
+    // already reads `disabled` in the update that clicks it, and ignores the click.
     expect(clicked).toBe(true);
-    expect(handleValueChange).toHaveBeenCalledTimes(1);
-    expect(handleValueChange.mock.calls[0][0]).toBe('alpha');
+    expect(handleValueChange).toHaveBeenCalledTimes(0);
     expect(screen.getByRole('combobox')).toBeDisabled();
   });
 });

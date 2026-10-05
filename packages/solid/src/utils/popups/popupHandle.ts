@@ -50,7 +50,7 @@ export interface PopupHandleStoreWithTriggers {
  */
 export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
   select(key: 'open'): boolean;
-  subscribe(listener: () => void): () => void;
+  selectTracked(key: 'open'): boolean;
   setOpen(
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<typeof REASONS.imperativeAction>,
@@ -92,13 +92,11 @@ export class BasePopupHandle<
 
   /**
    * Port note: `isOpen` is read from the store like upstream (so it's up to date right after
-   * `open()`/`close()`), and also tracks this signal, which changes when the attached root's open
-   * state changes. That makes `handle.isOpen` reactive in JSX, memos and effects.
-   * `ownedWrite`: the store notifies its subscribers synchronously, also from effects.
+   * `open()`/`close()`), and also tracks the store (`selectTracked`) and this signal, which changes
+   * when a root attaches or detaches. That makes `handle.isOpen` reactive in JSX, memos and effects.
+   * `ownedWrite`: roots attach while rendering and detach from effect cleanups.
    */
   private readonly openStateVersion = createSignal(0, { ownedWrite: true });
-
-  private unsubscribeOpenState: (() => void) | null = null;
 
   /**
    * Creates a handle backed by the store used while no root is attached.
@@ -204,24 +202,7 @@ export class BasePopupHandle<
    */
   protected readOpenState(): boolean {
     this.openStateVersion[0]();
-    return this.attachedStoreValue?.select('open') ?? false;
-  }
-
-  private followOpenState(store: Store | null) {
-    this.unsubscribeOpenState?.();
-    this.unsubscribeOpenState = null;
-    const bump = () => this.openStateVersion[1]((version) => version + 1);
-    if (store) {
-      let open = store.select('open');
-      this.unsubscribeOpenState = store.subscribe(() => {
-        const nextOpen = store.select('open');
-        if (nextOpen !== open) {
-          open = nextOpen;
-          bump();
-        }
-      });
-    }
-    bump();
+    return this.attachedStoreValue?.selectTracked('open') ?? false;
   }
 
   /**
@@ -231,7 +212,7 @@ export class BasePopupHandle<
   private setActiveStore(store: Store | null) {
     if (this.attachedStoreValue !== store) {
       this.attachedStoreValue = store;
-      this.followOpenState(store);
+      this.openStateVersion[1]((version) => version + 1);
       this.storeListeners.forEach((listener) => {
         listener();
       });
