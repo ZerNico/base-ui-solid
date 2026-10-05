@@ -121,11 +121,10 @@ describe('<Popover.Viewport />', () => {
   });
 
   it('should remount the `current` container when the active trigger changes', async () => {
-    // Port note: the children render function is called once with an object whose `payload` is a
-    // getter, so it's read in JSX instead of being destructured.
+    // Port note: `payload` is an accessor (the render function is called once).
     const { user } = await render(() => (
       <Popover.Root>
-        {(arg) => (
+        {({ payload }) => (
           <>
             <Popover.Trigger payload="first" data-testid="trigger1">
               Trigger 1
@@ -137,10 +136,10 @@ describe('<Popover.Viewport />', () => {
               <Popover.Positioner>
                 <Popover.Popup>
                   <Popover.Viewport>
-                    {arg.payload === 'first' ? (
+                    {payload() === 'first' ? (
                       <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
                     ) : null}
-                    {arg.payload === 'second' ? (
+                    {payload() === 'second' ? (
                       <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
                     ) : null}
                   </Popover.Viewport>
@@ -244,7 +243,7 @@ describe('<Popover.Viewport />', () => {
             `}
           </style>
           <Popover.Root>
-            {(arg) => (
+            {({ payload }) => (
               <>
                 <Popover.Trigger
                   payload={0}
@@ -276,7 +275,7 @@ describe('<Popover.Viewport />', () => {
                   <Popover.Positioner>
                     <Popover.Popup>
                       <Popover.Viewport>
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </Popover.Viewport>
                     </Popover.Popup>
                   </Popover.Positioner>
@@ -349,7 +348,7 @@ describe('<Popover.Viewport />', () => {
               Close
             </button>
             <Popover.Root open={open()} onOpenChange={setOpen}>
-              {(arg) => (
+              {({ payload }) => (
                 <>
                   <Popover.Trigger payload={0} data-testid="trigger1">
                     Trigger 1
@@ -360,7 +359,7 @@ describe('<Popover.Viewport />', () => {
                   <Popover.Portal keepMounted>
                     <Popover.Positioner>
                       <Popover.Popup data-testid="popup">
-                        <Popover.Viewport>Content {arg.payload as number}</Popover.Viewport>
+                        <Popover.Viewport>Content {payload() as number}</Popover.Viewport>
                       </Popover.Popup>
                     </Popover.Positioner>
                   </Popover.Portal>
@@ -439,7 +438,7 @@ describe('<Popover.Viewport />', () => {
             `}
             </style>
             <Popover.Root>
-              {(arg) => (
+              {({ payload }) => (
                 <>
                   <Popover.Trigger payload={1} data-testid="trigger1">
                     Trigger 1
@@ -453,7 +452,7 @@ describe('<Popover.Viewport />', () => {
                   <Popover.Portal>
                     <Popover.Positioner>
                       <Popover.Popup>
-                        <Popover.Viewport>Content {arg.payload as number}</Popover.Viewport>
+                        <Popover.Viewport>Content {payload() as number}</Popover.Viewport>
                       </Popover.Popup>
                     </Popover.Positioner>
                   </Popover.Portal>
@@ -546,7 +545,7 @@ describe('<Popover.Viewport />', () => {
             `}
           </style>
           <Popover.Root>
-            {(arg) => (
+            {({ payload }) => (
               <>
                 <Popover.Trigger
                   payload={0}
@@ -578,7 +577,7 @@ describe('<Popover.Viewport />', () => {
                   <Popover.Positioner>
                     <Popover.Popup>
                       <Popover.Viewport data-testid="viewport">
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </Popover.Viewport>
                     </Popover.Popup>
                   </Popover.Positioner>

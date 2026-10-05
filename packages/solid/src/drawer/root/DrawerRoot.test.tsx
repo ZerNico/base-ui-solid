@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import {
   act,
   createRenderer,
@@ -616,11 +617,12 @@ describe('<Drawer.Root />', () => {
           Trigger 2
         </Drawer.Trigger>
         <Drawer.Root handle={handle}>
-          {({ payload }: { payload: number | undefined }) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: { payload: Accessor<number | undefined> }) => (
             <Drawer.Portal>
               <Drawer.Viewport>
                 <Drawer.Popup>
-                  <span data-testid="payload">{payload}</span>
+                  <span data-testid="payload">{payload()}</span>
                   <Drawer.Close>Close</Drawer.Close>
                 </Drawer.Popup>
               </Drawer.Viewport>
@@ -652,10 +654,11 @@ describe('<Drawer.Root />', () => {
           Trigger 2
         </Drawer.Trigger>
         <Drawer.Root handle={handle}>
-          {({ payload }: { payload: number | undefined }) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: { payload: Accessor<number | undefined> }) => (
             <Drawer.Portal>
               <Drawer.Viewport>
-                <Drawer.Popup data-testid="content">{payload}</Drawer.Popup>
+                <Drawer.Popup data-testid="content">{payload()}</Drawer.Popup>
               </Drawer.Viewport>
             </Drawer.Portal>
           )}
@@ -704,9 +707,10 @@ describe('<Drawer.Root />', () => {
           )}
           {mounted() && (
             <Drawer.Root handle={handle}>
-              {({ payload }: { payload: number | undefined }) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: { payload: Accessor<number | undefined> }) => (
                 <>
-                  <span data-testid="payload">{payload ?? 'No payload'}</span>
+                  <span data-testid="payload">{payload() ?? 'No payload'}</span>
                   <Drawer.Portal>
                     <Drawer.Viewport>
                       <Drawer.Popup>

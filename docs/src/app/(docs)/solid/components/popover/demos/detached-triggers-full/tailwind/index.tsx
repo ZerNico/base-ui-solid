@@ -24,7 +24,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Root handle={demoPopover}>
-        {(state) => (
+        {({ payload }) => (
           <Popover.Portal>
             <Popover.Positioner
               sideOffset={8}
@@ -57,7 +57,7 @@ export default function PopoverDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0`}
                 >
-                  {state.payload !== undefined && <Dynamic component={state.payload} />}
+                  {payload() !== undefined && <Dynamic component={payload()} />}
                 </Popover.Viewport>
               </Popover.Popup>
             </Popover.Positioner>

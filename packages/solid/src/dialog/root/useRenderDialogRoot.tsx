@@ -88,22 +88,16 @@ export function useRenderDialogRoot<Payload>(
 
   const shouldRenderInteractions = () => open() || mounted();
 
-  // Port note: a render-function child is called once, with an argument whose `payload` is a
-  // getter (React calls it on every render). Read `payload` in a reactive scope instead of
-  // destructuring it.
+  // Port note: a render-function child is called once (React calls it on every render), with
+  // `{ payload }` where `payload` is an accessor (see `PayloadChildRenderFunction`), so the
+  // argument can be destructured.
   // A single component child can also be a function (e.g. the accessor a `<Show>` returns), so a
   // function counts as a render function only when it declares a parameter, like Solid's `<Show>`
   // does for its function children.
   const renderChildren = (): JSX.Element => {
     const children = props.children;
     if (typeof children === 'function' && children.length > 0) {
-      return untrack(() =>
-        (children as PayloadChildRenderFunction<Payload>)({
-          get payload() {
-            return payload();
-          },
-        }),
-      );
+      return untrack(() => (children as PayloadChildRenderFunction<Payload>)({ payload }));
     }
     return children as JSX.Element;
   };

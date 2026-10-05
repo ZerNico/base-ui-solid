@@ -37,7 +37,7 @@ export default function TooltipDetachedTriggersFullDemo() {
       </div>
 
       <Tooltip.Root handle={demoTooltip}>
-        {(state) => (
+        {({ payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner
               sideOffset={11}
@@ -98,7 +98,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
                 >
-                  {state.payload}
+                  {payload()}
                 </Tooltip.Viewport>
               </Tooltip.Popup>
             </Tooltip.Positioner>

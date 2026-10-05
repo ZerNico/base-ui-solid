@@ -46,7 +46,7 @@ export default function MenuDetachedTriggersFullDemo() {
       </Menu.Trigger>
 
       <Menu.Root handle={demoMenu} modal={false}>
-        {(state) => (
+        {({ payload }) => (
           <Menu.Portal>
             <Menu.Positioner
               sideOffset={8}
@@ -55,19 +55,19 @@ export default function MenuDetachedTriggersFullDemo() {
             >
               <Menu.Popup class={[styles.Popup, transitionStyles.Popup]}>
                 <Menu.Viewport class={transitionStyles.Viewport}>
-                  {state.payload &&
-                    MENUS[state.payload!].groups.map((group, groupIndex) => [
+                  {payload() &&
+                    MENUS[payload()!].groups.map((group, groupIndex) => [
                       <Menu.Group>
                         {groupIndex === 0 && (
                           <Menu.GroupLabel class={styles.Label}>
-                            {MENUS[state.payload!].heading}
+                            {MENUS[payload()!].heading}
                           </Menu.GroupLabel>
                         )}
                         <For each={group}>
                           {(item) => <Menu.Item class={styles.Item}>{item}</Menu.Item>}
                         </For>
                       </Menu.Group>,
-                      groupIndex < MENUS[state.payload!].groups.length - 1 && (
+                      groupIndex < MENUS[payload()!].groups.length - 1 && (
                         <Menu.Separator class={styles.Separator} />
                       ),
                     ])}

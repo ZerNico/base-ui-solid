@@ -1,5 +1,6 @@
 import { vi, expect, describe, beforeEach, it } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { render as solidRender } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import {
@@ -137,7 +138,7 @@ describe('<Tooltip.Root />', () => {
   );
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
       const handle = Tooltip.createHandle();
@@ -227,10 +228,10 @@ describe('<Tooltip.Root />', () => {
             Trigger
           </Tooltip.Trigger>
           <Tooltip.Root handle={handle}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <>
-                <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                <span data-testid="payload">{payload() ?? 'No payload'}</span>
                 <Tooltip.Portal>
                   <Tooltip.Positioner>
                     <Tooltip.Popup data-testid="content">Content</Tooltip.Popup>
@@ -273,10 +274,10 @@ describe('<Tooltip.Root />', () => {
             </Show>
             <Show when={mounted()}>
               <Tooltip.Root handle={handle}>
-                {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-                {(arg: NumberPayload) => (
+                {/* Port note: `payload` is an accessor. */}
+                {({ payload }: NumberPayload) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <button type="button" onClick={() => setMounted(false)}>
                       Unmount root
                     </button>
@@ -502,7 +503,7 @@ describe('<Tooltip.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('should open the tooltip with any trigger on hover', async () => {
       vi.spyOn(console, 'error').mockImplementation((...args) => {
@@ -658,8 +659,8 @@ describe('<Tooltip.Root />', () => {
     it('should set the payload and render content based on its value', async () => {
       await render(() => (
         <Tooltip.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <Tooltip.Trigger payload={1} delay={0} style={{ 'pointer-events': 'none' }}>
                 Trigger 1
@@ -671,7 +672,7 @@ describe('<Tooltip.Root />', () => {
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -698,8 +699,8 @@ describe('<Tooltip.Root />', () => {
     it('hands off open state and payload to a trigger with its own DOM id while open', async () => {
       await render(() => (
         <Tooltip.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <Tooltip.Trigger
                 payload={1}
@@ -724,7 +725,7 @@ describe('<Tooltip.Root />', () => {
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -759,8 +760,8 @@ describe('<Tooltip.Root />', () => {
         return (
           <div style={{ padding: '50px' }}>
             <Tooltip.Root defaultOpen defaultTriggerId="trigger-1">
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <div style={{ display: 'flex', gap: '120px' }}>
                     <Show when={showFirstTrigger()}>
@@ -776,7 +777,7 @@ describe('<Tooltip.Root />', () => {
                   <Tooltip.Portal>
                     <Tooltip.Positioner side="bottom" align="start">
                       <Tooltip.Popup>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
                   </Tooltip.Portal>
@@ -818,8 +819,8 @@ describe('<Tooltip.Root />', () => {
         return (
           <div style={{ padding: '50px' }}>
             <Tooltip.Root defaultOpen defaultTriggerId="trigger-1" onOpenChange={onOpenChange}>
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <div style={{ display: 'flex', gap: '120px' }}>
                     <Show when={showFirstTrigger()}>
@@ -835,7 +836,7 @@ describe('<Tooltip.Root />', () => {
                   <Tooltip.Portal>
                     <Tooltip.Positioner side="bottom" align="start">
                       <Tooltip.Popup>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
                   </Tooltip.Portal>
@@ -869,8 +870,8 @@ describe('<Tooltip.Root />', () => {
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       await render(() => (
         <Tooltip.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <Tooltip.Trigger payload={1} delay={0}>
                 Trigger 1
@@ -882,7 +883,7 @@ describe('<Tooltip.Root />', () => {
               <Tooltip.Portal>
                 <Tooltip.Positioner data-testid="positioner">
                   <Tooltip.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -920,8 +921,8 @@ describe('<Tooltip.Root />', () => {
                 setOpen(nextOpen);
               }}
             >
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <Tooltip.Trigger payload={1} id="trigger-1" delay={0}>
                     Trigger 1
@@ -933,7 +934,7 @@ describe('<Tooltip.Root />', () => {
                   <Tooltip.Portal>
                     <Tooltip.Positioner>
                       <Tooltip.Popup>
-                        <span data-testid="content">{arg.payload as number}</span>
+                        <span data-testid="content">{payload() as number}</span>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
                   </Tooltip.Portal>
@@ -981,8 +982,8 @@ describe('<Tooltip.Root />', () => {
       const triggerId = randomStringValue();
       await render(() => (
         <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId={triggerId}>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <Tooltip.Trigger
@@ -1003,7 +1004,7 @@ describe('<Tooltip.Root />', () => {
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1019,7 +1020,7 @@ describe('<Tooltip.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('should open the tooltip with any trigger on hover', async () => {
       const testTooltip = Tooltip.createHandle();
@@ -1168,12 +1169,12 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Trigger>
 
           <Tooltip.Root handle={testTooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1221,12 +1222,12 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Trigger>
 
           <Tooltip.Root handle={testTooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1274,12 +1275,12 @@ describe('<Tooltip.Root />', () => {
             </div>
 
             <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId="trigger-1">
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <Tooltip.Portal>
                   <Tooltip.Positioner side="bottom" align="start">
                     <Tooltip.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                     </Tooltip.Popup>
                   </Tooltip.Positioner>
                 </Tooltip.Portal>
@@ -1327,12 +1328,12 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Trigger>
 
           <Tooltip.Root handle={testTooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1386,12 +1387,12 @@ describe('<Tooltip.Root />', () => {
           />
 
           <Tooltip.Root handle={testTooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1432,12 +1433,12 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Trigger>
 
           <Tooltip.Root handle={testTooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner data-testid="positioner">
                   <Tooltip.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1484,12 +1485,12 @@ describe('<Tooltip.Root />', () => {
               triggerId={activeTrigger()}
               handle={testTooltip}
             >
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <Tooltip.Portal>
                   <Tooltip.Positioner data-testid="positioner" side="bottom" align="start">
                     <Tooltip.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                     </Tooltip.Popup>
                   </Tooltip.Positioner>
                 </Tooltip.Portal>
@@ -1574,12 +1575,12 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Trigger>
 
           <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId={triggerId}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
                   <Tooltip.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
@@ -1620,13 +1621,13 @@ describe('<Tooltip.Root />', () => {
             </Tooltip.Trigger>
 
             <Tooltip.Root handle={testTooltip}>
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <Tooltip.Portal>
                   <Tooltip.Positioner>
                     <Tooltip.Popup data-testid="popup">
                       <Tooltip.Viewport>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </Tooltip.Viewport>
                     </Tooltip.Popup>
                   </Tooltip.Positioner>
@@ -1723,11 +1724,11 @@ describe('<Tooltip.Root />', () => {
             Trigger 2
           </Tooltip.Trigger>
           <Tooltip.Root handle={tooltip}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: { payload: number | undefined }) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>
-                  <Tooltip.Popup data-testid="content">{arg.payload}</Tooltip.Popup>
+                  <Tooltip.Popup data-testid="content">{payload()}</Tooltip.Popup>
                 </Tooltip.Positioner>
               </Tooltip.Portal>
             )}

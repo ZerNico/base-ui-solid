@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, flush, Match, Show, Switch } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { UserEvent } from '@testing-library/user-event';
 import { within } from '@solidjs/testing-library';
@@ -401,7 +402,7 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('opens the alert dialog with any trigger', async () => {
       const { user } = await render(() => (
@@ -454,14 +455,14 @@ describe('<AlertDialog.Root />', () => {
       // getter, so it's read in JSX instead of being destructured.
       const { user } = await render(() => (
         <AlertDialog.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <AlertDialog.Trigger payload={1}>Trigger 1</AlertDialog.Trigger>
               <AlertDialog.Trigger payload={2}>Trigger 2</AlertDialog.Trigger>
 
               <AlertDialog.Portal>
                 <AlertDialog.Popup>
-                  <span data-testid="content">{arg.payload}</span>
+                  <span data-testid="content">{payload()}</span>
                   <AlertDialog.Close>Close</AlertDialog.Close>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
@@ -488,14 +489,14 @@ describe('<AlertDialog.Root />', () => {
       // Port note: `payload` is read from the render-function argument in JSX (see above).
       const { user } = await render(() => (
         <AlertDialog.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <AlertDialog.Trigger payload={1}>Trigger 1</AlertDialog.Trigger>
               <AlertDialog.Trigger payload={2}>Trigger 2</AlertDialog.Trigger>
 
               <AlertDialog.Portal>
                 <AlertDialog.Popup data-testid="alert-dialog-popup">
-                  <span>{arg.payload}</span>
+                  <span>{payload()}</span>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
             </>
@@ -547,7 +548,7 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
     type Nesting = 0 | 1 | 2 | 3;
     type Handle = ReturnType<typeof AlertDialog.createHandle>;
 
@@ -820,8 +821,7 @@ describe('<AlertDialog.Root />', () => {
 
     it('sets the payload and renders content based on its value', async () => {
       const testDialog = AlertDialog.createHandle<number>();
-      // Port note: `payload` is read from the render-function argument in JSX instead of being
-      // destructured (the function is called once; `payload` is a getter).
+      // Port note: `payload` is an accessor (the render function is called once).
       const { user } = await render(() => (
         <div>
           <AlertDialog.Trigger handle={testDialog} payload={1}>
@@ -832,10 +832,10 @@ describe('<AlertDialog.Root />', () => {
           </AlertDialog.Trigger>
 
           <AlertDialog.Root handle={testDialog}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <AlertDialog.Portal>
                 <AlertDialog.Popup>
-                  <span data-testid="content">{arg.payload}</span>
+                  <span data-testid="content">{payload()}</span>
                   <AlertDialog.Close>Close</AlertDialog.Close>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
@@ -871,10 +871,10 @@ describe('<AlertDialog.Root />', () => {
           </AlertDialog.Trigger>
 
           <AlertDialog.Root handle={testDialog}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <AlertDialog.Portal>
                 <AlertDialog.Popup data-testid="alert-dialog-popup">
-                  <span>{arg.payload}</span>
+                  <span>{payload()}</span>
                 </AlertDialog.Popup>
               </AlertDialog.Portal>
             )}
@@ -996,8 +996,7 @@ describe('<AlertDialog.Root />', () => {
 
     it('sets the payload associated with the trigger', async () => {
       const dialog = AlertDialog.createHandle<number>();
-      // Port note: `payload` is read from the render-function argument in JSX instead of being
-      // destructured (the function is called once; `payload` is a getter).
+      // Port note: `payload` is an accessor (the render function is called once).
       await render(() => (
         <div>
           <AlertDialog.Trigger handle={dialog} id="trigger1" payload={1}>
@@ -1007,9 +1006,9 @@ describe('<AlertDialog.Root />', () => {
             Trigger 2
           </AlertDialog.Trigger>
           <AlertDialog.Root handle={dialog}>
-            {(arg: { payload: number | undefined }) => (
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="content">{arg.payload}</AlertDialog.Popup>
+                <AlertDialog.Popup data-testid="content">{payload()}</AlertDialog.Popup>
               </AlertDialog.Portal>
             )}
           </AlertDialog.Root>
@@ -1051,9 +1050,9 @@ describe('<AlertDialog.Root />', () => {
             Trigger 2
           </AlertDialog.Trigger>
           <AlertDialog.Root handle={dialog}>
-            {(arg: { payload: number | undefined }) => (
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="content">{arg.payload}</AlertDialog.Popup>
+                <AlertDialog.Popup data-testid="content">{payload()}</AlertDialog.Popup>
               </AlertDialog.Portal>
             )}
           </AlertDialog.Root>

@@ -107,6 +107,7 @@ const demoPreviewCard = PreviewCard.createHandle();
 
 The preview card can render different content depending on which trigger opened it.
 This is achieved by passing a `payload` to the `<PreviewCard.Trigger>` and using the function-as-a-child pattern in `<PreviewCard.Root>`.
+The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>`. Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the preview card. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
@@ -127,13 +128,13 @@ const demoPreviewCard = PreviewCard.createHandle<{ title: string }>();
 </PreviewCard.Trigger>
 
 <PreviewCard.Root handle={demoPreviewCard}>
-  {(state) => ( // @highlight-text "payload"
+  {({ payload }) => ( // @highlight-text "payload"
     <PreviewCard.Portal>
       <PreviewCard.Positioner sideOffset={8}>
         <PreviewCard.Popup>
-          {state.payload !== undefined && ( // @highlight-text "payload"
+          {payload() !== undefined && ( // @highlight-text "payload"
             <span>
-              Preview card opened by {state.payload.title} {/* @highlight-text "payload" */}
+              Preview card opened by {payload()?.title} {/* @highlight-text "payload" */}
             </span>
           )}
         </PreviewCard.Popup>

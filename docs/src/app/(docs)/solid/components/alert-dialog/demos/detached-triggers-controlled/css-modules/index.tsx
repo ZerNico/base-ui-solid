@@ -63,13 +63,13 @@ export default function AlertDialogDetachedTriggersControlledDemo() {
         onOpenChange={handleOpenChange}
         triggerId={triggerId()}
       >
-        {(state) => (
+        {({ payload }) => (
           <AlertDialog.Portal>
             <AlertDialog.Backdrop class={styles.Backdrop} />
             <AlertDialog.Popup class={styles.Popup}>
               <div class={styles.Intro}>
                 <AlertDialog.Title class={styles.Title}>
-                  {state.payload?.message ?? 'Are you sure?'}
+                  {payload()?.message ?? 'Are you sure?'}
                 </AlertDialog.Title>
                 <AlertDialog.Description class={styles.Description}>
                   This action cannot be undone.

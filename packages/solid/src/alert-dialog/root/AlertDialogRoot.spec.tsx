@@ -14,7 +14,8 @@ const rootWithDirectChildren = (
 const rootWithFunctionChildren = (
   <AlertDialog.Root handle={numberPayloadHandle}>
     {({ payload }) => {
-      expectType<number | undefined, typeof payload>(payload);
+      // Port note: `payload` is an accessor.
+      expectType<number | undefined, ReturnType<typeof payload>>(payload());
       return null;
     }}
   </AlertDialog.Root>

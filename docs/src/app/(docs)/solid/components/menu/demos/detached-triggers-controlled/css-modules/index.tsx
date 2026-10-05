@@ -74,12 +74,12 @@ export default function MenuDetachedTriggersControlledDemo() {
       triggerId={activeTrigger()}
       onOpenChange={handleOpenChange}
     >
-      {(state) => (
+      {({ payload }) => (
         <Menu.Portal>
           <Menu.Positioner class={styles.Positioner} sideOffset={8} align="start">
             <Menu.Popup class={styles.Popup}>
-              {state.payload &&
-                itemGroups[state.payload].map((item) => (
+              {payload() &&
+                itemGroups[payload()!].map((item) => (
                   <Menu.Item class={styles.Item} onClick={item.onClick}>
                     {item.label}
                   </Menu.Item>

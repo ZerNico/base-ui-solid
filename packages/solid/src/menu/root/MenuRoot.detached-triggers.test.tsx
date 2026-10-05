@@ -1,4 +1,5 @@
 import { createEffect, createSignal, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
@@ -15,6 +16,9 @@ import { Menu } from 'base-ui-solid/menu';
 import { PortFragment, createRenderer, ignoreActWarnings } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
+
 describe('<MenuRoot />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -22,7 +26,7 @@ describe('<MenuRoot />', () => {
   const { render, clock } = createRenderer();
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = {
-      payload: number | undefined;
+      payload: Accessor<number | undefined>;
     };
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Menu.createHandle<number>();
@@ -48,7 +52,7 @@ describe('<MenuRoot />', () => {
                 <Menu.Root handle={handle}>
                   {(props: NumberPayload) => (
                     <PortFragment>
-                      <span data-testid="payload">{props.payload ?? 'No payload'}</span>
+                      <span data-testid="payload">{props.payload() ?? 'No payload'}</span>
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>
@@ -88,7 +92,7 @@ describe('<MenuRoot />', () => {
               <Menu.Root handle={handle}>
                 {(props: NumberPayload) => (
                   <PortFragment>
-                    <span data-testid="payload">{props.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{props.payload() ?? 'No payload'}</span>
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
@@ -310,7 +314,7 @@ describe('<MenuRoot />', () => {
   });
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = {
-      payload: number | undefined;
+      payload: Accessor<number | undefined>;
     };
     it('should open the menu with any trigger', async () => {
       const { user } = await render(
@@ -373,7 +377,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -414,7 +418,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner data-testid="positioner">
                         <Menu.Popup data-testid="popup">
-                          <span>{props.payload}</span>
+                          <span>{props.payload()}</span>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -462,7 +466,7 @@ describe('<MenuRoot />', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                        <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -526,7 +530,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="popup-content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="popup-content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -796,7 +800,7 @@ describe('<MenuRoot />', () => {
   });
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = {
-      payload: number | undefined;
+      payload: Accessor<number | undefined>;
     };
     /**
      * Mirrors the Popover detached-trigger hover fixture: two detached hover
@@ -889,7 +893,7 @@ describe('<MenuRoot />', () => {
                             return <div {...props} />;
                           }}
                         >
-                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1162,7 +1166,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1208,7 +1212,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner data-testid="positioner">
                         <Menu.Popup data-testid="popup">
-                          <span>{props.payload}</span>
+                          <span>{props.payload()}</span>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1257,7 +1261,7 @@ describe('<MenuRoot />', () => {
                 <Menu.Portal>
                   <Menu.Positioner data-testid="positioner" side="bottom" align="start">
                     <Menu.Popup>
-                      <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                      <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
@@ -1337,7 +1341,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="popup-content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="popup-content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>
@@ -1369,7 +1373,7 @@ describe('<MenuRoot />', () => {
                   <Menu.Positioner>
                     <Menu.Popup data-testid="popup">
                       <Menu.Viewport>
-                        <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                        <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                       </Menu.Viewport>
                     </Menu.Popup>
                   </Menu.Positioner>
@@ -1659,7 +1663,7 @@ describe('<MenuRoot />', () => {
   });
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
     type NumberPayload = {
-      payload: number | undefined;
+      payload: Accessor<number | undefined>;
     };
     it('opens and closes the menu', async () => {
       const menuHandle = Menu.createHandle();
@@ -1723,7 +1727,7 @@ describe('<MenuRoot />', () => {
                     <Menu.Portal>
                       <Menu.Positioner>
                         <Menu.Popup>
-                          <Menu.Item data-testid="content">{props.payload}</Menu.Item>
+                          <Menu.Item data-testid="content">{props.payload()}</Menu.Item>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>

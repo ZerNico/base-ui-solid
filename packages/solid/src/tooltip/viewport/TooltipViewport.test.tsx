@@ -1,5 +1,6 @@
 import { expect, describe, it, beforeEach, afterEach } from 'vitest';
 import { createSignal } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Tooltip } from 'base-ui-solid/tooltip';
 import {
   createRenderer,
@@ -18,9 +19,9 @@ async function act(fn: () => unknown) {
   await flushMicrotasks();
 }
 
-// Port note: the Root render function child receives an object whose `payload` is a getter, so it
-// reads `arg.payload` instead of destructuring it.
-type Payload = { payload: unknown };
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
+type Payload = { payload: Accessor<unknown> };
 
 describe('<Tooltip.Viewport />', () => {
   const { render } = createRenderer();
@@ -128,7 +129,7 @@ describe('<Tooltip.Viewport />', () => {
   it('should remount the `current` container when the active trigger changes', async () => {
     await render(() => (
       <Tooltip.Root>
-        {(arg: Payload) => (
+        {({ payload }: Payload) => (
           <>
             <Tooltip.Trigger payload="first" delay={0} data-testid="trigger1">
               Trigger 1
@@ -140,10 +141,10 @@ describe('<Tooltip.Viewport />', () => {
               <Tooltip.Positioner>
                 <Tooltip.Popup>
                   <Tooltip.Viewport>
-                    {arg.payload === 'first' ? (
+                    {payload() === 'first' ? (
                       <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
                     ) : null}
-                    {arg.payload === 'second' ? (
+                    {payload() === 'second' ? (
                       <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
                     ) : null}
                   </Tooltip.Viewport>
@@ -207,7 +208,7 @@ describe('<Tooltip.Viewport />', () => {
             `}
           </style>
           <Tooltip.Root>
-            {(arg: Payload) => (
+            {({ payload }: Payload) => (
               <>
                 <Tooltip.Trigger
                   payload={0}
@@ -241,7 +242,7 @@ describe('<Tooltip.Viewport />', () => {
                   <Tooltip.Positioner>
                     <Tooltip.Popup>
                       <Tooltip.Viewport>
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </Tooltip.Viewport>
                     </Tooltip.Popup>
                   </Tooltip.Positioner>
@@ -311,7 +312,7 @@ describe('<Tooltip.Viewport />', () => {
             `}
             </style>
             <Tooltip.Root>
-              {(arg: Payload) => (
+              {({ payload }: Payload) => (
                 <>
                   <Tooltip.Trigger payload={1} delay={0} data-testid="trigger1">
                     Trigger 1
@@ -326,7 +327,7 @@ describe('<Tooltip.Viewport />', () => {
                     <Tooltip.Positioner>
                       <Tooltip.Popup>
                         <Tooltip.Viewport data-testid="viewport">
-                          Content {arg.payload as number}
+                          Content {payload() as number}
                         </Tooltip.Viewport>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
@@ -393,7 +394,7 @@ describe('<Tooltip.Viewport />', () => {
             `}
             </style>
             <Tooltip.Root>
-              {(arg: Payload) => (
+              {({ payload }: Payload) => (
                 <>
                   <Tooltip.Trigger
                     delay={0}
@@ -426,7 +427,7 @@ describe('<Tooltip.Viewport />', () => {
                     <Tooltip.Positioner>
                       <Tooltip.Popup>
                         <Tooltip.Viewport data-testid="viewport">
-                          Content {String(arg.payload)}
+                          Content {String(payload())}
                         </Tooltip.Viewport>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
@@ -581,7 +582,7 @@ describe('<Tooltip.Viewport />', () => {
             `}
           </style>
           <Tooltip.Root>
-            {(arg: Payload) => (
+            {({ payload }: Payload) => (
               <>
                 <Tooltip.Trigger
                   payload={0}
@@ -615,7 +616,7 @@ describe('<Tooltip.Viewport />', () => {
                   <Tooltip.Positioner>
                     <Tooltip.Popup>
                       <Tooltip.Viewport data-testid="viewport">
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </Tooltip.Viewport>
                     </Tooltip.Popup>
                   </Tooltip.Positioner>

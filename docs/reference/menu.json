@@ -94,9 +94,9 @@
       },
       {
         "name": "children",
-        "type": "JSX.Element | PayloadChildRenderFunction<Payload>",
+        "type": "JSX.Element | ((arg: { payload: Accessor<Payload | undefined> }) => JSX.Element)",
         "default": "-",
-        "description": "The content of the menu.\nThis can be a regular Solid JSX or a render function that receives the `payload` of the active trigger."
+        "description": "The content of the menu.\nThis can be a regular Solid JSX or a render function that receives the `payload` of the active trigger.\nA render function is called once with `{ payload }`, where `payload` is an accessor of the active trigger's payload, so it can be destructured."
       }
     ],
     "dataAttributes": [],

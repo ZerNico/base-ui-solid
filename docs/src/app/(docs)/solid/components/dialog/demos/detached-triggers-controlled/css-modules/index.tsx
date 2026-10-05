@@ -46,12 +46,12 @@ export default function DialogDetachedTriggersControlledDemo() {
         onOpenChange={handleOpenChange}
         triggerId={triggerId()}
       >
-        {(state) => (
+        {({ payload }) => (
           <Dialog.Portal>
             <Dialog.Backdrop class={styles.Backdrop} />
             <Dialog.Popup class={styles.Popup}>
-              {state.payload !== undefined && (
-                <Dialog.Title class={styles.Title}>Dialog {state.payload}</Dialog.Title>
+              {payload() !== undefined && (
+                <Dialog.Title class={styles.Title}>Dialog {payload()}</Dialog.Title>
               )}
               <div class={styles.Actions}>
                 <Dialog.Close class={styles.Button}>Close</Dialog.Close>

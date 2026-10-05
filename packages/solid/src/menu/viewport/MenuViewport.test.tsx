@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 
 import { expect, describe, it, beforeEach, afterEach } from 'vitest';
@@ -6,6 +7,9 @@ import { screen, waitFor, isJSDOM } from '#test-utils';
 import { PortFragment, createRenderer } from '../../../test/menuPortHelpers';
 
 import { describeMenuConformance } from '../../../test/menuConformance';
+
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
 
 describe('<Menu.Viewport />', () => {
   const { render } = createRenderer();
@@ -66,7 +70,7 @@ describe('<Menu.Viewport />', () => {
         get children() {
           return (
             <>
-              {(props: { payload: string | undefined }) => (
+              {(props: { payload: Accessor<string | undefined> }) => (
                 <PortFragment>
                   <Menu.Trigger payload="first" data-testid="trigger1">
                     Trigger 1
@@ -78,10 +82,10 @@ describe('<Menu.Viewport />', () => {
                     <Menu.Positioner>
                       <Menu.Popup>
                         <Menu.Viewport>
-                          {props.payload === 'first' ? (
+                          {props.payload() === 'first' ? (
                             <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
                           ) : null}
-                          {props.payload === 'second' ? (
+                          {props.payload() === 'second' ? (
                             <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
                           ) : null}
                         </Menu.Viewport>
@@ -174,7 +178,7 @@ describe('<Menu.Viewport />', () => {
                         <Menu.Positioner>
                           <Menu.Popup>
                             <Menu.Viewport>
-                              <div data-testid="content">Content {props.payload as number}</div>
+                              <div data-testid="content">Content {props.payload() as number}</div>
                             </Menu.Viewport>
                           </Menu.Popup>
                         </Menu.Positioner>
@@ -256,7 +260,7 @@ describe('<Menu.Viewport />', () => {
                   <Menu.Portal>
                     <Menu.Positioner>
                       <Menu.Popup>
-                        <Menu.Viewport>Content {props.payload as number}</Menu.Viewport>
+                        <Menu.Viewport>Content {props.payload() as number}</Menu.Viewport>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -383,7 +387,7 @@ describe('<Menu.Viewport />', () => {
                         <Menu.Positioner>
                           <Menu.Popup>
                             <Menu.Viewport data-testid="viewport">
-                              <div data-testid="content">Content {props.payload as number}</div>
+                              <div data-testid="content">Content {props.payload() as number}</div>
                             </Menu.Viewport>
                           </Menu.Popup>
                         </Menu.Positioner>

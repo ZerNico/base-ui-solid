@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, Match, omit, Show, Switch, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, fireEvent, flushMicrotasks, isJSDOM, screen, waitFor } from '#test-utils';
@@ -10,7 +11,7 @@ import { Popover } from '..';
 // - `act(async () => { … })` becomes the body followed by `await flushMicrotasks()`, and
 //   `React.useState` wrappers / `setProps` become signals (flushed before asserting).
 // - `Popover.Root`'s children render function is called once with an object whose `payload` is a
-//   getter, so it's read as `arg.payload` (not destructured).
+//   getter, so it's read as `payload()` (not destructured).
 // - `render={<Component />}` (React element) is unsupported: render functions are used instead.
 // - A `render` function is called once, so the per-render `state` recording upstream does is done
 //   from a layout effect that re-runs whenever the recorded state changes.
@@ -98,10 +99,10 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
         ))}
         <Popover.Root handle={handle}>
-          {(arg) => (
+          {({ payload }) => (
             <Popover.Portal>
               <Popover.Positioner>
-                <Popover.Popup data-testid="popup">{arg.payload}</Popover.Popup>
+                <Popover.Popup data-testid="popup">{payload()}</Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
           )}
@@ -217,7 +218,7 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = Popover.createHandle<number>();
@@ -240,9 +241,9 @@ describe('<Popover.Root />', () => {
             Trigger
           </Popover.Trigger>
           <Popover.Root handle={handle}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <>
-                <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                <span data-testid="payload">{payload() ?? 'No payload'}</span>
                 <Popover.Portal>
                   <Popover.Positioner>
                     <Popover.Popup>Popover Content</Popover.Popup>
@@ -282,9 +283,9 @@ describe('<Popover.Root />', () => {
             </Show>
             <Show when={mounted()}>
               <Popover.Root handle={handle}>
-                {(arg: NumberPayload) => (
+                {({ payload }: NumberPayload) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <Popover.Portal>
                       <Popover.Positioner>
                         <Popover.Popup>
@@ -503,7 +504,7 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('should open the popover with any trigger', async () => {
       const { user } = await render(() => (
@@ -548,7 +549,7 @@ describe('<Popover.Root />', () => {
     it('should set the payload and render content based on its value', async () => {
       const { user } = await render(() => (
         <Popover.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
               <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
@@ -556,7 +557,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -623,7 +624,7 @@ describe('<Popover.Root />', () => {
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       const { user } = await render(() => (
         <Popover.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <Popover.Trigger payload={1}>Trigger 1</Popover.Trigger>
               <Popover.Trigger payload={2}>Trigger 2</Popover.Trigger>
@@ -631,7 +632,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner">
                   <Popover.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -667,7 +668,7 @@ describe('<Popover.Root />', () => {
                 setOpen(nextOpen);
               }}
             >
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <>
                   <Popover.Trigger payload={1} id="trigger-1">
                     Trigger 1
@@ -679,7 +680,7 @@ describe('<Popover.Root />', () => {
                   <Popover.Portal>
                     <Popover.Positioner>
                       <Popover.Popup>
-                        <span data-testid="content">{arg.payload as number}</span>
+                        <span data-testid="content">{payload() as number}</span>
                         <Popover.Close>Close</Popover.Close>
                       </Popover.Popup>
                     </Popover.Positioner>
@@ -850,7 +851,7 @@ describe('<Popover.Root />', () => {
       const testPopover = Popover.createHandle<number>();
       await render(() => (
         <Popover.Root handle={testPopover} defaultOpen defaultTriggerId="trigger-2">
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <Popover.Trigger handle={testPopover} payload={1} id="trigger-1">
                 Trigger 1
@@ -861,7 +862,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -875,7 +876,7 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     /**
      * Renders two detached hover triggers with a real position transition on the
@@ -957,7 +958,7 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner" class="positioner">
                   <Popover.Popup
@@ -975,7 +976,7 @@ describe('<Popover.Root />', () => {
                       return <div {...props} />;
                     }}
                   >
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                     {popupChildren?.()}
                   </Popover.Popup>
                 </Popover.Positioner>
@@ -1534,11 +1535,11 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -1617,11 +1618,11 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner">
                   <Popover.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -1666,11 +1667,11 @@ describe('<Popover.Root />', () => {
               triggerId={activeTrigger()}
               handle={testPopover}
             >
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <Popover.Portal>
                   <Popover.Positioner data-testid="positioner" side="bottom" align="start">
                     <Popover.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                       <Popover.Close data-testid="close" id="close-button">
                         Close
                       </Popover.Close>
@@ -1755,11 +1756,11 @@ describe('<Popover.Root />', () => {
           </Popover.Trigger>
 
           <Popover.Root handle={testPopover} defaultOpen defaultTriggerId="trigger-2">
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
@@ -1787,12 +1788,12 @@ describe('<Popover.Root />', () => {
             </Popover.Trigger>
 
             <Popover.Root handle={testPopover}>
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <Popover.Portal>
                   <Popover.Positioner>
                     <Popover.Popup data-testid="popup">
                       <Popover.Viewport>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </Popover.Viewport>
                     </Popover.Popup>
                   </Popover.Positioner>
@@ -1953,10 +1954,10 @@ describe('<Popover.Root />', () => {
             Trigger 2
           </Popover.Trigger>
           <Popover.Root handle={popover}>
-            {(arg: { payload: number | undefined }) => (
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <Popover.Portal>
                 <Popover.Positioner>
-                  <Popover.Popup data-testid="content">{arg.payload}</Popover.Popup>
+                  <Popover.Popup data-testid="content">{payload()}</Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
             )}

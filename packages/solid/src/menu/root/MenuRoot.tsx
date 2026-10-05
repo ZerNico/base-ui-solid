@@ -813,18 +813,12 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     syncHighlightedItem,
   };
 
-  // Port note: a render function child is called once with an object whose `payload` is a getter,
-  // so read `arg.payload` in a reactive scope instead of destructuring it.
+  // Port note: a render function child is called once with `{ payload }`, where `payload` is an
+  // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured.
   const renderChildren = () => {
     const children = props.children;
     if (typeof children === 'function' && children.length > 0) {
-      return untrack(() =>
-        (children as PayloadChildRenderFunction<Payload>)({
-          get payload() {
-            return payload();
-          },
-        }),
-      );
+      return untrack(() => (children as PayloadChildRenderFunction<Payload>)({ payload }));
     }
     return children as JSX.Element;
   };

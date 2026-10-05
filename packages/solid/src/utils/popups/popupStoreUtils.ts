@@ -458,8 +458,15 @@ export function useTriggerDataForwarding<
   return { registerTrigger, isMountedByThisTrigger };
 }
 
+/**
+ * A Root's `children` render function.
+ *
+ * Port note: upstream passes `{ payload }` with the current payload on every render. Solid calls
+ * the function once, so `payload` is an accessor, like the item accessor of Solid's `<For>`: the
+ * argument can be destructured (`({ payload }) => …`) and `payload()` read in a reactive scope.
+ */
 export type PayloadChildRenderFunction<Payload> = (arg: {
-  payload: Payload | undefined;
+  payload: Accessor<Payload | undefined>;
 }) => JSX.Element;
 
 /**

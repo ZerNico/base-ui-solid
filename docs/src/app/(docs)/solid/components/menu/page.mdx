@@ -256,6 +256,7 @@ const projectMenu = Menu.createHandle();
 
 Menus can render different content depending on which trigger opened them.
 Pass a `payload` prop to each `<Menu.Trigger>` and read it via a function child on `<Menu.Root>`.
+The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>`. Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the menu. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
 Provide a type argument to `createHandle()` to strongly type the payload.
 
 ```jsx title="Detached triggers with payload"
@@ -280,12 +281,12 @@ const demoMenu = Menu.createHandle<{ items: string[] }>();
 </Menu.Trigger>
 
 <Menu.Root handle={demoMenu}>
-  {(state) => ( // @highlight-text "payload"
+  {({ payload }) => ( // @highlight-text "payload"
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
           <Menu.Viewport>
-            {(state.payload?.items ?? []).map((item) => ( // @highlight-text "payload"
+            {(payload()?.items ?? []).map((item) => ( // @highlight-text "payload"
               <Menu.Item>{item}</Menu.Item>
             ))}
           </Menu.Viewport>

@@ -67,13 +67,9 @@ function PopoverRootComponent<Payload>(componentProps: {
 
   const shouldRenderInteractions = () => open() || mounted();
 
-  // Port note: a children render function is called once, with an object whose `payload` is a
-  // getter: read it in a reactive scope (don't destructure it).
-  const payloadArg = {
-    get payload() {
-      return payload() as Payload | undefined;
-    },
-  };
+  // Port note: a render function child is called once with `{ payload }`, where `payload` is an
+  // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured.
+  const payloadArg = { payload: payload as () => Payload | undefined };
 
   // Port note: keep generic type assertions outside JSX hoisted closures.
   const renderChildren = () => {

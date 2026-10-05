@@ -70,7 +70,8 @@ The generator converts upstream props, defaults, descriptions, data attributes, 
 and additional state/event types into `reference/<component>.json`. It adjusts React `className`,
 style types, and element-cloning render types for Solid. `scripts/solidPropAdjustments.mjs` rewrites React ref
 objects into the port's types (`actionsRef`/`inputRef` callbacks, element values for `container`,
-`anchor`, `initialFocus` and `finalFocus`). Its rewrites are idempotent, so they can be re-applied
+`anchor`, `initialFocus` and `finalFocus`) and spells out Root render-function children
+(`{ payload }` with an accessor). Its rewrites are idempotent, so they can be re-applied
 to an existing JSON file. Review these substitutions against the
 ported component before committing. For a future upstream JSON snapshot, map it to the same fields.
 `src/utils/createTypes.tsx` renders the JSON as Solid reference tables and expandable type snippets.

@@ -31,6 +31,20 @@ export function adjustRefProp(prop) {
       "`HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back to the default behavior.",
     );
   }
+  // Root render-function children receive `{ payload }` with `payload` as an accessor.
+  if (prop.name === 'children' && prop.type.includes('PayloadChildRenderFunction<Payload>')) {
+    prop.type = prop.type
+      .replace(/React\.ReactNode/g, 'JSX.Element')
+      .replace(
+        'PayloadChildRenderFunction<Payload>',
+        '((arg: { payload: Accessor<Payload | undefined> }) => JSX.Element)',
+      );
+    const note =
+      "A render function is called once with `{ payload }`, where `payload` is an accessor of the active trigger's payload, so it can be destructured.";
+    if (!prop.description.includes(note)) {
+      prop.description = `${prop.description}\n${note}`;
+    }
+  }
   return prop;
 }
 

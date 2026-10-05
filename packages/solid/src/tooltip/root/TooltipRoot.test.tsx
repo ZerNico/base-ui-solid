@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Tooltip } from 'base-ui-solid/tooltip';
 import {
@@ -2072,11 +2073,11 @@ describe('nested tooltips', () => {
         </Tooltip.Trigger>
 
         <Tooltip.Root handle={rowHandle}>
-          {/* Port note: the render function is called once; read `arg.payload` reactively. */}
-          {(arg: { payload: string | undefined }) => (
+          {/* Port note: `payload` is an accessor (the render function is called once). */}
+          {({ payload }: { payload: Accessor<string | undefined> }) => (
             <Tooltip.Portal>
               <Tooltip.Positioner>
-                <Tooltip.Popup data-testid="outer-popup">{arg.payload} tooltip</Tooltip.Popup>
+                <Tooltip.Popup data-testid="outer-popup">{payload()} tooltip</Tooltip.Popup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           )}

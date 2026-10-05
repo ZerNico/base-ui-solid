@@ -29,23 +29,24 @@ names so test diffs stay mechanical.
 
 ## Public API differences
 
-| Upstream (React)                                                        | Port (Solid)                                                                                                                         |
-| :---------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
-| `className` (string or `(state) => …`)                                  | `class` (any Solid class value, or `(state) => …`)                                                                                   |
-| `style` object (camelCase)                                              | `style` object (kebab-case) or string, or `(state) => …`                                                                             |
-| `render={<a />}` (element, cloned)                                      | **Not supported** — Solid can't clone elements                                                                                       |
-| `render={(props, state) => <a {...props} />}`                           | Same. `props`/`state` are reactive: spread/read them, don't destructure                                                              |
-| —                                                                       | `render="a"` (tag name) and `render={Component}`                                                                                     |
-| `ref` (object or callback)                                              | `ref` callback (Solid semantics, not called with `null` on unmount)                                                                  |
-| `event.preventBaseUIHandler()`                                          | Same, on native events                                                                                                               |
-| `tabIndex`, other camelCase attributes                                  | Lowercase attributes (`tabindex`)                                                                                                    |
-| `actionsRef` ref object (`{ current }`)                                 | `actionsRef` callback, called once with the actions on setup (not with `null` on unmount, like `ref`)                                |
-| `inputRef` ref object or callback                                       | `inputRef` callback only                                                                                                             |
-| `container`, `anchor`, `initialFocus`, `finalFocus` accept a ref object | Pass the element itself, e.g. from a signal set by a `ref` callback (`null` = not set yet). Other forms unchanged                    |
-| `ToastObject.ref` ref object                                            | `ref()` getter returning the toast element                                                                                           |
-| `mergeProps` / `mergePropsN` return a new plain object each render      | Return a reactive object like Solid's `merge` (getters read the sources, stable merged handlers). Internals use `mergePropsSnapshot` |
-| Popup handle `isOpen` getter (read on render)                           | Same getter, also tracked (reactive in JSX, memos and effects)                                                                       |
-| `Autocomplete.useFilter(options)`                                       | Options read lazily (pass getters for reactive options), like `Combobox.useFilter`                                                   |
+| Upstream (React)                                                           | Port (Solid)                                                                                                                                                  |
+| :------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `className` (string or `(state) => …`)                                     | `class` (any Solid class value, or `(state) => …`)                                                                                                            |
+| `style` object (camelCase)                                                 | `style` object (kebab-case) or string, or `(state) => …`                                                                                                      |
+| `render={<a />}` (element, cloned)                                         | **Not supported** — Solid can't clone elements                                                                                                                |
+| `render={(props, state) => <a {...props} />}`                              | Same. `props`/`state` are reactive: spread/read them, don't destructure                                                                                       |
+| —                                                                          | `render="a"` (tag name) and `render={Component}`                                                                                                              |
+| `ref` (object or callback)                                                 | `ref` callback (Solid semantics, not called with `null` on unmount)                                                                                           |
+| `event.preventBaseUIHandler()`                                             | Same, on native events                                                                                                                                        |
+| `tabIndex`, other camelCase attributes                                     | Lowercase attributes (`tabindex`)                                                                                                                             |
+| `actionsRef` ref object (`{ current }`)                                    | `actionsRef` callback, called once with the actions on setup (not with `null` on unmount, like `ref`)                                                         |
+| `inputRef` ref object or callback                                          | `inputRef` callback only                                                                                                                                      |
+| `container`, `anchor`, `initialFocus`, `finalFocus` accept a ref object    | Pass the element itself, e.g. from a signal set by a `ref` callback (`null` = not set yet). Other forms unchanged                                             |
+| `ToastObject.ref` ref object                                               | `ref()` getter returning the toast element                                                                                                                    |
+| `mergeProps` / `mergePropsN` return a new plain object each render         | Return a reactive object like Solid's `merge` (getters read the sources, stable merged handlers). Internals use `mergePropsSnapshot`                          |
+| Popup handle `isOpen` getter (read on render)                              | Same getter, also tracked (reactive in JSX, memos and effects)                                                                                                |
+| `Autocomplete.useFilter(options)`                                          | Options read lazily (pass getters for reactive options), like `Combobox.useFilter`                                                                            |
+| Root `children={({ payload }) => …}` called on every render with the value | Called once with `{ payload }` where `payload` is an accessor (destructure it, call `payload()`), only when the function declares a parameter (like `<Show>`) |
 
 ## Translation rules
 
@@ -353,7 +354,8 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
 - Solid runs parent effects before children. Check popup setup that assumes React's child-first
   layout effects.
 - Popup Root children are render functions only when `typeof children === 'function'` and
-  `children.length > 0`. Zero-argument functions are JSX factories. Call
+  `children.length > 0`. Zero-argument functions are JSX factories. Render functions are called
+  once with `{ payload }`, where `payload` is an accessor (`PayloadChildRenderFunction`). Call
   `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
 
 - **Solid dev performance warnings in the browser.** Ported "write state in a layout effect"

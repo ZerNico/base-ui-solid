@@ -37,13 +37,13 @@ export default function TooltipDetachedTriggersFullDemo() {
       </div>
 
       <Tooltip.Root handle={demoTooltip}>
-        {(state) => (
+        {({ payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner sideOffset={11} class={styles.Positioner}>
               <Tooltip.Popup class={styles.Popup}>
                 <Tooltip.Arrow class={styles.Arrow} />
 
-                <Tooltip.Viewport class={styles.Viewport}>{state.payload}</Tooltip.Viewport>
+                <Tooltip.Viewport class={styles.Viewport}>{payload()}</Tooltip.Viewport>
               </Tooltip.Popup>
             </Tooltip.Positioner>
           </Tooltip.Portal>

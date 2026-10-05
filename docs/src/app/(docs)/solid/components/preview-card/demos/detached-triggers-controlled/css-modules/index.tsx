@@ -117,12 +117,12 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
         onOpenChange={handleOpenChange}
         triggerId={triggerId()}
       >
-        {(state) => (
+        {({ payload }) => (
           <PreviewCard.Portal>
             <PreviewCard.Positioner sideOffset={8} class={styles.Positioner}>
               <PreviewCard.Popup class={styles.Popup}>
                 <PreviewCard.Arrow class={styles.Arrow} />
-                <Dynamic component={state.payload} />
+                <Dynamic component={payload()} />
               </PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>

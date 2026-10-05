@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, flush, Match, Show, Switch } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { UserEvent } from '@testing-library/user-event';
 import { within } from '@solidjs/testing-library';
@@ -20,9 +21,8 @@ import { DetachedTriggerWithDefaultOpenRoot } from './DialogRoot.detached-trigge
 // `await act(() => fn())` becomes `fn()` followed by `await flushMicrotasks()`. `React.useState`
 // wrappers are signals, and conditional rendering uses `<Show>`.
 //
-// Port note: a Root render-function child is called once, with an argument whose `payload` is a
-// getter. Upstream destructures `({ payload })` (React calls the function on every render); the port
-// reads `arg.payload` in JSX instead, since destructuring would freeze it.
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
 
 // Port note: upstream's `render(...).setProps` is replaced with a props signal that merges the new
 // props like `setProps` does.
@@ -50,7 +50,7 @@ describe('<Dialog.Root />', () => {
   });
 
   describe('handle-backed root ownership', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('hydrates a detached trigger from the stable fallback store', async () => {
       // Port note: the server-rendered tree lives in `DialogRoot.detached-triggers.fixtures.tsx`.
@@ -117,9 +117,9 @@ describe('<Dialog.Root />', () => {
 
       await render(() => (
         <Dialog.Root handle={handle}>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
-              <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+              <span data-testid="payload">{payload() ?? 'No payload'}</span>
               <OpenOnMount />
             </>
           )}
@@ -189,9 +189,9 @@ describe('<Dialog.Root />', () => {
             Trigger
           </Dialog.Trigger>
           <Dialog.Root handle={handle}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <>
-                <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                <span data-testid="payload">{payload() ?? 'No payload'}</span>
                 <Dialog.Portal>
                   <Dialog.Popup>Dialog Content</Dialog.Popup>
                 </Dialog.Portal>
@@ -251,9 +251,9 @@ describe('<Dialog.Root />', () => {
             </Show>
             <Show when={mounted()}>
               <Dialog.Root handle={handle}>
-                {(arg: NumberPayload) => (
+                {({ payload }: NumberPayload) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <Dialog.Portal>
                       <Dialog.Popup>
                         Dialog Content
@@ -332,9 +332,9 @@ describe('<Dialog.Root />', () => {
                   Switch to handle B
                 </button>
                 <Dialog.Root handle={handle()}>
-                  {(arg: NumberPayload) => (
+                  {({ payload }: NumberPayload) => (
                     <>
-                      <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                      <span data-testid="payload">{payload() ?? 'No payload'}</span>
                       <Dialog.Portal>
                         <Dialog.Popup>Dialog Content</Dialog.Popup>
                       </Dialog.Portal>
@@ -345,9 +345,9 @@ describe('<Dialog.Root />', () => {
             }
           >
             <Dialog.Root handle={handleB}>
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <>
-                  <span data-testid="dirty-payload">{arg.payload ?? 'No payload'}</span>
+                  <span data-testid="dirty-payload">{payload() ?? 'No payload'}</span>
                   <Dialog.Portal>
                     <Dialog.Popup>
                       Dirty dialog
@@ -572,9 +572,9 @@ describe('<Dialog.Root />', () => {
             Trigger
           </Dialog.Trigger>
           <Dialog.Root handle={handle}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <>
-                <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                <span data-testid="payload">{payload() ?? 'No payload'}</span>
                 <Dialog.Portal>
                   <Dialog.Popup>Dialog Content</Dialog.Popup>
                 </Dialog.Portal>
@@ -802,7 +802,7 @@ describe('<Dialog.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('opens the dialog with any trigger', async () => {
       const { user } = await render(() => (
@@ -855,14 +855,14 @@ describe('<Dialog.Root />', () => {
     it('sets the payload and renders content based on its value', async () => {
       const { user } = await render(() => (
         <Dialog.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <Dialog.Trigger payload={1}>Trigger 1</Dialog.Trigger>
               <Dialog.Trigger payload={2}>Trigger 2</Dialog.Trigger>
 
               <Dialog.Portal>
                 <Dialog.Popup>
-                  <span data-testid="content">{arg.payload}</span>
+                  <span data-testid="content">{payload()}</span>
                   <Dialog.Close>Close</Dialog.Close>
                 </Dialog.Popup>
               </Dialog.Portal>
@@ -888,14 +888,14 @@ describe('<Dialog.Root />', () => {
     it('reuses the popup DOM node when switching triggers', async () => {
       const { user } = await render(() => (
         <Dialog.Root>
-          {(arg: NumberPayload) => (
+          {({ payload }: NumberPayload) => (
             <>
               <Dialog.Trigger payload={1}>Trigger 1</Dialog.Trigger>
               <Dialog.Trigger payload={2}>Trigger 2</Dialog.Trigger>
 
               <Dialog.Portal>
                 <Dialog.Popup data-testid="dialog-popup">
-                  <span>{arg.payload}</span>
+                  <span>{payload()}</span>
                 </Dialog.Popup>
               </Dialog.Portal>
             </>
@@ -977,7 +977,7 @@ describe('<Dialog.Root />', () => {
               triggerId={triggerId()}
               onOpenChange={(nextOpen) => setOpen(nextOpen)}
             >
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <>
                   <Dialog.Trigger id="trigger-1" payload={1}>
                     One
@@ -988,7 +988,7 @@ describe('<Dialog.Root />', () => {
 
                   <Dialog.Portal>
                     <Dialog.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                       <Dialog.Close>Close</Dialog.Close>
                     </Dialog.Popup>
                   </Dialog.Portal>
@@ -1033,7 +1033,7 @@ describe('<Dialog.Root />', () => {
         return (
           <div>
             <Dialog.Root>
-              {(arg: NumberPayload) => (
+              {({ payload }: NumberPayload) => (
                 <>
                   <Dialog.Trigger id="trigger-1" payload={payloads()[0]}>
                     Dialog 1
@@ -1044,7 +1044,7 @@ describe('<Dialog.Root />', () => {
 
                   <Dialog.Portal>
                     <Dialog.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                       <button type="button" onClick={() => setPayloads([8, 16])}>
                         Update payloads
                       </button>
@@ -1074,7 +1074,7 @@ describe('<Dialog.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     // Port note: React remounts the trigger when its wrappers change; here each `nesting` value
     // renders a new tree, which re-creates the trigger as well.
@@ -1267,9 +1267,9 @@ describe('<Dialog.Root />', () => {
 
             <Show when={mounted()}>
               <Dialog.Root handle={testDialog}>
-                {(arg: NumberPayload) => (
+                {({ payload }: NumberPayload) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <Dialog.Portal>
                       <Dialog.Popup>
                         Dialog Content
@@ -1646,10 +1646,10 @@ describe('<Dialog.Root />', () => {
           </Dialog.Trigger>
 
           <Dialog.Root handle={testDialog}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Dialog.Portal>
                 <Dialog.Popup>
-                  <span data-testid="content">{arg.payload}</span>
+                  <span data-testid="content">{payload()}</span>
                   <Dialog.Close>Close</Dialog.Close>
                 </Dialog.Popup>
               </Dialog.Portal>
@@ -1684,10 +1684,10 @@ describe('<Dialog.Root />', () => {
           </Dialog.Trigger>
 
           <Dialog.Root handle={testDialog}>
-            {(arg: NumberPayload) => (
+            {({ payload }: NumberPayload) => (
               <Dialog.Portal>
                 <Dialog.Popup data-testid="dialog-popup">
-                  <span>{arg.payload}</span>
+                  <span>{payload()}</span>
                 </Dialog.Popup>
               </Dialog.Portal>
             )}
@@ -1706,7 +1706,7 @@ describe('<Dialog.Root />', () => {
     });
 
     it('keeps the payload reactive', async () => {
-      type NumberAccessorPayload = { payload: (() => number) | undefined };
+      type NumberAccessorPayload = { payload: Accessor<(() => number) | undefined> };
       const testDialog = Dialog.createHandle<() => number>();
       function Triggers() {
         // Setting up triggers in a separate component so payload is in their local state
@@ -1734,10 +1734,10 @@ describe('<Dialog.Root />', () => {
           <div>
             <Triggers />
             <Dialog.Root modal={false} disablePointerDismissal={true} handle={testDialog}>
-              {(arg: NumberAccessorPayload) => (
+              {({ payload }: NumberAccessorPayload) => (
                 <Dialog.Portal>
                   <Dialog.Popup>
-                    <span data-testid="content">{arg.payload?.()}</span>
+                    <span data-testid="content">{payload()?.()}</span>
                   </Dialog.Popup>
                 </Dialog.Portal>
               )}
@@ -1846,9 +1846,9 @@ describe('<Dialog.Root />', () => {
             </Show>
             <Show when={mounted()}>
               <Dialog.Root handle={dialog}>
-                {(arg: { payload: number | undefined }) => (
+                {({ payload }: { payload: Accessor<number | undefined> }) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <Dialog.Portal>
                       <Dialog.Popup>
                         Dialog Content
@@ -1977,9 +1977,9 @@ describe('<Dialog.Root />', () => {
             Trigger 2
           </Dialog.Trigger>
           <Dialog.Root handle={dialog}>
-            {(arg: { payload: number | undefined }) => (
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <Dialog.Portal>
-                <Dialog.Popup data-testid="content">{arg.payload}</Dialog.Popup>
+                <Dialog.Popup data-testid="content">{payload()}</Dialog.Popup>
               </Dialog.Portal>
             )}
           </Dialog.Root>
@@ -2020,9 +2020,9 @@ describe('<Dialog.Root />', () => {
             Trigger 2
           </Dialog.Trigger>
           <Dialog.Root handle={dialog}>
-            {(arg: { payload: number | undefined }) => (
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <Dialog.Portal>
-                <Dialog.Popup data-testid="content">{arg.payload}</Dialog.Popup>
+                <Dialog.Popup data-testid="content">{payload()}</Dialog.Popup>
               </Dialog.Portal>
             )}
           </Dialog.Root>
@@ -2058,9 +2058,9 @@ describe('<Dialog.Root />', () => {
             Trigger
           </Dialog.Trigger>
           <Dialog.Root handle={dialog}>
-            {(arg: { payload: string | undefined }) => (
+            {({ payload }: { payload: Accessor<string | undefined> }) => (
               <Dialog.Portal>
-                <Dialog.Popup data-testid="content">{arg.payload}</Dialog.Popup>
+                <Dialog.Popup data-testid="content">{payload()}</Dialog.Popup>
               </Dialog.Portal>
             )}
           </Dialog.Root>
@@ -2110,9 +2110,9 @@ describe('<Dialog.Root />', () => {
               </Dialog.Trigger>
             </Show>
             <Dialog.Root handle={dialog}>
-              {(arg: { payload: string | undefined }) => (
+              {({ payload }: { payload: Accessor<string | undefined> }) => (
                 <Dialog.Portal>
-                  <Dialog.Popup data-testid="content">{arg.payload}</Dialog.Popup>
+                  <Dialog.Popup data-testid="content">{payload()}</Dialog.Popup>
                 </Dialog.Portal>
               )}
             </Dialog.Root>
@@ -2161,9 +2161,9 @@ describe('<Dialog.Root />', () => {
                 }
               }}
             >
-              {(arg: { payload: string | undefined }) => (
+              {({ payload }: { payload: Accessor<string | undefined> }) => (
                 <Dialog.Portal>
-                  <Dialog.Popup data-testid="content">{arg.payload}</Dialog.Popup>
+                  <Dialog.Popup data-testid="content">{payload()}</Dialog.Popup>
                 </Dialog.Portal>
               )}
             </Dialog.Root>

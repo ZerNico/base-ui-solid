@@ -12,7 +12,8 @@ const rootWithDirectChildren = (
 const rootWithFunctionChildren = (
   <Dialog.Root handle={numberPayloadHandle}>
     {({ payload }) => {
-      expectType<number | undefined, typeof payload>(payload);
+      // Port note: `payload` is an accessor.
+      expectType<number | undefined, ReturnType<typeof payload>>(payload());
       return null;
     }}
   </Dialog.Root>

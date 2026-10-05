@@ -1,4 +1,5 @@
 import { Errored, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { expect, describe, it, beforeEach, afterEach } from 'vitest';
 import { PreviewCard } from 'base-ui-solid/preview-card';
 import {
@@ -18,9 +19,9 @@ async function act(fn: () => unknown) {
   await flushMicrotasks();
 }
 
-// Port note: the Root render function child receives an object whose `payload` is a getter, so it
-// reads `arg.payload` instead of destructuring it.
-type Payload = { payload: unknown };
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
+type Payload = { payload: Accessor<unknown> };
 
 describe('<PreviewCard.Viewport />', () => {
   const { render } = createRenderer();
@@ -88,7 +89,7 @@ describe('<PreviewCard.Viewport />', () => {
   it('should remount the `current` container when the active trigger changes', async () => {
     await render(() => (
       <PreviewCard.Root>
-        {(arg: Payload) => (
+        {({ payload }: Payload) => (
           <>
             <PreviewCard.Trigger href="#" payload="first" delay={0} data-testid="trigger1">
               Trigger 1
@@ -100,10 +101,10 @@ describe('<PreviewCard.Viewport />', () => {
               <PreviewCard.Positioner>
                 <PreviewCard.Popup>
                   <PreviewCard.Viewport>
-                    {arg.payload === 'first' ? (
+                    {payload() === 'first' ? (
                       <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
                     ) : null}
-                    {arg.payload === 'second' ? (
+                    {payload() === 'second' ? (
                       <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
                     ) : null}
                   </PreviewCard.Viewport>
@@ -165,7 +166,7 @@ describe('<PreviewCard.Viewport />', () => {
             `}
           </style>
           <PreviewCard.Root>
-            {(arg: Payload) => (
+            {({ payload }: Payload) => (
               <>
                 <PreviewCard.Trigger
                   href="#"
@@ -201,7 +202,7 @@ describe('<PreviewCard.Viewport />', () => {
                   <PreviewCard.Positioner>
                     <PreviewCard.Popup>
                       <PreviewCard.Viewport>
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </PreviewCard.Viewport>
                     </PreviewCard.Popup>
                   </PreviewCard.Positioner>
@@ -271,7 +272,7 @@ describe('<PreviewCard.Viewport />', () => {
             `}
             </style>
             <PreviewCard.Root>
-              {(arg: Payload) => (
+              {({ payload }: Payload) => (
                 <>
                   <PreviewCard.Trigger href="#" payload={1} delay={0} data-testid="trigger1">
                     Trigger 1
@@ -285,7 +286,7 @@ describe('<PreviewCard.Viewport />', () => {
                   <PreviewCard.Portal>
                     <PreviewCard.Positioner>
                       <PreviewCard.Popup>
-                        <PreviewCard.Viewport>Content {arg.payload as number}</PreviewCard.Viewport>
+                        <PreviewCard.Viewport>Content {payload() as number}</PreviewCard.Viewport>
                       </PreviewCard.Popup>
                     </PreviewCard.Positioner>
                   </PreviewCard.Portal>
@@ -381,7 +382,7 @@ describe('<PreviewCard.Viewport />', () => {
             `}
           </style>
           <PreviewCard.Root>
-            {(arg: Payload) => (
+            {({ payload }: Payload) => (
               <>
                 <PreviewCard.Trigger
                   href="#"
@@ -417,7 +418,7 @@ describe('<PreviewCard.Viewport />', () => {
                   <PreviewCard.Positioner>
                     <PreviewCard.Popup>
                       <PreviewCard.Viewport data-testid="viewport">
-                        <div data-testid="content">Content {arg.payload as number}</div>
+                        <div data-testid="content">Content {payload() as number}</div>
                       </PreviewCard.Viewport>
                     </PreviewCard.Popup>
                   </PreviewCard.Positioner>

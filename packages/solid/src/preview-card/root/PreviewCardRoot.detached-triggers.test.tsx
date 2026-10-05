@@ -1,5 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, Show } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { render as solidRender } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import {
@@ -49,7 +50,7 @@ describe('<PreviewCard.Root />', () => {
   const { render, clock } = createRenderer();
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
       const handle = PreviewCard.createHandle();
@@ -139,10 +140,10 @@ describe('<PreviewCard.Root />', () => {
             Trigger
           </PreviewCard.Trigger>
           <PreviewCard.Root handle={handle}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <>
-                <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                <span data-testid="payload">{payload() ?? 'No payload'}</span>
                 <PreviewCard.Portal>
                   <PreviewCard.Positioner>
                     <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
@@ -184,10 +185,10 @@ describe('<PreviewCard.Root />', () => {
             </Show>
             <Show when={mounted()}>
               <PreviewCard.Root handle={handle}>
-                {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-                {(arg: NumberPayload) => (
+                {/* Port note: `payload` is an accessor. */}
+                {({ payload }: NumberPayload) => (
                   <>
-                    <span data-testid="payload">{arg.payload ?? 'No payload'}</span>
+                    <span data-testid="payload">{payload() ?? 'No payload'}</span>
                     <button type="button" onClick={() => setMounted(false)}>
                       Unmount root
                     </button>
@@ -410,7 +411,7 @@ describe('<PreviewCard.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('should open the preview card with any trigger on hover', async () => {
       const popupId = randomStringValue();
@@ -486,8 +487,8 @@ describe('<PreviewCard.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(() => (
         <PreviewCard.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <PreviewCard.Trigger href="#" delay={0} payload={1}>
@@ -501,9 +502,7 @@ describe('<PreviewCard.Root />', () => {
 
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
-                  <PreviewCard.Popup data-testid={popupId}>
-                    Content: {arg.payload}
-                  </PreviewCard.Popup>
+                  <PreviewCard.Popup data-testid={popupId}>Content: {payload()}</PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
             </>
@@ -641,8 +640,8 @@ describe('<PreviewCard.Root />', () => {
     it('should switch immediately when focusing another trigger while open', async () => {
       await render(() => (
         <PreviewCard.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <PreviewCard.Trigger href="#" payload={1} delay={0}>
@@ -655,7 +654,7 @@ describe('<PreviewCard.Root />', () => {
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -681,8 +680,8 @@ describe('<PreviewCard.Root />', () => {
     it('should set the payload and render content based on its value', async () => {
       const { user } = await render(() => (
         <PreviewCard.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <PreviewCard.Trigger href="#" payload={1} delay={0}>
@@ -695,7 +694,7 @@ describe('<PreviewCard.Root />', () => {
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -725,8 +724,8 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div style={{ padding: '50px' }}>
             <PreviewCard.Root defaultOpen defaultTriggerId="trigger-1">
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
                   <div style={{ display: 'flex', gap: '120px' }}>
@@ -743,7 +742,7 @@ describe('<PreviewCard.Root />', () => {
                   <PreviewCard.Portal>
                     <PreviewCard.Positioner side="bottom" align="start">
                       <PreviewCard.Popup>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </PreviewCard.Popup>
                     </PreviewCard.Positioner>
                   </PreviewCard.Portal>
@@ -784,8 +783,8 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div style={{ padding: '50px' }}>
             <PreviewCard.Root defaultOpen defaultTriggerId="trigger-1" onOpenChange={onOpenChange}>
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
                   <div style={{ display: 'flex', gap: '120px' }}>
@@ -802,7 +801,7 @@ describe('<PreviewCard.Root />', () => {
                   <PreviewCard.Portal>
                     <PreviewCard.Positioner side="bottom" align="start">
                       <PreviewCard.Popup>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </PreviewCard.Popup>
                     </PreviewCard.Positioner>
                   </PreviewCard.Portal>
@@ -835,8 +834,8 @@ describe('<PreviewCard.Root />', () => {
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       await render(() => (
         <PreviewCard.Root>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <PreviewCard.Trigger href="#" payload={1} delay={0}>
@@ -849,7 +848,7 @@ describe('<PreviewCard.Root />', () => {
               <PreviewCard.Portal>
                 <PreviewCard.Positioner data-testid="positioner">
                   <PreviewCard.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -886,8 +885,8 @@ describe('<PreviewCard.Root />', () => {
                 setOpen(nextOpen);
               }}
             >
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <>
                   <PreviewCard.Trigger href="#" payload={1} id="trigger-1" delay={0}>
                     Trigger 1
@@ -899,7 +898,7 @@ describe('<PreviewCard.Root />', () => {
                   <PreviewCard.Portal>
                     <PreviewCard.Positioner>
                       <PreviewCard.Popup>
-                        <span data-testid="content">{arg.payload as number}</span>
+                        <span data-testid="content">{payload() as number}</span>
                       </PreviewCard.Popup>
                     </PreviewCard.Positioner>
                   </PreviewCard.Portal>
@@ -941,8 +940,8 @@ describe('<PreviewCard.Root />', () => {
       const triggerId = randomStringValue();
       await render(() => (
         <PreviewCard.Root handle={testPreviewCard} defaultOpen defaultTriggerId={triggerId}>
-          {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-          {(arg: NumberPayload) => (
+          {/* Port note: `payload` is an accessor. */}
+          {({ payload }: NumberPayload) => (
             <>
               <button type="button" aria-label="Initial focus" autofocus ref={autoFocus} />
               <PreviewCard.Trigger
@@ -965,7 +964,7 @@ describe('<PreviewCard.Root />', () => {
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -981,7 +980,7 @@ describe('<PreviewCard.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
-    type NumberPayload = { payload: number | undefined };
+    type NumberPayload = { payload: Accessor<number | undefined> };
 
     it('should open the preview card with any trigger on hover', async () => {
       const testPreviewCard = PreviewCard.createHandle();
@@ -1203,12 +1202,12 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Trigger>
 
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup>
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1263,12 +1262,12 @@ describe('<PreviewCard.Root />', () => {
             </div>
 
             <PreviewCard.Root handle={testPreviewCard} defaultOpen defaultTriggerId="trigger-1">
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <PreviewCard.Portal>
                   <PreviewCard.Positioner side="bottom" align="start">
                     <PreviewCard.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                     </PreviewCard.Popup>
                   </PreviewCard.Positioner>
                 </PreviewCard.Portal>
@@ -1306,12 +1305,12 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Trigger>
 
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal>
                 <PreviewCard.Positioner data-testid="positioner">
                   <PreviewCard.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1369,12 +1368,12 @@ describe('<PreviewCard.Root />', () => {
               triggerId={activeTrigger()}
               handle={testPreviewCard}
             >
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <PreviewCard.Portal>
                   <PreviewCard.Positioner data-testid="positioner" side="bottom" align="start">
                     <PreviewCard.Popup>
-                      <span data-testid="content">{arg.payload}</span>
+                      <span data-testid="content">{payload()}</span>
                     </PreviewCard.Popup>
                   </PreviewCard.Positioner>
                 </PreviewCard.Portal>
@@ -1459,12 +1458,12 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Trigger>
 
           <PreviewCard.Root handle={testPreviewCard} defaultOpen defaultTriggerId={triggerId}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span>{arg.payload}</span>
+                    <span>{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1495,13 +1494,13 @@ describe('<PreviewCard.Root />', () => {
             </PreviewCard.Trigger>
 
             <PreviewCard.Root handle={testPreviewCard}>
-              {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-              {(arg: NumberPayload) => (
+              {/* Port note: `payload` is an accessor. */}
+              {({ payload }: NumberPayload) => (
                 <PreviewCard.Portal>
                   <PreviewCard.Positioner>
                     <PreviewCard.Popup data-testid="popup">
                       <PreviewCard.Viewport>
-                        <span data-testid="content">{arg.payload}</span>
+                        <span data-testid="content">{payload()}</span>
                       </PreviewCard.Viewport>
                     </PreviewCard.Popup>
                   </PreviewCard.Positioner>
@@ -1560,12 +1559,12 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Trigger>
 
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1622,12 +1621,12 @@ describe('<PreviewCard.Root />', () => {
           </PreviewCard.Trigger>
 
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1698,12 +1697,12 @@ describe('<PreviewCard.Root />', () => {
             Trigger 1
           </PreviewCard.Trigger>
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1759,12 +1758,12 @@ describe('<PreviewCard.Root />', () => {
             Trigger 1
           </PreviewCard.Trigger>
           <PreviewCard.Root handle={testPreviewCard}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: NumberPayload) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: NumberPayload) => (
               <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
-                    <span data-testid="content">{arg.payload}</span>
+                    <span data-testid="content">{payload()}</span>
                   </PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
@@ -1871,11 +1870,11 @@ describe('<PreviewCard.Root />', () => {
             Trigger 2
           </PreviewCard.Trigger>
           <PreviewCard.Root handle={handle}>
-            {/* Port note: `payload` is a getter; read it lazily instead of destructuring. */}
-            {(arg: { payload: number | undefined }) => (
+            {/* Port note: `payload` is an accessor. */}
+            {({ payload }: { payload: Accessor<number | undefined> }) => (
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
-                  <PreviewCard.Popup data-testid="content">{arg.payload}</PreviewCard.Popup>
+                  <PreviewCard.Popup data-testid="content">{payload()}</PreviewCard.Popup>
                 </PreviewCard.Positioner>
               </PreviewCard.Portal>
             )}

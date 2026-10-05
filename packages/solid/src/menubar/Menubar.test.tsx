@@ -18,6 +18,9 @@ import { Menu } from 'base-ui-solid/menu';
 import { useRefWithInit } from '../../test/menuPortHelpers';
 import { useMenubarContext } from './MenubarContext';
 
+// Port note: a Root render-function child is called once with `{ payload }`, where `payload` is an
+// accessor (upstream: the value, on every render), so the tests call `payload()`.
+
 describe('<Menubar />', () => {
   beforeEach(async () => {
     await resetBrowserPointer();
@@ -1394,9 +1397,9 @@ function DynamicMenu(props: { handle?: Menu.Handle<MenuDefinition>; children?: J
           <>
             {props.children}
             <Menu.Portal>
-              <Menu.Positioner data-testid={state.payload?.menuTestId}>
+              <Menu.Positioner data-testid={state.payload()?.menuTestId}>
                 <Menu.Popup>
-                  {(state.payload?.items ?? []).map((item, index) =>
+                  {(state.payload()?.items ?? []).map((item, index) =>
                     renderMenuContentItem(item, `item-${index}`),
                   )}
                 </Menu.Popup>

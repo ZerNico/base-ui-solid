@@ -23,14 +23,14 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Root handle={demoPopover}>
-        {(state) => (
+        {({ payload }) => (
           <Popover.Portal>
             <Popover.Positioner sideOffset={8} class={styles.Positioner}>
               <Popover.Popup class={styles.Popup}>
                 <Popover.Arrow class={styles.Arrow} />
 
                 <Popover.Viewport class={styles.Viewport}>
-                  {state.payload !== undefined && <Dynamic component={state.payload} />}
+                  {payload() !== undefined && <Dynamic component={payload()} />}
                 </Popover.Viewport>
               </Popover.Popup>
             </Popover.Positioner>

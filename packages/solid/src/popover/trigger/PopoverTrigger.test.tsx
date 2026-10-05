@@ -124,12 +124,11 @@ describe('<Popover.Trigger />', () => {
   });
 
   describe('openOnHover opened by touch', () => {
-    // Port note: the children render function is called once with an object whose `payload` is a
-    // getter, so it's read in JSX instead of being destructured.
+    // Port note: `payload` is an accessor (the render function is called once).
     function MultiTriggerPopover() {
       return (
         <Popover.Root>
-          {(arg) => (
+          {({ payload }) => (
             <>
               <Popover.Trigger
                 payload="One"
@@ -152,7 +151,7 @@ describe('<Popover.Trigger />', () => {
               <Popover.Portal>
                 <Popover.Positioner>
                   <Popover.Popup>
-                    <span data-testid="content">{arg.payload as string}</span>
+                    <span data-testid="content">{payload() as string}</span>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>

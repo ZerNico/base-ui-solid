@@ -128,6 +128,7 @@ const demoTooltip = Tooltip.createHandle();
 
 The tooltip can render different content depending on which trigger opened it.
 This is achieved by passing a `payload` to the `<Tooltip.Trigger>` and using the function-as-a-child pattern in `<Tooltip.Root>`.
+The function is called once with `{ payload }`, where `payload` is an accessor, like the item accessor of Solid's `<For>`. Destructure it and call `payload()` where you read it, so the content follows the trigger that opened the tooltip. Like Solid's `<Show>`, a function child is treated as a render function only when it declares a parameter.
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
@@ -148,16 +149,16 @@ const demoTooltip = Tooltip.createHandle<{ text: string }>();
 </Tooltip.Trigger>
 
 <Tooltip.Root handle={demoTooltip}>
-  {(state) => ( // @highlight-text "payload"
+  {({ payload }) => ( // @highlight-text "payload"
     <Tooltip.Portal>
       <Tooltip.Positioner sideOffset={8}>
         <Tooltip.Popup class={styles.Popup}>
           <Tooltip.Arrow class={styles.Arrow}>
             <ArrowSvg />
           </Tooltip.Arrow>
-          {state.payload !== undefined && ( {/* @highlight-text "payload" */}
+          {payload() !== undefined && ( {/* @highlight-text "payload" */}
             <span>
-              Tooltip opened by {state.payload.text} {/* @highlight-text "payload" */}
+              Tooltip opened by {payload()?.text} {/* @highlight-text "payload" */}
             </span>
           )}
         </Tooltip.Popup>
