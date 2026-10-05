@@ -538,6 +538,21 @@ export function useListNavigation(
         indexRef = activeIndexValue;
         focusItem();
         forceScrollIntoViewRef = false;
+      } else if (listRef().current.length === 0) {
+        // Port note: React runs the items' layout effects (which fill the list) before this one.
+        // Solid runs a parent's effects first, so when the floating element is synced in the same
+        // update as the items mount, wait for the list like the initial sync above does.
+        queueMicrotask(() => {
+          if (
+            latestOpenRef.current &&
+            untrack(activeIndex) === activeIndexValue &&
+            !isIndexOutOfListBounds(listRef().current, activeIndexValue)
+          ) {
+            indexRef = activeIndexValue;
+            focusItem();
+            forceScrollIntoViewRef = false;
+          }
+        });
       }
     },
     () => [

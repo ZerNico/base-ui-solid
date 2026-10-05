@@ -1,6 +1,7 @@
-import { createSignal, flush } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 import { it, expect } from 'vitest';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import {
   render,
   screen,
@@ -75,4 +76,61 @@ it('navigates and focuses the replacement list ref', async () => {
   flush();
   await waitFor(() => expect(second.current[1]).toHaveFocus());
   expect(first.current[1]).not.toHaveFocus();
+});
+
+// Port note: React fills the list from the items' layout effects before the navigation effect
+// runs. Solid runs the parent's effects first, so the active item is focused once the list fills.
+it('focuses the active item when it is set in the same update as the items mount', async () => {
+  const listRef: RefObject<Array<HTMLElement | null>> = { current: [] };
+  const [showItems, setShowItems] = createSignal(false);
+  const [activeIndex, setActiveIndex] = createSignal<number | null>(null);
+
+  function Item(props: { index: number }) {
+    let node!: HTMLButtonElement;
+    useIsoLayoutEffect(
+      () => {
+        listRef.current[props.index] = node;
+        return () => {
+          listRef.current[props.index] = null;
+        };
+      },
+      () => [],
+    );
+    return (
+      <button ref={node} tabindex={-1}>
+        item {props.index}
+      </button>
+    );
+  }
+
+  function App() {
+    const { refs, context } = useFloating({ open: true });
+    const { getFloatingProps } = useTestInteractions([
+      useListNavigation(context.rootStore, {
+        listRef,
+        get activeIndex() {
+          return activeIndex();
+        },
+        onNavigate: setActiveIndex,
+        focusItemOnOpen: false,
+      }),
+    ]);
+    return (
+      <div {...getFloatingProps({ ref: refs.setFloating })}>
+        <Show when={showItems()}>
+          <Item index={0} />
+          <Item index={1} />
+          <Item index={2} />
+        </Show>
+      </div>
+    );
+  }
+
+  await render(() => <App />);
+  await flushMicrotasks();
+  setShowItems(true);
+  setActiveIndex(1);
+  flush();
+  await flushMicrotasks();
+  await waitFor(() => expect(listRef.current[1]).toHaveFocus());
 });
