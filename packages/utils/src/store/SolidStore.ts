@@ -398,26 +398,18 @@ export class SolidStore<
   /**
    * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
    * is non-undefined, the store's state at `key` is updated to match `controlled`.
+   *
+   * Port note: the accessor is registered as the source of the key (see `useSyncedValue`) while
+   * it returns a value other than `undefined`. Like upstream, a controlled value that becomes
+   * `undefined` stays in the state.
    */
   useControlledProp<Key extends keyof State>(
     key: Key,
     controlled: Accessor<State[Key] | undefined>,
   ): void {
-    // eslint-disable-next-line consistent-this
-    const store = this;
-
-    useIsoLayoutEffect(
-      ([controlledValue, isControlled]) => {
-        if (isControlled && !Object.is(store.state[key], controlledValue)) {
-          // Set the internal state to match the controlled value.
-          store.setState({ ...store.state, [key]: controlledValue });
-        }
-      },
-      () => {
-        const controlledValue = controlled();
-        return [controlledValue, controlledValue !== undefined] as const;
-      },
-    );
+    this.register(createSyncedPart(key, controlled as Accessor<State[Key]>), {
+      undefinedFallsBack: true,
+    });
 
     if (IS_DEV) {
       // eslint-disable-next-line

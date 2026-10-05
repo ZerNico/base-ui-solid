@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { createMemo, createRoot, createSignal, flush } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { screen } from '@solidjs/testing-library';
@@ -285,6 +285,38 @@ describe('SolidStore (port)', () => {
       expect(store.state).not.toBe(snapshot);
       expect(store.state.value).toBe(2);
 
+      dispose();
+    });
+
+    it('keeps the last controlled value when the prop becomes undefined', () => {
+      const store = new SolidStore<TestState>(initialState);
+      const [controlled, setControlled] = createSignal<number | undefined>(1);
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const dispose = createRoot((disposeRoot) => {
+        store.useControlledProp('value', controlled);
+        return disposeRoot;
+      });
+
+      // Before any flush.
+      expect(store.state.value).toBe(1);
+
+      setControlled(4);
+      flush();
+      expect(store.state.value).toBe(4);
+
+      setControlled(undefined);
+      flush();
+      expect(store.state.value).toBe(4);
+      expect(errorSpy.mock.calls.map((call) => call[0])).toEqual([
+        'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+      ]);
+
+      // Uncontrolled from now on: imperative writes stick.
+      store.set('value', 5);
+      flush();
+      expect(store.state.value).toBe(5);
+
+      errorSpy.mockRestore();
       dispose();
     });
 
