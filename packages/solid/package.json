@@ -1,7 +1,16 @@
 {
   "name": "base-ui-solid",
   "version": "0.0.0",
+  "description": "An unofficial Solid 2.0 port of Base UI, a library of headless ('unstyled') components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
+  "keywords": [
+    "solid",
+    "solidjs",
+    "solid-component",
+    "unstyled",
+    "base-ui",
+    "a11y"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ZerNico/base-ui-solid.git",
@@ -10,16 +19,29 @@
   "bugs": {
     "url": "https://github.com/ZerNico/base-ui-solid/issues"
   },
-  "private": true,
   "type": "module",
+  "scripts": {
+    "prebuild": "rimraf --glob build \"*.tsbuildinfo\"",
+    "build": "node ../../scripts/buildPackage.mjs"
+  },
   "dependencies": {
     "@base-ui-solid/utils": "workspace:*",
     "@floating-ui/dom": "^1.8.0",
     "@floating-ui/utils": "^0.2.12"
   },
   "peerDependencies": {
-    "@solidjs/web": "2.0.0-rc.13",
-    "solid-js": "2.0.0-rc.13"
+    "@date-fns/tz": "^1.2.0",
+    "@solidjs/web": "^2.0.0-rc.13",
+    "date-fns": "^4.0.0",
+    "solid-js": "^2.0.0-rc.13"
+  },
+  "peerDependenciesMeta": {
+    "@date-fns/tz": {
+      "optional": true
+    },
+    "date-fns": {
+      "optional": true
+    }
   },
   "imports": {
     "#test-utils": "./test/index.ts",
@@ -118,5 +140,11 @@
     "@types/luxon": "3.7.6",
     "date-fns": "4.4.0",
     "luxon": "3.7.2"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "directory": "build",
+    "linkDirectory": false
   }
 }

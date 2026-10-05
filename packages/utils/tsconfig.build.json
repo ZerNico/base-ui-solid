@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  // This config is for emitting declarations (.d.ts) only.
+  // TS source files are transpiled to JS by Babel (scripts/buildPackage.mjs).
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "rootDir": "./src",
+    "outDir": "build",
+    "types": []
+  },
+  "include": ["src/**/*.ts*"],
+  "exclude": [
+    "src/**/*.spec.ts*",
+    "src/**/*.test.ts*",
+    "src/**/*.fixtures.ts*",
+    "src/**/*test-utils*"
+  ]
+}

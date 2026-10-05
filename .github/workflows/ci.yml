@@ -62,6 +62,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typescript
+      # Port note: upstream builds its packages in its release pipeline. Build them here too so a
+      # broken package build is caught before a release tag.
+      - run: pnpm build
         env:
           NODE_OPTIONS: --max-old-space-size=3072
 

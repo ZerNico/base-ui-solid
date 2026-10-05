@@ -1,0 +1,105 @@
+name: Publish
+
+# Port note: upstream publishes with `code-infra publish` from a maintainer machine. This port
+# publishes from GitHub Actions with npm Trusted Publishing (OIDC), so no npm token is stored in
+# the repository. Pushing a version tag (`v*`) publishes that version. Running the workflow by hand
+# defaults to a dry run. See RELEASING.md.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Pass --dry-run to npm publish (nothing is published)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      # No dependency cache in release builds, as npm recommends for trusted publishing.
+      - name: Use Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+        env:
+          NODE_OPTIONS: --max-old-space-size=3072
+      - run: pnpm test:jsdom --run
+      - run: pnpm build
+      - name: Check versions
+        id: version
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+        run: |
+          utils_version=$(node -p "require('./packages/utils/build/package.json').version")
+          solid_version=$(node -p "require('./packages/solid/build/package.json').version")
+          if [ "$utils_version" != "$solid_version" ]; then
+            echo "::error::@base-ui-solid/utils is $utils_version but base-ui-solid is $solid_version"
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag_version="${GITHUB_REF_NAME#v}"
+            if [ "$tag_version" != "$solid_version" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match the package version $solid_version"
+              exit 1
+            fi
+          elif [ "$DRY_RUN" != "true" ]; then
+            echo "::error::Only a version tag can be published. Run the workflow on a tag or as a dry run."
+            exit 1
+          fi
+          if [[ "$solid_version" == *-* ]]; then
+            dist_tag=next
+          else
+            dist_tag=latest
+          fi
+          echo "version=$solid_version" >> "$GITHUB_OUTPUT"
+          echo "dist-tag=$dist_tag" >> "$GITHUB_OUTPUT"
+          echo "Publishing $solid_version under the '$dist_tag' dist-tag"
+      # Trusted publishing needs npm >= 11.5.1.
+      - name: Ensure npm >= 11.5.1
+        run: |
+          if ! node -e "const [a,b,c]=process.argv[1].split('.').map(Number);process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)"; then
+            npm install --global npm@11
+          fi
+          npm --version
+      # `pnpm pack` writes the tarballs. Publishing them with the npm CLI keeps npm's OIDC exchange.
+      - name: Pack
+        run: |
+          mkdir -p "$RUNNER_TEMP/packages"
+          (cd packages/utils/build && pnpm pack --pack-destination "$RUNNER_TEMP/packages")
+          (cd packages/solid/build && pnpm pack --pack-destination "$RUNNER_TEMP/packages")
+      - name: Publish
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DIST_TAG: ${{ steps.version.outputs.dist-tag }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+        run: |
+          flags=(--access public)
+          if [ "$DIST_TAG" = "next" ]; then
+            flags+=(--tag next)
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            flags+=(--dry-run)
+          fi
+          npm publish "$RUNNER_TEMP/packages/base-ui-solid-utils-$VERSION.tgz" "${flags[@]}"
+          npm publish "$RUNNER_TEMP/packages/base-ui-solid-$VERSION.tgz" "${flags[@]}"

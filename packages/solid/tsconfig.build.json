@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.json",
+  // This config is for emitting declarations (.d.ts) only.
+  // TS source files are transpiled to JS by Babel (scripts/buildPackage.mjs).
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "stripInternal": true,
+    "rootDir": "./src",
+    "outDir": "build",
+    "types": [],
+    // Port note: upstream reaches the utils declarations through a project reference. Here the
+    // workspace resolves `@base-ui-solid/utils` to its sources, so point it at the built
+    // declarations instead (`pnpm build` builds utils first).
+    "paths": {
+      "@base-ui-solid/utils/*": ["../utils/build/*"]
+    }
+  },
+  "include": ["src/**/*.ts*"],
+  "exclude": [
+    "src/**/*.spec.ts*",
+    "src/**/*.test.ts*",
+    "src/**/*.fixtures.ts*",
+    "src/**/*test-utils*"
+  ]
+}

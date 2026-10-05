@@ -34,7 +34,10 @@ pnpm test:chromium --run   # browser tests in Chromium
 pnpm typecheck
 pnpm test:compare-upstream # checks the ported tests against upstream (expects ../base-ui)
 pnpm docs:build            # static docs export in docs/export
+pnpm build                 # publishable packages in packages/*/build
 ```
+
+[`RELEASING.md`](/RELEASING.md) describes how the packages are built and published to npm.
 
 ## License
 
