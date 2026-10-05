@@ -181,7 +181,12 @@ export function stabilizeFilterChildren<P extends { children?: JSX.Element | und
           rawContent = undefined;
         });
       }
-      return content();
+      // Return the accessor rather than its value: the reader (the element's children insert)
+      // then resolves it in a nested computation. Reading the value would subscribe the reader
+      // to the resolved subtree, so a part inside it that mounts or unmounts (a checkbox item's
+      // indicator) would re-run the reader and dispose the subtree it owns, leaving its nodes
+      // frozen in the DOM.
+      return content as unknown as JSX.Element;
     },
   }) as P;
   filterChildren.set(stabilized, () => {
