@@ -1,9 +1,10 @@
-import { createMemo, omit, onCleanup, Show } from 'solid-js';
+import { createMemo, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui-solid/utils/useId';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
@@ -25,7 +26,7 @@ const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
  */
 function useGuardRef(refObject: RefObject<HTMLSpanElement | null>) {
   let element: HTMLSpanElement | null = null;
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     if (refObject.current === element) {
       refObject.current = null;
     }
@@ -45,7 +46,7 @@ function ViewportTarget(props: {
   children?: JSX.Element | undefined;
 }) {
   let element: HTMLDivElement | null = null;
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     if (element) {
       element = null;
       props.setElement(null);

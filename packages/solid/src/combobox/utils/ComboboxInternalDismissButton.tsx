@@ -1,6 +1,6 @@
-import { onCleanup } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -30,7 +30,7 @@ export function ComboboxInternalDismissButton(props: {
     );
   }
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     props.ref(null);
   });
 

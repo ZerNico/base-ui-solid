@@ -1,7 +1,8 @@
-import { createSignal, onCleanup, untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { useCompositeListContext } from './CompositeListContext';
 import type { CompositeListRegistration } from './CompositeListContext';
 
@@ -117,7 +118,7 @@ export function useCompositeListItem<Metadata>(
       setInternalIndex(i);
     }
   });
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     unsubscribe();
     // Solid doesn't call refs with `null` on unmount, so unregister when the item is disposed.
     if (componentNode) {

@@ -101,7 +101,13 @@ local `/solid/…` paths (`docs/src/mdx/markdownPlugin.mjs`).
   `useIsoLayoutEffect(effect, () => [deps])` / `useEffect` from `@base-ui-solid/utils/useIsoLayoutEffect`.
   React semantics: runs after the DOM update, only when a dep changed (`Object.is`), and the
   returned cleanup runs before the next run and on disposal. Read reactive values in `deps` and use
-  the values passed to `effect`. Writes to signals are allowed in `effect`.
+  the values passed to `effect`. Writes to signals are allowed in `effect` and in its cleanup.
+- Solid runs disposal cleanups inside the computation that removed the owner (a `<For>` row, a
+  `<Show>` branch), where a signal write throws `REACTIVE_WRITE_IN_OWNED_SCOPE` in dev and halts
+  reactivity. `useIsoLayoutEffect` runs its cleanups through `runCleanup` from
+  `@base-ui-solid/utils/cleanup`, which runs them without an owner. Use `onCleanupWithWrites` instead
+  of `onCleanup` (and `runCleanup` in `onSettled` cleanups) when the cleanup can write state, such as
+  unregistering from a parent or calling a ref with `null`.
 - `useRef` for DOM elements → a `let` variable set by a ref callback. Internal refs passed to
   `useRenderElement`'s `ref` param are called with `null` when the rendered element is disposed,
   like React. If a `render` function can swap the element out, also check `element.isConnected`.

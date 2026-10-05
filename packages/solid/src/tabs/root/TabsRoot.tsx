@@ -1,4 +1,5 @@
 import { createMemo, createSignal, omit, onSettled, untrack } from 'solid-js';
+import { runCleanup } from '@base-ui-solid/utils/cleanup';
 import type { Accessor } from 'solid-js';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -203,9 +204,10 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
     // during a render would hold up transitions.
     onSettled(() => {
       setMountedTabPanelSources((prev) => [...prev, entry]);
-      return () => {
-        setMountedTabPanelSources((prev) => prev.filter((item) => item !== entry));
-      };
+      return () =>
+        runCleanup(() =>
+          setMountedTabPanelSources((prev) => prev.filter((item) => item !== entry)),
+        );
     });
   };
 

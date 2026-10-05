@@ -1,6 +1,7 @@
-import { onCleanup, untrack } from 'solid-js';
+import { untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { NOOP } from '../noop';
 import { useBaseUiId } from '../useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
@@ -55,7 +56,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}): Accessor<
     () => [id(), enabled()],
   );
 
-  onCleanup(unregisterControlId);
+  onCleanupWithWrites(unregisterControlId);
 
   // The provider's id wins until registration runs: the label renders `for` from the
   // provider's pre-registration state, so preempting it with an explicit `id` here would

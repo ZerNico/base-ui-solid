@@ -1,4 +1,4 @@
-import { createMemo, merge, onCleanup, untrack } from 'solid-js';
+import { createMemo, merge, untrack } from 'solid-js';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { Accessor } from 'solid-js';
 import { dynamic, isServer } from '@solidjs/web';
@@ -7,6 +7,7 @@ import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { error } from '@base-ui-solid/utils/error';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { ClassProp, HTMLProps, IntrinsicTagName, RenderProp, StyleProp } from './types';
 import type { StateAttributesMapping } from './getStateAttributesProps';
 import { getStateAttributesProps } from './getStateAttributesProps';
@@ -120,7 +121,7 @@ export function useRenderElement<
     if (!isServer) {
       renderCount += 1;
       const currentRender = renderCount;
-      onCleanup(() => {
+      onCleanupWithWrites(() => {
         if (currentRender === renderCount) {
           untrack(() => internalRef(null));
         }

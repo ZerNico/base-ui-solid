@@ -1,9 +1,10 @@
-import { createMemo, flush, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, flush, omit, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import {
   useComboboxRootContext,
   useComboboxHasItemsContext,
@@ -209,7 +210,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     pointerDownCaptureElement = element;
     element?.addEventListener('pointerdown', handlePointerDownCapture, true);
   };
-  onCleanup(() => pointerDownCaptureRef(null));
+  onCleanupWithWrites(() => pointerDownCaptureRef(null));
 
   const defaultProps = (): Record<string, any> => ({
     id: id(),

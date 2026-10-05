@@ -1,7 +1,8 @@
-import { createMemo, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -202,7 +203,7 @@ export function TabsTab(componentProps: TabsTab.Props) {
     keyDownCaptureElement = element;
     element?.addEventListener('keydown', handleKeyDownCapture, true);
   };
-  onCleanup(() => keyDownCaptureRef(null));
+  onCleanupWithWrites(() => keyDownCaptureRef(null));
 
   const state = createMemo<TabsTabState>(
     () => ({

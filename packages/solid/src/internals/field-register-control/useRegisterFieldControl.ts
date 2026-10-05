@@ -1,6 +1,7 @@
 import type { Accessor } from 'solid-js';
-import { onCleanup } from 'solid-js';
+
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { useFieldRootContext } from '../field-root-context/FieldRootContext';
 import type { FieldControlRegistration } from './useFieldControlRegistration';
 
@@ -38,7 +39,7 @@ export function useRegisterFieldControl(
     () => [enabled(), id(), value(), name?.()],
   );
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     registerFieldControl(source, undefined);
   });
 }

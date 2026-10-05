@@ -1,4 +1,4 @@
-import { createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import { createMemo, createSignal, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -8,6 +8,7 @@ import { useTrackedRef } from '@base-ui-solid/utils/useTrackedRef';
 import { warn } from '@base-ui-solid/utils/warn';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { ownerWindow } from '@base-ui-solid/utils/owner';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -127,7 +128,7 @@ export function useCollapsiblePanel(
     () => [forcePanelIdle(), transitionStatus()],
   );
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     restorePendingTemporaryStyle();
   });
 

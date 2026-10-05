@@ -1,4 +1,4 @@
-import { createMemo, flush, onCleanup, untrack } from 'solid-js';
+import { createMemo, flush, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
@@ -6,6 +6,7 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { isElement } from '@floating-ui/utils/dom';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
@@ -161,7 +162,7 @@ export function useHoverReferenceInteraction(
     }
   });
 
-  onCleanup(cleanupMouseMoveHandler);
+  onCleanupWithWrites(cleanupMouseMoveHandler);
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.

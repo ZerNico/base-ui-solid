@@ -1,4 +1,5 @@
 import { createEffect, createMemo, untrack } from 'solid-js';
+import { runCleanup } from './cleanup';
 
 export type EffectCallback<Deps extends readonly unknown[]> = (deps: Deps) => void | (() => void);
 
@@ -7,7 +8,8 @@ export type EffectCallback<Deps extends readonly unknown[]> = (deps: Deps) => vo
  *
  * `deps` runs in the tracked compute phase; `effect` runs untracked after the render queue
  * flushes (before paint) and only when a dependency changed (`Object.is`), exactly like React.
- * The returned cleanup runs before the next run and on disposal.
+ * The returned cleanup runs before the next run and on disposal, and may write reactive state
+ * (see `runCleanup`).
  *
  * Read reactive values inside `deps` and use the values passed to `effect` — reads inside
  * `effect` are not tracked.
@@ -21,7 +23,10 @@ export function useIsoLayoutEffect<const Deps extends readonly unknown[]>(
   const memoizedDeps = createMemo(deps, { equals: areDepsEqual });
   // Untracked, like reading from a React render closure. This also marks the reads as
   // intentional for Solid's `STRICT_READ_UNTRACKED` diagnostic.
-  createEffect(memoizedDeps, (value) => untrack(() => effect(value)));
+  createEffect(memoizedDeps, (value) => {
+    const cleanup = untrack(() => effect(value));
+    return cleanup ? () => runCleanup(cleanup) : undefined;
+  });
 }
 
 /**

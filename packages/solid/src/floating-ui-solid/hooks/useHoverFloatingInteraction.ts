@@ -1,10 +1,10 @@
-import { onCleanup } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -93,7 +93,7 @@ export function useHoverFloatingInteraction(
     () => [open()],
   );
 
-  onCleanup(clearPointerEvents);
+  onCleanupWithWrites(clearPointerEvents);
 
   useIsoLayoutEffect(
     ([enabledValue, openValue, domReferenceElementValue, floatingElementValue]) => {

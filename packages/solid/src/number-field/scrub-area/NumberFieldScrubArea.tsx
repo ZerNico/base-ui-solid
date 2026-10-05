@@ -1,4 +1,4 @@
-import { createSignal, flush, omit, onCleanup, untrack } from 'solid-js';
+import { createSignal, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
@@ -6,6 +6,7 @@ import { ownerWindow, ownerDocument } from '@base-ui-solid/utils/owner';
 import { platform } from '@base-ui-solid/utils/platform';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
@@ -253,7 +254,7 @@ export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props)
 
   // If the scrub area unmounts mid-scrub, release pointer lock and clear the root's scrubbing
   // state so it doesn't stay locked or stuck. (No commit: there's no pointer release here.)
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     if (isScrubbingRef) {
       isScrubbingRef = false;
       setRootScrubbing(false);

@@ -1,6 +1,6 @@
-import { onCleanup } from 'solid-js';
 import { Timeout } from '@base-ui-solid/utils/useTimeout';
 
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { isInteractiveElement } from '../utils';
 
@@ -107,7 +107,7 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
   }
 
   // Port note: upstream's `useOnMount(disposeEffect)` disposes on unmount.
-  onCleanup(data.hoverInteractionState.dispose);
+  onCleanupWithWrites(data.hoverInteractionState.dispose);
 
   return data.hoverInteractionState;
 }

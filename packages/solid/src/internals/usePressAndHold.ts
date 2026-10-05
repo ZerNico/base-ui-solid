@@ -1,4 +1,4 @@
-import { onCleanup, untrack } from 'solid-js';
+import { untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { NOOP } from '@base-ui-solid/utils/empty';
@@ -7,6 +7,7 @@ import { useInterval } from '@base-ui-solid/utils/useInterval';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 
 const DEFAULT_TICK_DELAY = 60;
 const DEFAULT_START_DELAY = 400;
@@ -158,7 +159,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     });
   }
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     stopAutoChange();
     unsubscribeFromGlobalPointerUp();
   });

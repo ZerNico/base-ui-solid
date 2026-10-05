@@ -1,4 +1,4 @@
-import { createMemo, onCleanup, Show, untrack } from 'solid-js';
+import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
@@ -10,6 +10,7 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -1110,7 +1111,7 @@ function InsideFocusGuard(props: {
   setRef: (element: HTMLSpanElement | null) => void;
   onFocusIn: (event: FocusEvent) => void;
 }) {
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     props.setRef(null);
   });
   return (

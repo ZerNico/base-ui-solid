@@ -1,4 +1,5 @@
 import { createMemo, createSignal, onSettled } from 'solid-js';
+import { runCleanup } from '@base-ui-solid/utils/cleanup';
 import type { Accessor } from 'solid-js';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import type { JSX } from '@solidjs/web';
@@ -38,9 +39,8 @@ export function LabelableProvider(props: LabelableProvider.Props) {
     // during a render would hold up transitions.
     onSettled(() => {
       setMessageIdSources((prev) => [...prev, entry]);
-      return () => {
-        setMessageIdSources((prev) => prev.filter((item) => item !== entry));
-      };
+      return () =>
+        runCleanup(() => setMessageIdSources((prev) => prev.filter((item) => item !== entry)));
     });
   };
 

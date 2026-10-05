@@ -1,10 +1,11 @@
-import { createMemo, flush, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -99,7 +100,7 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
     });
   };
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     unregisterGroupInput?.();
     unregisterFieldInput?.();
     unregisterGroupInput = undefined;

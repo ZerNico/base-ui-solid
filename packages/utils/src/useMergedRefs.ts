@@ -1,7 +1,8 @@
-import { onCleanup, untrack } from 'solid-js';
+import { untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { RefObject } from './refObject';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
+import { onCleanupWithWrites } from './cleanup';
 
 type Empty = null | undefined;
 type Cleanup = () => void;
@@ -95,7 +96,7 @@ function useForkRef<I>(getRefs: Accessor<InputRef<I>[]>): Result<I> {
     () => getRefs(),
   );
 
-  onCleanup(() => {
+  onCleanupWithWrites(() => {
     callback(null);
   });
 

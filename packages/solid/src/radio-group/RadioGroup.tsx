@@ -1,9 +1,10 @@
-import { createMemo, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { contains } from '../floating-ui-solid/utils';
@@ -295,7 +296,7 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
     keyDownCaptureElement = element;
     element?.addEventListener('keydown', handleKeyDownCapture, true);
   };
-  onCleanup(() => keyDownCaptureRef(null));
+  onCleanupWithWrites(() => keyDownCaptureRef(null));
 
   return (
     <RadioGroupContext value={contextValue}>
