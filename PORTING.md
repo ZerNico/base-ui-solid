@@ -370,14 +370,21 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   once with `{ payload }`, where `payload` is an accessor (`PayloadChildRenderFunction`). Call
   `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
 
-- **Solid dev performance warnings in the browser.** Ported "write state in a layout effect"
-  patterns trigger `EFFECT_RELAY_TEAR` / `EFFECT_WRITES_OWN_SOURCE`, which cost an extra flush but
-  don't change behavior:
-  - `useCollapsiblePanel`: `dimensions` is set from DOM measurement. Measurement has to happen in
-    an effect, so this one is probably inherent.
-  - `useCollapsiblePanel`: `forcePanelIdle` is set and then cleared in effects.
-  - `useTransitionStatus`: `setTransitionStatus('starting')` is called from the effect that reads
-    the status.
-
-  The last two could become derived state. Revisit once more components share these primitives,
-  and keep the upstream behavior tests green while doing it.
+- **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, internals used to
+  report about 36 warnings in a typical docs session. They're down to about 18 by keeping memo
+  outputs stable (state, style and props memos compare shallowly) and deriving registrations
+  (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules) instead of
+  writing them from effects. The remaining ones follow upstream's layout-effect design:
+  - `EFFECT_RELAY_TEAR` via `subscribeToStore.track` (Select, Combobox, Autocomplete, Popover,
+    Preview Card, Dialog, Drawer, Tooltip, Navigation Menu): popups sync their props into the
+    `Store` from layout effects (`useSyncedValue`, `store.update`), like upstream. Removing it needs
+    a store whose synced keys are derived, not written.
+  - `useCollapsiblePanel.dimensions` and `useFloating.data`: DOM measurement, inherently an effect.
+  - OTP Field `focusedIndex`: the effect moves DOM focus after the value commits, and the focus
+    handler records the index.
+  - Navigation Menu `floatingRootContext` / `positionReference`: the active trigger hands its
+    floating context to the root from a layout effect, like upstream.
+  - Popover trigger `shouldRenderBeforeFocusGuard`: intentional, the leading focus guard is added
+    one update after the trailing one so Solid doesn't move (and blur) the trigger.
+  - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
+    dynamic root (parts can swap their element through `render`).

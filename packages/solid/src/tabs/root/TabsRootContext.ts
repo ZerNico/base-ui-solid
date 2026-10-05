@@ -29,7 +29,14 @@ export interface TabsRootContext {
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
-  registerMountedTabPanel: (panelValue: TabsTab.Value, panelId: string) => () => void;
+  /**
+   * Registers an accessor of a panel's value (`undefined` while the panel isn't rendered) for the
+   * lifetime of the calling owner. Call it once, when the panel is set up.
+   */
+  registerMountedTabPanel: (
+    panelValue: Accessor<{ value: TabsTab.Value } | undefined>,
+    panelId: string,
+  ) => void;
   setTabMap: (map: Map<Node, CompositeMetadata<TabsTab.Metadata>>) => void;
   /**
    * The position of the active tab relative to the previously active tab.

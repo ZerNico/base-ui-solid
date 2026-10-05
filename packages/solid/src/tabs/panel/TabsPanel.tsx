@@ -1,6 +1,5 @@
 import { Show, createMemo, omit } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -73,17 +72,11 @@ export function TabsPanel(componentProps: TabsPanel.Props) {
     },
   });
 
-  useIsoLayoutEffect(
-    ([isHidden, isKeepMounted, panelValue]) => {
-      // Port note: upstream also skips while `id` is undefined (React 17 resolves `useId` in a
-      // passive effect). Solid's ids are available synchronously.
-      if (isHidden && !isKeepMounted) {
-        return undefined;
-      }
-
-      return registerMountedTabPanel(panelValue, id);
-    },
-    () => [hidden(), keepMounted(), componentProps.value],
+  // Port note: upstream also skips while `id` is undefined (React 17 resolves `useId` in a
+  // passive effect). Solid's ids are available synchronously.
+  registerMountedTabPanel(
+    () => (hidden() && !keepMounted() ? undefined : { value: componentProps.value }),
+    id,
   );
 
   const shouldRender = () => keepMounted() || mounted();

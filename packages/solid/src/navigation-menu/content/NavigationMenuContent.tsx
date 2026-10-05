@@ -63,18 +63,16 @@ export function NavigationMenuContent(componentProps: NavigationMenuContent.Prop
 
   const [focusInside, setFocusInside] = createSignal(false, { ownedWrite: true });
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
   // If the popup unmounts before the content's exit animation completes, reset the internal
   // mounted state so the next open can re-enter via `transitionStatus="starting"`.
-  // Port note: upstream adjusts the state during render; here an effect does it.
-  useIsoLayoutEffect(
-    ([isMounted, isPopupMounted]) => {
-      if (isMounted && !isPopupMounted) {
-        setMounted(false);
-      }
-    },
-    () => [mounted(), popupMounted()],
+  // Port note: upstream adjusts the state during render; here it's a render-phase rule of
+  // `useTransitionStatus`.
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
+    open,
+    false,
+    false,
+    false,
+    () => !popupMounted(),
   );
 
   useOpenChangeComplete({

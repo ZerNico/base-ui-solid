@@ -40,17 +40,29 @@ interface TransitionState {
  * @param animateInitialOpen - a boolean that makes an element which mounts already open still go
  *   through `'starting'`. Off by default so content that was open on the first render (a
  *   `defaultOpen` popup on page load, SSR'd markup) doesn't animate in.
+ * @param unmountWhen - Port note: an accessor that resets `mounted` to `false` while it's `true`
+ *   (e.g. when the containing popup unmounts first). Upstream callers adjust that during render
+ *   with `setMounted(false)`; here it's one of the render-phase rules.
  */
 export function useTransitionStatus(
   open: Accessor<boolean>,
   enableIdleState: boolean = false,
   deferEndingState: boolean = false,
   animateInitialOpen: boolean = false,
+  unmountWhen?: Accessor<boolean>,
 ) {
   // Upstream adjusts `mounted` and `transitionStatus` during render. Here the same rules are
   // applied by a writable memo: they run whenever `open` changes, and after every write.
-  function applyRenderPhaseRules(state: TransitionState, isOpen: boolean): TransitionState {
+  function applyRenderPhaseRules(
+    state: TransitionState,
+    isOpen: boolean,
+    shouldUnmount: boolean,
+  ): TransitionState {
     let { mounted, transitionStatus } = state;
+
+    if (shouldUnmount && mounted) {
+      mounted = false;
+    }
 
     if (isOpen && !mounted) {
       mounted = true;
@@ -63,6 +75,13 @@ export function useTransitionStatus(
 
     if (!isOpen && !mounted && transitionStatus === 'ending') {
       transitionStatus = undefined;
+    }
+
+    // Port note: upstream sets `'starting'` from the layout effect below (an open, mounted element
+    // that isn't idle yet, e.g. reopened while ending). Applying it here gives the same status
+    // without a second pass.
+    if (enableIdleState && isOpen && mounted && transitionStatus !== 'idle') {
+      transitionStatus = 'starting';
     }
 
     return mounted === state.mounted && transitionStatus === state.transitionStatus
@@ -79,7 +98,7 @@ export function useTransitionStatus(
         mounted: isOpen && !animateInitialOpen,
         transitionStatus: isOpen && enableIdleState ? 'idle' : undefined,
       };
-      return applyRenderPhaseRules(initial, isOpen);
+      return applyRenderPhaseRules(initial, isOpen, unmountWhen?.() ?? false);
     },
     {
       equals: (a, b) => a.mounted === b.mounted && a.transitionStatus === b.transitionStatus,
@@ -90,7 +109,13 @@ export function useTransitionStatus(
   const transitionStatus = () => state().transitionStatus;
 
   function update(patch: Partial<TransitionState>) {
-    setState((prev) => applyRenderPhaseRules({ ...prev, ...patch }, untrack(open)));
+    setState((prev) =>
+      applyRenderPhaseRules(
+        { ...prev, ...patch },
+        untrack(open),
+        untrack(() => unmountWhen?.() ?? false),
+      ),
+    );
   }
 
   const setMounted = (nextMounted: boolean) => update({ mounted: nextMounted });
@@ -125,13 +150,9 @@ export function useTransitionStatus(
   );
 
   useIsoLayoutEffect(
-    ([isOpen, isMounted, status]) => {
+    ([isOpen]) => {
       if (!isOpen || !enableIdleState) {
         return undefined;
-      }
-
-      if (isOpen && isMounted && status !== 'idle') {
-        setTransitionStatus('starting');
       }
 
       return requestFrameUpdate(() => {

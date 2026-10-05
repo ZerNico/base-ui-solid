@@ -1,6 +1,5 @@
-import { createMemo, createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal, onSettled } from 'solid-js';
 import type { Accessor } from 'solid-js';
-import { isServer } from '@solidjs/web';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import type { JSX } from '@solidjs/web';
 import type { HTMLProps } from '../types';
@@ -15,7 +14,7 @@ export function LabelableProvider(props: LabelableProvider.Props) {
   const [labelId, setLabelId] = createSignal<string | undefined>();
   // Port note: upstream's description and error parts append their id to `messageIds` from an
   // effect when they render, and remove it on cleanup. Here they register an accessor of their id
-  // once, and `messageIds` is derived from the registered accessors, so the control's
+  // once (after it rendered), and `messageIds` is derived from the registered accessors, so the control's
   // `aria-describedby` updates in the same flush as the part. Ids keep upstream's order: the
   // order in which they became active.
   const [messageIdSources, setMessageIdSources] = createSignal<
@@ -24,10 +23,6 @@ export function LabelableProvider(props: LabelableProvider.Props) {
   let activationCount = 0;
 
   const registerMessageId = (id: Accessor<string | false | null | undefined>) => {
-    if (isServer) {
-      // Like upstream's effects, registrations don't run on the server.
-      return;
-    }
     const entry = createMemo<MessageIdEntry | undefined>((prev) => {
       const currentId = id();
       if (!currentId) {
@@ -39,9 +34,13 @@ export function LabelableProvider(props: LabelableProvider.Props) {
       activationCount += 1;
       return { id: currentId, order: activationCount };
     });
-    setMessageIdSources((prev) => [...prev, entry]);
-    onCleanup(() => {
-      setMessageIdSources((prev) => prev.filter((item) => item !== entry));
+    // Registered once the part has rendered (not on the server, like upstream's effects): writing
+    // during a render would hold up transitions.
+    onSettled(() => {
+      setMessageIdSources((prev) => [...prev, entry]);
+      return () => {
+        setMessageIdSources((prev) => prev.filter((item) => item !== entry));
+      };
     });
   };
 

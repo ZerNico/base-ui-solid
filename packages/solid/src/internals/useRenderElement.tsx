@@ -52,12 +52,15 @@ export function useRenderElement<
   );
   const stateParam = params.state;
 
+  // A state accessor (e.g. from `useRender`) may return a new but equal object on every run:
+  // compare shallowly, so equal states don't re-render.
   const readState: () => State =
-    typeof stateParam === 'function' ? stateParam : () => stateParam ?? (EMPTY_OBJECT as State);
+    typeof stateParam === 'function'
+      ? createMemo(stateParam, { equals: fastObjectShallowCompare })
+      : () => stateParam ?? (EMPTY_OBJECT as State);
 
   // Reactive view of the state passed to the user's `render` callback.
-  const state: State =
-    typeof stateParam === 'function' ? (merge(stateParam) as State) : readState();
+  const state: State = typeof stateParam === 'function' ? (merge(readState) as State) : readState();
 
   // A memo, so that the element is only recreated when the boolean flips, not whenever a
   // dependency of the `enabled` accessor notifies.

@@ -1,4 +1,5 @@
-import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { createMemo, createSignal, omit, onSettled, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -45,11 +46,27 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
   const hasExplicitDefaultValueProp = untrack(() => componentProps.defaultValue) !== undefined;
 
   const tabPanelRefs = { current: [] as (HTMLElement | null)[] };
-  const [mountedTabPanels, setMountedTabPanels] = createSignal(
-    new Map<TabsTab.Value, string>(),
-    // Panels unregister from their effect cleanups, which may run while disposing.
-    { ownedWrite: true },
-  );
+  // Port note: upstream's panels add themselves to `mountedTabPanels` from an effect while they're
+  // rendered. Here each panel registers an accessor of its value once (`undefined` while it isn't
+  // rendered), and the map is derived from them, so a tab's `aria-controls` updates in the same
+  // flush as the selection. A value rendered by several panels belongs to the one that was
+  // rendered last, like upstream.
+  const [mountedTabPanelSources, setMountedTabPanelSources] = createSignal<
+    Accessor<MountedTabPanel | undefined>[]
+  >([], { ownedWrite: true });
+  let panelActivationCount = 0;
+
+  const mountedTabPanels = createMemo(() => {
+    const panels = mountedTabPanelSources()
+      .map((source) => source())
+      .filter((panel): panel is MountedTabPanel => panel !== undefined)
+      .sort((a, b) => a.order - b.order);
+    const map = new Map<TabsTab.Value, string>();
+    for (const panel of panels) {
+      map.set(panel.value, panel.id);
+    }
+    return map;
+  });
 
   const [value, setValue] = useControlled<TabsTab.Value>({
     controlled: () => componentProps.value,
@@ -167,26 +184,29 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
     );
   };
 
-  const registerMountedTabPanel = (panelValue: TabsTab.Value, panelId: string) => {
-    setMountedTabPanels((prev) => {
-      const next = new Map(prev);
-      next.set(panelValue, panelId);
-      return next;
+  const registerMountedTabPanel = (
+    panelValue: Accessor<{ value: TabsTab.Value } | undefined>,
+    panelId: string,
+  ) => {
+    const entry = createMemo<MountedTabPanel | undefined>((prev) => {
+      const current = panelValue();
+      if (!current) {
+        return undefined;
+      }
+      if (prev && Object.is(prev.value, current.value)) {
+        return prev;
+      }
+      panelActivationCount += 1;
+      return { value: current.value, id: panelId, order: panelActivationCount };
     });
-
-    return () => {
-      setMountedTabPanels((prev) => {
-        // Another panel with the same value took ownership in the meantime;
-        // leave its registration in place.
-        if (prev.get(panelValue) !== panelId) {
-          return prev;
-        }
-
-        const next = new Map(prev);
-        next.delete(panelValue);
-        return next;
-      });
-    };
+    // Registered once the panel has rendered (not on the server, like upstream's effects): writing
+    // during a render would hold up transitions.
+    onSettled(() => {
+      setMountedTabPanelSources((prev) => [...prev, entry]);
+      return () => {
+        setMountedTabPanelSources((prev) => prev.filter((item) => item !== entry));
+      };
+    });
   };
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
@@ -419,6 +439,12 @@ function computeActivationDirection(
 }
 
 export type TabsRootOrientation = BaseOrientation;
+
+interface MountedTabPanel {
+  value: TabsTab.Value;
+  id: string;
+  order: number;
+}
 
 export interface TabsRootState {
   /**
