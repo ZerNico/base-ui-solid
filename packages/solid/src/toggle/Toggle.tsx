@@ -19,7 +19,7 @@ import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
  * A two-state button that can be on or off.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
+ * Documentation: [Base UI Toggle](https://base-ui-solid.pages.dev/solid/components/toggle)
  */
 export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>): JSX.Element {
   const elementProps = omit(

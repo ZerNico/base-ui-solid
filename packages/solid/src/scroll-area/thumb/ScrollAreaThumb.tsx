@@ -8,7 +8,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * The draggable part of the scrollbar that indicates the current scroll position.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
+ * Documentation: [Base UI Scroll Area](https://base-ui-solid.pages.dev/solid/components/scroll-area)
  */
 export function ScrollAreaThumb(componentProps: ScrollAreaThumb.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

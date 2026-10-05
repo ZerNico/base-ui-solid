@@ -10,7 +10,7 @@ import { REASONS } from '../../internals/reasons';
  * An overlay displayed beneath the popover.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverBackdrop(props: PopoverBackdrop.Props) {
   const elementProps = omit(props, 'render', 'class', 'style');

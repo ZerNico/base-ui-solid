@@ -22,7 +22,7 @@ const stateAttributesMapping: StateAttributesMapping<DrawerIndentState> = {
  * Applies `data-active` when any drawer within the nearest `<Drawer>` is open.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export const DrawerIndent = function DrawerIndent(componentProps: DrawerIndent.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

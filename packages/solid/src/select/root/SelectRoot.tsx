@@ -52,7 +52,7 @@ import { NOOP } from '../../internals/noop';
  * Groups all parts of the select.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   props: SelectRoot.Props<Value, Multiple>,

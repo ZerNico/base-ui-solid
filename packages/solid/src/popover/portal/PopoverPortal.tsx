@@ -9,7 +9,7 @@ import { PopoverPortalContext } from './PopoverPortalContext';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverPortal(props: PopoverPortal.Props) {
   const portalProps = omit(props, 'keepMounted');

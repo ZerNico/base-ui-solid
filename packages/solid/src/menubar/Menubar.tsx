@@ -29,7 +29,7 @@ const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
 /**
  * The container for menus.
  *
- * Documentation: [Base UI Menubar](https://base-ui.com/react/components/menubar)
+ * Documentation: [Base UI Menubar](https://base-ui-solid.pages.dev/solid/components/menubar)
  */
 export function Menubar(props: Menubar.Props) {
   const elementProps = omit(

@@ -10,7 +10,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A text element displaying the current value.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Meter](https://base-ui.com/react/components/meter)
+ * Documentation: [Base UI Meter](https://base-ui-solid.pages.dev/solid/components/meter)
  */
 export function MeterValue(componentProps: MeterValue.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'children', 'style');

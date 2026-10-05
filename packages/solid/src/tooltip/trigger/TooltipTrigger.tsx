@@ -40,7 +40,7 @@ function getTargetElement(event: Event): Element | null {
  * An element to attach the tooltip to.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui-solid.pages.dev/solid/components/tooltip)
  */
 export function TooltipTrigger<Payload>(
   componentProps: TooltipTrigger.Props<Payload>,

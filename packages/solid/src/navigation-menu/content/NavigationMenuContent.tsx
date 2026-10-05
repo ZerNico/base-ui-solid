@@ -39,7 +39,7 @@ const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState>
  * when the item is active.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuContent(componentProps: NavigationMenuContent.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'keepMounted');

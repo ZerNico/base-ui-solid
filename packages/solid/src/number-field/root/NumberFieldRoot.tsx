@@ -51,7 +51,7 @@ import { REASONS } from '../../internals/reasons';
  * Groups all parts of the number field and manages its state.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
+ * Documentation: [Base UI Number Field](https://base-ui-solid.pages.dev/solid/components/number-field)
  */
 export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Element {
   const elementProps = omit(

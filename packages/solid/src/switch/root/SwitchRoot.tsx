@@ -29,7 +29,7 @@ import { useValueChanged } from '../../internals/useValueChanged';
  * Represents the switch itself.
  * Renders a `<span>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
+ * Documentation: [Base UI Switch](https://base-ui-solid.pages.dev/solid/components/switch)
  */
 export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
   const elementProps = omit(

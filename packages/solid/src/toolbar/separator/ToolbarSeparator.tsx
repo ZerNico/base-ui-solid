@@ -7,7 +7,7 @@ import { useToolbarRootContext } from '../root/ToolbarRootContext';
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui-solid.pages.dev/solid/components/toolbar)
  */
 export function ToolbarSeparator(props: ToolbarSeparator.Props) {
   const context = useToolbarRootContext();

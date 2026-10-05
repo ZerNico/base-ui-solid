@@ -10,7 +10,7 @@ import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
  * A container for the select items.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectList(componentProps: SelectList.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

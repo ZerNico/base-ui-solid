@@ -34,6 +34,7 @@
     "dev": "pnpm --filter playground dev",
     "upstream:sync": "node scripts/upstreamSync.mjs",
     "test:compare-upstream": "node scripts/compareUpstreamTests.mjs",
+    "rewrite-docs-links": "node scripts/rewriteDocsLinks.mjs",
     "prettier": "pretty-quick --ignore-path .lintignore --branch main",
     "prettier:all": "prettier --write . --ignore-path .lintignore",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",

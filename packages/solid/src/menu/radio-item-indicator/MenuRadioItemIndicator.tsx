@@ -11,7 +11,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
  * Indicates whether the radio item is selected.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuRadioItemIndicator(componentProps: MenuRadioItemIndicator.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'keepMounted');

@@ -17,7 +17,7 @@ import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
  * A container for the dialog contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogPopup(componentProps: DialogPopup.Props) {
   const elementProps = omit(

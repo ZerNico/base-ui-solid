@@ -27,7 +27,7 @@ const FIXED: JSX.CSSProperties = { position: 'fixed' };
  * Positions the select popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectPositioner(componentProps: SelectPositioner.Props) {
   // `useAnchorPositioning` applies the same defaults to the undefined values; the names

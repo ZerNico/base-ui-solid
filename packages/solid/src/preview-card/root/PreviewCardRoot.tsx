@@ -131,7 +131,7 @@ function PreviewCardInteractions<Payload>(props: { store: PreviewCardStore<Paylo
  * Groups all parts of the preview card.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui-solid.pages.dev/solid/components/preview-card)
  */
 export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>): JSX.Element {
   // Port note: context presence can't change, so the branch is decided once.

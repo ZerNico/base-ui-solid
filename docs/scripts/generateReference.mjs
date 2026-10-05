@@ -1,13 +1,37 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { adjustRefProp, adjustRefTypeSource } from './solidPropAdjustments.mjs';
+
+// `--reapply` re-applies the Solid adjustments to every existing reference instead of generating one.
+if (process.argv[2] === '--reapply') {
+  const directory = new URL('../reference/', import.meta.url);
+  const files = (await readdir(directory)).filter((item) => item.endsWith('.json'));
+  await Promise.all(
+    files.map(async (file) => {
+      const url = new URL(file, directory);
+      const reference = JSON.parse(await readFile(url, 'utf8'));
+      const before = JSON.stringify(reference);
+      for (const entry of Object.values(reference)) {
+        entry.props.forEach(adjustRefProp);
+        for (const type of entry.additionalTypes) {
+          type.source = adjustRefTypeSource(type.source);
+        }
+      }
+      // Only rewrite changed files, so their existing escapes are kept.
+      if (JSON.stringify(reference) !== before) {
+        await writeFile(url, `${JSON.stringify(reference, null, 2)}\n`);
+      }
+    }),
+  );
+  process.exit(0);
+}
 
 // Port note: this upstream checkout has generated types.md instead of docs/reference JSON.
 // Convert that authoritative snapshot to a framework-neutral JSON reference for Solid rendering.
 const name = process.argv[2] ?? 'collapsible';
 const upstream = process.argv[3] ?? '../../base-ui/docs';
 const source = (
-  await readFile(resolve(upstream, `src/app/(docs)/solid/components/${name}/types.md`), 'utf8')
+  await readFile(resolve(upstream, `src/app/(docs)/react/components/${name}/types.md`), 'utf8')
 ).replaceAll('https://base-ui.com/react/', '/solid/');
 const sections = source
   .split(/^### /m)

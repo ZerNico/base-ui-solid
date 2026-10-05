@@ -21,7 +21,7 @@ const rootStateAttributesMapping = {
  * Groups all parts of the accordion.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
+ * Documentation: [Base UI Accordion](https://base-ui-solid.pages.dev/solid/components/accordion)
  */
 export function AccordionRoot<Value = any>(
   componentProps: AccordionRoot.Props<Value>,

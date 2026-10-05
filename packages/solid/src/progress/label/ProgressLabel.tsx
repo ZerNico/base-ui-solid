@@ -10,7 +10,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * An accessible label for the progress bar.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui-solid.pages.dev/solid/components/progress)
  */
 export function ProgressLabel(componentProps: ProgressLabel.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id');

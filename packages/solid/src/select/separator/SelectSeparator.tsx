@@ -21,7 +21,7 @@ export interface SelectSeparatorState {
  * A visual separator between items or groups.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export const SelectSeparator = ListboxSeparator as Component<SelectSeparatorProps>;
 

@@ -103,7 +103,7 @@ const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
  * A container for the drawer contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Props) {
   const elementProps = omit(

@@ -5,7 +5,7 @@ import type { TextDirection } from '../internals/direction-context/DirectionCont
 /**
  * Enables RTL behavior for Base UI components.
  *
- * Documentation: [Base UI Direction Provider](https://base-ui.com/react/utils/direction-provider)
+ * Documentation: [Base UI Direction Provider](https://base-ui-solid.pages.dev/solid/utils/direction-provider)
  */
 export function DirectionProvider(props: DirectionProvider.Props) {
   const contextValue: DirectionContext = {

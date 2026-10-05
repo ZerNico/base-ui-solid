@@ -3,10 +3,10 @@ import { Field } from '../field';
 import type { FieldControlState } from '../field';
 
 /**
- * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
+ * A native input element that automatically works with [Field](https://base-ui-solid.pages.dev/solid/components/field).
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
+ * Documentation: [Base UI Input](https://base-ui-solid.pages.dev/solid/components/input)
  */
 export function Input(props: Input.Props): JSX.Element {
   return <Field.Control {...props} />;

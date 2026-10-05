@@ -10,7 +10,7 @@ import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
  * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuEmpty(props: MenuEmpty.Props) {
   useMenuFilterPart('Empty');

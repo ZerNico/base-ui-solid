@@ -33,7 +33,7 @@ const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
  * Positions the navigation menu against the currently active trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuPositioner(componentProps: NavigationMenuPositioner.Props) {
   const {

@@ -66,7 +66,7 @@ function MenuItemPlain(componentProps: MenuItem.Props) {
  * An individual interactive item in the menu.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuItem(incomingProps: MenuItem.Props) {
   const props = stabilizeFilterChildren(incomingProps);

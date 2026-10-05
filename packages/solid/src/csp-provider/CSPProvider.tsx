@@ -6,7 +6,7 @@ import type { CSPContextValue } from '../internals/csp-context/CSPContext';
  * Provides a default Content Security Policy (CSP) configuration for Base UI components that
  * require inline `<style>` or `<script>` tags.
  *
- * Documentation: [Base UI CSP Provider](https://base-ui.com/react/utils/csp-provider)
+ * Documentation: [Base UI CSP Provider](https://base-ui-solid.pages.dev/solid/utils/csp-provider)
  */
 export function CSPProvider(props: CSPProvider.Props) {
   // Port note: getters instead of a memoized snapshot, so consumers read the current props.

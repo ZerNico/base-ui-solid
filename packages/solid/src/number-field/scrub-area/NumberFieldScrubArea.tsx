@@ -27,7 +27,7 @@ const SCRUB_AREA_STYLE = {
  * An interactive area where the user can click and drag to change the field value.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
+ * Documentation: [Base UI Number Field](https://base-ui-solid.pages.dev/solid/components/number-field)
  */
 export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props): JSX.Element {
   const elementProps = omit(

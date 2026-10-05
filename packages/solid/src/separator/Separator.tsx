@@ -6,7 +6,7 @@ import { useRenderElement } from '../internals/useRenderElement';
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
+ * Documentation: [Base UI Separator](https://base-ui-solid.pages.dev/solid/components/separator)
  */
 export function Separator(componentProps: Separator.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'orientation', 'style');

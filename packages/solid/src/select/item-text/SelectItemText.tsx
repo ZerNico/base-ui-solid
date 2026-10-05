@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * A text label of the select item.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectItemText(componentProps: SelectItemText.Props) {
   const { index, textRef, selectedByFocus } = useSelectItemContext();

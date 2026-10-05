@@ -7,7 +7,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Groups a shared legend with related controls.
  * Renders a `<fieldset>` element.
  *
- * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
+ * Documentation: [Base UI Fieldset](https://base-ui-solid.pages.dev/solid/components/fieldset)
  */
 export function FieldsetRoot(componentProps: FieldsetRoot.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'disabled');

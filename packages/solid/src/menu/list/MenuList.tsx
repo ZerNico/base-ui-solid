@@ -59,7 +59,7 @@ function MenuListPlain(componentProps: MenuList.Props) {
  * Groups menu items so other content, such as a filter input, can share the popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuList(props: MenuList.Props) {
   const List = useMenuFilterImpl()?.List ?? MenuListPlain;

@@ -16,7 +16,7 @@ import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
  * A container for the tooltip contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui-solid.pages.dev/solid/components/tooltip)
  */
 export function TooltipPopup(componentProps: TooltipPopup.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

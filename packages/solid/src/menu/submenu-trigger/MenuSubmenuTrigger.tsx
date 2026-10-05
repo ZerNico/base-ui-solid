@@ -305,7 +305,7 @@ function MenuSubmenuTriggerPlain(
  * A menu item that opens a submenu.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuSubmenuTrigger(incomingProps: MenuSubmenuTrigger.Props) {
   const props = stabilizeFilterChildren(incomingProps);

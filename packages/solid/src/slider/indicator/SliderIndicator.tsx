@@ -49,7 +49,7 @@ function getIndicatorStyles(
  * Visualizes the current value of the slider.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui-solid.pages.dev/solid/components/slider)
  */
 export function SliderIndicator(componentProps: SliderIndicator.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

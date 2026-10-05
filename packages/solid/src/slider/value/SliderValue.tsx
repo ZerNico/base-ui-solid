@@ -12,7 +12,7 @@ import type { SliderRootState } from '../root/SliderRoot';
  * Displays the current value of the slider as text.
  * Renders an `<output>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui-solid.pages.dev/solid/components/slider)
  */
 export function SliderValue(componentProps: SliderValue.Props): JSX.Element {
   const elementProps = omit(componentProps, 'aria-live', 'render', 'class', 'children', 'style');

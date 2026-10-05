@@ -9,7 +9,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
  * An individual navigation menu item.
  * Renders a `<li>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuItem(componentProps: NavigationMenuItem.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'value');

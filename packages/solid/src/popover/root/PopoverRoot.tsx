@@ -96,7 +96,7 @@ function PopoverRootComponent<Payload>(componentProps: {
  * Groups all parts of the popover.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>) {
   const store = usePopoverRootStore<Payload>(

@@ -9,7 +9,7 @@ import { ItemIndicator } from '../../utils/ItemIndicator';
  * Indicates whether the select item is selected.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectItemIndicator(componentProps: SelectItemIndicator.Props) {
   const { selected } = useSelectItemContext();

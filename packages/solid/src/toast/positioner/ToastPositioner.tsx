@@ -22,7 +22,7 @@ import * as ToastRootCssVars from '../root/ToastRootCssVars';
  * Positions the toast against the anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastPositioner(componentProps: ToastPositioner.Props): JSX.Element {
   const elementProps = omit(

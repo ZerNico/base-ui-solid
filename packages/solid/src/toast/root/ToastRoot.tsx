@@ -43,7 +43,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
  * Groups all parts of an individual toast.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastRoot(componentProps: ToastRoot.Props) {
   const elementProps = omit(componentProps, 'toast', 'render', 'class', 'swipeDirection', 'style');

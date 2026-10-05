@@ -26,7 +26,7 @@ import { normalizeOTPValueWithDetails, removeOTPCharacter, replaceOTPValue } fro
  * An individual OTP character input.
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI OTP Field](https://base-ui.com/react/components/otp-field)
+ * Documentation: [Base UI OTP Field](https://base-ui-solid.pages.dev/solid/components/otp-field)
  */
 export function OTPFieldInput(componentProps: OTPFieldInput.Props): JSX.Element {
   const elementProps = omit(

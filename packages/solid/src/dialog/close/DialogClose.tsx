@@ -10,7 +10,7 @@ import { REASONS } from '../../internals/reasons';
  * A button that closes the dialog.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogClose(componentProps: DialogClose.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'disabled', 'nativeButton');

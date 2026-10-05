@@ -9,7 +9,7 @@ import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
  * A backdrop for the navigation menu popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuBackdrop(componentProps: NavigationMenuBackdrop.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

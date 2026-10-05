@@ -301,7 +301,7 @@ function ComboboxItemVirtualizedIndex(props: { componentProps: ComboboxItem.Prop
  * An individual item in the list.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxItem(componentProps: ComboboxItem.Props): JSX.Element {
   const store = useComboboxRootContext();

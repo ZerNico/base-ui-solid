@@ -22,7 +22,7 @@ import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLo
  * Positions the popover against the trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
   // `useAnchorPositioning` applies the same defaults to the undefined values; the names

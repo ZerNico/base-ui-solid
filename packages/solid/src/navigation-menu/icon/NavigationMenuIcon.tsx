@@ -8,7 +8,7 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
 /**
  * An icon that indicates that the trigger button opens a menu.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuIcon(componentProps: NavigationMenuIcon.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

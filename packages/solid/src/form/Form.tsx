@@ -16,7 +16,7 @@ import { useValueChanged } from '../internals/useValueChanged';
  * A native form element with consolidated error handling.
  * Renders a `<form>` element.
  *
- * Documentation: [Base UI Form](https://base-ui.com/react/components/form)
+ * Documentation: [Base UI Form](https://base-ui-solid.pages.dev/solid/components/form)
  */
 export function Form<FormValues extends Record<string, any> = Record<string, any>>(
   componentProps: Form.Props<FormValues>,

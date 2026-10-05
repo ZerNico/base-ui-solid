@@ -7,7 +7,7 @@ import { DRAWER_CONTENT_ATTRIBUTE } from './drawerContentAttribute';
  * A container for the drawer contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export const DrawerContent = function DrawerContent(componentProps: DrawerContent.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

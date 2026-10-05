@@ -102,7 +102,7 @@ function MenuRadioItemPlain(componentProps: MenuRadioItem.Props) {
  * A menu item that works like a radio button in a given group.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuRadioItem(incomingProps: MenuRadioItem.Props) {
   const props = stabilizeFilterChildren(incomingProps);

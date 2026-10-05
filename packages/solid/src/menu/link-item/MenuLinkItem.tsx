@@ -83,7 +83,7 @@ function MenuLinkItemPlain(componentProps: MenuLinkItem.Props) {
  * A link in the menu that can be used to navigate to a different page or section.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuLinkItem(incomingProps: MenuLinkItem.Props) {
   const props = stabilizeFilterChildren(incomingProps);

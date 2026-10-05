@@ -25,7 +25,7 @@ const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
  * A panel displayed when the corresponding tab is active.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
+ * Documentation: [Base UI Tabs](https://base-ui-solid.pages.dev/solid/components/tabs)
  */
 export function TabsPanel(componentProps: TabsPanel.Props) {
   const elementProps = omit(componentProps, 'class', 'value', 'render', 'keepMounted', 'style');

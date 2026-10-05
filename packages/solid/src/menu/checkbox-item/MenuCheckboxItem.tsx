@@ -99,7 +99,7 @@ function MenuCheckboxItemPlain(componentProps: MenuCheckboxItem.Props) {
  * A menu item that toggles a setting on or off.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuCheckboxItem(incomingProps: MenuCheckboxItem.Props) {
   const props = stabilizeFilterChildren(incomingProps);

@@ -10,7 +10,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui-solid.pages.dev/solid/components/preview-card)
  */
 export function PreviewCardPortal(props: PreviewCardPortal.Props): JSX.Element {
   const portalProps = omit(props, 'keepMounted');

@@ -17,7 +17,7 @@ import * as ScrollAreaScrollbarCssVars from './ScrollAreaScrollbarCssVars';
  * A vertical or horizontal scrollbar for the scroll area.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
+ * Documentation: [Base UI Scroll Area](https://base-ui-solid.pages.dev/solid/components/scroll-area)
  */
 export function ScrollAreaScrollbar(componentProps: ScrollAreaScrollbar.Props) {
   const elementProps = omit(

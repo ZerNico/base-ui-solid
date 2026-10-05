@@ -9,7 +9,7 @@ import { ComboboxRowContext } from './ComboboxRowContext';
  * Enable `grid` on the root component to turn the listbox into a grid.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxRow(componentProps: ComboboxRow.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

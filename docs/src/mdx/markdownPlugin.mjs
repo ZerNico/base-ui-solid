@@ -7,7 +7,11 @@ export function markdownPlugin() {
     // Keep the package independent of docs deployment configuration.
     transform(code, id) {
       if (id.includes('/packages/solid/src/')) {
-        return code.replaceAll('https://base-ui.com/react/', '/solid/');
+        // Package sources link to the published docs (`pnpm rewrite-docs-links`). Point those links
+        // at the local site, as well as any upstream link that hasn't been rewritten yet.
+        return code
+          .replaceAll('https://base-ui-solid.pages.dev/solid/', '/solid/')
+          .replaceAll('https://base-ui.com/react/', '/solid/');
       }
       return undefined;
     },

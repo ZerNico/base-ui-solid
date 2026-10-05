@@ -7,7 +7,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Groups related select items with the corresponding label.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectGroup(componentProps: SelectGroup.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

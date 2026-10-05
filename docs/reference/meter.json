@@ -77,9 +77,9 @@
     "props": [
       {
         "name": "children",
-        "type": "((formattedValue: string, value: number) => JSX.Element) | null",
+        "type": "((formattedValue: Accessor<string>, value: Accessor<number>) => JSX.Element) | null",
         "default": "-",
-        "description": "-"
+        "description": "A render function is called once with its arguments as accessors, so read them in JSX to keep the content up to date."
       },
       {
         "name": "class",

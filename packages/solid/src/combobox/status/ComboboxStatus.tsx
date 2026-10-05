@@ -13,7 +13,7 @@ import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLive
  * rendering. Prefer updating or conditionally rendering its children instead.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxStatus(componentProps: ComboboxStatus.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

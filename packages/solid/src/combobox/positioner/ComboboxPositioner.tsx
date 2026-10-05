@@ -22,7 +22,7 @@ import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLo
  * Positions the popup against the trigger.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JSX.Element {
   // `useAnchorPositioning` applies the same defaults to the undefined values; the names

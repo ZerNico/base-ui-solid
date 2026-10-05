@@ -9,7 +9,7 @@ import { ToastStore } from '../store';
 /**
  * Provides a context for creating and managing toasts.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastProvider(props: ToastProvider.Props) {
   const timeout = () => props.timeout ?? 5000;

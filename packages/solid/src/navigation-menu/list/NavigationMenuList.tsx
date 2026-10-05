@@ -18,7 +18,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Contains a list of navigation menu items.
  * Renders a `<ul>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

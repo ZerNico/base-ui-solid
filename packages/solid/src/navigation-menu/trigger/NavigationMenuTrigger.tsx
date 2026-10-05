@@ -62,7 +62,7 @@ const DEFAULT_SIZE = { width: 0, height: 0 };
  * associated content.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'nativeButton', 'disabled');

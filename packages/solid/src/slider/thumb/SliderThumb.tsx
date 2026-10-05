@@ -96,7 +96,7 @@ function callEventHandler<E extends Event>(
  * The draggable part of the slider at the tip of the indicator.
  * Renders a `<div>` element and a nested `<input type="range">`.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui-solid.pages.dev/solid/components/slider)
  */
 export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
   const elementProps = omit(

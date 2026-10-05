@@ -9,7 +9,7 @@ import { useMenuGroupRootContext } from '../group/MenuGroupContext';
  * An accessible label that is automatically associated with its parent group.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuGroupLabel(componentProps: MenuGroupLabel.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id');

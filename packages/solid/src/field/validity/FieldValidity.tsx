@@ -12,7 +12,7 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
  *
  * The state is reactive: read it in JSX, don't destructure it.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui-solid.pages.dev/solid/components/field)
  */
 export function FieldValidity(props: FieldValidity.Props): JSX.Element {
   const { validityData, invalid } = useFieldRootContext(false);

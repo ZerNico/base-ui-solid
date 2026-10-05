@@ -10,7 +10,7 @@ import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
  * A positioning container for the dialog popup that can be made scrollable.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogViewport(componentProps: DialogViewport.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

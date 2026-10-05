@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * An element that scrolls the select popup up when hovered. Does not render when using touch input.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectScrollUpArrow(props: SelectScrollUpArrow.Props) {
   return <SelectScrollArrow {...props} direction="up" />;

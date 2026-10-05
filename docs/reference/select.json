@@ -302,9 +302,9 @@
       },
       {
         "name": "children",
-        "type": "JSX.Element | ((value: any) => JSX.Element)",
+        "type": "JSX.Element | ((value: Accessor<any>) => JSX.Element)",
         "default": "-",
-        "description": "Accepts a function that returns a `JSX.Element` to format the selected value.\nTreat the value as read-only: in `multiple` mode it may be a shared frozen array\nwhen nothing is selected."
+        "description": "Accepts a function that returns a `JSX.Element` to format the selected value.\nTreat the value as read-only: in `multiple` mode it may be a shared frozen array\nwhen nothing is selected.\nA render function is called once with its arguments as accessors, so read them in JSX to keep the content up to date."
       },
       {
         "name": "class",

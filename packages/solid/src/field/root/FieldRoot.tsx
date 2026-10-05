@@ -193,7 +193,7 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
  * Groups all parts of the field.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui-solid.pages.dev/solid/components/field)
  */
 export function FieldRoot(componentProps: FieldRoot.Props): JSX.Element {
   return (

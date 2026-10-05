@@ -64,7 +64,7 @@
       },
       {
         "name": "children",
-        "type": "React.ReactNode",
+        "type": "JSX.Element",
         "default": "-",
         "description": "-"
       }
@@ -401,7 +401,7 @@
       },
       {
         "name": "children",
-        "type": "React.ReactNode",
+        "type": "JSX.Element",
         "default": "-",
         "description": "-"
       },
@@ -537,7 +537,7 @@
       },
       {
         "name": "onClick",
-        "type": "((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "type": "((event: BaseUIEvent<MouseEvent>) => void)",
         "default": "-",
         "description": "The click handler for the menu item."
       },
@@ -603,7 +603,7 @@
     "props": [
       {
         "name": "children",
-        "type": "React.ReactNode",
+        "type": "JSX.Element",
         "default": "-",
         "description": "The content of the component."
       },
@@ -780,7 +780,7 @@
       },
       {
         "name": "children",
-        "type": "React.ReactNode",
+        "type": "JSX.Element",
         "default": "-",
         "description": "The content of the submenu."
       }
@@ -813,7 +813,7 @@
       },
       {
         "name": "onClick",
-        "type": "((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "type": "((event: BaseUIEvent<MouseEvent>) => void)",
         "default": "-",
         "description": "-"
       },
@@ -920,7 +920,7 @@
       },
       {
         "name": "children",
-        "type": "React.ReactNode",
+        "type": "JSX.Element",
         "default": "-",
         "description": "The content of the component."
       },
@@ -977,7 +977,7 @@
       },
       {
         "name": "onClick",
-        "type": "((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "type": "((event: BaseUIEvent<MouseEvent>) => void)",
         "default": "-",
         "description": "The click handler for the menu item."
       },
@@ -1140,7 +1140,7 @@
       },
       {
         "name": "onClick",
-        "type": "((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+        "type": "((event: BaseUIEvent<MouseEvent>) => void)",
         "default": "-",
         "description": "The click handler for the menu item."
       },

@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * An accessible label that is automatically associated with its parent group.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectGroupLabel(componentProps: SelectGroupLabel.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id');

@@ -9,7 +9,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
  * Closes the toast when clicked.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastClose(componentProps: ToastClose.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'disabled', 'nativeButton');

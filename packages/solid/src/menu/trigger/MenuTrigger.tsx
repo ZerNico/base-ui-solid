@@ -43,7 +43,7 @@ import { mergePropsSnapshot } from '../../merge-props/mergeProps';
  * A button that opens the menu.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>): JSX.Element {
   const elementProps = omit(

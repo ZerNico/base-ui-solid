@@ -9,7 +9,7 @@ import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
  * An overlay displayed beneath the popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogBackdrop(componentProps: DialogBackdrop.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'forceRender');

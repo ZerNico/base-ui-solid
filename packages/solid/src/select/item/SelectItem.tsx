@@ -25,7 +25,7 @@ import { isVirtualClick } from '../../floating-ui-solid/utils/event';
  * An individual option in the select popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ * Documentation: [Base UI Select](https://base-ui-solid.pages.dev/solid/components/select)
  */
 export function SelectItem(componentProps: SelectItem.Props) {
   const elementProps = omit(

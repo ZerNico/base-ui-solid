@@ -11,7 +11,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
  * Displays an element positioned against the preview card anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui-solid.pages.dev/solid/components/preview-card)
  */
 export function PreviewCardArrow(componentProps: PreviewCardArrow.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

@@ -11,7 +11,7 @@ import { REASONS } from '../../internals/reasons';
  * An overlay displayed beneath the menu popup.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuBackdrop(componentProps: MenuBackdrop.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

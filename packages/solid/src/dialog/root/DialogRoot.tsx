@@ -9,7 +9,7 @@ import { useRenderDialogRoot } from './useRenderDialogRoot';
  * Groups all parts of the dialog.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   return useRenderDialogRoot('dialog', props);

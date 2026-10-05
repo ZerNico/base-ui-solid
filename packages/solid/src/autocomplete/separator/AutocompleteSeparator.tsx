@@ -24,7 +24,7 @@ export interface AutocompleteSeparatorState {
  * A visual separator between items or groups.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Autocomplete](https://base-ui-solid.pages.dev/solid/components/autocomplete)
  */
 export const AutocompleteSeparator = ListboxSeparator as (
   props: AutocompleteSeparatorProps,

@@ -24,7 +24,7 @@ import { DrawerRootContext, useDrawerRootContext } from './DrawerRootContext';
  * Groups all parts of the drawer.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) {
   const parentDrawerRootContext = useDrawerRootContext(true);

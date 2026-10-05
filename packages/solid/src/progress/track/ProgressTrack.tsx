@@ -9,7 +9,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * Contains the progress bar indicator.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui-solid.pages.dev/solid/components/progress)
  */
 export function ProgressTrack(componentProps: ProgressTrack.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

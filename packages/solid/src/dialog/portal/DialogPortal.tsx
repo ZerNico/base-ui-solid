@@ -12,7 +12,7 @@ import { InternalBackdrop } from '../../utils/InternalBackdrop';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogPortal(props: DialogPortal.Props) {
   const portalProps = omit(props, 'keepMounted', 'children');

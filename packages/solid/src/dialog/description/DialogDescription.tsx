@@ -8,7 +8,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * A paragraph with additional information about the dialog.
  * Renders a `<p>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogDescription(componentProps: DialogDescription.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id');

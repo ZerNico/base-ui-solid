@@ -17,7 +17,7 @@ import type { REASONS } from '../../internals/reasons';
  * Groups an accordion header with the corresponding panel.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
+ * Documentation: [Base UI Accordion](https://base-ui-solid.pages.dev/solid/components/accordion)
  */
 export function AccordionItem(componentProps: AccordionItem.Props) {
   const elementProps = omit(

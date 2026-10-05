@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * A heading that labels the drawer.
  * Renders an `<h2>` element.
  *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export const DrawerTitle = DialogTitle as DrawerTitle;
 export interface DrawerTitleProps extends BaseUIComponentProps<'h2', DrawerTitleState> {}

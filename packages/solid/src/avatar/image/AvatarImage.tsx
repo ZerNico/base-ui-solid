@@ -22,7 +22,7 @@ const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
  * The image to be displayed in the avatar.
  * Renders an `<img>` element.
  *
- * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
+ * Documentation: [Base UI Avatar](https://base-ui-solid.pages.dev/solid/components/avatar)
  */
 export function AvatarImage(componentProps: AvatarImage.Props) {
   const elementProps = omit(

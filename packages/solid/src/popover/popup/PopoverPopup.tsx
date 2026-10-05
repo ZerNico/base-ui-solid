@@ -21,7 +21,7 @@ import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/po
  * A container for the popover contents.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverPopup(componentProps: PopoverPopup.Props) {
   const elementProps = omit(

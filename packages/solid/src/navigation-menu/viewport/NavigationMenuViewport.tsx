@@ -121,7 +121,7 @@ function Guards(props: { children?: JSX.Element | undefined }) {
  * The clipping viewport of the navigation menu's current content.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuViewport(componentProps: NavigationMenuViewport.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'children', 'id');

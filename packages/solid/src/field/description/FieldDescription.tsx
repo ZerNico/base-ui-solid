@@ -13,7 +13,7 @@ import { useFieldItemContext } from '../item/FieldItemContext';
  * A paragraph with additional information about the field.
  * Renders a `<p>` element.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui-solid.pages.dev/solid/components/field)
  */
 export function FieldDescription(componentProps: FieldDescription.Props) {
   const elementProps = omit(componentProps, 'render', 'id', 'class', 'style');

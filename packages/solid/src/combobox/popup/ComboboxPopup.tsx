@@ -28,7 +28,7 @@ const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
  * A container for the list.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element {
   const elementProps = omit(

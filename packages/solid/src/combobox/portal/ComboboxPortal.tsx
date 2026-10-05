@@ -10,7 +10,7 @@ import { ComboboxPortalContext } from './ComboboxPortalContext';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxPortal(props: ComboboxPortal.Props): JSX.Element {
   const portalProps = omit(props, 'keepMounted');

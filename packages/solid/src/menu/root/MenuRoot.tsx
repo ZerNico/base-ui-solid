@@ -849,7 +849,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
  * Groups all parts of the menu.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>): JSX.Element {
   const filterProvider = useContext(MenuFilterProviderContext);

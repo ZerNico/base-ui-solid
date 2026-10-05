@@ -30,7 +30,7 @@ const MAX_LAYOUT_ROUNDING_ERROR = 2;
  * A visual indicator that can be styled to match the position of the currently active tab.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
+ * Documentation: [Base UI Tabs](https://base-ui-solid.pages.dev/solid/components/tabs)
  */
 export function TabsIndicator(componentProps: TabsIndicator.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'renderBeforeHydration', 'style');

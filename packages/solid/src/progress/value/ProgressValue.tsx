@@ -10,7 +10,7 @@ import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
  * A text element displaying the current value.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Progress](https://base-ui.com/react/components/progress)
+ * Documentation: [Base UI Progress](https://base-ui-solid.pages.dev/solid/components/progress)
  */
 export function ProgressValue(componentProps: ProgressValue.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'children', 'style');

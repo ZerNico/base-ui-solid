@@ -25,7 +25,7 @@ import { useValueChanged } from '../internals/useValueChanged';
 /**
  * Provides a shared state to a series of checkboxes.
  *
- * Documentation: [Base UI Checkbox Group](https://base-ui.com/react/components/checkbox-group)
+ * Documentation: [Base UI Checkbox Group](https://base-ui-solid.pages.dev/solid/components/checkbox-group)
  */
 export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element {
   const elementProps = omit(

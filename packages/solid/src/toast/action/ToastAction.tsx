@@ -11,7 +11,7 @@ import { useRenderableContent, useToastRenderedElement } from '../utils/useToast
  * Performs an action when clicked.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastAction(componentProps: ToastAction.Props) {
   const elementProps = omit(

@@ -23,10 +23,10 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
  * Renders an `<input>` element.
  *
  * You can omit this part and use any Base UI input component instead. For example,
- * [Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),
- * or [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.
+ * [Input](https://base-ui-solid.pages.dev/solid/components/input), [Checkbox](https://base-ui-solid.pages.dev/solid/components/checkbox),
+ * or [Select](https://base-ui-solid.pages.dev/solid/components/select), among others, will work with Field out of the box.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui-solid.pages.dev/solid/components/field)
  */
 export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
   const elementProps = omit(

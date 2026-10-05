@@ -84,7 +84,7 @@ export interface CreateComboboxItemsOptions<
  * Create static collections at module scope. Wrap dynamic collections in `createMemo()` keyed
  * by their data.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  *
  * @param data The flat or grouped source items, or `undefined` while they are loading.
  * @param options Functions that derive each source item's selection value and display label.

@@ -15,7 +15,7 @@ const TOOLBAR_LINK_METADATA = {
  * A link component.
  * Renders an `<a>` element.
  *
- * Documentation: [Base UI Toolbar](https://base-ui.com/react/components/toolbar)
+ * Documentation: [Base UI Toolbar](https://base-ui-solid.pages.dev/solid/components/toolbar)
  */
 export function ToolbarLink(componentProps: ToolbarLink.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'style');

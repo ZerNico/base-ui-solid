@@ -393,9 +393,9 @@
       },
       {
         "name": "children",
-        "type": "JSX.Element | ((selectedValue: any) => JSX.Element)",
+        "type": "JSX.Element | ((selectedValue: Accessor<any>) => JSX.Element)",
         "default": "-",
-        "description": "Accepts a function that returns a `JSX.Element` to format the selected value.\nTreat the value as read-only: in `multiple` mode it may be a shared frozen array\nwhen nothing is selected."
+        "description": "Accepts a function that returns a `JSX.Element` to format the selected value.\nTreat the value as read-only: in `multiple` mode it may be a shared frozen array\nwhen nothing is selected.\nA render function is called once with its arguments as accessors, so read them in JSX to keep the content up to date."
       }
     ],
     "dataAttributes": [],
@@ -621,9 +621,9 @@
     "props": [
       {
         "name": "children",
-        "type": "JSX.Element | ((item: any, index: number) => JSX.Element)",
+        "type": "JSX.Element | ((item: Accessor<any>, index: Accessor<number>) => JSX.Element)",
         "default": "-",
-        "description": "-"
+        "description": "A render function is called once per item with the item and its index as accessors, like `<For>` with a custom key, so read them in JSX."
       },
       {
         "name": "class",
@@ -1341,9 +1341,9 @@
     "props": [
       {
         "name": "children\\*",
-        "type": "((item: any, index: number) => JSX.Element)",
+        "type": "((item: Accessor<any>, index: Accessor<number>) => JSX.Element)",
         "default": "-",
-        "description": "-"
+        "description": "A render function is called once per item with the item and its index as accessors, like `<For>` with a custom key, so read them in JSX."
       }
     ],
     "dataAttributes": [],

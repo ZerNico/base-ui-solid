@@ -51,7 +51,7 @@ function getItemKey(item: unknown, derivedItems: ComboboxDerivedItemsContext) {
  * `<For>` with a custom key, so a row stays mounted while the list is filtered, reordered or
  * rebuilt with new objects for the same items.
  *
- * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ * Documentation: [Base UI Combobox](https://base-ui-solid.pages.dev/solid/components/combobox)
  */
 export function ComboboxCollection(props: ComboboxCollection.Props): JSX.Element {
   const derivedItems = useComboboxDerivedItemsContext();

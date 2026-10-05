@@ -81,7 +81,7 @@ function getFingerCoords(
  * The clickable, interactive part of the slider.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
+ * Documentation: [Base UI Slider](https://base-ui-solid.pages.dev/solid/components/slider)
  */
 export function SliderControl(componentProps: SliderControl.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

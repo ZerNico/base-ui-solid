@@ -6,7 +6,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastPortal(props: ToastPortal.Props) {
   return <FloatingPortalLite {...props} />;

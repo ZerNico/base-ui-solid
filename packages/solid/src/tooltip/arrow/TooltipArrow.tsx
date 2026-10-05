@@ -11,7 +11,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
  * Displays an element positioned against the tooltip anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui-solid.pages.dev/solid/components/tooltip)
  */
 export function TooltipArrow(componentProps: TooltipArrow.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

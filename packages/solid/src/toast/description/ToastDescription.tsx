@@ -12,7 +12,7 @@ import {
  * Can be used as the default message for the toast when no title is provided.
  * Renders a `<p>` element.
  *
- * Documentation: [Base UI Toast](https://base-ui.com/react/components/toast)
+ * Documentation: [Base UI Toast](https://base-ui-solid.pages.dev/solid/components/toast)
  */
 export function ToastDescription(componentProps: ToastDescription.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id', 'children');

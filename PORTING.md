@@ -75,6 +75,13 @@ What the public API returns (see the Reactivity section of the docs' Composition
   actions, filter methods).
 - Options objects are read lazily, so callers pass getters for reactive options.
 
+### Docs links
+
+JSDoc `Documentation:` links and runtime messages point to the port's docs
+(`https://base-ui-solid.pages.dev/solid/…`), not upstream's `https://base-ui.com/react/…`. After
+porting upstream changes, run `pnpm rewrite-docs-links`. The docs site rewrites both forms to
+local `/solid/…` paths (`docs/src/mdx/markdownPlugin.mjs`).
+
 ### Hooks → primitives
 
 - `useX` functions keep their names and run once per component instance.

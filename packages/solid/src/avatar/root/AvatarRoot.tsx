@@ -8,7 +8,7 @@ import { avatarStateAttributesMapping } from './stateAttributesMapping';
  * Displays a user's profile picture, initials, or fallback icon.
  * Renders a `<span>` element.
  *
- * Documentation: [Base UI Avatar](https://base-ui.com/react/components/avatar)
+ * Documentation: [Base UI Avatar](https://base-ui-solid.pages.dev/solid/components/avatar)
  */
 export function AvatarRoot(componentProps: AvatarRoot.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'style');

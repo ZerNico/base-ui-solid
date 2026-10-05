@@ -9,7 +9,7 @@ import { MenuPortalContext } from './MenuPortalContext';
  * By default, the portal element is appended to `<body>`.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuPortal(props: MenuPortal.Props) {
   const portalProps = omit(props, 'keepMounted');

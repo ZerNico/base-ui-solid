@@ -26,7 +26,7 @@ import type { HTMLProps } from '../../internals/types';
  * Groups all parts of the tooltip.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Tooltip](https://base-ui-solid.pages.dev/solid/components/tooltip)
  */
 export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Element {
   const disabled = () => props.disabled ?? false;

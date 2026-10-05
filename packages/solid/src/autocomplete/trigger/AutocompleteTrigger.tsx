@@ -8,7 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
  * A button that opens the popup.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
+ * Documentation: [Base UI Autocomplete](https://base-ui-solid.pages.dev/solid/components/autocomplete)
  */
 export const AutocompleteTrigger = ComboboxTrigger as AutocompleteTrigger;
 

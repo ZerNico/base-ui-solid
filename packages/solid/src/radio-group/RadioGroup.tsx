@@ -28,7 +28,7 @@ const UNSET = Symbol('unset');
  * Provides shared state to a series of radio buttons.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio-group)
+ * Documentation: [Base UI Radio Group](https://base-ui-solid.pages.dev/solid/components/radio-group)
  */
 export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.Element {
   const elementProps = omit(

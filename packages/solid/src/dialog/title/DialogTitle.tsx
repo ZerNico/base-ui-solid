@@ -8,7 +8,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
  * A heading that labels the dialog.
  * Renders an `<h2>` element.
  *
- * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
+ * Documentation: [Base UI Dialog](https://base-ui-solid.pages.dev/solid/components/dialog)
  */
 export function DialogTitle(componentProps: DialogTitle.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'id');

@@ -11,7 +11,7 @@ import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMou
  * Displays an element pointing toward the navigation menu's current anchor.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
+ * Documentation: [Base UI Navigation Menu](https://base-ui-solid.pages.dev/solid/components/navigation-menu)
  */
 export function NavigationMenuArrow(componentProps: NavigationMenuArrow.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');

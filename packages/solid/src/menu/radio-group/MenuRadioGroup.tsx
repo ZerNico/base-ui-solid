@@ -78,7 +78,7 @@ export function MenuRadioGroupPlain(componentProps: MenuRadioGroup.Props) {
  * Groups related radio items.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuRadioGroup(props: MenuRadioGroup.Props) {
   const RadioGroup = useMenuFilterImpl()?.RadioGroup ?? MenuRadioGroupPlain;

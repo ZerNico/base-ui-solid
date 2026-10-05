@@ -24,7 +24,7 @@ const CURSOR_STYLE = {
  * This component uses the [Pointer Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API), which may prompt the browser to display a related notification. It is disabled
  * in Safari to avoid a layout shift that this notification causes there.
  *
- * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
+ * Documentation: [Base UI Number Field](https://base-ui-solid.pages.dev/solid/components/number-field)
  */
 export function NumberFieldScrubAreaCursor(
   componentProps: NumberFieldScrubAreaCursor.Props,
