@@ -34,9 +34,7 @@ export default function ExampleToggleGroup() {
   );
 }
 
-function AlignLeftIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function AlignLeftIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -45,16 +43,18 @@ function AlignLeftIcon(
       viewBox="0 0 16 16"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="square" stroke-linejoin="round" d="M2.5 4.5h11m-11 7h9M2.5 8h5" />
     </svg>
   );
 }
 
-function AlignCenterIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function AlignCenterIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -62,16 +62,18 @@ function AlignCenterIcon(
       viewBox="0 0 16 16"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="square" stroke-linejoin="round" d="M2.5 4.5h11m-10 7h9M5.5 8h5" />
     </svg>
   );
 }
 
-function AlignRightIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function AlignRightIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -79,7 +81,11 @@ function AlignRightIcon(
       viewBox="0 0 16 16"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="square" stroke-linejoin="round" d="M2.5 4.5h11m-9 7h9M8.5 8h5" />
     </svg>

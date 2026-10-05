@@ -9,7 +9,7 @@ export default function ExampleToolbar() {
     <Toolbar.Root class="flex w-150 items-center gap-px border border-neutral-950 bg-white p-px dark:border-white dark:bg-neutral-950">
       <ToggleGroup class="flex gap-px" aria-label="Alignment">
         <Toolbar.Button
-          render={(props) => <Toggle {...props} style={props.style || undefined} />}
+          render={(props) => <Toggle {...props} />}
           aria-label="Align left"
           value="align-left"
           class="flex h-8 min-w-8 items-center justify-center gap-2 border-0 bg-transparent px-3 font-[inherit] text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
@@ -17,7 +17,7 @@ export default function ExampleToolbar() {
           Align Left
         </Toolbar.Button>
         <Toolbar.Button
-          render={(props) => <Toggle {...props} style={props.style || undefined} />}
+          render={(props) => <Toggle {...props} />}
           aria-label="Align right"
           value="align-right"
           class="flex h-8 min-w-8 items-center justify-center gap-2 border-0 bg-transparent px-3 font-[inherit] text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
@@ -43,7 +43,7 @@ export default function ExampleToolbar() {
       <Toolbar.Separator class="m-1 h-4 w-px bg-neutral-950 dark:bg-white" />
       <Select.Root defaultValue="Helvetica">
         <Toolbar.Button
-          render={(props) => <Select.Trigger {...props} style={props.style || undefined} />}
+          render={(props) => <Select.Trigger {...props} />}
           class="flex h-8 min-w-32 cursor-default items-center justify-between gap-2 border-0 bg-transparent px-2 font-[inherit] text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-100 data-pressed:text-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-pressed:text-white focus-visible:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
         >
           <Select.Value />
@@ -87,9 +87,7 @@ export default function ExampleToolbar() {
   );
 }
 
-function CaretUpDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretUpDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -97,16 +95,18 @@ function CaretUpDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }
 
-function CheckIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CheckIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -115,7 +115,11 @@ function CheckIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="m2.5 8.5 4 4 7-9" />
     </svg>

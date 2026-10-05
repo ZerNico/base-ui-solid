@@ -51,9 +51,7 @@ export default function ExampleSelect() {
   );
 }
 
-function CaretUpDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretUpDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -61,16 +59,18 @@ function CaretUpDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }
 
-function CheckIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CheckIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -79,16 +79,18 @@ function CheckIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }
 
-function CaretUpIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretUpIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -96,16 +98,18 @@ function CaretUpIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M12 10H4l4-4.5z" />
     </svg>
   );
 }
 
-function CaretDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -113,7 +117,11 @@ function CaretDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M12 6H4l4 4.5z" />
     </svg>

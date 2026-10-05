@@ -23,9 +23,7 @@ export default function ExampleMenu() {
   );
 }
 
-function CaretDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -33,7 +31,11 @@ function CaretDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M12 6H4l4 4.5z" />
     </svg>

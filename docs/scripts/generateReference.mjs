@@ -23,6 +23,8 @@ if (process.argv[2] === '--reapply') {
       }
     }),
   );
+  // Keep the `types.md` snapshots in sync with the references.
+  await import('./generateTypesMarkdown.mjs');
   process.exit(0);
 }
 
@@ -107,3 +109,5 @@ await writeFile(
   new URL(`../reference/${name}.json`, import.meta.url),
   `${JSON.stringify(reference, null, 2)}\n`,
 );
+// Keep the `types.md` snapshots in sync with the references.
+await import('./generateTypesMarkdown.mjs');

@@ -96,7 +96,7 @@ function Link(props: NavigationMenu.Link.Props) {
       render={
         // Use the `render` prop to render your framework's Link component
         // for client-side routing.
-        // e.g. `<NextLink href={props.href} />` instead of `<a />`.
+        // e.g. `<A href={props.href} />` from `@solidjs/router` instead of `'a'`.
         'a'
       }
       {...props}
@@ -104,9 +104,7 @@ function Link(props: NavigationMenu.Link.Props) {
   );
 }
 
-function CaretDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -114,16 +112,18 @@ function CaretDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }
 
-function CaretRightIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretRightIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -131,7 +131,11 @@ function CaretRightIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M6 12V4l4.5 4z" />
     </svg>

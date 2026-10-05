@@ -15,9 +15,7 @@ export default function ExampleToggle() {
   );
 }
 
-function HeartFilledIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function HeartFilledIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -25,16 +23,18 @@ function HeartFilledIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M7.99961 13.8667C7.88761 13.8667 7.77561 13.8315 7.68121 13.7611C7.43321 13.5766 1.59961 9.1963 1.59961 5.8667C1.59961 3.80856 3.27481 2.13336 5.33294 2.13336C6.59054 2.13336 7.49934 2.81176 7.99961 3.3131C8.49988 2.81176 9.40868 2.13336 10.6663 2.13336C12.7244 2.13336 14.3996 3.80803 14.3996 5.8667C14.3996 9.1963 8.56601 13.5766 8.31801 13.7616C8.22361 13.8315 8.11161 13.8667 7.99961 13.8667Z" />
     </svg>
   );
 }
 
-function HeartOutlineIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function HeartOutlineIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -42,7 +42,11 @@ function HeartOutlineIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path
         fill-rule="evenodd"

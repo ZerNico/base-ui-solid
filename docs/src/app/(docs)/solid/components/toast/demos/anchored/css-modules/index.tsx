@@ -63,14 +63,7 @@ function CopyButton() {
         class={styles.CopyButton}
         onClick={handleCopy}
         aria-label="Copy to clipboard"
-        render={(props) => (
-          <Button
-            {...props}
-            style={props.style || undefined}
-            disabled={copied()}
-            focusableWhenDisabled
-          />
-        )}
+        render={(props) => <Button {...props} disabled={copied()} focusableWhenDisabled />}
       >
         {copied() ? <CheckIcon /> : <ClipboardIcon />}
       </Tooltip.Trigger>
@@ -128,11 +121,7 @@ function StackedToasts() {
     </Toast.Portal>
   );
 }
-function ClipboardIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & {
-    style?: JSX.CSSProperties;
-  },
-) {
+function ClipboardIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -142,18 +131,18 @@ function ClipboardIcon(
       stroke="currentColor"
       stroke-width="1.5"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
       <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
     </svg>
   );
 }
-function CheckIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & {
-    style?: JSX.CSSProperties;
-  },
-) {
+function CheckIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -162,7 +151,11 @@ function CheckIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="m2.5 8.5 4 4 7-9" />
     </svg>

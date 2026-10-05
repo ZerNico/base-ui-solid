@@ -24,11 +24,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
     </Menu.Root>,
   ];
 }
-function EllipsisHorizontalIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & {
-    style?: JSX.CSSProperties;
-  },
-) {
+function EllipsisHorizontalIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -36,7 +32,11 @@ function EllipsisHorizontalIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <circle cx="3" cy="8" r="1" />
       <circle cx="8" cy="8" r="1" />

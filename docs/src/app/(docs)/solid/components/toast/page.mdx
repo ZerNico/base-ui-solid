@@ -155,7 +155,7 @@ The `data-limited` attribute indicates that the toast exceeded the `limit` optio
 Limited toasts remain mounted with the HTML `inert` attribute, so this is useful for hiding them or animating them differently.
 
 The `updateKey` property increments when a toast is updated or upserted.
-This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a Solid `key`.
+This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by keying a `<Show>` on it (`<Show when={toast.updateKey} keyed>`).
 
 ## Examples
 

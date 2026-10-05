@@ -63,16 +63,16 @@ import { DemoNavigationMenuNestedInline } from './demos/nested-inline';
 
 The `<NavigationMenu.Link>` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
 
-```jsx title="Next.js example"
+```jsx title="Solid Router example"
 // @highlight
-import NextLink from 'next/link';
+import { A } from '@solidjs/router';
 import { NavigationMenu } from 'base-ui-solid/navigation-menu';
 
 function Link(props: NavigationMenu.Link.Props) {
   return (
     <NavigationMenu.Link
       // @highlight
-      render={(renderProps) => <NextLink {...renderProps} href={props.href} />}
+      render={(renderProps) => <A {...renderProps} href={props.href} />}
       {...props}
     />
   );

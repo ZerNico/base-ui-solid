@@ -178,9 +178,7 @@ function getSubmenuOffset({ side }: { side: Menu.Positioner.Props['side'] }) {
   return side === 'top' || side === 'bottom' ? 4 : -4;
 }
 
-function CaretDownIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretDownIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -188,16 +186,18 @@ function CaretDownIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }
 
-function ClearIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function ClearIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -206,16 +206,18 @@ function ClearIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="m3.5 3.5 9 9m0-9-9 9" />
     </svg>
   );
 }
 
-function CaretRightIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CaretRightIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -223,16 +225,18 @@ function CaretRightIcon(
       viewBox="0 0 16 16"
       fill="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }
 
-function CheckIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function CheckIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -241,7 +245,11 @@ function CheckIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path d="m2.5 8.5 4 4 7-9" />
     </svg>

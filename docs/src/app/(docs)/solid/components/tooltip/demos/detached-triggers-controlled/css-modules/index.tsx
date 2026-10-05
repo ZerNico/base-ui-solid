@@ -77,9 +77,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
   );
 }
 
-function HeadphonesIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function HeadphonesIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -88,7 +86,11 @@ function HeadphonesIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="round" d="M1.5 11V7.5c0-2.5 2.5-6 6.5-6s6.5 3.5 6.5 6V11" />
       <path d="M12 7.5c1.3807 0 2.5 1.11929 2.5 2.5v2c0 1.3807-1.1193 2.5-2.5 2.5h-1.5v-7zm-8 0h1.5v7H4c-1.38071 0-2.5-1.1193-2.5-2.5v-2c0-1.38071 1.11929-2.5 2.5-2.5Z" />
@@ -96,9 +98,7 @@ function HeadphonesIcon(
   );
 }
 
-function StopwatchIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function StopwatchIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -107,7 +107,11 @@ function StopwatchIcon(
       fill="none"
       stroke="currentColor"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <circle cx="8" cy="8.5" r="6" />
       <path
@@ -119,9 +123,7 @@ function StopwatchIcon(
   );
 }
 
-function TrashIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function TrashIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -131,7 +133,11 @@ function TrashIcon(
       stroke="currentColor"
       stroke-linejoin="round"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="square" d="M2.5 4h11" />
       <path stroke-linecap="round" d="M6.5 4V3c0-.82843.67157-1.5 1.5-1.5s1.5.67157 1.5 1.5v1" />

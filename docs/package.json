@@ -15,6 +15,7 @@
     "links": "node scripts/checkLinks.mjs",
     "smoke": "node scripts/smoke.mjs",
     "generate-reference": "node scripts/generateReference.mjs",
+    "generate-types-md": "node scripts/generateTypesMarkdown.mjs",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test --silent=false",
     "test:chromium": "cross-env VITEST_ENV=chromium pnpm test --silent=false",
     "smoke:all": "node scripts/smokeAll.mjs",

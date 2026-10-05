@@ -44,7 +44,8 @@ Use the `render` prop and set `nativeButton={false}` on `<Tabs.Tab>` to render t
 
 ```jsx title="Tabs as links"
 import { Tabs } from 'base-ui-solid/tabs';
-import Link from 'next/link';
+// Your router's link component, for example `A` from `@solidjs/router`
+import { Link } from './router';
 
 <Tabs.Root>
   <Tabs.List>

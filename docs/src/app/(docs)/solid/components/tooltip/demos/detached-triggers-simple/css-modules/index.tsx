@@ -25,9 +25,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   );
 }
 
-function TrashIcon(
-  props: Omit<JSX.IntrinsicElements['svg'], 'style'> & { style?: JSX.CSSProperties },
-) {
+function TrashIcon(props: JSX.IntrinsicElements['svg']) {
   return (
     <svg
       width="16"
@@ -37,7 +35,11 @@ function TrashIcon(
       stroke="currentColor"
       stroke-linejoin="round"
       {...props}
-      style={{ display: 'block', ...props.style }}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
     >
       <path stroke-linecap="square" d="M2.5 4h11" />
       <path stroke-linecap="round" d="M6.5 4V3c0-.82843.67157-1.5 1.5-1.5s1.5.67157 1.5 1.5v1" />

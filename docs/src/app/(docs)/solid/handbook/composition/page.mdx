@@ -20,7 +20,7 @@ The code snippet below shows how to use a custom button instead.
 </Menu.Trigger>
 ```
 
-The custom component must forward the `ref`, and spread all the received props on its underlying DOM node.
+The custom component must spread all the received props on its underlying DOM node. This includes the `ref` callback, so don't omit `ref` from the spread.
 
 ## Composing multiple components
 
@@ -108,6 +108,31 @@ const toastManager = useToastManager();
 const { add } = toastManager; // methods are safe to destructure
 
 <p dir={direction()}>{toastManager.toasts.length} notifications</p>;
+```
+
+A function child's body runs once and doesn't track, so read its accessors inside the JSX it returns (or in a memo), not at the top of the function.
+This applies to Base UI's function children and to Solid's own:
+
+- `<Show when={payload()}>{(Content) => <Content />}</Show>` passes an accessor of the narrowed value (`Content` here). Call it in the returned JSX, because a variable assigned at the top of the callback keeps the first value.
+- `<For each={items()}>{(item, index) => …}</For>` keys rows by identity: `item` is a plain value and `index` is an accessor.
+  With `keyed={false}`, `item` is an accessor and `index` a plain number. With a key function (`keyed={(item) => item.id}`), both are accessors. Call them where you read them.
+
+```tsx title="Reading accessors in function children"
+<Popover.Root handle={handle}>
+  {({ payload }) => (
+    <Popover.Portal>
+      <Popover.Positioner>
+        <Popover.Popup>
+          <Show when={payload()}>{(Content) => <Dynamic component={Content()} />}</Show>
+        </Popover.Popup>
+      </Popover.Positioner>
+    </Popover.Portal>
+  )}
+</Popover.Root>;
+
+<For each={toastManager.toasts} keyed={(toast) => toast.id}>
+  {(toast) => <Toast.Root toast={toast()} />}
+</For>;
 ```
 
 Props that hand you something are callbacks, like Solid's `ref`: `ref`, `actionsRef` and `inputRef`.
