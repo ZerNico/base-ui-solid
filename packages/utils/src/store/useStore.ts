@@ -64,7 +64,7 @@ export function useStore(
           resolve(a2),
           resolve(a3),
         ),
-      { equals: Object.is },
+      { equals: Object.is, name: 'useStore' },
     );
   }
 
@@ -75,7 +75,7 @@ export function useStore(
       track();
       return selector(store.getSnapshot(), resolve(a1), resolve(a2), resolve(a3));
     },
-    { equals: Object.is },
+    { equals: Object.is, name: 'useStore' },
   );
 }
 

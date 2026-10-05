@@ -18,6 +18,16 @@ import { onCleanupWithWrites } from '../cleanup';
  *   are passed as accessors.
  * - `useState` returns an accessor; selector arguments may be accessors.
  * - `useContextCallback` takes an accessor returning the callback, read when it's called.
+ *
+ * Port note: upstream's `ReactStore` writes synced values (`useSyncedValue`, `useSyncedValues`,
+ * `useSyncedValueWithCleanup`, `useControlledProp`) from layout effects, so selectors see them one
+ * render late. Here the helpers register their accessor as the source of their keys (`register`):
+ * `state` reads the sources when it's read (also on the server), and `useState` tracks them
+ * (`trackSelector`), so selected values update in the same flush as the synced values. Each key
+ * is provided either by the imperative state or by a source, and the last writer wins.
+ * When porting upstream changes to `ReactStore.ts`, a helper that writes a value into the store
+ * from a layout effect becomes a `register` call (with `resetOnCleanup` for a cleanup that resets
+ * the key, `undefinedFallsBack` for a controlled prop). Imperative methods port unchanged.
  */
 export class SolidStore<
   State extends object,
@@ -40,6 +50,8 @@ export class SolidStore<
     this.winners = new Map();
     this.snapshot = undefined;
     this.lastNotified = this.base;
+    this.keyVersions = new Map();
+    this.pendingLate = new Set();
     this.version = isServer
       ? undefined
       : createSignal(undefined, { equals: false, ownedWrite: true, name: 'SolidStore.version' });
@@ -72,8 +84,14 @@ export class SolidStore<
   /** The snapshot passed to the subscribers last. */
   declare private lastNotified: State;
 
-  /** Changes when `base` changes or a source registers or unregisters. Client only. */
+  /** Changes on every imperative write. Client only. */
   declare private version: Signal<undefined> | undefined;
+
+  /** Change when a source of the key registers or unregisters. Created when a key is tracked. */
+  declare private keyVersions: Map<keyof State, Signal<undefined>>;
+
+  /** Sources whose `late` signal is written in the next microtask. */
+  declare private pendingLate: Set<Source<State>>;
 
   /**
    * The current state of the store: the imperative state, with the keys provided by registered
@@ -84,7 +102,7 @@ export class SolidStore<
    * instead (see `register`), so the snapshot is resolved when read: imperative writes are visible
    * right away (like upstream), and synced values are visible as soon as Solid committed them,
    * also during server rendering. The snapshot keeps its identity until a value changes. The
-   * read is not tracked: use `useState`/`useStore` (or `track()`) to subscribe.
+   * read is not tracked: use `useState`/`useStore` (or `trackSelector`) to subscribe.
    */
   // @ts-expect-error `Store` declares `state` as a field. The accessor replaces it, including for
   // `Store`'s constructor, which calls the setter.
@@ -128,11 +146,12 @@ export class SolidStore<
 
   /**
    * Runs `selector` on the current state and, in a reactive scope, subscribes to the result:
-   * - to imperative changes and to sources registering or unregistering,
-   * - to the sources of the keys the selector read, in the same flush as they change,
-   * - to the other sources after the flush they changed in, since a selector can also read values
-   *   that aren't in the state (an element's `id`), which upstream reads again whenever the store
-   *   changes.
+   * - to every imperative write (`setState`, `set`, `update`, `notifyAll`), like upstream re-runs
+   *   every selector on every change (selectors can read values outside the state, such as an
+   *   element's `id` or another store),
+   * - to the sources of the keys the selector read, in the same flush as they change, and to them
+   *   registering or unregistering,
+   * - to the other sources after the flush they changed in (in a microtask), for the same reason.
    *
    * Port note: Solid-only. `useStore` calls it in place of subscribing a listener, so a selected
    * value updates in the same flush as the synced values it's computed from. Sources often read
@@ -145,11 +164,11 @@ export class SolidStore<
     a2?: unknown,
     a3?: unknown,
   ): Value {
-    this.version?.[0]();
     const snapshot = this.state;
-    if (this.version === undefined || this.sources.size === 0) {
+    if (this.version === undefined) {
       return selector(snapshot, a1, a2, a3);
     }
+    this.version[0]();
 
     const readSources = new Set<Source<State>>();
     // A new view each time, so memoized selectors (keyed by the state object) read the keys
@@ -241,7 +260,7 @@ export class SolidStore<
       keySources.push(source);
     }
     this.dirty = true;
-    this.bumpVersion();
+    this.bumpKeyVersions(source.keys);
 
     // Subscribers (`subscribe`, `observe`) and the selectors that didn't read this source's keys
     // are notified after the flush that committed the new value, like upstream's layout effect
@@ -252,7 +271,7 @@ export class SolidStore<
       if (registering) {
         registering = false;
       } else {
-        source.late?.[1](undefined);
+        this.scheduleLate(source);
       }
       this.notifyIfChanged();
     });
@@ -280,8 +299,30 @@ export class SolidStore<
       }
     }
     this.dirty = true;
-    this.bumpVersion();
+    this.bumpKeyVersions(source.keys);
     this.notifyIfChanged();
+  }
+
+  /**
+   * Re-runs the selectors that didn't read the source's keys, after the current flush settled.
+   * They only need it when they read values outside the state, which upstream reads again on the
+   * next store change. Their value is otherwise unchanged, so it isn't written from the effect,
+   * where Solid would report it as a relay.
+   */
+  private scheduleLate(source: Source<State>) {
+    if (source.late === undefined) {
+      return;
+    }
+    this.pendingLate.add(source);
+    if (this.pendingLate.size === 1) {
+      queueMicrotask(() => {
+        const sources = [...this.pendingLate];
+        this.pendingLate.clear();
+        for (const pendingSource of sources) {
+          pendingSource.late![1](undefined);
+        }
+      });
+    }
   }
 
   private notifyIfChanged() {
@@ -293,6 +334,16 @@ export class SolidStore<
 
   private bumpVersion() {
     this.version?.[1](undefined);
+  }
+
+  /**
+   * Notifies the selectors that read these keys that their sources changed. Only those: parts
+   * register and unregister while they mount and unmount, which can happen in an effect.
+   */
+  private bumpKeyVersions(keys: Array<keyof State>) {
+    for (const key of keys) {
+      this.keyVersions.get(key)?.[1](undefined);
+    }
   }
 
   /**
@@ -309,6 +360,16 @@ export class SolidStore<
    * which also brings them up to date during a flush.
    */
   private readTracked(target: State, key: keyof State, readSources: Set<Source<State>>) {
+    let keyVersion = this.keyVersions.get(key);
+    if (keyVersion === undefined) {
+      keyVersion = createSignal(undefined, {
+        equals: false,
+        ownedWrite: true,
+        name: 'SolidStore.keyVersion',
+      });
+      this.keyVersions.set(key, keyVersion);
+    }
+    keyVersion[0]();
     const keySources = this.keySources.get(key);
     if (keySources === undefined) {
       return target[key];
@@ -636,7 +697,7 @@ interface Source<State> {
   seenStamp: number;
   undefinedFallsBack: boolean;
   resetOnCleanup: boolean;
-  /** Changes after the flush in which `part` changed. Client only. */
+  /** Changes after the flush in which `part` changed (see `scheduleLate`). Client only. */
   late: Signal<undefined> | undefined;
 }
 

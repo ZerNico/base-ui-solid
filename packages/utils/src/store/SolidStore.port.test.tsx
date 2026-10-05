@@ -181,7 +181,7 @@ describe('SolidStore (port)', () => {
       expect(notified).toEqual([1, 2]);
     });
 
-    it('trackSelector() subscribes to the sources of the keys read', () => {
+    it('trackSelector() subscribes to the sources of the keys read', async () => {
       const store = new TestStore(initialState);
       const [value, setValue] = createSignal(1);
       const [label, setLabel] = createSignal('a');
@@ -205,9 +205,12 @@ describe('SolidStore (port)', () => {
       expect(selected()).toEqual([2, 2]);
       expect(valueRuns).toBe(runs + 1);
 
-      // A source of another key re-runs it once, after the flush (a selector can read values
-      // that aren't in the state), without changing its value.
+      // A source of another key doesn't re-run it in the same flush. It re-runs once afterwards
+      // (a selector can read values that aren't in the state), without changing its value.
       setLabel('b');
+      flush();
+      expect(valueRuns).toBe(runs + 1);
+      await Promise.resolve();
       flush();
       expect(valueRuns).toBe(runs + 2);
       expect(selected()).toEqual([2, 2]);
