@@ -1009,12 +1009,11 @@ describe('<Menu.Root />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
-        // Port note: initial popup focus is scheduled after positioning.
-        await waitFor(() =>
-          expect(screen.getByTestId('menu')).toContainElement(
-            document.activeElement as HTMLElement,
-          ),
-        );
+        const menu = await screen.findByTestId('menu');
+        // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
+        await waitFor(() => {
+          expect(menu).toHaveFocus();
+        });
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
@@ -1025,11 +1024,9 @@ describe('<Menu.Root />', () => {
         });
         await user.keyboard('[ArrowRight]');
         await screen.findByTestId('submenu');
-        await waitFor(() =>
-          expect(screen.getByTestId('submenu')).toContainElement(
-            document.activeElement as HTMLElement,
-          ),
-        );
+        await waitFor(() => {
+          expect(screen.getByTestId('item-4_1')).toHaveFocus();
+        });
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('nested-submenu-trigger');
@@ -1041,10 +1038,10 @@ describe('<Menu.Root />', () => {
         const outside = screen.getByTestId('outside');
         await user.click(outside);
         await waitFor(() => {
-          expect(screen.queryByTestId('level-1')).toBe(null);
-          expect(screen.queryByTestId('level-2')).toBe(null);
-          expect(screen.queryByTestId('level-3')).toBe(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
+        expect(screen.queryByTestId('submenu')).toBe(null);
+        expect(screen.queryByTestId('nested-submenu')).toBe(null);
       });
       it.skipIf(isJSDOM)(
         'calls onOpenChange with false exactly once per menu when a submenu item is clicked',
@@ -1095,12 +1092,11 @@ describe('<Menu.Root />', () => {
           );
           const trigger = screen.getByRole('button', { name: 'Toggle' });
           await user.click(trigger);
-          // Port note: initial popup focus is scheduled after the positioning frame.
-          await waitFor(() =>
-            expect(screen.getByTestId('menu')).toContainElement(
-              document.activeElement as HTMLElement,
-            ),
-          );
+          const menu = await screen.findByTestId('menu');
+          // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
+          await waitFor(() => {
+            expect(menu).toHaveFocus();
+          });
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
@@ -1111,11 +1107,9 @@ describe('<Menu.Root />', () => {
           });
           await user.keyboard('[ArrowRight]');
           const nestedSubmenuTrigger = await screen.findByTestId('nested-submenu-trigger');
-          await waitFor(() =>
-            expect(screen.getByTestId('submenu')).toContainElement(
-              document.activeElement as HTMLElement,
-            ),
-          );
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
           await user.keyboard('[ArrowDown]');
           await user.keyboard('[ArrowDown]');
           await waitFor(() => {
@@ -1123,11 +1117,9 @@ describe('<Menu.Root />', () => {
           });
           await user.keyboard('[ArrowRight]');
           await screen.findByTestId('nested-submenu');
-          await waitFor(() =>
-            expect(screen.getByTestId('nested-submenu')).toContainElement(
-              document.activeElement as HTMLElement,
-            ),
-          );
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_3_1')).toHaveFocus();
+          });
           await user.keyboard('[ArrowLeft]');
           await waitFor(() => {
             expect(screen.queryByTestId('nested-submenu')).toBe(null);

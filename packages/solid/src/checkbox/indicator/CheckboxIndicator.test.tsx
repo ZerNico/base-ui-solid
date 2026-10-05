@@ -1,6 +1,6 @@
 import { expect, describe, beforeEach, it, afterEach } from 'vitest';
-import { createSignal, For } from 'solid-js';
-import { isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
+import { createSignal, flush, For } from 'solid-js';
+import { fireEvent, isJSDOM, render, screen, waitFor, describeConformance } from '#test-utils';
 import { Checkbox } from '..';
 import { CheckboxRootContext } from '../root/CheckboxRootContext';
 import type { CheckboxRootState } from '../root/CheckboxRoot';
@@ -255,7 +255,7 @@ describe('<Checkbox.Indicator />', () => {
 
       const [checked, setChecked] = createSignal(true);
 
-      const { user } = await render(() => (
+      await render(() => (
         <div>
           {/* eslint-disable-next-line solid/no-innerhtml */}
           <style innerHTML={style} />
@@ -267,13 +267,11 @@ describe('<Checkbox.Indicator />', () => {
       ));
       expect(screen.getByTestId('indicator')).not.toBe(null);
 
-      await user.click(screen.getByText('Uncheck'));
+      // `user.click` can yield a frame, which is long enough for the 1ms animation to finish.
+      fireEvent.click(screen.getByText('Uncheck'));
+      flush();
 
-      await waitFor(() => {
-        const indicator = screen.queryByTestId('indicator');
-        expect(indicator).not.toBe(null);
-        expect(indicator).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

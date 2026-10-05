@@ -706,11 +706,11 @@ describe('<MenuRoot />', () => {
         );
         const trigger = screen.getByRole('button', { name: 'Trigger 1' });
         await user.click(trigger);
-        const focusedPopuplevel1 = await screen.findByTestId('level-1');
-        // Port note: Solid schedules opening focus after positioning.
-        await waitFor(() =>
-          expect(focusedPopuplevel1).toContainElement(document.activeElement as HTMLElement),
-        );
+        await screen.findByTestId('level-1');
+        // The menu focuses itself a frame after opening; keys sent earlier go to the trigger.
+        await waitFor(() => {
+          expect(screen.getByRole('menu')).toHaveFocus();
+        });
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         const submenuTrigger1 = await screen.findByTestId('submenu-trigger-1');
@@ -718,11 +718,10 @@ describe('<MenuRoot />', () => {
           expect(submenuTrigger1).toHaveFocus();
         });
         await user.keyboard('[ArrowRight]');
-        const focusedPopuplevel2 = await screen.findByTestId('level-2');
-        // Port note: Solid schedules opening focus after positioning.
-        await waitFor(() =>
-          expect(focusedPopuplevel2).toContainElement(document.activeElement as HTMLElement),
-        );
+        await screen.findByTestId('level-2');
+        await waitFor(() => {
+          expect(screen.getByRole('menuitem', { name: 'Item 2' })).toHaveFocus();
+        });
         await user.keyboard('[ArrowDown]');
         const submenuTrigger2 = await screen.findByTestId('submenu-trigger-2');
         await waitFor(() => {
@@ -733,9 +732,9 @@ describe('<MenuRoot />', () => {
         await user.click(screen.getByTestId('outside'));
         await waitFor(() => {
           expect(screen.queryByTestId('level-1')).toBe(null);
-          expect(screen.queryByTestId('level-2')).toBe(null);
-          expect(screen.queryByTestId('level-3')).toBe(null);
         });
+        expect(screen.queryByTestId('level-2')).toBe(null);
+        expect(screen.queryByTestId('level-3')).toBe(null);
       });
       it('allows selecting nested items via click, drag, release', async () => {
         ignoreActWarnings();

@@ -642,6 +642,7 @@ describe('<Combobox.Root />', () => {
         props.onTestFinished(() => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
         });
+        // Long enough that a slow run still reopens before the close finishes.
         const style = `
           @keyframes combobox-close-test {
             to {
@@ -650,7 +651,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const { user } = await render(() => (
@@ -707,7 +708,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const { user } = await render(() => (
@@ -6493,7 +6494,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 200ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const onInputValueChange = vi.fn(
@@ -6562,7 +6563,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 200ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const { user } = await render(() => (
@@ -6679,7 +6680,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const items = ['apple', 'apricot', 'banana'];
@@ -6724,6 +6725,8 @@ describe('<Combobox.Root />', () => {
         });
         expect(screen.getByRole('status')).toHaveTextContent('No matches');
         expect(screen.queryByText('apple')).toBe(null);
+        // The close animation is long so a slow run can't finish it before the checks above.
+        popup.getAnimations().forEach((animation) => animation.finish());
         await waitFor(() => {
           expect(screen.queryByTestId('popup')).toBe(null);
         });
@@ -6748,7 +6751,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const { user } = await render(() => (
@@ -6797,7 +6800,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const items = ['apple', 'apricot', 'banana'];
@@ -6863,7 +6866,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         const onInputValueChange = vi.fn();
@@ -9002,7 +9005,7 @@ describe('<Combobox.Root />', () => {
           }
 
           .animation-test-popup[data-ending-style] {
-            animation: combobox-close-test 100ms linear;
+            animation: combobox-close-test 10s linear;
           }
         `;
         function Test() {

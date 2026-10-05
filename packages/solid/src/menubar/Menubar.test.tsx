@@ -593,9 +593,7 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('share-menu')).not.toBe(null);
         });
-
-        // Port note: Solid commits the popup before its deferred initial-focus task.
-        // Wait for that task, as React's act does before the next keyboard event.
+        // The submenu focuses its first item a frame after opening.
         await waitFor(() => {
           expect(screen.getByTestId('share-item-1')).toHaveFocus();
         });

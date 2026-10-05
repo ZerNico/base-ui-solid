@@ -704,9 +704,10 @@ describe('<Tooltip.Root />', () => {
       it('toggles instant animations for adjacent tooltips only while opening', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
+        // A long transition keeps the exit running until the final assertion, even on slow runs.
         const style = `
           .tooltip {
-            transition: opacity 20ms;
+            transition: opacity 10s;
           }
           .tooltip[data-starting-style],
           .tooltip[data-ending-style] {
@@ -764,23 +765,27 @@ describe('<Tooltip.Root />', () => {
 
         await waitFor(() => {
           expect(secondPopup.dataset.instant).toBe('delay');
-          expect(secondPopup.getAnimations().length).toBe(0);
         });
-
-        // Port note: let the starting frame paint before starting the exit transition.
-        await waitFor(() => expect(secondPopup).not.toHaveAttribute('data-starting-style'));
+        expect(secondPopup.getAnimations().length).toBe(0);
+        // Closing from the starting style would exit from `opacity: 0` and never start a transition.
+        await waitFor(() => {
+          expect(secondPopup).not.toHaveAttribute('data-starting-style');
+        });
+        // Port note: let the frame without the starting style paint before starting the exit
+        // transition.
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => {
             resolve();
           });
         });
+
         await user.unhover(secondTrigger);
 
         await waitFor(() => {
           expect(secondPopup.dataset.endingStyle).toBe('');
-          expect(secondPopup.dataset.instant).toBe(undefined);
-          expect(secondPopup.getAnimations().length).toBe(1);
         });
+        expect(secondPopup.dataset.instant).toBe(undefined);
+        expect(secondPopup.getAnimations().length).toBe(1);
       });
 
       it('unmounts an exiting tooltip when another tooltip opens', async () => {

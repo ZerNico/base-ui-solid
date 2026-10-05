@@ -1,5 +1,5 @@
 import { expect, describe, it, afterEach } from 'vitest';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import {
   fireEvent,
   flushMicrotasks,
@@ -430,16 +430,14 @@ describe('<Field.Error />', () => {
         );
       }
 
-      const { user } = await render(() => <Test />);
+      await render(() => <Test />);
       expect(screen.getByTestId('error')).not.toBe(null);
 
-      await user.click(screen.getByText('Hide'));
+      // `user.click` can yield a frame, which is long enough for the 1ms animation to finish.
+      fireEvent.click(screen.getByText('Hide'));
+      flush();
 
-      await waitFor(() => {
-        const error = screen.queryByTestId('error');
-        expect(error).not.toBe(null);
-        expect(error).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('error')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('error')).toBe(null);
