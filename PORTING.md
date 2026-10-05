@@ -216,6 +216,15 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
   `useControlledProp(key, () => props.open)` and `useSyncedValues(() => ({ a: a(), b: props.b }))`.
   They write in an effect (`useIsoLayoutEffect`), like upstream's layout effects.
+- **Synced and controlled props reach the store one update after the prop.** The effect copies the
+  new value, then store readers (`useState`, selectors, `observe`) re-run in the same flush. For
+  users, store-backed output (`data-*` attributes, popup open state, highlighted items) catches up
+  within the same tick, before paint. Code that reads both a prop and store-derived state in one
+  effect can briefly see them differ. `SolidStore.port.test.tsx` and the components'
+  `*.port.test.tsx` guard the settled result, so fix components individually when the lag shows.
+  The `store-sources` branch explored deriving synced keys from registered sources (no lag) and
+  was not adopted: SolidStore grew about 2.4x, selectors reading outside state needed a microtask
+  re-run, it added more dev diagnostics, and it diverged from upstream's `ReactStore.ts`.
 - `useContextCallback(key, () => props.onOpenChange)` stores a stable function that calls the latest
   callback (replaces `useStableCallback`). `useStateSetter(key)` returns a plain setter.
 - `createSelector` / `createSelectorMemoized` are copied verbatim (reselect-based).
