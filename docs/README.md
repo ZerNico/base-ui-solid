@@ -59,8 +59,9 @@ The docs deploy to Cloudflare Pages, which builds the site from the repository o
   version pinned in `packageManager`)
 
 Like upstream, the live site is built from the `docs-v1` branch, not from `main`, so pushes to
-`main` don't change it. To publish, run the "Deploy docs" workflow in GitHub Actions. It moves
-`docs-v1` to `main` (or another ref you pick), and Cloudflare builds from there. Preview
+`main` don't change it. Pushing a version tag (`v*`, for example `v0.1.0`) publishes that tag.
+To publish without a release, run the "Deploy docs" workflow in GitHub Actions. Both move
+`docs-v1` to the chosen commit, and Cloudflare builds from there. Preview
 deployments for other branches can stay on or be turned off in the Cloudflare project settings.
 
 The Node version comes from `.node-version`. Cloudflare applies `public/_redirects` and
