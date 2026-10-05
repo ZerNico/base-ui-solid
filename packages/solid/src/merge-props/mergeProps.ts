@@ -627,9 +627,15 @@ export function mergeClassNames(
   return ourClassName;
 }
 
-type StyleValue = JSX.CSSProperties | string | undefined;
+type StyleValue = JSX.CSSProperties | string | false | undefined;
 
-export function mergeStyles(ourStyle: StyleValue, theirStyle: StyleValue): StyleValue {
+export function mergeStyles(
+  ourStyleParam: StyleValue,
+  theirStyleParam: StyleValue,
+): JSX.CSSProperties | string | undefined {
+  // `false` sets no style, like on intrinsic elements.
+  const ourStyle = ourStyleParam === false ? undefined : ourStyleParam;
+  const theirStyle = theirStyleParam === false ? undefined : theirStyleParam;
   if (typeof ourStyle === 'string' || typeof theirStyle === 'string') {
     return mergeObjects(parseStyle(ourStyle), parseStyle(theirStyle));
   }
@@ -639,7 +645,7 @@ export function mergeStyles(ourStyle: StyleValue, theirStyle: StyleValue): Style
 /**
  * Converts a `style` string into a Solid style object so that it can be merged.
  */
-function parseStyle(style: StyleValue): JSX.CSSProperties | undefined {
+function parseStyle(style: JSX.CSSProperties | string | undefined): JSX.CSSProperties | undefined {
   if (typeof style !== 'string') {
     return style;
   }

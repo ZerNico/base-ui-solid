@@ -39,9 +39,14 @@ export type ClassProp<State> = JSX.ClassValue | ((state: State) => JSX.ClassValu
 
 /**
  * Value accepted by the `style` prop of Base UI components.
+ * Like on intrinsic elements, `false` sets no style. This lets the props of a `render` function
+ * (whose `style` is Solid's `CSSProperties | string | false`) be spread on another component.
  */
 export type StyleProp<State> =
-  JSX.CSSProperties | string | ((state: State) => JSX.CSSProperties | string | undefined);
+  | JSX.CSSProperties
+  | string
+  | false
+  | ((state: State) => JSX.CSSProperties | string | false | undefined);
 
 /**
  * Value accepted by the `render` prop of Base UI components:
