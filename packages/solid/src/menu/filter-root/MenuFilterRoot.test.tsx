@@ -8,6 +8,7 @@ import {
   resetBrowserPointer,
   waitSingleFrame,
   waitForPositioned,
+  refCallback,
 } from '#test-utils';
 import { createEffect, createSignal, untrack } from 'solid-js';
 
@@ -6142,6 +6143,7 @@ describe('filterable menu navigation regressions', () => {
 describe('custom keyboard shortcuts in a filterable menu', () => {
   const { render } = createRenderer();
   it('moves the highlight from a shortcut bound on the input', async () => {
+    // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
     const actionsRef = portRef<Menu.Root.Actions>();
     const { user } = await render(
       (testProps: any) => <Menu.FilterProvider {...testProps} />,
@@ -6149,7 +6151,7 @@ describe('custom keyboard shortcuts in a filterable menu', () => {
         get children() {
           return (
             <>
-              <Menu.Root open actionsRef={actionsRef}>
+              <Menu.Root open actionsRef={refCallback(actionsRef)}>
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup>

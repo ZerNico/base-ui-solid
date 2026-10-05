@@ -15,6 +15,7 @@ import {
   isJSDOM,
   screen,
   waitFor,
+  refCallback,
 } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
@@ -2038,6 +2039,7 @@ describe('<NavigationMenu.Root />', () => {
 
   describe('prop: actionsRef', () => {
     it('automatically unmounts with an actions ref and completes closing once', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
 
@@ -2045,7 +2047,7 @@ describe('<NavigationMenu.Root />', () => {
         return (
           <TestNavigationMenu
             value={props.value}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
           />
         );
@@ -2073,6 +2075,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps the popup mounted until the unmount action completes closing', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
 
@@ -2080,7 +2083,7 @@ describe('<NavigationMenu.Root />', () => {
         return (
           <TestNavigationMenu
             value={props.value}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
             onValueChange={(value, details) => {
               if (value == null) {
@@ -2119,13 +2122,14 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('closes through the `close` action so `onValueChange` can opt out', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onValueChange = vi.fn();
 
       await render(() => (
         <TestNavigationMenu
           defaultValue="item-1"
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onValueChange={onValueChange}
         />
       ));
@@ -2142,13 +2146,14 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps the opt-out when the `close` action is called again while closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
 
       await render(() => (
         <TestNavigationMenu
           defaultValue="item-1"
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onValueChange={(value, details) => {
             if (value == null) {
@@ -2177,6 +2182,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps the opt-out when focus leaves the trigger during a manual exit', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
 
@@ -2184,7 +2190,7 @@ describe('<NavigationMenu.Root />', () => {
         <div>
           <TestNavigationMenu
             defaultValue="item-1"
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
             onValueChange={(value, details) => {
               if (value == null) {
@@ -2219,12 +2225,13 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('ignores `unmount` while the popup is open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       await render(() => (
         <TestNavigationMenu
           defaultValue="item-1"
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
         />
       ));
@@ -2240,6 +2247,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('still unmounts on a later close after `unmount` was called while open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
 
@@ -2247,7 +2255,7 @@ describe('<NavigationMenu.Root />', () => {
         return (
           <TestNavigationMenu
             value={props.value}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
           />
         );
@@ -2276,13 +2284,14 @@ describe('<NavigationMenu.Root />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       try {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = { current: null as NavigationMenu.Root.Actions | null };
 
         function ControlledNavigationMenu(props: { value: string | null }) {
           return (
             <TestNavigationMenu
               value={props.value}
-              actionsRef={actionsRef}
+              actionsRef={refCallback(actionsRef)}
               onValueChange={(value, details) => {
                 if (value == null) {
                   details.preventUnmountOnClose();

@@ -372,13 +372,14 @@ export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentPro
   NavigationMenuRootState
 > {
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the navigation menu popup after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onValueChange` first, otherwise the navigation menu popup completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the navigation menu imperatively when called.
    */
-  actionsRef?: RefObject<NavigationMenuRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: NavigationMenuRoot.Actions) => void) | undefined;
   /**
    * Event handler called after any animations complete when the navigation menu is closed.
    */

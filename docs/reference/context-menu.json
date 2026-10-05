@@ -28,9 +28,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "React.RefObject<MenuRoot.Actions | null>",
+        "type": "((actions: MenuRoot.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
       },
       {
         "name": "loopFocus",
@@ -141,7 +141,7 @@
     "props": [
       {
         "name": "container",
-        "type": "HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null",
+        "type": "HTMLElement | ShadowRoot | null",
         "default": "-",
         "description": "A parent element to render the portal element into."
       },
@@ -272,7 +272,7 @@
       },
       {
         "name": "anchor",
-        "type": "Element | VirtualElement | React.RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "type": "Element | VirtualElement | (() => Element | VirtualElement | null) | null",
         "default": "-",
         "description": "An element to position the popup against.\nBy default, root context menus are positioned at the pointer, and submenus are positioned\nagainst their trigger."
       },
@@ -395,9 +395,9 @@
     "props": [
       {
         "name": "finalFocus",
-        "type": "boolean | React.RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "type": "boolean | HTMLElement | null | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
         "default": "-",
-        "description": "Determines the element to focus when the menu is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+        "description": "Determines the element to focus when the menu is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back to the default behavior.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
       },
       {
         "name": "children",
@@ -738,9 +738,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "React.RefObject<MenuRoot.Actions | null>",
+        "type": "((actions: MenuRoot.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
       },
       {
         "name": "closeParentOnEsc",

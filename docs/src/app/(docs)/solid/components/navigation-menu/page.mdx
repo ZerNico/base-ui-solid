@@ -114,7 +114,7 @@ Native scrollbars are visible while transitioning content, so we recommend using
 
 The popup stays rendered until its closing animation finishes.
 See [JavaScript animations](/solid/handbook/animation#javascript-animations) for animating it with Motion and for manual control.
-For Navigation Menu, call `eventDetails.preventUnmountOnClose()` in `onValueChange` when the value becomes `null`, and use `actionsRef.current.close()` instead of setting `value` to `null` directly.
+For Navigation Menu, call `eventDetails.preventUnmountOnClose()` in `onValueChange` when the value becomes `null`, and call the `close()` action passed to the `actionsRef` callback instead of setting `value` to `null` directly.
 
 ## API reference
 

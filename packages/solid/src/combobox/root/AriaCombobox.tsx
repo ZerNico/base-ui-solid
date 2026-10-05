@@ -10,6 +10,7 @@ import { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import type { ElementProps } from '../../floating-ui-solid';
 import {
   getOverflowAncestors,
@@ -1639,25 +1640,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     highlightItem,
   };
 
-  // Port note: counterpart of `React.useImperativeHandle(actionsRef, …)`. React assigns the handle
-  // before ancestors' effects run; Solid runs ancestors' effects first, so also assign it on setup.
-  const initialActionsRef = untrack(() => props.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = actions;
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef] as const,
-  );
+  useImperativeHandle(() => props.actionsRef, actions);
 
   const inputProps = createMemo(() => {
     const isGrid = grid();
@@ -2074,7 +2057,8 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    */
   defaultInputValue?: string | number | readonly string[] | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
@@ -2089,7 +2073,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    *   Highlight changes requested through this action report the reason `'imperative-action'`
    *   to `onItemHighlighted`.
    */
-  actionsRef?: RefObject<AriaCombobox.Actions | null> | undefined;
+  actionsRef?: ((actions: AriaCombobox.Actions) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
@@ -2105,9 +2089,9 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
     | ((itemValue: ItemValue | undefined, eventDetails: AriaCombobox.HighlightEventDetails) => void)
     | undefined;
   /**
-   * A ref to the hidden input element.
+   * A ref callback that receives the hidden input element.
    */
-  inputRef?: ((element: HTMLInputElement) => void) | RefObject<HTMLInputElement | null> | undefined;
+  inputRef?: ((element: HTMLInputElement) => void) | undefined;
   /**
    * Whether list items are presented in a grid layout.
    * When enabled, arrow keys navigate across rows and columns inferred from DOM rows.

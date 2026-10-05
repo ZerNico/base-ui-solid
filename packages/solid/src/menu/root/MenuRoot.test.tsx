@@ -17,6 +17,7 @@ import {
   resetBrowserPointer,
   wait,
   waitForPositioned,
+  refCallback,
 } from '#test-utils';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Menu } from 'base-ui-solid/menu';
@@ -1909,6 +1910,7 @@ describe('<Menu.Root />', () => {
     });
     describe('prop: actionsRef', () => {
       it('unmounts the menu when the `unmount` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -1920,7 +1922,7 @@ describe('<Menu.Root />', () => {
           (testProps: any) => <Component {...testProps} />,
           () => ({
             rootProps: {
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChange: (open: boolean, details: Menu.Root.ChangeEventDetails) => {
                 details.preventUnmountOnClose();
               },
@@ -2630,6 +2632,7 @@ describe('<Menu.Root />', () => {
     });
   });
   it('does not leave a tabbable item after tabbing out of a keepMounted menu before close', async () => {
+    // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
     const actionsRef = {
       current: {
         unmount: vi.fn(),
@@ -2645,7 +2648,7 @@ describe('<Menu.Root />', () => {
             <>
               <input />
               <DetachedTriggerMenu
-                rootProps={{ modal: false, actionsRef }}
+                rootProps={{ modal: false, actionsRef: refCallback(actionsRef) }}
                 portalProps={{ keepMounted: true }}
               />
               <input data-testid="after" />
@@ -3231,7 +3234,7 @@ describe('<Menu.Root />', () => {
   describe('actionsRef: highlightItem', () => {
     function TestHighlightMenu(props: { actionsRef: RefObject<Menu.Root.Actions | null> }) {
       return (
-        <Menu.Root actionsRef={props.actionsRef}>
+        <Menu.Root actionsRef={refCallback(props.actionsRef)}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
@@ -3246,6 +3249,7 @@ describe('<Menu.Root />', () => {
       );
     }
     it('moves DOM focus between items', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,
@@ -3263,6 +3267,7 @@ describe('<Menu.Root />', () => {
       await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
     });
     it('wraps around, because Menu loops focus by default', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,
@@ -3281,10 +3286,15 @@ describe('<Menu.Root />', () => {
     });
     it('does not report an imperative reason for a later list change', async () => {
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       function Test(props: { inserted: boolean }) {
         return (
-          <Menu.Root open actionsRef={actionsRef} onItemHighlighted={onItemHighlighted}>
+          <Menu.Root
+            open
+            actionsRef={refCallback(actionsRef)}
+            onItemHighlighted={onItemHighlighted}
+          >
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -3325,12 +3335,13 @@ describe('<Menu.Root />', () => {
     });
     it('reports highlights correctly after onItemHighlighted is removed and added back', async () => {
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       function Test(props: { observed: boolean }) {
         return (
           <Menu.Root
             open
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onItemHighlighted={props.observed ? onItemHighlighted : undefined}
           >
             <Menu.Portal>
@@ -3374,12 +3385,13 @@ describe('<Menu.Root />', () => {
     });
     it('reports clearing a highlight made before onItemHighlighted was added', async () => {
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       function Test(props: { observed: boolean }) {
         return (
           <Menu.Root
             open
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onItemHighlighted={props.observed ? onItemHighlighted : undefined}
           >
             <Menu.Portal>
@@ -3415,11 +3427,12 @@ describe('<Menu.Root />', () => {
     it('returns focus to the popup when the highlight is cleared', async () => {
       const onClick = vi.fn();
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <Menu.Root {...testProps} />,
         () => ({
-          actionsRef,
+          actionsRef: refCallback(actionsRef),
           onItemHighlighted,
           get children() {
             return (
@@ -3467,6 +3480,7 @@ describe('<Menu.Root />', () => {
       // Two calls in one tick: the second item is highlighted but DOM focus is still on the
       // first. The clear must take focus off whichever item holds it, not only the item the
       // highlight currently points at.
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,
@@ -3493,6 +3507,7 @@ describe('<Menu.Root />', () => {
       // Imperative moves apply DOM focus on the next frame. A clear that follows before that
       // frame must cancel it, otherwise the queued focus lands later and its focus handler
       // re-highlights the item that was just cleared.
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,
@@ -3516,6 +3531,7 @@ describe('<Menu.Root />', () => {
       }
     });
     it('does not move focus when the highlight was already cleared', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,
@@ -3537,11 +3553,12 @@ describe('<Menu.Root />', () => {
       // Nested content rendered inline in the popup (a non-portalled popup, a custom panel)
       // lives inside the popup element but is not the highlighted item. Clearing the parent's
       // highlight must not eject focus from it.
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <Menu.Root {...testProps} />,
         () => ({
-          actionsRef,
+          actionsRef: refCallback(actionsRef),
           get children() {
             return (
               <>
@@ -3575,6 +3592,7 @@ describe('<Menu.Root />', () => {
       expect(nestedInput).toHaveFocus();
     });
     it('does nothing while the menu is closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <TestHighlightMenu {...testProps} />,

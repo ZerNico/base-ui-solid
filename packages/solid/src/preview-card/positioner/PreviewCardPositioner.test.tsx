@@ -939,8 +939,8 @@ describe('<PreviewCard.Positioner />', () => {
       document.body.style.margin = '0';
 
       function Test() {
-        // Port note: `React.useRef` becomes a plain ref object filled by the trigger's ref callback.
-        const triggerRef: { current: HTMLAnchorElement | null } = { current: null };
+        // Port note: `React.useRef` becomes a signal set from a ref callback, because the prop takes the element.
+        const [triggerElement, setTriggerElement] = createSignal<HTMLAnchorElement | null>(null);
         const [portalContainer, setPortalContainer] = createSignal<HTMLDivElement | null>(null);
 
         return (
@@ -948,9 +948,7 @@ describe('<PreviewCard.Positioner />', () => {
             <div ref={setPortalContainer} data-testid="portal-container" />
             <PreviewCard.Root>
               <PreviewCard.Trigger
-                ref={(element: HTMLAnchorElement) => {
-                  triggerRef.current = element;
-                }}
+                ref={setTriggerElement}
                 href="#"
                 delay={0}
                 data-testid="trigger"
@@ -960,7 +958,7 @@ describe('<PreviewCard.Positioner />', () => {
               </PreviewCard.Trigger>
               <PreviewCard.Portal keepMounted container={portalContainer()}>
                 <PreviewCard.Positioner
-                  anchor={triggerRef}
+                  anchor={triggerElement()}
                   collisionBoundary={{ x: 0, y: 0, width: 300, height: 120 }}
                   collisionPadding={0}
                   data-testid="positioner"

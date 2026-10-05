@@ -7,7 +7,6 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-solid';
 import type { ClientRectObject } from '../../floating-ui-solid';
@@ -536,13 +535,15 @@ export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopu
    *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-   * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back
+   *   to the default behavior.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
     | boolean
-    | RefObject<HTMLElement | null>
+    | HTMLElement
+    | null
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }

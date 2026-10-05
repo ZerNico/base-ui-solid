@@ -1,7 +1,6 @@
 import { createSignal, untrack } from 'solid-js';
 
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 
 import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -14,12 +13,7 @@ import {
   waitForPositioned,
 } from '#test-utils';
 import { Menu } from 'base-ui-solid/menu';
-import {
-  portRef,
-  portCallback,
-  portForwardRef,
-  createRenderer,
-} from '../../../test/menuPortHelpers';
+import { portCallback, portForwardRef, createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 import { describeMenuConformance } from '../../../test/menuConformance';
 
@@ -290,7 +284,8 @@ describe('<Menu.Positioner />', () => {
   describe.skipIf(isJSDOM)('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {
-        const anchor = portRef<HTMLDivElement | null>(null);
+        // Port note: the prop takes the element, from a signal set by a ref callback.
+        const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
         return (
           <div style={{ margin: '50px' }}>
             <Menu.Root open>
@@ -298,7 +293,7 @@ describe('<Menu.Positioner />', () => {
                 <Menu.Positioner
                   side="bottom"
                   align="start"
-                  anchor={anchor}
+                  anchor={anchorElement()}
                   arrowPadding={0}
                   data-testid="positioner"
                 >
@@ -309,13 +304,7 @@ describe('<Menu.Positioner />', () => {
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.Root>
-            <div
-              data-testid="anchor"
-              style={{ 'margin-top': '100px' }}
-              ref={(el) => {
-                anchor.current = el;
-              }}
-            />
+            <div data-testid="anchor" style={{ 'margin-top': '100px' }} ref={setAnchorElement} />
           </div>
         );
       }
@@ -486,16 +475,17 @@ describe('<Menu.Positioner />', () => {
     });
     it('should react to the anchor changing from a ref to undefined and back', async () => {
       function TestComponent() {
-        const anchorRef = portRef<HTMLDivElement | null>(null);
-        const [currentAnchor, setCurrentAnchor] = createSignal<
-          RefObject<HTMLDivElement | null> | undefined
-        >(untrack(() => anchorRef));
+        // Port note: `anchor` takes the element, from a signal set by a ref callback. A second
+        // signal switches between it and `undefined`.
+        const [anchorRef, setAnchorRef] = createSignal<HTMLDivElement | null>(null);
+        const [useRef, setUseRef] = createSignal(true);
+        const currentAnchor = () => (useRef() ? anchorRef() : undefined);
         return (
           <div style={{ margin: '50px' }}>
-            <button type="button" onClick={() => setCurrentAnchor(undefined)}>
+            <button type="button" onClick={() => setUseRef(false)}>
               undefined
             </button>
-            <button type="button" onClick={() => setCurrentAnchor(anchorRef)}>
+            <button type="button" onClick={() => setUseRef(true)}>
               ref
             </button>
             <Menu.Root open>
@@ -518,9 +508,7 @@ describe('<Menu.Positioner />', () => {
             <div
               data-testid="anchor"
               style={{ 'margin-top': '100px', width: '10px', height: '10px' }}
-              ref={(el) => {
-                anchorRef.current = el;
-              }}
+              ref={setAnchorRef}
             />
           </div>
         );

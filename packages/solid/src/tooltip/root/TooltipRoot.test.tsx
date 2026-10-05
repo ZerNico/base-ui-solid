@@ -12,6 +12,7 @@ import {
   screen,
   waitFor,
   waitForPositioned,
+  refCallback,
 } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
@@ -437,6 +438,7 @@ describe('<Tooltip.Root />', () => {
 
     describe('prop: actionsRef', () => {
       it('unmounts the tooltip when the `unmount` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -447,7 +449,7 @@ describe('<Tooltip.Root />', () => {
         const { user } = await render(() => (
           <TestTooltip
             rootProps={{
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChange: (open, details) => {
                 details.preventUnmountOnClose();
               },
@@ -477,6 +479,7 @@ describe('<Tooltip.Root />', () => {
 
       it('closes the tooltip when the `close` method is called', async () => {
         const onOpenChange = vi.fn();
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -485,7 +488,10 @@ describe('<Tooltip.Root />', () => {
         };
 
         const { user } = await render(() => (
-          <TestTooltip rootProps={{ actionsRef, onOpenChange }} triggerProps={{ delay: 0 }} />
+          <TestTooltip
+            rootProps={{ actionsRef: refCallback(actionsRef), onOpenChange }}
+            triggerProps={{ delay: 0 }}
+          />
         ));
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });

@@ -9,6 +9,7 @@ import {
   screen,
   waitFor,
   describeConformance,
+  refCallback,
 } from '#test-utils';
 import { Form } from '.';
 import { Checkbox } from '../checkbox';
@@ -1097,10 +1098,11 @@ describe('<Form />', () => {
   describe('prop: actionsRef', () => {
     it('validates the form when the `validate` method is called', async () => {
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Form.Actions | null } = { current: null };
         return (
           <div>
-            <Form actionsRef={actionsRef}>
+            <Form actionsRef={refCallback(actionsRef)}>
               <Field.Root name="username">
                 <Field.Control defaultValue="" required />
                 <Field.Error data-testid="error" />
@@ -1132,10 +1134,11 @@ describe('<Form />', () => {
 
     it('validates a field when the `validate` method is called with the field name', async () => {
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Form.Actions | null } = { current: null };
         return (
           <div>
-            <Form actionsRef={actionsRef}>
+            <Form actionsRef={refCallback(actionsRef)}>
               <Field.Root name="username">
                 <Field.Control defaultValue="" required />
                 <Field.Error data-testid="error" />
@@ -1172,6 +1175,7 @@ describe('<Form />', () => {
       const replacementValidate = vi.fn(() => null);
 
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Form.Actions | null } = { current: null };
         const [step, setStep] = createSignal(0);
         const visible = () => step() !== 2;
@@ -1188,7 +1192,7 @@ describe('<Form />', () => {
 
         return (
           <>
-            <Form actionsRef={actionsRef}>
+            <Form actionsRef={refCallback(actionsRef)}>
               <Show when={visible() ? step() : undefined} keyed>
                 {(currentStep) => (
                   <Field.Root name={name(currentStep)} validate={validate(currentStep)}>

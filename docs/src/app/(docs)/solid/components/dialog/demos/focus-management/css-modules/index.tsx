@@ -1,11 +1,12 @@
+import { createSignal } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
 import { Field } from 'base-ui-solid/field';
 import { Fieldset } from 'base-ui-solid/fieldset';
 import styles from './index.module.css';
 
 export default function ExampleDialog() {
-  const initialFocusRef = { current: null } as { current: HTMLInputElement | null };
-  const finalFocusRef = { current: null } as { current: HTMLButtonElement | null };
+  const [initialFocusElement, setInitialFocusElement] = createSignal<HTMLElement | null>(null);
+  const [finalFocusElement, setFinalFocusElement] = createSignal<HTMLElement | null>(null);
 
   return (
     <div class={styles.Container}>
@@ -15,8 +16,8 @@ export default function ExampleDialog() {
           <Dialog.Backdrop class={styles.Backdrop} />
           <Dialog.Popup
             class={styles.Popup}
-            initialFocus={() => initialFocusRef.current}
-            finalFocus={() => finalFocusRef.current}
+            initialFocus={initialFocusElement()}
+            finalFocus={finalFocusElement()}
           >
             <div class={styles.Intro}>
               <Dialog.Title class={styles.Title}>Feedback form</Dialog.Title>
@@ -32,9 +33,7 @@ export default function ExampleDialog() {
               <Field.Root class={styles.Field}>
                 <Field.Label class={styles.Label}>Feedback</Field.Label>
                 <Field.Control
-                  ref={(element) => {
-                    initialFocusRef.current = element as HTMLInputElement;
-                  }}
+                  ref={setInitialFocusElement}
                   required
                   placeholder="Enter your feedback"
                   class={styles.Input}
@@ -47,13 +46,7 @@ export default function ExampleDialog() {
           </Dialog.Popup>
         </Dialog.Portal>
       </Dialog.Root>
-      <button
-        ref={(element) => {
-          finalFocusRef.current = element;
-        }}
-        type="button"
-        class={styles.Button}
-      >
+      <button ref={setFinalFocusElement} type="button" class={styles.Button}>
         Final focus
       </button>
     </div>

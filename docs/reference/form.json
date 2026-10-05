@@ -10,9 +10,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<Form.Actions | null>",
+        "type": "((actions: Form.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `validate`: Validates all fields when called. Optionally pass a field name to validate a single field."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `validate`: Validates all fields when called. Optionally pass a field name to validate a single field."
       },
       {
         "name": "onFormSubmit",

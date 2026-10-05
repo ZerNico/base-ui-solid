@@ -1,7 +1,7 @@
 import { Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { useDismiss, FloatingTree } from '../../floating-ui-solid';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -59,28 +59,11 @@ function PopoverRootComponent<Payload>(componentProps: {
     () => [open()],
   );
 
-  // Port note: `React.useImperativeHandle(props.actionsRef, …)`. React assigns the handle before
-  // ancestors' effects run; Solid runs ancestors' effects first, so it's also assigned on setup.
   const actions: PopoverRoot.Actions = {
     unmount: forceUnmount,
     close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
   };
-  const initialActionsRef = untrack(() => props.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = actions;
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef],
-  );
+  useImperativeHandle(() => props.actionsRef, actions);
 
   const shouldRenderInteractions = () => open() || mounted();
 
@@ -201,13 +184,14 @@ export interface PopoverRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the popover after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the popover completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the popover imperatively when called.
    */
-  actionsRef?: RefObject<PopoverRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: PopoverRoot.Actions) => void) | undefined;
   /**
    * Determines if the popover enters a modal state when open.
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.

@@ -5,6 +5,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { useFloatingParentNodeIdAccessor } from '../../floating-ui-solid/components/FloatingTree';
 import {
   FloatingTree,
@@ -603,23 +604,11 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     },
   });
 
-  // Port note: counterpart of `React.useImperativeHandle(actionsRef, …)`.
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = {
-        unmount: forceUnmount,
-        close: handleImperativeClose,
-        highlightItem: listNavigation.highlightItem,
-      };
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef] as const,
-  );
+  useImperativeHandle(() => props.actionsRef, {
+    unmount: forceUnmount,
+    close: handleImperativeClose,
+    highlightItem: listNavigation.highlightItem,
+  });
 
   const onTyping = (nextTyping: boolean) => {
     store.context.typingRef.current = nextTyping;
@@ -996,7 +985,8 @@ export interface MenuRootProps<Payload = unknown> {
    */
   closeParentOnEsc?: boolean | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.
    *   Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
    *   Whether it leaves the DOM is decided by `keepMounted` on the portal.
@@ -1010,7 +1000,7 @@ export interface MenuRootProps<Payload = unknown> {
    *   Highlight changes requested through this action report the reason `'imperative-action'`
    *   to `onItemHighlighted`.
    */
-  actionsRef?: RefObject<MenuRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: MenuRoot.Actions) => void) | undefined;
   /**
    * ID of the trigger that the menu is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled menu.

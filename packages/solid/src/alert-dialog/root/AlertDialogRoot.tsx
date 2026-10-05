@@ -1,4 +1,3 @@
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
@@ -26,13 +25,14 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
   onOpenChange?:
     ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void) | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the alert dialog after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the alert dialog completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the alert dialog imperatively when called.
    */
-  actionsRef?: RefObject<AlertDialogRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: AlertDialogRoot.Actions) => void) | undefined;
   /**
    * A handle to associate the alert dialog with a trigger.
    * If specified, allows external triggers to control the alert dialog's open state.

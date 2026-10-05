@@ -1,6 +1,6 @@
 import { Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
@@ -73,28 +73,11 @@ export function useRenderDialogRoot<Payload>(
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
 
-  // Port note: counterpart of `React.useImperativeHandle`. React assigns the handle before
-  // ancestors' effects run; Solid runs ancestors' effects first, so it's also assigned on setup.
   const actions: DialogRootActions = {
     unmount: forceUnmount,
     close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
   };
-  const initialActionsRef = untrack(() => props.actionsRef);
-  if (initialActionsRef) {
-    initialActionsRef.current = actions;
-  }
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = actions;
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef],
-  );
+  useImperativeHandle(() => props.actionsRef, actions);
 
   // Port note: upstream renders `<PopupHandleAttachment>` first so its layout effect runs before
   // descendant layout effects. Solid creates the Root's JSX children after the Root's later

@@ -1,7 +1,7 @@
 import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { useDismiss, FloatingTree } from '../../floating-ui-solid';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -61,22 +61,10 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     () => [store, activeTriggerId(), open()] as const,
   );
 
-  // Port note: counterpart of `React.useImperativeHandle(actionsRef, …)`.
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = {
-        unmount: forceUnmount,
-        close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-      };
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef, store] as const,
-  );
+  useImperativeHandle(() => props.actionsRef, {
+    unmount: forceUnmount,
+    close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+  });
 
   // Port note: detached triggers registered before this Root migrate in Solid's effect
   // order. Preserve their original registration order when assigning default-open ownership.
@@ -188,13 +176,14 @@ export interface PreviewCardRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the preview card after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the preview card completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the preview card imperatively when called.
    */
-  actionsRef?: RefObject<PreviewCardRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: PreviewCardRoot.Actions) => void) | undefined;
   /**
    * A handle to associate the preview card with a trigger.
    * If specified, allows external triggers to control the card's open state.

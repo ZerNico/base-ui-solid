@@ -80,7 +80,10 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
       ] as const)(
         'preserves the tab destination after the exit transition with finalFocus as a %s and trigger tabIndex=%s',
         async (finalFocusType, tabIndex) => {
-          const finalFocusRef: { current: HTMLButtonElement | null } = { current: null };
+          // Port note: `finalFocus` takes the element, from a signal set by a ref callback.
+          const [finalFocusElement, setFinalFocusElement] = createSignal<HTMLButtonElement | null>(
+            null,
+          );
 
           await render(() => (
             <div>
@@ -92,16 +95,10 @@ describe.skipIf(isJSDOM)('useTriggerFocusGuards', () => {
               <TestPopup
                 tabIndex={tabIndex}
                 class="popup"
-                finalFocus={finalFocusType === 'ref' ? finalFocusRef : () => true}
+                finalFocus={finalFocusType === 'ref' ? finalFocusElement() : () => true}
               />
               <button data-testid="after">After</button>
-              <button
-                ref={(element) => {
-                  finalFocusRef.current = element;
-                }}
-              >
-                Final focus
-              </button>
+              <button ref={setFinalFocusElement}>Final focus</button>
             </div>
           ));
 

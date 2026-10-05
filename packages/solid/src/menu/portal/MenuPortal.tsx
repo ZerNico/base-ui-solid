@@ -1,5 +1,4 @@
 import { omit, Show } from 'solid-js';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { FloatingPortal } from '../../floating-ui-solid';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -48,8 +47,7 @@ export interface MenuPortalProps extends BaseUIComponentProps<'div', MenuPortalS
   /**
    * A parent element to render the portal element into.
    */
-  container?:
-    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+  container?: HTMLElement | ShadowRoot | null | undefined;
 }
 
 export namespace MenuPortal {

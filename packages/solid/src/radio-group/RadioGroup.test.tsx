@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
 import { Portal } from '@solidjs/web';
-import { fireEvent, render, screen, describeConformance, isJSDOM } from '#test-utils';
+import { fireEvent, render, screen, describeConformance, isJSDOM, refCallback } from '#test-utils';
 import { RadioGroup } from '.';
 import { Radio } from '../radio';
 import { Field } from '../field';
@@ -313,10 +313,11 @@ describe('<RadioGroup />', () => {
   });
 
   it('points inputRef to the checked radio input when present', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
 
     await render(() => (
-      <RadioGroup defaultValue="a" inputRef={groupInputRef}>
+      <RadioGroup defaultValue="a" inputRef={refCallback(groupInputRef)}>
         <Radio.Root value="a" data-testid="radio-a" />
         <Radio.Root value="b" data-testid="radio-b" />
       </RadioGroup>
@@ -336,10 +337,11 @@ describe('<RadioGroup />', () => {
   it('allows reading inputRef.current in an effect', async () => {
     // Port note: upstream reads the ref in a parent `useLayoutEffect`; the closest Solid
     // equivalent is reading it once the initial render has settled.
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const inputRef = { current: null as HTMLInputElement | null };
 
     await render(() => (
-      <RadioGroup defaultValue="a" inputRef={inputRef}>
+      <RadioGroup defaultValue="a" inputRef={refCallback(inputRef)}>
         <Radio.Root value="a" />
         <Radio.Root value="b" />
       </RadioGroup>
@@ -397,7 +399,10 @@ describe('<RadioGroup />', () => {
   it('transfers the current input when the object inputRef changes', async () => {
     const oldRef = { current: null as HTMLInputElement | null };
     const newRef = { current: null as HTMLInputElement | null };
-    const [inputRef, setInputRef] = createSignal<typeof oldRef | undefined>(oldRef);
+    // Port note: `inputRef` is a callback, so the ref objects are written through `refCallback`.
+    const oldCallback = refCallback(oldRef);
+    const newCallback = refCallback(newRef);
+    const [inputRef, setInputRef] = createSignal<typeof oldCallback | undefined>(() => oldCallback);
 
     const { unmount } = await render(() => (
       <RadioGroup defaultValue="b" inputRef={inputRef()}>
@@ -408,7 +413,7 @@ describe('<RadioGroup />', () => {
     const input = oldRef.current;
     expect(input).toHaveAttribute('value', 'b');
 
-    setInputRef(newRef);
+    setInputRef(() => newCallback);
     flush();
 
     expect(oldRef.current).toBe(null);
@@ -418,7 +423,7 @@ describe('<RadioGroup />', () => {
     flush();
     expect(newRef.current).toBe(null);
 
-    setInputRef(newRef);
+    setInputRef(() => newCallback);
     flush();
     expect(newRef.current).toBe(input);
 
@@ -497,12 +502,13 @@ describe('<RadioGroup />', () => {
   });
 
   it('detaches inputRef when an initially disabled radio is enabled and then unmounted', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const inputRef = { current: null as HTMLInputElement | null };
     const [disabled, setDisabled] = createSignal(true);
     const [mounted, setMounted] = createSignal(true);
 
     await render(() => (
-      <RadioGroup inputRef={inputRef}>
+      <RadioGroup inputRef={refCallback(inputRef)}>
         <Show when={mounted()}>
           <Radio.Root value="a" disabled={disabled()} />
         </Show>
@@ -520,10 +526,11 @@ describe('<RadioGroup />', () => {
   });
 
   it('skips disabled radios when assigning inputRef', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
 
     await render(() => (
-      <RadioGroup inputRef={groupInputRef}>
+      <RadioGroup inputRef={refCallback(groupInputRef)}>
         <Radio.Root value="a" disabled data-testid="radio-a" />
         <Radio.Root value="b" data-testid="radio-b" />
       </RadioGroup>
@@ -536,10 +543,11 @@ describe('<RadioGroup />', () => {
   });
 
   it('points inputRef to the first radio input when nativeButton wraps a button', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
 
     await render(() => (
-      <RadioGroup inputRef={groupInputRef}>
+      <RadioGroup inputRef={refCallback(groupInputRef)}>
         <Radio.Root
           nativeButton
           value="a"
@@ -569,12 +577,13 @@ describe('<RadioGroup />', () => {
   });
 
   it('keeps inputRef pointing to the first radio when the value is cleared', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
     const [value, setValue] = createSignal<null | string>('a');
 
     await render(() => (
       <>
-        <RadioGroup value={value()} inputRef={groupInputRef}>
+        <RadioGroup value={value()} inputRef={refCallback(groupInputRef)}>
           <Radio.Root value="a" data-testid="radio-a" />
           <Radio.Root value="b" data-testid="radio-b" />
         </RadioGroup>
@@ -594,12 +603,13 @@ describe('<RadioGroup />', () => {
   });
 
   it('detaches inputRef when its current radio unmounts', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
     const [showFirst, setShowFirst] = createSignal(true);
 
     await render(() => (
       <>
-        <RadioGroup inputRef={groupInputRef}>
+        <RadioGroup inputRef={refCallback(groupInputRef)}>
           <Show when={showFirst()}>
             <Radio.Root value="a" data-testid="radio-a" />
           </Show>
@@ -621,12 +631,13 @@ describe('<RadioGroup />', () => {
   });
 
   it('detaches inputRef when a radio selected after mount unmounts', async () => {
+    // Port note: `inputRef` is a callback, `refCallback` stores the input here.
     const groupInputRef = { current: null as HTMLInputElement | null };
     const [showSecond, setShowSecond] = createSignal(true);
 
     await render(() => (
       <>
-        <RadioGroup inputRef={groupInputRef}>
+        <RadioGroup inputRef={refCallback(groupInputRef)}>
           <Radio.Root value="a" data-testid="radio-a" />
           <Show when={showSecond()}>
             <Radio.Root value="b" data-testid="radio-b" />
@@ -1542,13 +1553,14 @@ describe('<RadioGroup />', () => {
 
   describe('Fieldset', () => {
     it('keeps inputRef available after an ancestor fieldset is enabled', async () => {
+      // Port note: `inputRef` is a callback, `refCallback` stores the input here.
       const groupInputRef = { current: null as HTMLInputElement | null };
       const [disabled, setDisabled] = createSignal(true);
 
       await render(() => (
         <>
           <fieldset disabled={disabled()}>
-            <RadioGroup inputRef={groupInputRef}>
+            <RadioGroup inputRef={refCallback(groupInputRef)}>
               <Radio.Root value="a" data-testid="radio-a" />
             </RadioGroup>
           </fieldset>

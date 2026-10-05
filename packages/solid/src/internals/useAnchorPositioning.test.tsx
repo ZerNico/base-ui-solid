@@ -1,6 +1,5 @@
 import { createSignal } from 'solid-js';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { render, isJSDOM, screen, waitFor } from '#test-utils';
 import { useFloating } from '../../test/floating-ui-tests/useFloating';
 import { useAnchorPositioningWithHook } from './useAnchorPositioning';
@@ -22,11 +21,14 @@ vi.mock('../floating-ui-solid', async () => {
 });
 
 function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameters['shift'] }) {
-  const anchorRef: RefObject<HTMLDivElement | null> = { current: null };
+  // Port note: `anchor` takes the element, from a signal set by a ref callback.
+  const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
 
   const positioning = useAnchorPositioningWithHook(
     {
-      anchor: anchorRef,
+      get anchor() {
+        return anchorElement();
+      },
       mounted: true,
       positionMethod: 'absolute',
       side: 'bottom',
@@ -49,13 +51,7 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
 
   return (
     <>
-      <div
-        ref={(element) => {
-          anchorRef.current = element;
-        }}
-      >
-        anchor
-      </div>
+      <div ref={setAnchorElement}>anchor</div>
       <div ref={positioning.refs.setFloating}>floating</div>
     </>
   );
@@ -66,13 +62,16 @@ function TestLazyFlip(props: {
   align?: 'start' | 'center';
   lazyFlip?: boolean | 'placement';
 }) {
-  const anchorRef: RefObject<HTMLDivElement | null> = { current: null };
+  // Port note: `anchor` takes the element, from a signal set by a ref callback.
+  const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
   const [shrunk, setShrunk] = createSignal(false);
   const height = () => (shrunk() ? 10 : 100);
 
   const positioning = useAnchorPositioningWithHook(
     {
-      anchor: anchorRef,
+      get anchor() {
+        return anchorElement();
+      },
       mounted: true,
       positionMethod: 'fixed',
       get side() {
@@ -100,9 +99,7 @@ function TestLazyFlip(props: {
   return (
     <>
       <div
-        ref={(element) => {
-          anchorRef.current = element;
-        }}
+        ref={setAnchorElement}
         data-testid="anchor"
         style={{ position: 'fixed', right: '200px', bottom: '30px', width: '20px', height: '20px' }}
       >

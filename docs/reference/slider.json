@@ -470,7 +470,7 @@
       },
       {
         "name": "inputRef",
-        "type": "Ref<HTMLInputElement>",
+        "type": "((element: HTMLInputElement) => void)",
         "default": "-",
         "description": "A ref to access the nested input element."
       },

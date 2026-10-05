@@ -7,6 +7,7 @@ import {
   waitFor,
   describeConformance,
   isJSDOM,
+  refCallback,
 } from '#test-utils';
 import { expect, describe, it, afterEach, beforeEach } from 'vitest';
 import { Show, createSignal } from 'solid-js';
@@ -2098,6 +2099,7 @@ describe('<Field.Root />', () => {
 
     it('clears its own message on an input that became disabled', async () => {
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Field.Root.Actions | null } = {
           current: null,
         };
@@ -2107,7 +2109,7 @@ describe('<Field.Root />', () => {
         return (
           <div>
             <Field.Root
-              actionsRef={actionsRef}
+              actionsRef={refCallback(actionsRef)}
               validate={() => (failing() ? 'custom error' : null)}
             >
               <Field.Control data-testid="control" disabled={disabled()} />
@@ -2166,12 +2168,13 @@ describe('<Field.Root />', () => {
       const handleValidity = vi.fn();
 
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Field.Root.Actions | null } = { current: null };
 
         return (
           <div>
             <Field.Root
-              actionsRef={actionsRef}
+              actionsRef={refCallback(actionsRef)}
               validationMode="onBlur"
               validate={(value) => (value === 'cats' ? 'custom error' : null)}
             >
@@ -2809,12 +2812,13 @@ describe('<Field.Root />', () => {
   describe('prop: actionsRef', () => {
     it('validates the field when the `validate` method is called', async () => {
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Field.Root.Actions | null } = {
           current: null,
         };
         return (
           <div>
-            <Field.Root name="username" actionsRef={actionsRef}>
+            <Field.Root name="username" actionsRef={refCallback(actionsRef)}>
               <Field.Control defaultValue="" required />
               <Field.Error data-testid="error" />
             </Field.Root>
@@ -2837,12 +2841,13 @@ describe('<Field.Root />', () => {
 
     it('validates a logical field without a mounted control', async () => {
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Field.Root.Actions | null } = {
           current: null,
         };
         return (
           <div>
-            <Field.Root actionsRef={actionsRef} validate={() => 'Logical field error'}>
+            <Field.Root actionsRef={refCallback(actionsRef)} validate={() => 'Logical field error'}>
               <Field.Error />
             </Field.Root>
             <button type="button" onClick={() => actionsRef.current?.validate()}>
@@ -2864,12 +2869,13 @@ describe('<Field.Root />', () => {
       const validate = vi.fn((value: unknown) => (value === 'valid' ? null : 'error'));
 
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Field.Root.Actions | null } = {
           current: null,
         };
         return (
           <div>
-            <Field.Root actionsRef={actionsRef} validate={validate}>
+            <Field.Root actionsRef={refCallback(actionsRef)} validate={validate}>
               <Field.Control />
               <Field.Error data-testid="error" />
             </Field.Root>

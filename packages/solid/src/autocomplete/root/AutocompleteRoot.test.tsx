@@ -9,6 +9,7 @@ import {
   waitFor,
   createRenderer,
   isJSDOM,
+  refCallback,
 } from '#test-utils';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createSignal, flush, omit, untrack } from 'solid-js';
@@ -70,11 +71,12 @@ describe('<Autocomplete.Root />', () => {
     }
 
     it('automatically unmounts with an actions ref and completes closing once', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -93,12 +95,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('keeps the popup mounted until the unmount action completes closing', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       const { user, setProps } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -171,6 +174,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       function App() {
@@ -178,7 +182,7 @@ describe('<Autocomplete.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen) {
@@ -205,12 +209,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('closes through the `close` action so `onOpenChange` can opt out', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const reasons: string[] = [];
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(open, details) => {
             reasons.push(details.reason);
             if (!open) {
@@ -231,12 +236,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('ignores `unmount` while the popup is open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -251,12 +257,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('unmounts when `close` and `unmount` are called in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -277,12 +284,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('still unmounts on a later close after `unmount` was called while open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -298,6 +306,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('still unmounts on a later close after `unmount` and a reopen in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       let reopenOnComplete = true;
@@ -307,7 +316,7 @@ describe('<Autocomplete.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen && optOut) {
                 details.preventUnmountOnClose();
@@ -341,10 +350,11 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChange = vi.fn();
       await render((overrides) => (
-        <Popup actionsRef={actionsRef} onOpenChange={onOpenChange} {...overrides()} />
+        <Popup actionsRef={refCallback(actionsRef)} onOpenChange={onOpenChange} {...overrides()} />
       ));
 
       await act(() => actionsRef.current!.close());
@@ -353,12 +363,13 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('completes closing once when `unmount` is called twice in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -3129,9 +3140,14 @@ describe('<Autocomplete.Root />', () => {
     };
 
     function CommandPalette() {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       return (
-        <Autocomplete.Root items={['Apple', 'Banana', 'Cherry']} actionsRef={actionsRef} open>
+        <Autocomplete.Root
+          items={['Apple', 'Banana', 'Cherry']}
+          actionsRef={refCallback(actionsRef)}
+          open
+        >
           <Autocomplete.Input
             data-testid="input"
             onKeyDown={(event) => {
@@ -3173,7 +3189,7 @@ describe('<Autocomplete.Root />', () => {
         <Autocomplete.Root
           inline
           items={['Apple', 'Banana', 'Cherry']}
-          actionsRef={props.actionsRef}
+          actionsRef={refCallback(props.actionsRef)}
         >
           <Autocomplete.Input data-testid="input" />
           <Autocomplete.List>
@@ -3184,6 +3200,7 @@ describe('<Autocomplete.Root />', () => {
     }
 
     it('highlights items on an inline list', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       await render((overrides) => <InlineList actionsRef={actionsRef} {...overrides()} />);
       const input = screen.getByTestId('input');
@@ -3206,6 +3223,7 @@ describe('<Autocomplete.Root />', () => {
     });
 
     it('keeps the inline cursor in sync when the highlight is cleared', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       const { user } = await render((overrides) => (
         <InlineList actionsRef={actionsRef} {...overrides()} />
@@ -3243,13 +3261,14 @@ describe('<Autocomplete.Root />', () => {
       // synchronously, so the action must not emit a highlight state the component never rests
       // in - a consumer would otherwise see undefined and then the first item again.
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Autocomplete.Root.Actions | null>;
       await render((overrides) => (
         <Autocomplete.Root
           inline
           autoHighlight="always"
           items={['Apple', 'Banana', 'Cherry']}
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onItemHighlighted={onItemHighlighted}
           {...overrides()}
         >

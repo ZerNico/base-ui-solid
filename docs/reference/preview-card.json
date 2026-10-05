@@ -22,9 +22,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<PreviewCard.Root.Actions | null>",
+        "type": "((actions: PreviewCard.Root.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the preview card after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the preview card completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the preview card imperatively when called."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the preview card after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the preview card completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the preview card imperatively when called."
       },
       {
         "name": "defaultTriggerId",
@@ -144,7 +144,7 @@
     "props": [
       {
         "name": "container",
-        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "type": "HTMLElement | ShadowRoot | null",
         "default": "-",
         "description": "A parent element to render the portal element into."
       },
@@ -275,7 +275,7 @@
       },
       {
         "name": "anchor",
-        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "type": "Element | VirtualElement | (() => Element | VirtualElement | null) | null",
         "default": "-",
         "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
       },

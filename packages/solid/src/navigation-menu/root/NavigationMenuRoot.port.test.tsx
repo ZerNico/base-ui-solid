@@ -4,25 +4,28 @@ import { render, flushMicrotasks } from '#test-utils';
 import { NavigationMenu } from '..';
 
 // Port note: regressions for reactive Solid props and owner lifecycle, absent upstream.
-it('detaches actionsRef on replacement and disposal', async () => {
-  const first = { current: null as NavigationMenu.Root.Actions | null };
-  const second = { current: null as NavigationMenu.Root.Actions | null };
-  const [ref, setRef] = createSignal(first);
+// `actionsRef` is a callback in the port (upstream: a ref object).
+it('calls actionsRef once on setup, and not with null on disposal', async () => {
+  const calls: Array<NavigationMenu.Root.Actions | null> = [];
+  const [actions, setActions] = createSignal<NavigationMenu.Root.Actions | null>(null);
   const [visible, setVisible] = createSignal(true);
   await render(() => (
     <Show when={visible()}>
-      <NavigationMenu.Root actionsRef={ref()} />
+      <NavigationMenu.Root
+        actionsRef={(value) => {
+          calls.push(value);
+          // Runs without an owner, like a Solid `ref` callback, so it may write signals.
+          setActions(value);
+        }}
+      />
     </Show>
   ));
-  const handle = first.current;
-  expect(handle).not.toBeNull();
-  setRef(second);
+  expect(calls).toHaveLength(1);
+  expect(calls[0]).not.toBeNull();
   flush();
-  await flushMicrotasks();
-  expect(first.current).toBeNull();
-  expect(second.current).toBe(handle);
+  expect(actions()).toBe(calls[0]);
   setVisible(false);
   flush();
   await flushMicrotasks();
-  expect(second.current).toBeNull();
+  expect(calls).toHaveLength(1);
 });

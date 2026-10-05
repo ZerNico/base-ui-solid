@@ -7,6 +7,7 @@ export {
   screen,
   fireEvent,
   waitFor,
+  refCallback,
 } from './utils';
 export { advanceReactClock } from './advanceReactClock';
 export { createRenderer } from './createRenderer';

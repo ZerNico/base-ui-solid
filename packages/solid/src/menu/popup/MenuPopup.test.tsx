@@ -1,6 +1,7 @@
 import type { JSX } from '@solidjs/web';
 
 import { expect, vi, describe, it } from 'vitest';
+import { createSignal } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
 import { wait, fireEvent, waitFor, screen } from '#test-utils';
 import { describeMenuConformance } from '../../../test/menuConformance';
@@ -291,7 +292,8 @@ describe('<Menu.Popup />', () => {
     });
     it('should focus the element provided to the prop when closed', async () => {
       function TestComponent() {
-        const inputRef = portRef<HTMLInputElement | null>(null);
+        // Port note: the prop takes the element, from a signal set by a ref callback.
+        const [inputElement, setInputElement] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
@@ -299,19 +301,14 @@ describe('<Menu.Popup />', () => {
               <Menu.Trigger>Open</Menu.Trigger>
               <Menu.Portal>
                 <Menu.Positioner>
-                  <Menu.Popup finalFocus={inputRef}>
+                  <Menu.Popup finalFocus={inputElement()}>
                     <Menu.Item>Close</Menu.Item>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.Root>
             <input />
-            <input
-              data-testid="input-to-focus"
-              ref={(el) => {
-                inputRef.current = el;
-              }}
-            />
+            <input data-testid="input-to-focus" ref={setInputElement} />
             <input />
           </div>
         );

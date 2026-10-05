@@ -347,19 +347,18 @@ describe('<ContextMenu.Trigger />', () => {
   });
 
   it('blocks native context menus in a portal mounted inside the trigger DOM subtree', async () => {
-    const portalContainerRef = { current: null as HTMLDivElement | null };
+    // Port note: the prop takes the element, from a signal set by a ref callback.
+    const [portalContainerElement, setPortalContainerElement] = createSignal<HTMLDivElement | null>(
+      null,
+    );
 
     await render(() => (
       <ContextMenu.Root defaultOpen>
         <ContextMenu.Trigger>
           Right click me
-          <div
-            ref={(element) => {
-              portalContainerRef.current = element;
-            }}
-          />
+          <div ref={setPortalContainerElement} />
         </ContextMenu.Trigger>
-        <ContextMenu.Portal container={portalContainerRef}>
+        <ContextMenu.Portal container={portalContainerElement()}>
           <ContextMenu.Positioner>
             <ContextMenu.Popup data-testid="popup" />
           </ContextMenu.Positioner>

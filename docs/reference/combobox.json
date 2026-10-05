@@ -76,9 +76,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<Combobox.Root.Actions | null>",
+        "type": "((actions: Combobox.Root.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the combobox imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items, including across rows in a\ngrid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the\nhighlight to the input. `'first'` and `'last'` highlight the first or last item.\n`'none'` clears the highlight.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the combobox imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items, including across rows in a\ngrid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the\nhighlight to the input. `'first'` and `'last'` highlight the first or last item.\n`'none'` clears the highlight.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
       },
       {
         "name": "autoComplete",
@@ -214,7 +214,7 @@
       },
       {
         "name": "inputRef",
-        "type": "JSX.Ref<HTMLInputElement>",
+        "type": "((element: HTMLInputElement) => void)",
         "default": "-",
         "description": "A ref to the hidden input element."
       },
@@ -658,7 +658,7 @@
     "props": [
       {
         "name": "container",
-        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "type": "HTMLElement | ShadowRoot | null",
         "default": "-",
         "description": "A parent element to render the portal element into."
       },
@@ -789,7 +789,7 @@
       },
       {
         "name": "anchor",
-        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "type": "Element | VirtualElement | (() => Element | VirtualElement | null) | null",
         "default": "-",
         "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
       },
@@ -913,15 +913,15 @@
     "props": [
       {
         "name": "initialFocus",
-        "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
+        "type": "boolean | HTMLElement | null | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
         "default": "-",
-        "description": "Determines the element to focus when the popup is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+        "description": "Determines the element to focus when the popup is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back to the default behavior.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
       },
       {
         "name": "finalFocus",
-        "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "type": "boolean | HTMLElement | null | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
         "default": "-",
-        "description": "Determines the element to focus when the popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+        "description": "Determines the element to focus when the popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back to the default behavior.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
       },
       {
         "name": "class",

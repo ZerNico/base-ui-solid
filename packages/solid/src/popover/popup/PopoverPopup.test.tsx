@@ -122,7 +122,8 @@ describe('<Popover.Popup />', () => {
 
     it('should focus the element provided to `initialFocus` as a ref when open', async () => {
       function TestComponent() {
-        const input2Ref: { current: HTMLInputElement | null } = { current: null };
+        // Port note: the prop takes the element, from a signal set by a ref callback.
+        const [input2Element, setInput2Element] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
@@ -130,14 +131,9 @@ describe('<Popover.Popup />', () => {
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
-                  <Popover.Popup initialFocus={input2Ref}>
+                  <Popover.Popup initialFocus={input2Element()}>
                     <input data-testid="input-1" />
-                    <input
-                      data-testid="input-2"
-                      ref={(el) => {
-                        input2Ref.current = el;
-                      }}
-                    />
+                    <input data-testid="input-2" ref={setInput2Element} />
                     <input data-testid="input-3" />
                     <button>Close</button>
                   </Popover.Popup>
@@ -480,7 +476,8 @@ describe('<Popover.Popup />', () => {
 
     it('should focus the element provided to the prop when closed', async () => {
       function TestComponent() {
-        const inputRef: { current: HTMLInputElement | null } = { current: null };
+        // Port note: the prop takes the element, from a signal set by a ref callback.
+        const [inputElement, setInputElement] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
@@ -488,19 +485,14 @@ describe('<Popover.Popup />', () => {
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
-                  <Popover.Popup finalFocus={inputRef}>
+                  <Popover.Popup finalFocus={inputElement()}>
                     <Popover.Close>Close</Popover.Close>
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
             </Popover.Root>
             <input />
-            <input
-              data-testid="input-to-focus"
-              ref={(el) => {
-                inputRef.current = el;
-              }}
-            />
+            <input data-testid="input-to-focus" ref={setInputElement} />
             <input />
           </div>
         );

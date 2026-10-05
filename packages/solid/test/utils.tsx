@@ -42,3 +42,15 @@ export function act<T>(callback: () => T | Promise<T>): Promise<T> {
     return value;
   });
 }
+
+/**
+ * Returns a callback that stores what it receives in `ref.current`.
+ *
+ * Port note: public `actionsRef`/`inputRef` props are callbacks in the port, not ref objects.
+ * Tests keep upstream's ref objects to read the handle and pass `refCallback(ref)` to the prop.
+ */
+export function refCallback<T>(ref: { current: T | null }): (value: any) => void {
+  return (value: T | null) => {
+    ref.current = value;
+  };
+}

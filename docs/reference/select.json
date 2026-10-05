@@ -52,9 +52,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<Select.Root.Actions | null>",
+        "type": "((actions: Select.Root.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items and never wrap: the\nhighlight stays on the last or first item. `'first'` and `'last'` highlight the first or\nlast item. `'none'` clears the highlight and hands focus back to the popup.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items and never wrap: the\nhighlight stays on the last or first item. `'first'` and `'last'` highlight the first or\nlast item. `'none'` clears the highlight and hands focus back to the popup.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`."
       },
       {
         "name": "autoComplete",
@@ -130,7 +130,7 @@
       },
       {
         "name": "inputRef",
-        "type": "Ref<HTMLInputElement>",
+        "type": "((element: HTMLInputElement) => void)",
         "default": "-",
         "description": "A ref to access the hidden input element."
       },
@@ -413,7 +413,7 @@
     "props": [
       {
         "name": "container",
-        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "type": "HTMLElement | ShadowRoot | null",
         "default": "-",
         "description": "A parent element to render the portal element into."
       },
@@ -544,7 +544,7 @@
       },
       {
         "name": "anchor",
-        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "type": "Element | VirtualElement | (() => Element | VirtualElement | null) | null",
         "default": "-",
         "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
       },
@@ -663,9 +663,9 @@
     "props": [
       {
         "name": "finalFocus",
-        "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+        "type": "boolean | HTMLElement | null | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
         "default": "-",
-        "description": "Determines the element to focus when the select popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
+        "description": "Determines the element to focus when the select popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back to the default behavior.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\nReturn an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing."
       },
       {
         "name": "children",

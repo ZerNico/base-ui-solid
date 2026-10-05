@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 
 import { expect, describe, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor, waitForPositioned, isJSDOM } from '#test-utils';
+import { fireEvent, screen, waitFor, waitForPositioned, isJSDOM, refCallback } from '#test-utils';
 import userEvent from '@testing-library/user-event';
 import { Menu } from 'base-ui-solid/menu';
 import {
@@ -739,7 +739,11 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     }) {
       return (
         <Menu.FilterProvider autoHighlight={props.autoHighlight}>
-          <Menu.Root open onItemHighlighted={props.onItemHighlighted} actionsRef={props.actionsRef}>
+          <Menu.Root
+            open
+            onItemHighlighted={props.onItemHighlighted}
+            actionsRef={props.actionsRef && refCallback(props.actionsRef)}
+          >
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -780,6 +784,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
     it('reports imperative highlights and clears while the input keeps focus', async () => {
       const onItemHighlighted = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = portRef<Menu.Root.Actions>();
       const { user } = await render(
         (testProps: any) => <HighlightMenu {...testProps} />,

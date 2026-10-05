@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { adjustRefProp, adjustRefTypeSource } from './solidPropAdjustments.mjs';
 
 // Port note: this upstream checkout has generated types.md instead of docs/reference JSON.
 // Convert that authoritative snapshot to a framework-neutral JSON reference for Solid rendering.
@@ -58,7 +59,7 @@ for (const section of sections.filter((item) => item.body.includes(`**${item.nam
           description =
             'Replace the default element with a tag name, component, or render function.';
         }
-        entry[key].push({ name: prop, type, default: defaultValue, description });
+        entry[key].push(adjustRefProp({ name: prop, type, default: defaultValue, description }));
       } else {
         entry[key].push({
           name: cells[0].replace(/^`|`$/g, ''),
@@ -73,7 +74,7 @@ for (const section of sections.filter((item) => item.body.includes(`**${item.nam
   )) {
     const code = /```(?:typescript|tsx)\n([\s\S]*?)```/.exec(item.body)?.[1];
     if (code) {
-      entry.additionalTypes.push({ name: item.name, source: code.trim() });
+      entry.additionalTypes.push({ name: item.name, source: adjustRefTypeSource(code.trim()) });
     }
   }
   reference[section.name] = entry;

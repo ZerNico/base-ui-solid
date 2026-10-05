@@ -18,6 +18,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-solid';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -402,7 +403,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  // Port note: counterpart of `React.useImperativeHandle(actionsRef, …)`.
   const actions: SelectRootActions = {
     unmount: handleUnmount,
     close: () => {
@@ -412,18 +412,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
     highlightItem: listNavigation.highlightItem,
   };
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = actions;
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef],
-  );
+  useImperativeHandle(() => props.actionsRef, actions);
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
@@ -665,9 +654,9 @@ type SelectOutputValue<Value, Multiple extends boolean | undefined> = Multiple e
 export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
   children?: JSX.Element | undefined;
   /**
-   * A ref to access the hidden input element.
+   * A ref callback that receives the hidden input element.
    */
-  inputRef?: ((element: HTMLInputElement) => void) | RefObject<HTMLInputElement | null> | undefined;
+  inputRef?: ((element: HTMLInputElement) => void) | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
@@ -742,7 +731,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   modal?: boolean | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
@@ -754,7 +744,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    *   Calling this action does not open the popup. To highlight an item after opening it, call
    *   the action from `onOpenChangeComplete` when `open` is `true`.
    */
-  actionsRef?: RefObject<SelectRootActions | null> | undefined;
+  actionsRef?: ((actions: SelectRootActions) => void) | undefined;
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.

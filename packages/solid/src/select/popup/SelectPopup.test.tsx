@@ -716,6 +716,8 @@ describe('<Select.Popup />', () => {
       anchorStyle?: JSX.CSSProperties;
     }) {
       const [open, setOpen] = createSignal(false);
+      // Port note: `anchor` takes the element, from a signal set by the ref callback.
+      const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
 
       return (
         <div
@@ -724,6 +726,7 @@ describe('<Select.Popup />', () => {
           ref={(node) => {
             if (props.anchorRef) {
               props.anchorRef.current = node;
+              setAnchorElement(node);
             }
           }}
           style={props.anchorStyle}
@@ -741,7 +744,7 @@ describe('<Select.Popup />', () => {
 
               <Select.Portal>
                 <Select.Positioner
-                  anchor={props.anchorRef}
+                  anchor={props.anchorRef ? anchorElement() : undefined}
                   class="rtlFixturePositioner"
                   data-testid="positioner"
                   dir="rtl"
@@ -1787,7 +1790,8 @@ describe('<Select.Popup />', () => {
 
     it('should focus the element provided to the prop when closed', async () => {
       function TestComponent() {
-        const inputRef = { current: null } as RefObject<HTMLInputElement | null | null>;
+        // Port note: the prop takes the element, from a signal set by a ref callback.
+        const [inputElement, setInputElement] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
@@ -1795,19 +1799,14 @@ describe('<Select.Popup />', () => {
               <Select.Trigger data-testid="trigger">Open</Select.Trigger>
               <Select.Portal>
                 <Select.Positioner>
-                  <Select.Popup finalFocus={inputRef}>
+                  <Select.Popup finalFocus={inputElement()}>
                     <Select.Item value="1">Item 1</Select.Item>
                   </Select.Popup>
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
             <input />
-            <input
-              data-testid="input-to-focus"
-              ref={(node) => {
-                inputRef.current = node;
-              }}
-            />
+            <input data-testid="input-to-focus" ref={setInputElement} />
             <input />
           </div>
         );

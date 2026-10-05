@@ -124,23 +124,17 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
 
     groupInput = instance;
     let refCleanup: void | (() => void) | undefined;
-    if (typeof inputRef === 'function') {
+    if (inputRef) {
       refCleanup = inputRef(instance);
-    } else if (inputRef) {
-      inputRef.current = instance;
     }
 
     inputRefCleanup = () => {
       groupInput = null;
-      if (typeof inputRef === 'function') {
-        if (typeof refCleanup === 'function') {
-          refCleanup();
-        } else {
-          // Legacy ref with no attach-time cleanup: detach by calling it with `null`.
-          void inputRef(null);
-        }
+      if (typeof refCleanup === 'function') {
+        refCleanup();
       } else if (inputRef) {
-        inputRef.current = null;
+        // Legacy ref with no attach-time cleanup: detach by calling it with `null`.
+        void inputRef(null);
       }
     };
   }
@@ -374,16 +368,13 @@ export interface RadioGroupProps<Value = any> extends Omit<
    */
   onValueChange?: ((value: Value, eventDetails: RadioGroup.ChangeEventDetails) => void) | undefined;
   /**
-   * A ref to access the hidden input element.
+   * A ref callback that receives the hidden input element.
    *
    * Port note: the group forwards a different input over time (the checked one), so this follows
-   * React's ref semantics rather than Solid's: a callback is called with `null` (or its returned
-   * cleanup runs) when the input is detached, and a ref object's `current` is updated.
+   * React's ref semantics rather than Solid's: the callback is called with `null` (or its returned
+   * cleanup runs) when the input is detached.
    */
-  inputRef?:
-    | ((element: HTMLInputElement | null) => void | (() => void))
-    | RefObject<HTMLInputElement | null>
-    | undefined;
+  inputRef?: ((element: HTMLInputElement | null) => void | (() => void)) | undefined;
 }
 
 export type RadioGroupChangeEventReason = typeof REASONS.none;

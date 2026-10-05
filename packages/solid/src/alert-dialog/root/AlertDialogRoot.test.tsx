@@ -11,6 +11,7 @@ import {
   popupConformanceTests,
   screen,
   waitFor,
+  refCallback,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -292,7 +293,7 @@ describe('<AlertDialog.Root />', () => {
 
       const { user } = await render(() => (
         <AlertDialog.Root
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(open, details) => {
             if (!open) {
               details.preventUnmountOnClose();
@@ -329,12 +330,13 @@ describe('<AlertDialog.Root />', () => {
     });
 
     it('clears manual unmount state after the `unmount` method is called', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: { current: AlertDialog.Root.Actions | null } = { current: null };
       let shouldPreventUnmount = true;
 
       const { user } = await render(() => (
         <AlertDialog.Root
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(open, details) => {
             if (!open && shouldPreventUnmount) {
               shouldPreventUnmount = false;
@@ -376,10 +378,11 @@ describe('<AlertDialog.Root />', () => {
     });
 
     it('closes the alert dialog when the `close` method is called', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: { current: AlertDialog.Root.Actions | null } = { current: null };
 
       await render(() => (
-        <AlertDialog.Root defaultOpen actionsRef={actionsRef}>
+        <AlertDialog.Root defaultOpen actionsRef={refCallback(actionsRef)}>
           <AlertDialog.Portal>
             <AlertDialog.Popup />
           </AlertDialog.Portal>

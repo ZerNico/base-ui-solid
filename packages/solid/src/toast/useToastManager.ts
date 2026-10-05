@@ -1,6 +1,5 @@
 import { createProjection } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { StoredToast } from './store';
 import { useToastProviderContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
@@ -40,9 +39,11 @@ export interface ToastObject<Data extends object> {
    */
   id: string;
   /**
-   * The ref for the toast.
+   * Returns the toast's root element (`null` while it isn't mounted).
+   *
+   * Port note: upstream exposes a ref object. The port exposes a getter function instead.
    */
-  ref?: RefObject<HTMLElement | null> | undefined;
+  ref?: (() => HTMLElement | null) | undefined;
   /**
    * The title of the toast.
    */

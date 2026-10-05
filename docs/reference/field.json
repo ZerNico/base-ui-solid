@@ -10,9 +10,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<Field.Root.Actions | null>",
+        "type": "((actions: Field.Root.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `validate`: Validates the field when called."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `validate`: Validates the field when called."
       },
       {
         "name": "dirty",

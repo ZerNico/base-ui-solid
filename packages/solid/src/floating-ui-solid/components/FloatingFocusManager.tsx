@@ -175,6 +175,8 @@ export interface FloatingFocusManagerProps {
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (first tabbable element or floating element).
    * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element (`null` falls back to the default behavior).
+   *   Port note: the public popup props take elements instead of ref objects.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use default behavior, `null` to fallback to default behavior,
    *   or `false`/`undefined` to do nothing.
@@ -182,6 +184,8 @@ export interface FloatingFocusManagerProps {
    */
   initialFocus?:
     | boolean
+    | HTMLElement
+    | null
     | RefObject<HTMLElement | null>
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
@@ -191,6 +195,7 @@ export interface FloatingFocusManagerProps {
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (reference or previously focused element).
    * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element (`null` falls back to the default behavior).
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, `null` to fallback to default behavior,
    *   or `false`/`undefined` to do nothing.
@@ -198,6 +203,8 @@ export interface FloatingFocusManagerProps {
    */
   returnFocus?:
     | boolean
+    | HTMLElement
+    | null
     | RefObject<HTMLElement | null>
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;

@@ -1,8 +1,8 @@
 import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-solid';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -123,22 +123,10 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
     () => [store, activeTriggerId(), open()] as const,
   );
 
-  // Port note: counterpart of `React.useImperativeHandle(actionsRef, …)`.
-  useIsoLayoutEffect(
-    ([actionsRef]) => {
-      if (!actionsRef) {
-        return undefined;
-      }
-      actionsRef.current = {
-        unmount: forceUnmount,
-        close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-      };
-      return () => {
-        actionsRef.current = null;
-      };
-    },
-    () => [props.actionsRef, store] as const,
-  );
+  useImperativeHandle(() => props.actionsRef, {
+    unmount: forceUnmount,
+    close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+  });
 
   // Port note: detached triggers registered before this Root migrate in Solid's effect
   // order. Preserve their original registration order when assigning default-open ownership.
@@ -229,13 +217,14 @@ export interface TooltipRootProps<Payload = unknown> {
    */
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the tooltip after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the tooltip completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the tooltip imperatively when called.
    */
-  actionsRef?: RefObject<TooltipRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: TooltipRoot.Actions) => void) | undefined;
   /**
    * Whether the tooltip is disabled.
    * @default false

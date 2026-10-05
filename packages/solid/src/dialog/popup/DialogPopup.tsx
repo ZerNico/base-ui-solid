@@ -1,7 +1,6 @@
 import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { FloatingFocusManager } from '../../floating-ui-solid';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -134,13 +133,15 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (first tabbable element or popup).
-   * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back
+   *   to the default behavior.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
     | boolean
-    | RefObject<HTMLElement | null>
+    | HTMLElement
+    | null
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
@@ -148,13 +149,15 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-   * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back
+   *   to the default behavior.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
     | boolean
-    | RefObject<HTMLElement | null>
+    | HTMLElement
+    | null
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }

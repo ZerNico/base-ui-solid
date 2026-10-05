@@ -1,4 +1,3 @@
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { JSX } from '@solidjs/web';
 import { DialogPortal } from '../../dialog/portal/DialogPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -20,8 +19,7 @@ export interface DrawerPortalProps extends BaseUIComponentProps<'div', DrawerPor
   /**
    * A parent element to render the portal element into.
    */
-  container?:
-    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+  container?: HTMLElement | ShadowRoot | null | undefined;
 }
 export interface DrawerPortal {
   (componentProps: DrawerPortalProps): JSX.Element | null;

@@ -457,14 +457,18 @@ const handle = Menu.createHandle();
 
 ### Custom keyboard shortcuts
 
-`<Menu.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Menu items receive real DOM focus, so the action moves focus along with the highlight, and `'none'` hands focus back to the popup. It wraps around at the ends unless `loopFocus` is disabled, and does nothing while the menu is closed.
+`<Menu.Root>` accepts an `actionsRef` callback, which receives actions whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Menu items receive real DOM focus, so the action moves focus along with the highlight, and `'none'` hands focus back to the popup. It wraps around at the ends unless `loopFocus` is disabled, and does nothing while the menu is closed.
 
 Because the items hold focus while the menu is open, attach the key handler to `<Menu.Popup>` rather than to the trigger:
 
 ```tsx title="Binding a shortcut on the popup"
-const actionsRef = { current: null as Menu.Root.Actions | null };
+let actions: Menu.Root.Actions | undefined;
 
-<Menu.Root actionsRef={actionsRef}>
+<Menu.Root
+  actionsRef={(value) => {
+    actions = value;
+  }}
+>
   <Menu.Trigger>Open</Menu.Trigger>
   <Menu.Portal>
     <Menu.Positioner>
@@ -472,7 +476,7 @@ const actionsRef = { current: null as Menu.Root.Actions | null };
         onKeyDown={(event) => {
           if (event.ctrlKey && event.key === 'j') {
             event.preventDefault();
-            actionsRef.current?.highlightItem('next');
+            actions?.highlightItem('next');
           }
         }}
       >

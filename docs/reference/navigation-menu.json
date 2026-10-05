@@ -22,9 +22,9 @@
       },
       {
         "name": "actionsRef",
-        "type": "RefObject<NavigationMenu.Root.Actions | null>",
+        "type": "((actions: NavigationMenu.Root.Actions) => void)",
         "default": "-",
-        "description": "A ref to imperative actions. `unmount`: Ends the closing phase of the navigation menu popup after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onValueChange` first, otherwise the navigation menu popup completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the navigation menu imperatively when called."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the navigation menu popup after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onValueChange` first, otherwise the navigation menu popup completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the navigation menu imperatively when called."
       },
       {
         "name": "onOpenChangeComplete",
@@ -226,7 +226,7 @@
     "props": [
       {
         "name": "container",
-        "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+        "type": "HTMLElement | ShadowRoot | null",
         "default": "-",
         "description": "A parent element to render the portal element into."
       },
@@ -357,7 +357,7 @@
       },
       {
         "name": "anchor",
-        "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
+        "type": "Element | VirtualElement | (() => Element | VirtualElement | null) | null",
         "default": "-",
         "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger."
       },

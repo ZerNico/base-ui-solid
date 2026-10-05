@@ -93,6 +93,8 @@ export function ToastRoot(componentProps: ToastRoot.Props) {
   }
 
   const rootRef: RefObject<HTMLDivElement | null> = { current: null };
+  // Stable, so storing it in the toast doesn't count as a change.
+  const getRootElement = () => rootRef.current;
   let lastToastId: string | undefined;
   let dragStartPos = { x: 0, y: 0 };
   let initialTransformRef = { x: 0, y: 0, scale: 1 };
@@ -139,7 +141,7 @@ export function ToastRoot(componentProps: ToastRoot.Props) {
     element.style.height = previousHeight;
 
     store.updateToastInternal(toast().id, {
-      ref: rootRef,
+      ref: getRootElement,
       height,
       transitionStatus: undefined,
     });

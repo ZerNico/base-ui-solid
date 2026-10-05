@@ -508,7 +508,7 @@ export class ToastStore extends SolidStore<State, {}, typeof selectors> {
     const nextToast = scan(currentIndex + 1, 1) ?? scan(currentIndex - 1, -1);
 
     if (nextToast) {
-      nextToast.ref?.current?.focus();
+      nextToast.ref?.()?.focus();
     } else {
       this.restoreFocusToPrevElement();
     }

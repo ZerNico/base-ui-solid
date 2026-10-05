@@ -1,6 +1,5 @@
 import { omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { AriaCombobox } from './AriaCombobox';
 import type { AriaComboboxState } from './AriaCombobox';
 
@@ -113,7 +112,8 @@ export type ComboboxRootProps<
    */
   defaultValue?: ComboboxInputValue<Value, Multiple> | null | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the combobox after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
@@ -128,7 +128,7 @@ export type ComboboxRootProps<
    *   Highlight changes requested through this action report the reason `'imperative-action'`
    *   to `onItemHighlighted`.
    */
-  actionsRef?: RefObject<ComboboxRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: ComboboxRoot.Actions) => void) | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */

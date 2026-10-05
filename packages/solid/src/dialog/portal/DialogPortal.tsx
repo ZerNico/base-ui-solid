@@ -74,8 +74,7 @@ export interface DialogPortalProps extends BaseUIComponentProps<'div', DialogPor
   /**
    * A parent element to render the portal element into.
    */
-  container?:
-    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+  container?: HTMLElement | ShadowRoot | null | undefined;
 }
 
 export namespace DialogPortal {

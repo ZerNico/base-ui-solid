@@ -1,6 +1,5 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import type { AriaComboboxState } from '../../combobox/root/AriaCombobox';
@@ -273,7 +272,8 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
@@ -288,7 +288,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    *   Highlight changes requested through this action report the reason `'imperative-action'`
    *   to `onItemHighlighted`.
    */
-  actionsRef?: RefObject<AutocompleteRootActions | null> | undefined;
+  actionsRef?: ((actions: AutocompleteRootActions) => void) | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */

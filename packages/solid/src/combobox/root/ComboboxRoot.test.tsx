@@ -8,6 +8,7 @@ import {
   createRenderer,
   isJSDOM,
   popupConformanceTests,
+  refCallback,
 } from '#test-utils';
 import { createSignal, createMemo, flush, untrack, omit } from 'solid-js';
 
@@ -193,11 +194,12 @@ describe('<Combobox.Root />', () => {
       );
     }
     it('automatically unmounts with an actions ref and completes closing once', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -213,12 +215,13 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
     });
     it('keeps the popup mounted until the unmount action completes closing', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       const { user, setProps } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -284,6 +287,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
     });
     it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       function App() {
@@ -291,7 +295,7 @@ describe('<Combobox.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen) {
@@ -314,12 +318,13 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
     });
     it('closes through the `close` action so `onOpenChange` can opt out', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const reasons: string[] = [];
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(open, details) => {
             reasons.push(details.reason);
             if (!open) {
@@ -337,12 +342,13 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
     it('ignores `unmount` while the popup is open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -354,12 +360,13 @@ describe('<Combobox.Root />', () => {
       expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
     });
     it('unmounts when `close` and `unmount` are called in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -377,12 +384,13 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
     });
     it('still unmounts on a later close after `unmount` was called while open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         />
@@ -395,6 +403,7 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
     });
     it('still unmounts on a later close after `unmount` and a reopen in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       let reopenOnComplete = true;
@@ -404,7 +413,7 @@ describe('<Combobox.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen && optOut) {
                 details.preventUnmountOnClose();
@@ -434,22 +443,24 @@ describe('<Combobox.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
     });
     it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChange = vi.fn();
       await render((overrides) => (
-        <Popup actionsRef={actionsRef} onOpenChange={onOpenChange} {...overrides()} />
+        <Popup actionsRef={refCallback(actionsRef)} onOpenChange={onOpenChange} {...overrides()} />
       ));
       await act(() => actionsRef.current!.close());
       expect(onOpenChange).not.toHaveBeenCalled();
       expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
     });
     it('completes closing once when `unmount` is called twice in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render((overrides) => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -7657,20 +7668,19 @@ describe('<Combobox.Root />', () => {
       },
     );
     it.skipIf(isJSDOM)('does not reset a surrounding dialog', async () => {
-      const dialogRef = { current: null as HTMLDivElement | null };
+      // Port note: the prop takes the element, from a signal set by a ref callback.
+      const [dialogElement, setDialogElement] = createSignal<HTMLDivElement | null>(null);
       const { user } = await render((overrides) => (
         <Combobox.Root items={manyItems} open {...overrides()}>
           <div
-            ref={(element: any) => {
-              dialogRef.current = element;
-            }}
+            ref={setDialogElement}
             role="dialog"
             data-testid="dialog"
             style={{ height: '80px', 'overflow-y': 'auto', 'overflow-anchor': 'none' }}
           >
             <div style={{ height: '100px' }} />
             <Combobox.Input data-testid="input" />
-            <Combobox.Portal container={dialogRef}>
+            <Combobox.Portal container={dialogElement()}>
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
@@ -11349,6 +11359,7 @@ describe('<Combobox.Root />', () => {
         }
         return item.id === value.id;
       });
+      // Port note: `inputRef` is a callback, `refCallback` stores the input here.
       const hiddenInputRef = { current: null as HTMLInputElement | null };
       const { user } = await render((overrides) => (
         <Combobox.Root
@@ -11357,7 +11368,7 @@ describe('<Combobox.Root />', () => {
           itemToStringLabel={(item) => item.name}
           itemToStringValue={(item) => String(item.id)}
           isItemEqualToValue={compare}
-          inputRef={hiddenInputRef}
+          inputRef={refCallback(hiddenInputRef)}
           {...overrides()}
         >
           <Combobox.Trigger>
@@ -11846,12 +11857,13 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByText('vegetables')).toBe(null);
     });
     it('exposes an unmount action that is ignored while open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onOpenChangeComplete = vi.fn();
       await render((overrides) => (
         <Combobox.Root
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           {...overrides()}
         >
@@ -12056,7 +12068,7 @@ describe('<Combobox.Root />', () => {
       return (
         <Combobox.Root
           items={ITEMS}
-          actionsRef={props.actionsRef}
+          actionsRef={refCallback(props.actionsRef)}
           loopFocus={props.loopFocus}
           defaultOpen={props.defaultOpen ?? true}
           onItemHighlighted={props.onItemHighlighted}
@@ -12093,6 +12105,7 @@ describe('<Combobox.Root />', () => {
       );
     }
     it('highlights the first and last items', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12103,6 +12116,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Cherry'));
     });
     it('moves relative to the current highlight', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12115,6 +12129,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Apple'));
     });
     it('enters the list from the end when nothing is highlighted and moving backwards', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12123,6 +12138,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Cherry'));
     });
     it('wraps to the last item instead of returning to the input', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12135,6 +12151,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Apple'));
     });
     it('does not wrap when loopFocus is disabled', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} loopFocus={false} {...overrides()} />
@@ -12152,6 +12169,7 @@ describe('<Combobox.Root />', () => {
       // Base UI renders disabled items with `aria-disabled` rather than natively disabling them,
       // so they stay announceable, and arrow-key navigation deliberately lands on them. The
       // imperative action mirrors that instead of inventing a second traversal order.
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox
@@ -12166,6 +12184,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Banana'));
     });
     it('clears the highlight with none', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12176,6 +12195,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted(null));
     });
     it('does nothing while the popup is closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const { user } = await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} defaultOpen={false} {...overrides()} />
@@ -12191,6 +12211,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Apple'));
     });
     it('continues arrow-key navigation from the imperative position', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const { user } = await render((overrides) => (
         <HighlightItemCombobox actionsRef={actionsRef} {...overrides()} />
@@ -12202,6 +12223,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expectHighlighted('Banana'));
     });
     it('reports the imperative-action reason to onItemHighlighted', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onItemHighlighted = vi.fn();
       await render((overrides) => (
@@ -12231,6 +12253,7 @@ describe('<Combobox.Root />', () => {
       // even when that item is not mounted. The consumer scrolls on the `imperative-action`
       // reason, as the virtualized docs demo does.
       const items = Array.from({ length: 100 }, (_, index) => `item-${index}`);
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       const onItemHighlighted = vi.fn();
       function VirtualizedItems(props: { windowStart: number }) {
@@ -12254,7 +12277,7 @@ describe('<Combobox.Root />', () => {
             items={items}
             defaultOpen
             virtualized
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onItemHighlighted={(item, details) => {
               onItemHighlighted(item, details);
               if (details.reason === REASONS.imperativeAction && item) {
@@ -12295,9 +12318,10 @@ describe('<Combobox.Root />', () => {
       });
     });
     it('steps through a grid in DOM order, like the horizontal arrow keys', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };
       await render((overrides) => (
-        <Combobox.Root grid defaultOpen actionsRef={actionsRef} {...overrides()}>
+        <Combobox.Root grid defaultOpen actionsRef={refCallback(actionsRef)} {...overrides()}>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>

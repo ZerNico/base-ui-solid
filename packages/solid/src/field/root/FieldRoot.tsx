@@ -312,10 +312,11 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
    */
   touched?: boolean | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `validate`: Validates the field when called.
    */
-  actionsRef?: RefObject<FieldRoot.Actions | null> | undefined;
+  actionsRef?: ((actions: FieldRoot.Actions) => void) | undefined;
 }
 
 export namespace FieldRoot {

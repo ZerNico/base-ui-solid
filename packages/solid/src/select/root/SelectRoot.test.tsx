@@ -16,6 +16,7 @@ import {
   renderToString,
   isJSDOM,
   wait,
+  refCallback,
 } from '#test-utils';
 
 import { Select, SelectSeparatorDataAttributes } from 'base-ui-solid/select';
@@ -96,10 +97,11 @@ describe('<Select.Root />', () => {
     }
 
     it('automatically unmounts with an actions ref and completes closing once', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render(() => (
-        <Popup actionsRef={actionsRef} onOpenChangeComplete={onOpenChangeComplete} />
+        <Popup actionsRef={refCallback(actionsRef)} onOpenChangeComplete={onOpenChangeComplete} />
       ));
 
       expect(onOpenChangeComplete).not.toHaveBeenCalled();
@@ -115,6 +117,7 @@ describe('<Select.Root />', () => {
     });
 
     it('keeps the popup mounted until the unmount action completes closing', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       // Port note: `setProps` is replaced by a signal.
@@ -123,7 +126,7 @@ describe('<Select.Root />', () => {
         <Popup
           defaultOpen
           open={openProp()}
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -200,6 +203,7 @@ describe('<Select.Root />', () => {
     });
 
     it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       function App() {
@@ -207,7 +211,7 @@ describe('<Select.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChangeComplete={onOpenChangeComplete}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen) {
@@ -235,12 +239,13 @@ describe('<Select.Root />', () => {
     });
 
     it('closes through the `close` action so `onOpenChange` can opt out', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const reasons: string[] = [];
       await render(() => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(open, details) => {
             reasons.push(details.reason);
             if (!open) {
@@ -260,10 +265,15 @@ describe('<Select.Root />', () => {
     });
 
     it('ignores `unmount` while the popup is open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       await render(() => (
-        <Popup defaultOpen actionsRef={actionsRef} onOpenChangeComplete={onOpenChangeComplete} />
+        <Popup
+          defaultOpen
+          actionsRef={refCallback(actionsRef)}
+          onOpenChangeComplete={onOpenChangeComplete}
+        />
       ));
       const popup = screen.getByRole('listbox');
 
@@ -275,12 +285,13 @@ describe('<Select.Root />', () => {
     });
 
     it('unmounts when `close` and `unmount` are called in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       await render(() => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -300,10 +311,15 @@ describe('<Select.Root />', () => {
     });
 
     it('still unmounts on a later close after `unmount` was called while open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render(() => (
-        <Popup defaultOpen actionsRef={actionsRef} onOpenChangeComplete={onOpenChangeComplete} />
+        <Popup
+          defaultOpen
+          actionsRef={refCallback(actionsRef)}
+          onOpenChangeComplete={onOpenChangeComplete}
+        />
       ));
 
       // A stale exit-animation callback can call `unmount()` after a quick reopen.
@@ -316,6 +332,7 @@ describe('<Select.Root />', () => {
     });
 
     it('still unmounts on a later close after `unmount` and a reopen in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       let reopenOnComplete = true;
@@ -325,7 +342,7 @@ describe('<Select.Root />', () => {
         return (
           <Popup
             open={open()}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChange={(nextOpen, details) => {
               if (!nextOpen && optOut) {
                 details.preventUnmountOnClose();
@@ -359,9 +376,12 @@ describe('<Select.Root />', () => {
     });
 
     it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChange = vi.fn();
-      await render(() => <Popup actionsRef={actionsRef} onOpenChange={onOpenChange} />);
+      await render(() => (
+        <Popup actionsRef={refCallback(actionsRef)} onOpenChange={onOpenChange} />
+      ));
 
       await actPart1(() => actionsRef.current!.close());
       expect(onOpenChange).not.toHaveBeenCalled();
@@ -369,12 +389,13 @@ describe('<Select.Root />', () => {
     });
 
     it('completes closing once when `unmount` is called twice in one batch', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
       const onOpenChangeComplete = vi.fn();
       const { user } = await render(() => (
         <Popup
           defaultOpen
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChangeComplete={onOpenChangeComplete}
           onOpenChange={(open, details) => {
             if (!open) {
@@ -2266,6 +2287,7 @@ describe('<Select.Root />', () => {
 
   describe('prop: actionsRef', () => {
     it('unmounts the select when the `unmount` method is called', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = {
         current: {
           unmount: vi.fn(),
@@ -2276,7 +2298,7 @@ describe('<Select.Root />', () => {
 
       const { user } = await render(() => (
         <Select.Root
-          actionsRef={actionsRef}
+          actionsRef={refCallback(actionsRef)}
           onOpenChange={(_, details) => details.preventUnmountOnClose()}
         >
           <Select.Trigger data-testid="trigger">Open</Select.Trigger>
@@ -2318,6 +2340,7 @@ describe('<Select.Root />', () => {
     it.each([false, true])(
       'clears scroll arrow visibility when manually unmounted (strict: %s)',
       async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -2328,7 +2351,7 @@ describe('<Select.Root />', () => {
 
         const { user } = await render(() => (
           <Select.Root
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChange={(_, details) => details.preventUnmountOnClose()}
           >
             <Select.Trigger>Open</Select.Trigger>
@@ -2390,6 +2413,7 @@ describe('<Select.Root />', () => {
     );
 
     it('does not leave a tabbable option while closed and kept mounted after tabbing out', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = {
         current: {
           unmount: vi.fn(),
@@ -2404,7 +2428,7 @@ describe('<Select.Root />', () => {
           <Select.Root
             defaultValue="1"
             modal={false}
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             onOpenChange={(_, details) => details.preventUnmountOnClose()}
           >
             <Select.Trigger>Open</Select.Trigger>
@@ -7176,7 +7200,7 @@ describe('<Select.Root />', () => {
   describe('actionsRef: highlightItem', () => {
     function TestSelect(props: { actionsRef: RefObject<Select.Root.Actions | null> }) {
       return (
-        <Select.Root actionsRef={props.actionsRef}>
+        <Select.Root actionsRef={refCallback(props.actionsRef)}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -7194,6 +7218,7 @@ describe('<Select.Root />', () => {
     }
 
     it('moves the highlight while the popup is open', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Select.Root.Actions | null>;
       const { user } = await render(() => <TestSelect actionsRef={actionsRef} />);
 
@@ -7210,6 +7235,7 @@ describe('<Select.Root />', () => {
     });
 
     it('does not wrap, because Select does not loop focus', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Select.Root.Actions | null>;
       const { user } = await render(() => <TestSelect actionsRef={actionsRef} />);
 
@@ -7232,6 +7258,7 @@ describe('<Select.Root />', () => {
     });
 
     it('returns focus to the popup when the highlight is cleared', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Select.Root.Actions | null>;
       const { user } = await render(() => <TestSelect actionsRef={actionsRef} />);
 
@@ -7252,9 +7279,10 @@ describe('<Select.Root />', () => {
 
     it('moves relative to the selected item', async () => {
       // Select pre-highlights the selected item on open, so relative targets start from it.
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Select.Root.Actions | null>;
       const { user } = await render(() => (
-        <Select.Root actionsRef={actionsRef} defaultValue="2">
+        <Select.Root actionsRef={refCallback(actionsRef)} defaultValue="2">
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -7282,6 +7310,7 @@ describe('<Select.Root />', () => {
     });
 
     it('does nothing while the popup is closed', async () => {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null } as RefObject<Select.Root.Actions | null>;
       const { user } = await render(() => <TestSelect actionsRef={actionsRef} />);
 

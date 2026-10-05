@@ -1,7 +1,7 @@
 import { Autocomplete } from 'base-ui-solid/autocomplete';
 
 export default function ExampleAutocompleteKeyboardShortcuts() {
-  const actionsRef = { current: null } as { current: Autocomplete.Root.Actions | null };
+  let actions: Autocomplete.Root.Actions | undefined;
 
   function handleKeyDown(event: KeyboardEvent) {
     if (!event.ctrlKey || event.altKey || event.metaKey) {
@@ -15,11 +15,16 @@ export default function ExampleAutocompleteKeyboardShortcuts() {
     }
 
     event.preventDefault();
-    actionsRef.current?.highlightItem(target);
+    actions?.highlightItem(target);
   }
 
   return (
-    <Autocomplete.Root items={commands} actionsRef={actionsRef}>
+    <Autocomplete.Root
+      items={commands}
+      actionsRef={(value) => {
+        actions = value;
+      }}
+    >
       <div class="flex flex-col">
         <label class="flex flex-col gap-1 text-sm font-bold text-neutral-950 dark:text-white">
           Search commands

@@ -1,4 +1,4 @@
-import { flush } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 import { expect, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -110,22 +110,20 @@ describe('<Combobox.Popup />', () => {
   });
   it('returns focus to an explicitly provided element when the popup closes', async () => {
     function Test() {
-      const finalFocusRef: { current: HTMLButtonElement | null } = { current: null };
+      // Port note: the prop takes the element, from a signal set by a ref callback.
+      const [finalFocusElement, setFinalFocusElement] = createSignal<HTMLButtonElement | null>(
+        null,
+      );
       return (
         <div>
-          <button
-            ref={(element) => {
-              finalFocusRef.current = element;
-            }}
-            type="button"
-          >
+          <button ref={setFinalFocusElement} type="button">
             final focus
           </button>
           <Combobox.Root defaultOpen>
             <Combobox.Input />
             <Combobox.Portal>
               <Combobox.Positioner>
-                <Combobox.Popup finalFocus={finalFocusRef}>
+                <Combobox.Popup finalFocus={finalFocusElement()}>
                   <Combobox.List>
                     <Combobox.Item value="a">a</Combobox.Item>
                   </Combobox.List>

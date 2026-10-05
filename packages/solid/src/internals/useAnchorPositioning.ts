@@ -608,9 +608,7 @@ export function useAnchorPositioningWithHook(
 
       const anchorValue = untrack(anchor);
       const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
-      const unwrappedElement =
-        (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
-      const finalAnchor = unwrappedElement || null;
+      const finalAnchor = resolvedAnchor || null;
 
       if (finalAnchor !== registeredPositionReference) {
         refs.setPositionReference(finalAnchor);
@@ -620,27 +618,9 @@ export function useAnchorPositioningWithHook(
     () => [mounted(), anchorDep()],
   );
 
-  useEffect(
-    ([mountedValue]) => {
-      if (!mountedValue) {
-        return;
-      }
-
-      const anchorValue = untrack(anchor);
-
-      // Refs from parent components are set after useLayoutEffect runs and are available in useEffect.
-      // Therefore, if the anchor is a ref, we need to update the position reference in useEffect.
-      if (typeof anchorValue === 'function') {
-        return;
-      }
-
-      if (isRef(anchorValue) && anchorValue.current !== registeredPositionReference) {
-        refs.setPositionReference(anchorValue.current);
-        registeredPositionReference = anchorValue.current;
-      }
-    },
-    () => [mounted(), anchorDep()],
-  );
+  // Port note: upstream also re-reads a ref object anchor in a passive effect, because React sets
+  // refs from parent components after layout effects. The port takes the element itself (passed
+  // reactively, e.g. from a signal set by a ref callback), so the layout effect above covers it.
 
   useEffect(
     ([
@@ -754,24 +734,12 @@ export function useAnchorPositioningWithHook(
   };
 }
 
-function isRef(
-  param: Element | VirtualElement | RefObject<any> | null | undefined,
-): param is RefObject<any> {
-  return param != null && 'current' in param;
-}
-
 export interface UseAnchorPositioningSharedParameters {
   /**
    * An element to position the popup against.
    * By default, the popup will be positioned against the trigger.
    */
-  anchor?:
-    | Element
-    | null
-    | VirtualElement
-    | RefObject<Element | null>
-    | (() => Element | VirtualElement | null)
-    | undefined;
+  anchor?: Element | null | VirtualElement | (() => Element | VirtualElement | null) | undefined;
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'

@@ -117,7 +117,7 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
         : undefined;
 
     if (firstFocusableToast) {
-      firstFocusableToast.ref?.current?.focus();
+      firstFocusableToast.ref?.()?.focus();
     } else {
       store.restoreFocusToPrevElement();
     }

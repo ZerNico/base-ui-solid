@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { fireEvent, render, screen, waitFor } from '#test-utils';
+import { fireEvent, render, screen, waitFor, refCallback } from '#test-utils';
 import { Field } from '..';
 
 // Port note: upstream runs these with `SafeReact.useId` mocked away to exercise React 17's id
@@ -44,6 +44,7 @@ describe('<Field.Root /> with the React 17 id fallback', () => {
 
   it('allows mount-time imperative validation before the fallback id is assigned', async () => {
     function TestCase() {
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: { current: Field.Root.Actions | null } = { current: null };
 
       useIsoLayoutEffect(
@@ -54,7 +55,7 @@ describe('<Field.Root /> with the React 17 id fallback', () => {
       );
 
       return (
-        <Field.Root actionsRef={actionsRef} validate={() => 'Mount-time error'}>
+        <Field.Root actionsRef={refCallback(actionsRef)} validate={() => 'Mount-time error'}>
           <Field.Error />
         </Field.Root>
       );

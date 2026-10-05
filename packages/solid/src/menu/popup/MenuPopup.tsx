@@ -1,6 +1,5 @@
 import { createMemo, omit, untrack, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-solid';
@@ -289,13 +288,15 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupSta
    *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-   * - `RefObject`: Move focus to the ref element.
+   * - `HTMLElement`: Move focus to the element. `null` (an element that isn't set yet) falls back
+   *   to the default behavior.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
     | boolean
-    | RefObject<HTMLElement | null>
+    | HTMLElement
+    | null
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }

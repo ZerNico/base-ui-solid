@@ -1,6 +1,5 @@
 import { omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
@@ -42,8 +41,7 @@ export interface TooltipPortalProps extends BaseUIComponentProps<'div', TooltipP
   /**
    * A parent element to render the portal element into.
    */
-  container?:
-    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+  container?: HTMLElement | ShadowRoot | null | undefined;
 }
 
 export namespace TooltipPortal {

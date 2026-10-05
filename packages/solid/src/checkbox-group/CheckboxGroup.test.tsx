@@ -12,6 +12,7 @@ import {
   waitFor,
   describeConformance,
   isJSDOM,
+  refCallback,
 } from '#test-utils';
 import { CheckboxGroup } from '.';
 import { Checkbox } from '../checkbox';
@@ -1973,10 +1974,11 @@ describe('<CheckboxGroup />', () => {
       const validate = vi.fn(() => 'invalid');
 
       function App() {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: RefObject<Field.Root.Actions | null> = { current: null };
 
         return (
-          <Field.Root name="group" actionsRef={actionsRef} validate={validate}>
+          <Field.Root name="group" actionsRef={refCallback(actionsRef)} validate={validate}>
             <CheckboxGroup defaultValue={[]} />
             <button type="button" onClick={() => actionsRef.current?.validate()}>
               Validate

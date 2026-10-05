@@ -1,4 +1,3 @@
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
@@ -19,8 +18,7 @@ export interface ToastPortalProps extends BaseUIComponentProps<'div', ToastPorta
   /**
    * A parent element to render the portal element into.
    */
-  container?:
-    HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
+  container?: HTMLElement | ShadowRoot | null | undefined;
 }
 
 export namespace ToastPortal {

@@ -10,6 +10,7 @@ import {
   screen,
   wait,
   waitFor,
+  refCallback,
 } from '#test-utils';
 import { Popover } from '..';
 import { Menu } from '../../menu';
@@ -1678,6 +1679,7 @@ describe('<Popover.Root />', () => {
 
     describe('prop: actionsRef', () => {
       it('unmounts the popover when the `unmount` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -1688,7 +1690,7 @@ describe('<Popover.Root />', () => {
         const { user } = await render(() => (
           <TestPopover
             rootProps={{
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChange: (open, details) => {
                 details.preventUnmountOnClose();
               },
@@ -1723,7 +1725,7 @@ describe('<Popover.Root />', () => {
         const onOpenChangeComplete = vi.fn();
 
         const { user } = await render(() => (
-          <TestPopover rootProps={{ actionsRef, onOpenChangeComplete }} />
+          <TestPopover rootProps={{ actionsRef: refCallback(actionsRef), onOpenChangeComplete }} />
         ));
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -1744,6 +1746,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('keeps the opt-out when a controlled close is applied in a transition', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         function App() {
@@ -1754,7 +1757,7 @@ describe('<Popover.Root />', () => {
                 get open() {
                   return open();
                 },
-                actionsRef,
+                actionsRef: refCallback(actionsRef),
                 onOpenChangeComplete,
                 onOpenChange: (nextOpen, details) => {
                   if (!nextOpen) {
@@ -1785,10 +1788,17 @@ describe('<Popover.Root />', () => {
       });
 
       it('ignores `unmount` while the popup is open', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         await render(() => (
-          <TestPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }} />
+          <TestPopover
+            rootProps={{
+              defaultOpen: true,
+              actionsRef: refCallback(actionsRef),
+              onOpenChangeComplete,
+            }}
+          />
         ));
         const popup = screen.getByRole('dialog');
 
@@ -1801,13 +1811,14 @@ describe('<Popover.Root />', () => {
       });
 
       it('unmounts when `close` and `unmount` are called in one batch', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         await render(() => (
           <TestPopover
             rootProps={{
               defaultOpen: true,
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChangeComplete,
               onOpenChange: (open, details) => {
                 if (!open) {
@@ -1827,10 +1838,17 @@ describe('<Popover.Root />', () => {
       });
 
       it('still unmounts on a later close after `unmount` was called while open', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         const { user } = await render(() => (
-          <TestPopover rootProps={{ defaultOpen: true, actionsRef, onOpenChangeComplete }} />
+          <TestPopover
+            rootProps={{
+              defaultOpen: true,
+              actionsRef: refCallback(actionsRef),
+              onOpenChangeComplete,
+            }}
+          />
         ));
 
         actionsRef.current!.unmount();
@@ -1845,6 +1863,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('still unmounts on a later close after `unmount` and a reopen in one batch', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         let reopenOnComplete = true;
@@ -1857,7 +1876,7 @@ describe('<Popover.Root />', () => {
                 get open() {
                   return open();
                 },
-                actionsRef,
+                actionsRef: refCallback(actionsRef),
                 onOpenChange: (nextOpen, details) => {
                   if (!nextOpen && optOut) {
                     details.preventUnmountOnClose();
@@ -1896,13 +1915,14 @@ describe('<Popover.Root />', () => {
       });
 
       it('completes closing once when `unmount` is called twice in one batch', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
         const onOpenChangeComplete = vi.fn();
         const { user } = await render(() => (
           <TestPopover
             rootProps={{
               defaultOpen: true,
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChangeComplete,
               onOpenChange: (open, details) => {
                 if (!open) {
@@ -1924,8 +1944,11 @@ describe('<Popover.Root />', () => {
       });
 
       it('closes the popover when the `close` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
-        await render(() => <TestPopover rootProps={{ defaultOpen: true, actionsRef }} />);
+        await render(() => (
+          <TestPopover rootProps={{ defaultOpen: true, actionsRef: refCallback(actionsRef) }} />
+        ));
 
         actionsRef.current!.close();
         await flushMicrotasks();

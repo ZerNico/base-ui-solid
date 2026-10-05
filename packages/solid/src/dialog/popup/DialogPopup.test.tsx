@@ -108,22 +108,17 @@ describe('<Dialog.Popup />', () => {
 
     it('should focus the element provided to `initialFocus` as a ref when open', async () => {
       function TestComponent() {
-        // Port note: `React.useRef` becomes a ref object set from a ref callback.
-        const input2Ref: RefObject<HTMLInputElement | null> = { current: null };
+        // Port note: `React.useRef` becomes a signal set from a ref callback, because the prop takes the element.
+        const [input2Element, setInput2Element] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
             <Dialog.Root modal={false}>
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
-                <Dialog.Popup data-testid="dialog" initialFocus={input2Ref}>
+                <Dialog.Popup data-testid="dialog" initialFocus={input2Element()}>
                   <input data-testid="input-1" />
-                  <input
-                    data-testid="input-2"
-                    ref={(el) => {
-                      input2Ref.current = el;
-                    }}
-                  />
+                  <input data-testid="input-2" ref={setInput2Element} />
                   <input data-testid="input-3" />
                   <button>Close</button>
                 </Dialog.Popup>
@@ -522,8 +517,8 @@ describe('<Dialog.Popup />', () => {
 
     it('should focus the element provided to the prop when closed', async () => {
       function TestComponent() {
-        // Port note: `React.useRef` becomes a ref object set from a ref callback.
-        const inputRef: RefObject<HTMLInputElement | null> = { current: null };
+        // Port note: `React.useRef` becomes a signal set from a ref callback, because the prop takes the element.
+        const [inputElement, setInputElement] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
             <input />
@@ -531,18 +526,13 @@ describe('<Dialog.Popup />', () => {
               <Dialog.Backdrop />
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
-                <Dialog.Popup finalFocus={inputRef}>
+                <Dialog.Popup finalFocus={inputElement()}>
                   <Dialog.Close>Close</Dialog.Close>
                 </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
             <input />
-            <input
-              data-testid="input-to-focus"
-              ref={(el) => {
-                inputRef.current = el;
-              }}
-            />
+            <input data-testid="input-to-focus" ref={setInputElement} />
             <input />
           </div>
         );
@@ -703,32 +693,22 @@ describe('<Dialog.Popup />', () => {
 
     it('respects finalFocus when initialFocus points outside the popup', async () => {
       function TestComponent() {
-        // Port note: `React.useRef` becomes ref objects set from ref callbacks.
-        const initialRef: RefObject<HTMLInputElement | null> = { current: null };
-        const finalRef: RefObject<HTMLInputElement | null> = { current: null };
+        // Port note: `React.useRef` becomes a signal set from a ref callback, because the prop takes the element.
+        const [initialElement, setInitialElement] = createSignal<HTMLInputElement | null>(null);
+        const [finalElement, setFinalElement] = createSignal<HTMLInputElement | null>(null);
         return (
           <div>
-            <input
-              data-testid="initial-outside"
-              ref={(el) => {
-                initialRef.current = el;
-              }}
-            />
+            <input data-testid="initial-outside" ref={setInitialElement} />
             <Dialog.Root>
               <Dialog.Backdrop />
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
-                <Dialog.Popup initialFocus={initialRef} finalFocus={finalRef}>
+                <Dialog.Popup initialFocus={initialElement()} finalFocus={finalElement()}>
                   <Dialog.Close>Close</Dialog.Close>
                 </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
-            <input
-              data-testid="final-outside"
-              ref={(el) => {
-                finalRef.current = el;
-              }}
-            />
+            <input data-testid="final-outside" ref={setFinalElement} />
           </div>
         );
       }
@@ -750,22 +730,17 @@ describe('<Dialog.Popup />', () => {
 
     it('moves final focus to trigger if initialFocus points outside the popup and finalFocus is not specified', async () => {
       function TestComponent() {
-        // Port note: `React.useRef` becomes ref objects set from ref callbacks.
-        const initialRef: RefObject<HTMLInputElement | null> = { current: null };
+        // Port note: `React.useRef` becomes a signal set from a ref callback, because the prop takes the element.
+        const [initialElement, setInitialElement] = createSignal<HTMLInputElement | null>(null);
         const finalRef: RefObject<HTMLInputElement | null> = { current: null };
         return (
           <div>
-            <input
-              data-testid="initial-outside"
-              ref={(el) => {
-                initialRef.current = el;
-              }}
-            />
+            <input data-testid="initial-outside" ref={setInitialElement} />
             <Dialog.Root>
               <Dialog.Backdrop />
               <Dialog.Trigger>Open</Dialog.Trigger>
               <Dialog.Portal>
-                <Dialog.Popup initialFocus={initialRef}>
+                <Dialog.Popup initialFocus={initialElement()}>
                   <Dialog.Close>Close</Dialog.Close>
                 </Dialog.Popup>
               </Dialog.Portal>

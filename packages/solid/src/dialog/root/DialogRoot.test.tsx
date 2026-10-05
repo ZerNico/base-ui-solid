@@ -15,6 +15,7 @@ import {
   screen,
   wait,
   waitFor,
+  refCallback,
 } from '#test-utils';
 import { NumberField } from 'base-ui-solid/number-field';
 import { ScrollArea } from 'base-ui-solid/scroll-area';
@@ -448,11 +449,12 @@ describe('<Dialog.Root />', () => {
 
       it('reports no trigger when closing with an initial trigger id that is not mounted', async () => {
         const handleOpenChange = vi.fn();
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: RefObject<Dialog.Root.Actions | null> = { current: null };
 
         await render(() => (
           <Dialog.Root
-            actionsRef={actionsRef}
+            actionsRef={refCallback(actionsRef)}
             defaultOpen
             defaultTriggerId="missing-trigger"
             modal={false}
@@ -1261,6 +1263,7 @@ describe('<Dialog.Root />', () => {
 
     describe('prop: actionsRef', () => {
       it('unmounts the dialog when the `unmount` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -1271,7 +1274,7 @@ describe('<Dialog.Root />', () => {
         const { user } = await render(() => (
           <TestDialog
             rootProps={{
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChange: (open, details) => {
                 details.preventUnmountOnClose();
               },

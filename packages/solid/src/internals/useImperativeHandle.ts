@@ -1,34 +1,21 @@
-import { onCleanup, untrack } from 'solid-js';
+import { runWithOwner, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 
 /**
- * Port note: React assigns imperative handles before ancestor layout effects. Solid runs parent
- * effects first, so attach synchronously too, and detach on replacement or owner disposal.
+ * Hands an imperative `handle` to an `actionsRef`-style callback prop.
+ *
+ * Port note: counterpart of `React.useImperativeHandle`. Public `actionsRef` props are callbacks
+ * (like Solid's `ref`), not ref objects. The callback is read once and called once, synchronously
+ * on setup, so the handle is available before ancestors' effects run (React assigns imperative
+ * handles before them too). Like this port's `ref` props, it isn't called with `null` on disposal.
+ * It runs without an owner, like Solid's ref callbacks, so it may write signals.
  */
-export function useImperativeHandle<T>(ref: Accessor<RefObject<T | null> | undefined>, handle: T) {
-  let attachedRef: RefObject<T | null> | undefined;
-  const detach = () => {
-    if (attachedRef?.current === handle) {
-      attachedRef.current = null;
-    }
-    attachedRef = undefined;
-  };
-  const attach = (nextRef: RefObject<T | null> | undefined) => {
-    detach();
-    attachedRef = nextRef;
-    if (nextRef) {
-      nextRef.current = handle;
-    }
-  };
-  attach(untrack(ref));
-  onCleanup(detach);
-  useIsoLayoutEffect(
-    ([nextRef]) => {
-      attach(nextRef);
-      return detach;
-    },
-    () => [ref()],
-  );
+export function useImperativeHandle<T>(
+  ref: Accessor<((handle: T) => void) | undefined>,
+  handle: T,
+) {
+  const callback = untrack(ref);
+  if (callback) {
+    runWithOwner(null, () => callback(handle));
+  }
 }

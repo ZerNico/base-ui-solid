@@ -11,6 +11,7 @@ import {
   resetBrowserPointer,
   screen,
   waitFor,
+  refCallback,
 } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
@@ -488,6 +489,7 @@ describe('<PreviewCard.Root />', () => {
 
     describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
       it('unmounts the preview card when the `unmount` method is called', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef = {
           current: {
             unmount: vi.fn(),
@@ -498,7 +500,7 @@ describe('<PreviewCard.Root />', () => {
         const { user } = await render(() => (
           <TestPreviewCard
             rootProps={{
-              actionsRef,
+              actionsRef: refCallback(actionsRef),
               onOpenChange: (open, details) => {
                 details.preventUnmountOnClose();
               },
@@ -532,10 +534,14 @@ describe('<PreviewCard.Root />', () => {
 
       it('closes the preview card when the `close` method is called', async () => {
         const onOpenChange = vi.fn();
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
         const actionsRef: { current: PreviewCard.Root.Actions | null } = { current: null };
 
         const { user } = await render(() => (
-          <TestPreviewCard rootProps={{ actionsRef, onOpenChange }} triggerProps={{ delay: 0 }} />
+          <TestPreviewCard
+            rootProps={{ actionsRef: refCallback(actionsRef), onOpenChange }}
+            triggerProps={{ delay: 0 }}
+          />
         ));
 
         const trigger = screen.getByRole('link', { name: 'Link' });

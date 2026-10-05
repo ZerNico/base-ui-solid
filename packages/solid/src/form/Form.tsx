@@ -223,18 +223,26 @@ export interface FormProps<
   onFormSubmit?:
     ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void) | undefined;
   /**
-   * A ref to imperative actions.
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
    * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.
    * @example
    * ```tsx
+   * let actions: Form.Actions | undefined;
+   * <Form
+   *   actionsRef={(value) => {
+   *     actions = value;
+   *   }}
+   * />;
+   *
    * // validate all fields
-   * actionsRef.current?.validate();
+   * actions?.validate();
    *
    * // validate one field
-   * actionsRef.current?.validate('email');
+   * actions?.validate('email');
    * ```
    */
-  actionsRef?: RefObject<Form.Actions | null> | undefined;
+  actionsRef?: ((actions: Form.Actions) => void) | undefined;
 }
 
 export namespace Form {
