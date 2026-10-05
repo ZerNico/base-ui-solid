@@ -1,7 +1,6 @@
 import { untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { closest, getTarget } from '../../floating-ui-solid/utils';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
@@ -36,7 +35,8 @@ export function useLabel(params: UseLabelParameters = {}): Accessor<UseLabelRetu
       return;
     }
 
-    const controlElement = ownerDocument(event.currentTarget as Element).getElementById(controlId);
+    const root = (event.currentTarget as Element).getRootNode() as Document | ShadowRoot;
+    const controlElement = root.getElementById(controlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }

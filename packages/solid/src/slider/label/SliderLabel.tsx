@@ -1,7 +1,6 @@
 import { omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { focusElementWithVisible, useLabel } from '../../internals/labelable-provider/useLabel';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -29,9 +28,8 @@ export function SliderLabel(componentProps: SliderLabel.Props): JSX.Element {
 
   function focusControl(event: MouseEvent, controlId: string | undefined) {
     if (controlId) {
-      const controlElement = ownerDocument(event.currentTarget as Element).getElementById(
-        controlId,
-      );
+      const root = (event.currentTarget as Element).getRootNode() as Document | ShadowRoot;
+      const controlElement = root.getElementById(controlId);
       if (isHTMLElement(controlElement)) {
         focusElementWithVisible(controlElement);
         return;
