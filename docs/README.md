@@ -52,11 +52,16 @@ See [PORTING-DOCS.md](./PORTING-DOCS.md) for the repeatable content port workflo
 The docs deploy to Cloudflare Pages, which builds the site from the repository on every push
 (nothing built is committed). Project settings:
 
-- Production branch: `main`
+- Production branch: `docs-v1`
 - Build command: `corepack enable && pnpm install --frozen-lockfile && pnpm docs:build`
 - Build output directory: `docs/export`
 - Environment variables: `SKIP_DEPENDENCY_INSTALL=1` (the build command installs with the pnpm
   version pinned in `packageManager`)
+
+Like upstream, the live site is built from the `docs-v1` branch, not from `main`, so pushes to
+`main` don't change it. To publish, run the "Deploy docs" workflow in GitHub Actions. It moves
+`docs-v1` to `main` (or another ref you pick), and Cloudflare builds from there. Preview
+deployments for other branches can stay on or be turned off in the Cloudflare project settings.
 
 The Node version comes from `.node-version`. Cloudflare applies `public/_redirects` and
 `public/_headers`, which the build copies into the export.

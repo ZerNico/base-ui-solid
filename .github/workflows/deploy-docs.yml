@@ -1,0 +1,27 @@
+name: Deploy docs
+
+# Port note: like upstream, the production docs are built from the `docs-v1` branch, not from
+# `main`. Cloudflare Pages builds whatever lands on `docs-v1`. Run this workflow to publish the
+# current `main` (or another ref) to the docs site.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit, branch or tag to publish'
+        required: true
+        default: main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Move docs-v1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+      - name: Push to docs-v1
+        run: git push origin "HEAD:refs/heads/docs-v1" --force
