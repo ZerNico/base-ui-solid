@@ -46,7 +46,7 @@ for (const filename of sourceFiles.filter(
   const text = await readFile(filename, 'utf8');
   for (const [url] of text.matchAll(upstreamPattern)) {
     if (
-      /^https:\/\/github\.com\/mui\/base-ui\/(?:pull\/\d+(?:\/files)?\/?(?:#(?:issuecomment-\d+|diff-[a-f0-9]+))?|blob\/master\/CHANGELOG\.md)$/.test(
+      /^https:\/\/github\.com\/mui\/base-ui\/(?:pull\/\d+(?:\/files)?\/?(?:#(?:issuecomment-\d+|diff-[a-f0-9]+))?|blob\/master\/CHANGELOG\.md|commit\/[a-f0-9]{40}|releases\/tag\/v\d+\.\d+\.\d+)$/.test(
         url,
       )
     ) {
@@ -54,7 +54,9 @@ for (const filename of sourceFiles.filter(
     }
   }
 }
-console.log('Allowed upstream URLs (attribution, changelog and implementation provenance):');
+console.log(
+  'Allowed upstream URLs (attribution, changelog, release provenance and implementation provenance):',
+);
 console.log([...allowlist].sort().join('\n'));
 console.log(
   'https://base-ui.com — only in performance.mjs / compareScreenshots.mjs as upstream comparison target',

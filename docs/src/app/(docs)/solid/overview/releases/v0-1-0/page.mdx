@@ -1,0 +1,52 @@
+import { sourceUrl } from '../../../../../../config';
+
+# v0.1.0
+
+<Subtitle>Oct 6, 2026</Subtitle>
+<Meta name="description" content="v0.1.0 release notes. Oct 6, 2026." />
+
+## Upstream
+
+- Tracks upstream commit [`3260085`](https://github.com/mui/base-ui/commit/32600859aec46fd616e812dd6c750d619206e12f), the same as v0.0.1, which builds on `@base-ui/react` [v1.8.0](https://github.com/mui/base-ui/releases/tag/v1.8.0)
+- The changes below are Solid-specific. The full list of differences from the React API is in the <a href={sourceUrl('PORTING.md')}>public API differences</a>.
+
+## Breaking changes
+
+- Popup Root render-function children are called once with `{ payload }`, where `payload` is an accessor (Dialog, Alert Dialog, Drawer, Popover, Menu, Context Menu, Tooltip, Preview Card).<br />
+  Read the payload as `payload()`.
+- Combobox and Autocomplete `List` and `Collection` render functions are called once per item with `item` and `index` as accessors, like `<For keyed>`.<br />
+  Read them as `item()` and `index()`. Rows are keyed by the item value, so they update in place.
+- `*.Value` render functions (Progress, Meter, Slider, Select, Combobox, Autocomplete) are called once with accessors of their arguments.<br />
+  Read them in JSX, as a returned plain string isn't reactive.
+- `actionsRef` and `inputRef` are callbacks instead of ref objects. `actionsRef` is called once with the actions on setup.<br />
+  Replace `{ current }` objects with `(actions) => …` or `(input) => …`.
+- `container`, `anchor`, `initialFocus` and `finalFocus` take the element itself instead of a ref object.<br />
+  Store the element in a signal from a `ref` callback and pass its value (`null` until it's set).
+- `ToastObject.ref` is a getter that returns the toast element.<br />
+  Call `toast.ref()` instead of reading `toast.ref.current`.
+- `mergeProps` and `mergePropsN` return a reactive object like Solid's `merge`, with stable merged event handlers.<br />
+  Read its properties where they're used instead of copying them out once.
+- Type parameters are `Combobox.Root<Item, Multiple, Value = Item>` and `Select.Root<ItemValue, Multiple, Value = ItemValue>`, and the value type is inferred from `items` when there's no `value` or `defaultValue`.<br />
+  Reorder explicit type arguments.
+
+## Bug fixes
+
+- Fix development builds freezing when an Accordion Item, Collapsible, Field Root, Radio or Checkbox is removed from a `<For>` list
+- Fix `useToastManager().toasts` replacing a toast's object on update, which made unkeyed `<For>` lists remount or loop. Toasts are now reconciled by id.
+- Fix Menu item children freezing when a checkbox or radio item indicator mounts
+- Fix server-rendered input parts losing `defaultValue` and `defaultChecked` when `render` replaces the input
+- Fix the active list item not receiving focus when it's set in the same update as the items mount
+- Fix Radio Group keeping its initial `id` for field registration
+- Fix Tabs panel registration shifting hydration keys and holding up route transitions
+- Fix the Collapsible panel rendering one stale frame when its forced idle status ends
+
+## Improvements
+
+- Infer Combobox and Select value types from `items`, and make the `List`, `Collection` and `*.Value` parts generic, for example `<Combobox.List<Fruit>>`
+- Accept `style={false}`, so `render` function props spread on components
+- Allow `data-*` attributes in `useRender.ElementProps`
+- Track popup handles' `isOpen` in JSX, memos and effects
+- Read `Autocomplete.useFilter` options lazily, like `Combobox.useFilter`
+- Log a development error pointing to a render function when `render` receives an element
+- Halve Solid's development diagnostics from the library by keeping memo outputs stable and deriving registrations, and name the store's signals, memos and effects (`BaseUI.Store(PopoverStore).track`) so the remaining ones point to the library
+- Docs: map React types to Solid types in the API references, use Solid patterns in examples, replace the React Hook Form section with Formisch, and point package documentation links at the Solid docs
