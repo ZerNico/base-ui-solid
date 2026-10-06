@@ -1,6 +1,6 @@
 {
   "name": "base-ui-solid",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An unofficial Solid 2.0 port of Base UI, a library of headless ('unstyled') components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
   "keywords": [
