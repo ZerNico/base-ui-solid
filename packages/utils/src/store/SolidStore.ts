@@ -6,6 +6,7 @@ import type { MaybeAccessorArgs } from './useStore';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 import { IS_DEV } from '../isDev';
+import { getStoreDebugName } from './storeDebugName';
 
 /**
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for Solid.
@@ -58,6 +59,7 @@ export class SolidStore<
         }
       },
       () => [value()],
+      IS_DEV ? debugName(store, 'useSyncedValue', key) : undefined,
     );
   }
 
@@ -85,6 +87,7 @@ export class SolidStore<
         };
       },
       () => [value()],
+      IS_DEV ? debugName(store, 'useSyncedValueWithCleanup', key) : undefined,
     );
   }
 
@@ -126,7 +129,9 @@ export class SolidStore<
         }
         return nextPart;
       },
-      { equals: haveSameValues },
+      IS_DEV
+        ? { equals: haveSameValues, name: `${debugName(store, 'useSyncedValues')}.part` }
+        : { equals: haveSameValues },
     );
 
     useIsoLayoutEffect(
@@ -134,6 +139,7 @@ export class SolidStore<
         store.update(nextPart);
       },
       () => [part()],
+      IS_DEV ? debugName(store, 'useSyncedValues') : undefined,
     );
   }
 
@@ -159,6 +165,7 @@ export class SolidStore<
         const controlledValue = controlled();
         return [controlledValue, controlledValue !== undefined] as const;
       },
+      IS_DEV ? debugName(store, 'useControlledProp', key) : undefined,
     );
 
     if (IS_DEV) {
@@ -179,6 +186,7 @@ export class SolidStore<
           }
         },
         () => [controlled() !== undefined],
+        `${debugName(store, 'useControlledProp', key)}.check`,
       );
     }
   }
@@ -295,6 +303,14 @@ export class SolidStore<
       }
     });
   }
+}
+
+/**
+ * Dev-only label of a synchronization effect, e.g. `BaseUI.Store(PopoverStore).useSyncedValue(open)`
+ * (see `storeDebugName.ts`).
+ */
+function debugName(store: object, method: string, key?: PropertyKey) {
+  return `${getStoreDebugName(store)}.${method}${key === undefined ? '' : `(${String(key)})`}`;
 }
 
 function haveSameValues(a: object, b: object) {

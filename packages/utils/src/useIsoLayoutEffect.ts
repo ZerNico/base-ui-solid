@@ -1,5 +1,6 @@
 import { createEffect, createMemo, untrack } from 'solid-js';
 import { runCleanup } from './cleanup';
+import { IS_DEV } from './isDev';
 
 export type EffectCallback<Deps extends readonly unknown[]> = (deps: Deps) => void | (() => void);
 
@@ -13,20 +14,34 @@ export type EffectCallback<Deps extends readonly unknown[]> = (deps: Deps) => vo
  *
  * Read reactive values inside `deps` and use the values passed to `effect` — reads inside
  * `effect` are not tracked.
+ *
+ * Port note: `name` is an optional debug label for Solid's diagnostics (the `name` option of the
+ * effect, and `<name>.deps` for its dependency memo). In development it defaults to
+ * `BaseUI.useIsoLayoutEffect`, so diagnostics about the library's effects don't show up as
+ * anonymous effects in the user's component tree. Production builds ignore names, so pass one
+ * only when `IS_DEV` is true.
  */
 export function useIsoLayoutEffect<const Deps extends readonly unknown[]>(
   effect: EffectCallback<Deps>,
   deps: () => Deps,
+  name: string | undefined = IS_DEV ? 'BaseUI.useIsoLayoutEffect' : undefined,
 ) {
   // Solid effects re-run whenever their compute re-runs, so dependency equality is enforced by
   // a memo in front of the effect.
-  const memoizedDeps = createMemo(deps, { equals: areDepsEqual });
+  const memoizedDeps = createMemo(
+    deps,
+    name === undefined ? { equals: areDepsEqual } : { equals: areDepsEqual, name: `${name}.deps` },
+  );
   // Untracked, like reading from a React render closure. This also marks the reads as
   // intentional for Solid's `STRICT_READ_UNTRACKED` diagnostic.
-  createEffect(memoizedDeps, (value) => {
-    const cleanup = untrack(() => effect(value));
-    return cleanup ? () => runCleanup(cleanup) : undefined;
-  });
+  createEffect(
+    memoizedDeps,
+    (value) => {
+      const cleanup = untrack(() => effect(value));
+      return cleanup ? () => runCleanup(cleanup) : undefined;
+    },
+    name === undefined ? undefined : { name },
+  );
 }
 
 /**

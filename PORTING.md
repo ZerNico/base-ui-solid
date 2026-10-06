@@ -102,6 +102,8 @@ local `/solid/…` paths (`docs/src/mdx/markdownPlugin.mjs`).
   React semantics: runs after the DOM update, only when a dep changed (`Object.is`), and the
   returned cleanup runs before the next run and on disposal. Read reactive values in `deps` and use
   the values passed to `effect`. Writes to signals are allowed in `effect` and in its cleanup.
+  An optional third argument names the effect for Solid's diagnostics (dev only, it defaults to
+  `BaseUI.useIsoLayoutEffect`).
 - Solid runs disposal cleanups inside the computation that removed the owner (a `<For>` row, a
   `<Show>` branch), where a signal write throws `REACTIVE_WRITE_IN_OWNED_SCOPE` in dev and halts
   reactivity. `useIsoLayoutEffect` runs its cleanups through `runCleanup` from
@@ -360,6 +362,13 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 
 ## Known issues
 
+- **Diagnostics naming `BaseUI.Store...` or `BaseUI.useIsoLayoutEffect` come from the library.**
+  They're the store's upstream-shaped sync (props copied into the store from effects), not user
+  code. In dev, the store names its nodes after its class and method
+  (`BaseUI.Store(PopoverStore).track`, `.useSyncedValues`, `.useControlledProp(open)`,
+  `.useState(open)`, see `storeDebugName.ts`). `storeDiagnostics.port.test.tsx` caps the findings
+  per popup at a recorded baseline.
+
 ### Firefox and WebKit
 
 Like upstream, CI only runs jsdom and Chromium. `pnpm test:firefox` and `pnpm test:webkit` fail
@@ -391,7 +400,7 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules, the Collapsible
   panel's forced idle status) instead of writing them from effects. The remaining ones follow
   upstream's layout-effect design:
-  - `EFFECT_RELAY_TEAR` via `subscribeToStore.track` (Select, Combobox, Autocomplete, Popover,
+  - `EFFECT_RELAY_TEAR` via `BaseUI.Store(<store>).track` (Select, Combobox, Autocomplete, Popover,
     Preview Card, Dialog, Drawer, Tooltip, Navigation Menu): popups sync their props into the
     `Store` from layout effects (`useSyncedValue`, `store.update`), like upstream. Removing it needs
     a store whose synced keys are derived, not written.

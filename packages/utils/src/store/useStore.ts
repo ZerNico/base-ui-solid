@@ -2,6 +2,8 @@ import { createMemo, createSignal, onCleanup } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { isServer } from '@solidjs/web';
 import type { ReadonlyStore } from './Store';
+import { IS_DEV } from '../isDev';
+import { getSelectorDebugName, getStoreDebugName } from './storeDebugName';
 
 /**
  * A selector argument, or an accessor returning it.
@@ -61,7 +63,10 @@ export function useStore(
       track();
       return selector(store.getSnapshot(), resolve(a1), resolve(a2), resolve(a3));
     },
-    { equals: Object.is },
+    // Dev-only label for Solid's diagnostics (see `storeDebugName.ts`).
+    IS_DEV
+      ? { equals: Object.is, name: getSelectorDebugName(store, selector) }
+      : { equals: Object.is },
   );
 }
 
@@ -70,7 +75,13 @@ export function useStore(
  * tracks the store's changes when called in a reactive scope.
  */
 export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'>) {
-  const [track, trigger] = createSignal(undefined, { equals: false, ownedWrite: true });
+  const [track, trigger] = createSignal(
+    undefined,
+    // Dev-only label for Solid's diagnostics (see `storeDebugName.ts`).
+    IS_DEV
+      ? { equals: false, ownedWrite: true, name: `${getStoreDebugName(store)}.track` }
+      : { equals: false, ownedWrite: true },
+  );
   if (isServer) {
     // Server rendering is a single pass: nothing re-renders, and writing the signal from a store
     // update (e.g. a Root seeding its store while rendering) triggers Solid's `SERVER_WRITE`
