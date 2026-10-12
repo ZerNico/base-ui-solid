@@ -52,7 +52,13 @@
         "description": "Replace the default element with a tag name, component, or render function."
       }
     ],
-    "dataAttributes": [],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the fieldset is disabled."
+      }
+    ],
     "cssVariables": [],
     "additionalTypes": [
       {

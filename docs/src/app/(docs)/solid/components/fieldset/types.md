@@ -39,6 +39,12 @@ Renders a `<div>` element.
 | style  | `JSX.CSSProperties \| string \| ((state) => JSX.CSSProperties \| string \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state. |
 | render | `keyof JSX.IntrinsicElements \| Component \| ((props, state) => JSX.Element)`          | -       | Replace the default element with a tag name, component, or render function.                                 |
 
+**Legend Data Attributes:**
+
+| Attribute     | Type | Description                            |
+| :------------ | :--- | :------------------------------------- |
+| data-disabled | -    | Present when the fieldset is disabled. |
+
 ### Legend.State
 
 ```typescript
