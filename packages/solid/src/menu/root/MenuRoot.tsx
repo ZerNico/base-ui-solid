@@ -67,7 +67,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   const virtualFocusRef = untrack(() => props.virtualFocusRef);
   const allowEscape = () => props.allowEscape ?? true;
   const resetOnPointerLeave = () => props.resetOnPointerLeave ?? true;
-  const webkitItemSelected = () => props.webkitItemSelected ?? false;
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
@@ -77,7 +76,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   // invalidation doesn't cascade into every descendant root's context.
   const enclosingMenuStore = parentMenuRootContext?.store;
   const parentVirtualFocus = () => parentMenuRootContext?.virtualFocus ?? false;
-  const parentWebkitItemSelected = () => parentMenuRootContext?.webkitItemSelected ?? false;
 
   // Port note: computed once; it only depends on which contexts are present.
   const parentFromContext: MenuParent = (() => {
@@ -804,12 +802,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get parentVirtualFocus() {
       return parentVirtualFocus();
     },
-    get parentWebkitItemSelected() {
-      return parentWebkitItemSelected();
-    },
-    get webkitItemSelected() {
-      return webkitItemSelected();
-    },
     syncHighlightedItem,
   };
 
@@ -894,10 +886,6 @@ export interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> 
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
-  /**
-   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
-   */
-  webkitItemSelected?: boolean | undefined;
 }
 
 export interface MenuRootProps<Payload = unknown> {

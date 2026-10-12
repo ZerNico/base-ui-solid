@@ -4,7 +4,7 @@ import type { MenuParent, MenuRoot } from './MenuRoot';
 
 /**
  * Port note: the context value is a stable object. Values that come from props (`orientation`,
- * `loopFocus`, `allowEscape`, `virtualFocus`, `webkitItemSelected`, …) are getters: read them in a
+ * `loopFocus`, `allowEscape`, `virtualFocus`, …) are getters: read them in a
  * reactive scope.
  */
 export interface MenuRootContext<Payload = unknown> {
@@ -19,13 +19,6 @@ export interface MenuRootContext<Payload = unknown> {
   setRenderedFloatingId: (id: string | undefined) => void;
   virtualFocus: boolean;
   parentVirtualFocus: boolean;
-  /** The parent list's WebKit selection state, used by this menu's submenu trigger. */
-  parentWebkitItemSelected: boolean;
-  /**
-   * Whether items should expose `aria-selected`, which WebKit needs to follow
-   * `aria-activedescendant` into a menu. Resolved once per root, not per item.
-   */
-  webkitItemSelected: boolean;
   /** Re-emits `onItemHighlighted` after the item registry settles. */
   syncHighlightedItem: () => void;
 }

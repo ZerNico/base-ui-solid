@@ -70,8 +70,11 @@ export function useMenuItemCommonProps(
   const isSubmenuTrigger = itemMetadata.type === 'submenu-trigger';
   const virtualFocus = () =>
     isSubmenuTrigger ? rootContext.parentVirtualFocus : rootContext.virtualFocus;
-  const webkitItemSelected = () =>
-    isSubmenuTrigger ? rootContext.parentWebkitItemSelected : rootContext.webkitItemSelected;
+  const selectionStore =
+    isSubmenuTrigger && rootContext.parent.type === 'menu'
+      ? rootContext.parent.store
+      : rootContext.store;
+  const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const open = store.useState('open');
@@ -79,10 +82,6 @@ export function useMenuItemCommonProps(
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const tabIndex = () => (!virtualFocus() && open() && highlighted() ? 0 : -1);
-
-  // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
-  // support needs it. See `webkitItemSelected` on `MenuRootContext`.
-  const ariaSelected = () => (virtualFocus() && webkitItemSelected() ? highlighted() : undefined);
 
   return createMemo((): HTMLProps => ({
     id: id(),

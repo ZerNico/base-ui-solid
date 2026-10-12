@@ -1,6 +1,7 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui-solid/utils/empty';
+import { platform } from '@base-ui-solid/utils/platform';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-solid/components/FloatingTreeStore';
@@ -34,6 +35,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   filterTriggerProps: HTMLProps;
   /** List navigation props for the element that holds real focus under virtual focus. */
   inputProps: HTMLProps;
+  /** Whether this menu's filter input has focus. */
+  inputFocused: boolean;
   /** The element at `activeIndex` once the item list settles. Only virtual focus publishes it. */
   highlightedItem: HTMLElement | undefined;
   hoverEnabled: boolean;
@@ -101,6 +104,11 @@ const selectors = {
   },
   filterTriggerProps: (state: State<unknown>) => state.filterTriggerProps,
   inputProps: (state: State<unknown>) => state.inputProps,
+  // `aria-selected` is invalid on `menuitem`, but Safari VoiceOver needs it for arrow-key
+  // navigation. Limit it to WebKit while the input has focus so normal VoiceOver navigation
+  // does not encounter the invalid attribute.
+  webkitAriaSelected: (state: State<unknown>, highlighted: boolean) =>
+    platform.engine.webkit && state.inputFocused && highlighted ? true : undefined,
   highlightedItemId: (state: State<unknown>) => state.highlightedItem?.id || undefined,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
@@ -302,6 +310,7 @@ function createInitialState<Payload>(
     listElement: null,
     filterTriggerProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
+    inputFocused: false,
     highlightedItem: undefined,
     hoverEnabled: true,
     instantType: undefined,
