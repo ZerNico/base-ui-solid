@@ -9,6 +9,7 @@ import {
   flushMicrotasks,
   isJSDOM,
   recordRender,
+  resetBrowserPointer,
   screen,
   waitFor,
 } from '#test-utils';
@@ -26,6 +27,8 @@ import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 //   from a layout effect that re-runs whenever the recorded state changes.
 
 describe('<Popover.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
