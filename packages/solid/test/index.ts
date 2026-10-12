@@ -16,6 +16,7 @@ export { describeConformance } from './describeConformance';
 export type { ConformanceOptions } from './describeConformance';
 export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { popupConformanceTests } from './popupConformanceTests';
+export { popupListConformanceTests } from './popupListConformanceTests';
 export { renderToString } from './renderToString';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { useTestInteractions } from './useTestInteractions';
