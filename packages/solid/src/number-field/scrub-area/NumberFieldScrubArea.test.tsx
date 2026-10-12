@@ -7,6 +7,7 @@ import {
   flushMicrotasks,
   describeConformance,
   isJSDOM,
+  wait,
 } from '#test-utils';
 import { platform } from '@base-ui-solid/utils/platform';
 import { NumberField } from '..';
@@ -641,20 +642,29 @@ describe('<NumberField.ScrubArea />', () => {
     });
   });
 
-  it('should fire onClick when clicked without scrubbing', async () => {
+  it('should fire onClick once when clicked without scrubbing', async () => {
     const handleClick = vi.fn();
 
-    const { user } = await render(() => (
+    await render(() => (
       <NumberField.Root defaultValue={0}>
-        <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
+        <NumberField.ScrubArea
+          data-testid="scrub-area"
+          onClick={handleClick}
+          style={{ display: 'inline-block', width: '100px', height: '40px' }}
+        >
           <NumberField.ScrubAreaCursor />
         </NumberField.ScrubArea>
+        <NumberField.Input />
       </NumberField.Root>
     ));
 
-    await user.click(screen.getByTestId('scrub-area'));
+    // Real browser input, so the native click and the synthesized one can both happen.
+    const { userEvent } = await import('vitest/browser');
+    await userEvent.click(screen.getByTestId('scrub-area'));
+    // The synthesized click is deferred by one task (20ms in Firefox).
+    await wait(50);
 
-    expect(handleClick.mock.calls.length).toBe(1);
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('should fire onClick on child elements', async () => {

@@ -64,10 +64,12 @@ export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props)
   let isScrubbingRef = false;
   let didMove = false;
   let pointerDownTarget: EventTarget | null = null;
+  let nativeClickReceived = false;
   const scrubAreaCursorRef: { current: HTMLSpanElement | null } = { current: null };
   let virtualCursorCoords = { x: 0, y: 0 };
 
   const exitPointerLockTimeout = useTimeout();
+  const syntheticClickTimeout = useTimeout();
 
   const [isTouchInput, setIsTouchInput] = createSignal(false);
   const [isPointerLockDenied, setIsPointerLockDenied] = createSignal(false);
@@ -176,17 +178,26 @@ export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props)
               createGenericEventDetails(REASONS.scrub, event),
             );
 
-            // Manually dispatch a click event if no movement happened, since
-            // preventDefault on pointerdown prevents the browser click event.
+            // Dispatch a click if no movement happened. While the pointer is locked, the
+            // browser targets its click at the lock element instead of the scrub area.
+            // Without a lock (WebKit, or a denied request) the native click still arrives,
+            // and it is dispatched after pointerup in the same task, so wait one task and
+            // only synthesize the click if the native one didn't reach the scrub area.
             const target = pointerDownTarget;
             const input = inputRef.current;
             if (!didMove && target != null && input) {
-              target.dispatchEvent(
-                new (ownerWindow(input).MouseEvent)('click', {
-                  bubbles: true,
-                  cancelable: true,
-                }),
-              );
+              const MouseEventConstructor = ownerWindow(input).MouseEvent;
+              syntheticClickTimeout.start(0, () => {
+                if (nativeClickReceived) {
+                  return;
+                }
+                target.dispatchEvent(
+                  new MouseEventConstructor('click', {
+                    bubbles: true,
+                    cancelable: true,
+                  }),
+                );
+              });
             }
 
             didMove = false;
@@ -303,6 +314,8 @@ export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props)
 
       isScrubbingRef = true;
       didMove = false;
+      nativeClickReceived = false;
+      syntheticClickTimeout.clear();
       pointerDownTarget = getTarget(event);
       onScrubbingChange(true, event);
 
@@ -335,11 +348,28 @@ export function NumberFieldScrubArea(componentProps: NumberFieldScrubArea.Props)
     scrubAreaCursorRef,
   };
 
+  // Port note: Solid has no capture-phase event props, so upstream's `onClickCapture` is a
+  // native capture listener.
+  const handleClickCapture = () => {
+    nativeClickReceived = true;
+  };
+  let clickCaptureElement: HTMLElement | null = null;
+  const clickCaptureRef = (element: HTMLElement | null) => {
+    if (element === clickCaptureElement) {
+      return;
+    }
+    clickCaptureElement?.removeEventListener('click', handleClickCapture, true);
+    clickCaptureElement = element;
+    element?.addEventListener('click', handleClickCapture, true);
+  };
+  onCleanupWithWrites(() => clickCaptureRef(null));
+
   return (
     <NumberFieldScrubAreaContext value={contextValue}>
       {useRenderElement('span', componentProps, {
         ref: (element: HTMLSpanElement | null) => {
           scrubAreaElement = element;
+          clickCaptureRef(element);
         },
         state,
         props: [defaultProps, elementProps],
