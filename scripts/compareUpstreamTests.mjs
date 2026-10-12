@@ -14,7 +14,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const UP = path.resolve(process.argv[2] ?? path.join(ROOT, '../base-ui'), 'packages');
 const PT = path.join(ROOT, 'packages');
 // Tests of React-only utilities that have no Solid counterpart.
-const REACT_ONLY_TEST_FILES = new Set(['utils/src/getReactElementRef.test.tsx']);
+const REACT_ONLY_TEST_FILES = new Set([
+  'utils/src/getReactElementRef.test.tsx',
+  // React 17's `useId` fallback, which Solid's `createUniqueId` makes unnecessary.
+  'utils/src/useId.react17.test.tsx',
+]);
 
 const MAP = [
   ['react/src', 'solid/src'],
