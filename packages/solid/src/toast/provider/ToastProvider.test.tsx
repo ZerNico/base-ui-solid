@@ -114,4 +114,14 @@ describe('<Toast.Provider />', () => {
   // React-only: abandoned renders (`React.Suspense` + `useTransition` suspending the provider's
   // subtree before it commits) have no Solid equivalent.
   it.skip('does not sync provider props from an abandoned render', () => {});
+
+  describe('React.Activity', () => {
+    // React-only: `React.Activity` (hide/reveal tearing effects down without unmounting) has no
+    // Solid counterpart.
+    it.skip('pauses the auto-dismiss timer while hidden and resumes it with the remaining time once revealed', () => {});
+    // React-only: `React.Activity`.
+    it.skip('keeps the timer paused after reveal while the viewport is still hovered', () => {});
+    // React-only: `React.Activity`.
+    it.skip('does not start the timer of a toast updated while hidden until it is revealed', () => {});
+  });
 });
