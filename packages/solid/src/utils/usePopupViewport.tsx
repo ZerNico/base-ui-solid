@@ -179,10 +179,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   );
 
   useIsoLayoutEffect(
-    ([activeTriggerValue, previousActiveTriggerValue]) => {
+    ([openValue, activeTriggerValue, previousActiveTriggerValue]) => {
       // When a trigger changes, set the captured children HTML to state,
       // so we can render both new and old content.
+      // `previousActiveTrigger` keeps the last open trigger while closed, so a trigger that
+      // remounts while the popup is closed must not start a transition.
       if (
+        openValue &&
         activeTriggerValue &&
         previousActiveTriggerValue &&
         activeTriggerValue !== previousActiveTriggerValue &&
@@ -200,7 +203,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
         lastHandledTrigger = activeTriggerValue;
       }
     },
-    () => [activeTrigger(), previousActiveTrigger()],
+    () => [open(), activeTrigger(), previousActiveTrigger()],
   );
 
   // Arm cleanup after a trigger change, and re-arm it if the current container remounts
