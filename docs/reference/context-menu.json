@@ -30,7 +30,7 @@
         "name": "actionsRef",
         "type": "((actions: MenuRoot.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called."
       },
       {
         "name": "loopFocus",
@@ -42,7 +42,7 @@
         "name": "onItemHighlighted",
         "type": "((highlightedItem: HTMLElement | undefined, eventDetails: MenuRoot.HighlightEventDetails) => void)",
         "default": "-",
-        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
       },
       {
         "name": "onOpenChangeComplete",
@@ -78,7 +78,7 @@
       },
       {
         "name": "Root.Actions",
-        "source": "type ContextMenuRootActions = {\n  unmount: () => void;\n  close: () => void;\n  highlightItem: (target: ContextMenu.Root.HighlightItemTarget) => void;\n};"
+        "source": "type ContextMenuRootActions = { unmount: () => void; close: () => void };"
       },
       {
         "name": "Root.ChangeEventReason",
@@ -87,10 +87,6 @@
       {
         "name": "Root.ChangeEventDetails",
         "source": "type ContextMenuRootChangeEventDetails = (\n  | { reason: 'trigger-hover'; event: MouseEvent }\n  | { reason: 'trigger-focus'; event: FocusEvent }\n  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }\n  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }\n  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }\n  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }\n  | { reason: 'sibling-open'; event: Event }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
-      },
-      {
-        "name": "Root.HighlightItemTarget",
-        "source": "type ContextMenuRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';"
       }
     ]
   },
@@ -740,7 +736,7 @@
         "name": "actionsRef",
         "type": "((actions: MenuRoot.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called."
       },
       {
         "name": "closeParentOnEsc",
@@ -758,7 +754,7 @@
         "name": "onItemHighlighted",
         "type": "((highlightedItem: HTMLElement | undefined, eventDetails: MenuRoot.HighlightEventDetails) => void)",
         "default": "-",
-        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
       },
       {
         "name": "onOpenChangeComplete",

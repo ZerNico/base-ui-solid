@@ -8,7 +8,6 @@ import {
   resetBrowserPointer,
   waitSingleFrame,
   waitForPositioned,
-  refCallback,
 } from '#test-utils';
 import { createEffect, createSignal, untrack } from 'solid-js';
 
@@ -25,7 +24,6 @@ import {
   useRefWithInit,
   portReactMajor,
   PortFragment,
-  portRef,
   createRenderer,
   ignoreActWarnings,
 } from '../../../test/menuPortHelpers';
@@ -6192,57 +6190,5 @@ describe('filterable menu navigation regressions', () => {
     await user.keyboard('[ArrowDown]');
     expect(screen.getByRole('menuitem', { name: 'Match 1' })).toHaveAttribute('data-highlighted');
     expect(filter).not.toHaveBeenCalled();
-  });
-});
-describe('custom keyboard shortcuts in a filterable menu', () => {
-  const { render } = createRenderer();
-  it('moves the highlight from a shortcut bound on the input', async () => {
-    // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
-    const actionsRef = portRef<Menu.Root.Actions>();
-    const { user } = await render(
-      (testProps: any) => <Menu.FilterProvider {...testProps} />,
-      () => ({
-        get children() {
-          return (
-            <>
-              <Menu.Root open actionsRef={refCallback(actionsRef)}>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.Input
-                        aria-label="Filter actions"
-                        onKeyDown={(event) => {
-                          if (event.ctrlKey && event.key === 'j') {
-                            event.preventDefault();
-                            actionsRef.current?.highlightItem('next');
-                          }
-                        }}
-                      />
-                      <Menu.List>
-                        <Menu.Item>Rename</Menu.Item>
-                        <Menu.Item>Delete</Menu.Item>
-                      </Menu.List>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </>
-          );
-        },
-      }),
-    );
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    await act(async () => {
-      input.focus();
-    });
-    await user.keyboard('{Control>}j{/Control}');
-    await waitFor(() => {
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('menuitem', { name: 'Rename' }).id,
-      );
-    });
-    expect(input).toHaveFocus();
-    expect(input).toHaveValue('');
   });
 });

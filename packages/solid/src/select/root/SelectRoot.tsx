@@ -19,7 +19,6 @@ import {
   useTypeahead,
 } from '../../floating-ui-solid';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -339,6 +338,16 @@ export function SelectRoot<
     }
   };
 
+  const actions: SelectRootActions = {
+    unmount: handleUnmount,
+    close: () => {
+      if (store.state.open) {
+        setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+      }
+    },
+  };
+  useImperativeHandle(() => props.actionsRef, actions);
+
   const setValue = (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
     untrack(() => props.onValueChange)?.(nextValue, eventDetails);
 
@@ -408,17 +417,6 @@ export function SelectRoot<
       return highlightItemOnHover();
     },
   });
-
-  const actions: SelectRootActions = {
-    unmount: handleUnmount,
-    close: () => {
-      if (store.state.open) {
-        setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-      }
-    },
-    highlightItem: listNavigation.highlightItem,
-  };
-  useImperativeHandle(() => props.actionsRef, actions);
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
@@ -754,12 +752,6 @@ export interface SelectRootProps<
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the select imperatively when called.
-   * - `highlightItem`: Moves or clears the highlight while the popup is open.
-   *   `'next'` and `'previous'` move sequentially through the items and never wrap: the
-   *   highlight stays on the last or first item. `'first'` and `'last'` highlight the first or
-   *   last item. `'none'` clears the highlight and hands focus back to the popup.
-   *   Calling this action does not open the popup. To highlight an item after opening it, call
-   *   the action from `onOpenChangeComplete` when `open` is `true`.
    */
   actionsRef?: ((actions: SelectRootActions) => void) | undefined;
   /**
@@ -821,20 +813,9 @@ export interface SelectRootProps<
 
 export interface SelectRootState {}
 
-/**
- * The item `highlightItem` moves the highlight to.
- * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
- *   the matching end when nothing is highlighted. They never wrap: the highlight stays on the
- *   last or first item.
- * - `'first'` and `'last'` jump to either end of the list.
- * - `'none'` clears the highlight and hands focus back to the popup.
- */
-export type SelectRootHighlightItemTarget = HighlightItemTarget;
-
 export interface SelectRootActions {
   unmount: () => void;
   close: () => void;
-  highlightItem: (target: SelectRootHighlightItemTarget) => void;
 }
 
 export type SelectRootChangeEventReason =
@@ -864,7 +845,6 @@ export namespace SelectRoot {
   > = SelectRootProps<Value, Multiple, ItemValue>;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
-  export type HighlightItemTarget = SelectRootHighlightItemTarget;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
   export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;

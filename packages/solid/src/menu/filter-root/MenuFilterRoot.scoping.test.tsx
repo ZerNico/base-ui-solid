@@ -1,16 +1,10 @@
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 
 import { expect, describe, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor, waitForPositioned, isJSDOM, refCallback } from '#test-utils';
+import { fireEvent, screen, waitFor, waitForPositioned, isJSDOM } from '#test-utils';
 import userEvent from '@testing-library/user-event';
 import { Menu } from 'base-ui-solid/menu';
-import {
-  useRefWithInit,
-  PortFragment,
-  portRef,
-  createRenderer,
-} from '../../../test/menuPortHelpers';
+import { useRefWithInit, PortFragment, createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 
 describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
@@ -735,15 +729,10 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     function HighlightMenu(props: {
       onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
       autoHighlight?: boolean;
-      actionsRef?: RefObject<Menu.Root.Actions | null>;
     }) {
       return (
         <Menu.FilterProvider autoHighlight={props.autoHighlight}>
-          <Menu.Root
-            open
-            onItemHighlighted={props.onItemHighlighted}
-            actionsRef={props.actionsRef && refCallback(props.actionsRef)}
-          >
+          <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
@@ -781,42 +770,6 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
         label: 'Remove',
         event: expect.any(Event),
       });
-    });
-    it('reports imperative highlights and clears while the input keeps focus', async () => {
-      const onItemHighlighted = vi.fn();
-      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
-      const actionsRef = portRef<Menu.Root.Actions>();
-      const { user } = await render(
-        (testProps: any) => <HighlightMenu {...testProps} />,
-        () => ({
-          actionsRef,
-          onItemHighlighted,
-        }),
-      );
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => expect(input).toHaveFocus());
-      act(() => actionsRef.current!.highlightItem('last'));
-      const item = screen.getByRole('menuitem', { name: 'Duplicate' });
-      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', item.id));
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(item, {
-        reason: 'imperative-action',
-        label: 'Duplicate',
-        event: expect.any(Event),
-      });
-      expect(input).toHaveFocus();
-      act(() => actionsRef.current!.highlightItem('none'));
-      await waitFor(() => expect(input).not.toHaveAttribute('aria-activedescendant'));
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(undefined, {
-        reason: 'imperative-action',
-        label: undefined,
-        event: expect.any(Event),
-      });
-      expect(input).toHaveFocus();
-      await user.keyboard('[ArrowDown]');
-      expect(onItemHighlighted).toHaveBeenLastCalledWith(
-        screen.getByRole('menuitem', { name: 'Rename' }),
-        { reason: 'keyboard', label: 'Rename', event: expect.any(Event) },
-      );
     });
     it('reports the auto-highlighted item as a programmatic change', async () => {
       const onItemHighlighted = vi.fn();

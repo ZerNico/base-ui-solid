@@ -15,7 +15,6 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-solid';
-import type { HighlightItemTarget } from '../../floating-ui-solid/hooks/useListNavigation';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -494,6 +493,11 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   };
 
+  useImperativeHandle(() => props.actionsRef, {
+    unmount: forceUnmount,
+    close: handleImperativeClose,
+  });
+
   // Port note: counterpart of `React.useImperativeHandle(ctx?.positionerRef, …)` and
   // `React.useImperativeHandle(ctx?.actionsRef, …)`.
   useIsoLayoutEffect(
@@ -577,12 +581,8 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
       return direction() === 'rtl';
     },
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex, event, source) {
-      store.setActiveIndex(
-        nextActiveIndex,
-        source === 'imperative' ? REASONS.imperativeAction : getHighlightReason(event),
-        event,
-      );
+    onNavigate(nextActiveIndex, event) {
+      store.setActiveIndex(nextActiveIndex, getHighlightReason(event), event);
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
@@ -600,12 +600,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get resetOnPointerLeave() {
       return resetOnPointerLeave();
     },
-  });
-
-  useImperativeHandle(() => props.actionsRef, {
-    unmount: forceUnmount,
-    close: handleImperativeClose,
-    highlightItem: listNavigation.highlightItem,
   });
 
   const onTyping = (nextTyping: boolean) => {
@@ -935,7 +929,6 @@ export interface MenuRootProps<Payload = unknown> {
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`
    *   rather than a `PointerEvent`.
-   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed for another reason, such as automatic highlighting while
    *   filtering, the item list changing, or the popup opening or closing.
    */
@@ -973,14 +966,6 @@ export interface MenuRootProps<Payload = unknown> {
    *   Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
    *   Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the menu imperatively when called.
-   * - `highlightItem`: Moves or clears the highlight while the menu is open.
-   *   `'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`
-   *   is disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the
-   *   highlight and hands focus back to the popup.
-   *   Calling this action does not open the menu. To highlight an item after opening it, call
-   *   the action from `onOpenChangeComplete` when `open` is `true`.
-   *   Highlight changes requested through this action report the reason `'imperative-action'`
-   *   to `onItemHighlighted`.
    */
   actionsRef?: ((actions: MenuRoot.Actions) => void) | undefined;
   /**
@@ -1006,20 +991,9 @@ export interface MenuRootProps<Payload = unknown> {
   children?: JSX.Element | PayloadChildRenderFunction<Payload> | undefined;
 }
 
-/**
- * The item `highlightItem` moves the highlight to.
- * - `'next'` and `'previous'` move relative to the current highlight, or enter the list from
- *   the matching end when nothing is highlighted. They wrap around unless `loopFocus` is
- *   disabled and never leave the list.
- * - `'first'` and `'last'` jump to either end of the list.
- * - `'none'` clears the highlight and hands focus back to the popup.
- */
-export type MenuRootHighlightItemTarget = HighlightItemTarget;
-
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
-  highlightItem: (target: MenuRootHighlightItemTarget) => void;
 }
 
 export type MenuRootChangeEventReason =
@@ -1043,10 +1017,7 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
 };
 
 export type MenuRootHighlightEventReason =
-  | typeof REASONS.keyboard
-  | typeof REASONS.pointer
-  | typeof REASONS.imperativeAction
-  | typeof REASONS.none;
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
 
 export type MenuRootHighlightEventDetails = BaseUIHighlightEventDetails<
   MenuRoot.HighlightEventReason,
@@ -1086,7 +1057,6 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
-  export type HighlightItemTarget = MenuRootHighlightItemTarget;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type HighlightEventReason = MenuRootHighlightEventReason;

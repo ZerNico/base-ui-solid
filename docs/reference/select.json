@@ -54,7 +54,7 @@
         "name": "actionsRef",
         "type": "((actions: Select.Root.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items and never wrap: the\nhighlight stays on the last or first item. `'first'` and `'last'` highlight the first or\nlast item. `'none'` clears the highlight and hands focus back to the popup.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the select after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the select imperatively when called."
       },
       {
         "name": "autoComplete",
@@ -156,7 +156,7 @@
       },
       {
         "name": "Root.Actions",
-        "source": "type SelectRootActions = {\n  unmount: () => void;\n  close: () => void;\n  highlightItem: (target: Select.Root.HighlightItemTarget) => void;\n};"
+        "source": "type SelectRootActions = { unmount: () => void; close: () => void };"
       },
       {
         "name": "Root.ChangeEventReason",
@@ -165,10 +165,6 @@
       {
         "name": "Root.ChangeEventDetails",
         "source": "type SelectRootChangeEventDetails = (\n  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }\n  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }\n  | { reason: 'escape-key'; event: KeyboardEvent }\n  | { reason: 'window-resize'; event: UIEvent }\n  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }\n  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }\n  | { reason: 'list-navigation'; event: KeyboardEvent }\n  | { reason: 'cancel-open'; event: MouseEvent }\n  | { reason: 'imperative-action'; event: Event }\n  | { reason: 'none'; event: Event }\n) & {\n  /** Cancels Base UI from handling the event. */\n  cancel: () => void;\n  /** Allows the event to propagate in cases where Base UI will stop the propagation. */\n  allowPropagation: () => void;\n  /** Indicates whether the event has been canceled. */\n  isCanceled: boolean;\n  /** Indicates whether the event is allowed to propagate. */\n  isPropagationAllowed: boolean;\n  /** The element that triggered the event, if applicable. */\n  trigger: Element | undefined;\n};"
-      },
-      {
-        "name": "Root.HighlightItemTarget",
-        "source": "type SelectRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';"
       },
       {
         "name": "Root.OpenChangeEventDetails",

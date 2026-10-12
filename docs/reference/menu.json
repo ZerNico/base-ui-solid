@@ -30,7 +30,7 @@
         "name": "actionsRef",
         "type": "((actions: Menu.Root.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called."
       },
       {
         "name": "closeParentOnEsc",
@@ -66,7 +66,7 @@
         "name": "onItemHighlighted",
         "type": "((highlightedItem: HTMLElement | undefined, eventDetails: Menu.Root.HighlightEventDetails) => void)",
         "default": "-",
-        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
       },
       {
         "name": "onOpenChangeComplete",
@@ -108,7 +108,7 @@
       },
       {
         "name": "Root.Actions",
-        "source": "type MenuRootActions = {\n  unmount: () => void;\n  close: () => void;\n  highlightItem: (target: Menu.Root.HighlightItemTarget) => void;\n};"
+        "source": "type MenuRootActions = { unmount: () => void; close: () => void };"
       },
       {
         "name": "Root.ChangeEventReason",
@@ -120,19 +120,15 @@
       },
       {
         "name": "Root.HighlightEventReason",
-        "source": "type MenuRootHighlightEventReason = 'keyboard' | 'pointer' | 'imperative-action' | 'none';"
+        "source": "type MenuRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';"
       },
       {
         "name": "Root.HighlightEventDetails",
-        "source": "type MenuRootHighlightEventDetails =\n  | { reason: 'none'; event: Event; label: string | undefined }\n  | { reason: 'keyboard'; event: KeyboardEvent; label: string | undefined }\n  | { reason: 'imperative-action'; event: Event; label: string | undefined }\n  | { reason: 'pointer'; event: MouseEvent | PointerEvent; label: string | undefined };"
+        "source": "type MenuRootHighlightEventDetails =\n  | { reason: 'none'; event: Event; label: string | undefined }\n  | { reason: 'keyboard'; event: KeyboardEvent; label: string | undefined }\n  | { reason: 'pointer'; event: MouseEvent | PointerEvent; label: string | undefined };"
       },
       {
         "name": "Root.Orientation",
         "source": "type MenuRootOrientation = 'horizontal' | 'vertical';"
-      },
-      {
-        "name": "Root.HighlightItemTarget",
-        "source": "type MenuRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';"
       }
     ]
   },
@@ -1063,7 +1059,7 @@
         "name": "actionsRef",
         "type": "((actions: Menu.Root.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called.`highlightItem`: Moves or clears the highlight while the menu is open.\n`'next'` and `'previous'` move sequentially through the items and wrap unless `loopFocus`\nis disabled. `'first'` and `'last'` highlight the first or last item. `'none'` clears the\nhighlight and hands focus back to the popup.\nCalling this action does not open the menu. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called."
       },
       {
         "name": "closeParentOnEsc",
@@ -1081,7 +1077,7 @@
         "name": "onItemHighlighted",
         "type": "((highlightedItem: HTMLElement | undefined, eventDetails: Menu.Root.HighlightEventDetails) => void)",
         "default": "-",
-        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item element (or `undefined` if no item is highlighted) and details\ncontaining the reason for the change, the event, and the item's text label.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as automatic highlighting while\nfiltering, the item list changing, or the popup opening or closing."
       },
       {
         "name": "onOpenChangeComplete",

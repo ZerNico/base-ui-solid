@@ -381,15 +381,9 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 <DemoComboboxVirtualized />
 
-When using `highlightItem()`, scroll your virtualizer to the index reported by `onItemHighlighted` for the `'imperative-action'` reason. The highlighted item may not be rendered yet.
-
 #### Memoizing items
 
 Solid doesn't need memoized items. Each item component runs once, and typing only mounts or unmounts the items whose filter result changes, so unchanged items never re-render. Rendering a large list still costs time when the popup opens. Use virtualization once that becomes noticeable on low-end devices.
-
-### Custom keyboard shortcuts
-
-Use `actionsRef.highlightItem()` to navigate the open list with custom keyboard shortcuts, as shown in [the Autocomplete example](/solid/components/autocomplete#custom-keyboard-shortcuts).
 
 ## API reference
 

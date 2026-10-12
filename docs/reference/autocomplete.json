@@ -66,7 +66,7 @@
         "name": "actionsRef",
         "type": "((actions: Autocomplete.Root.Actions) => void)",
         "default": "-",
-        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the autocomplete imperatively when called.`highlightItem`: Moves or clears the highlight while the popup is open.\n`'next'` and `'previous'` move sequentially through the items, including across rows in a\ngrid, and wrap when `loopFocus` is enabled. Unlike the arrow keys, they never return the\nhighlight to the input. `'first'` and `'last'` highlight the first or last item.\n`'none'` clears the highlight; with `autoHighlight=\"always\"`, the highlight cannot be cleared.\nCalling this action does not open the popup. To highlight an item after opening it, call\nthe action from `onOpenChangeComplete` when `open` is `true`.\nHighlight changes requested through this action report the reason `'imperative-action'`\nto `onItemHighlighted`."
+        "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the autocomplete after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the autocomplete completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the autocomplete imperatively when called."
       },
       {
         "name": "filter",
@@ -144,7 +144,7 @@
         "name": "onItemHighlighted",
         "type": "((highlightedValue: ItemValue | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)",
         "default": "-",
-        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.`'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the\nitem list changing, or the popup opening or closing."
+        "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.\nThe `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering. The event may be a `MouseEvent`\nrather than a `PointerEvent`.`'none'`: the highlight changed for another reason, such as typing, `autoHighlight`, the\nitem list changing, or the popup opening or closing."
       },
       {
         "name": "onOpenChangeComplete",
@@ -216,7 +216,7 @@
       },
       {
         "name": "Root.Actions",
-        "source": "type AutocompleteRootActions = {\n  unmount: () => void;\n  close: () => void;\n  highlightItem: (target: Autocomplete.Root.HighlightItemTarget) => void;\n};"
+        "source": "type AutocompleteRootActions = { unmount: () => void; close: () => void };"
       },
       {
         "name": "Root.ChangeEventReason",
@@ -228,15 +228,11 @@
       },
       {
         "name": "Root.HighlightEventReason",
-        "source": "type AutocompleteRootHighlightEventReason = 'keyboard' | 'pointer' | 'imperative-action' | 'none';"
+        "source": "type AutocompleteRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';"
       },
       {
         "name": "Root.HighlightEventDetails",
-        "source": "type AutocompleteRootHighlightEventDetails =\n  | { reason: 'imperative-action'; event: Event; index: number }\n  | { reason: 'none'; event: Event; index: number }\n  | { reason: 'keyboard'; event: KeyboardEvent; index: number }\n  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number };"
-      },
-      {
-        "name": "Root.HighlightItemTarget",
-        "source": "type AutocompleteRootHighlightItemTarget = 'next' | 'previous' | 'first' | 'last' | 'none';"
+        "source": "type AutocompleteRootHighlightEventDetails =\n  | { reason: 'none'; event: Event; index: number }\n  | { reason: 'keyboard'; event: KeyboardEvent; index: number }\n  | { reason: 'pointer'; event: MouseEvent | PointerEvent; index: number };"
       },
       {
         "name": "Root.OpenChangeEventDetails",
