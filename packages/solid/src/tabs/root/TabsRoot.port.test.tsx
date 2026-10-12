@@ -67,6 +67,9 @@ describe('<Tabs.Root /> (port)', () => {
     await waitFor(() => {
       const style = getComputedStyle(screen.getByTestId('indicator'));
       expect(parseFloat(style.getPropertyValue('--active-tab-left'))).toBe(50);
+    });
+    await waitFor(() => {
+      const style = getComputedStyle(screen.getByTestId('indicator'));
       expect(parseFloat(style.getPropertyValue('--active-tab-width'))).toBe(50);
     });
 

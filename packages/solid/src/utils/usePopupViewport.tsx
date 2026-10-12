@@ -383,7 +383,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   return { children: childrenToRender, state };
 }
 
-type Offset = {
+export type Offset = {
   horizontal: number;
   vertical: number;
 };
@@ -394,7 +394,7 @@ type Offset = {
  *
  * @param offset
  */
-function getActivationDirection(offset: Offset | null): string | undefined {
+export function getActivationDirection(offset: Offset | null): string | undefined {
   if (!offset) {
     return undefined;
   }
@@ -432,7 +432,7 @@ function getValueWithTolerance(
 /**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(from: Element, to: Element): Offset {
+export function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

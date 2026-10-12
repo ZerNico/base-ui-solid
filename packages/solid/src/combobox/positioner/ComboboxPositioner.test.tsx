@@ -4,7 +4,14 @@ import type { Accessor } from 'solid-js';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, it } from 'vitest';
 import { render as renderDOM } from '@solidjs/web';
-import { screen, waitFor, createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  screen,
+  waitFor,
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  positionerConformanceTests,
+} from '#test-utils';
 import { Combobox } from 'base-ui-solid/combobox';
 
 // Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
@@ -72,6 +79,21 @@ describe('<Combobox.Positioner />', () => {
       );
     },
   });
+
+  positionerConformanceTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props.root}>
+        <Combobox.Input {...props.trigger} />
+        <Combobox.Portal>
+          <Combobox.Positioner {...props.positioner}>
+            <Combobox.Popup {...props.popup}>Popup</Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ),
+  });
+
   // https://github.com/mui/base-ui/issues/5118
   it.skipIf(isJSDOM)(
     'keeps the popup on the preferred side when its capped height fits below tall content',
@@ -146,8 +168,8 @@ describe('<Combobox.Positioner />', () => {
       ));
       await waitFor(() => {
         expect(anchorWidth).toBeCloseTo(inputRef.current!.getBoundingClientRect().width, 0);
-        expect(anchorWidth).not.toBeCloseTo(triggerWidth, 0);
       });
+      expect(anchorWidth).not.toBeCloseTo(triggerWidth, 0);
     });
     it('uses the input group when present', async () => {
       const inputGroupWidth = 240;

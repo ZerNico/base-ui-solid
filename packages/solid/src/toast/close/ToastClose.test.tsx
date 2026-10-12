@@ -14,6 +14,8 @@ describe('<Toast.Close />', () => {
 
   describeConformance(Toast.Close, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => (
       <Toast.Provider>
         <Toast.Viewport>

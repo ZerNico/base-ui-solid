@@ -5,6 +5,8 @@ import { describeConformance, render, screen } from '#test-utils';
 describe('<Dialog.Trigger />', () => {
   describeConformance(Dialog.Trigger, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => (
       <Dialog.Root open modal={false}>
         {node()}

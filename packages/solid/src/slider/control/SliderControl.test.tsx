@@ -119,7 +119,7 @@ describe('<Slider.Control />', () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
-  [
+  it.each([
     {
       name: 'horizontal',
       orientation: 'horizontal' as const,
@@ -134,8 +134,9 @@ describe('<Slider.Control />', () => {
       thumbRect: new DOMRect(0, 40, 10, 20),
       pointer: { clientX: 5, clientY: 90 },
     },
-  ].forEach(({ name, orientation, controlRect, thumbRect, pointer }) => {
-    it(`accounts for the thumb size when pressing an inset ${name} control`, async () => {
+  ])(
+    'accounts for the thumb size when pressing an inset $name control',
+    async ({ orientation, controlRect, thumbRect, pointer }) => {
       const onValueChange = vi.fn();
 
       await render(() => (
@@ -161,8 +162,8 @@ describe('<Slider.Control />', () => {
         0,
         expect.objectContaining({ activeThumbIndex: 0, reason: 'track-press' }),
       );
-    });
-  });
+    },
+  );
 
   it('preserves single-element array values on track press', async () => {
     const onValueChange = vi.fn();

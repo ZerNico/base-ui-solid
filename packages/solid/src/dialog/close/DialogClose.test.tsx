@@ -5,6 +5,8 @@ import { describeConformance, fireEvent, render, screen } from '#test-utils';
 describe('<Dialog.Close />', () => {
   describeConformance(Dialog.Close, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => (
       <Dialog.Root open modal={false}>
         <Dialog.Portal>

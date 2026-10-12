@@ -31,7 +31,10 @@ export function useEnhancedClickHandler(
       return;
     }
 
-    if ('pointerType' in event) {
+    // Port note: React's synthetic `click` event has no `pointerType`, so upstream reads the type
+    // recorded on `pointerdown` there. Script-dispatched native clicks (such as user-event's) are
+    // `PointerEvent`s with an empty `pointerType`, so they fall back to it too.
+    if ('pointerType' in event && event.pointerType) {
       // Chrome and Edge correctly use PointerEvent
       handler(event, event.pointerType as InteractionType);
     } else {

@@ -7,21 +7,15 @@ import {
   describeConformance,
   fireEvent,
   isJSDOM,
+  positionerConformanceTests,
   screen,
   waitFor,
-  waitForPositioned,
 } from '#test-utils';
 
 // Port note: `render={<div />}` (a React element) becomes the `div` tag name; the ref is forwarded
 // through the props.
 function Trigger(props: PreviewCard.Trigger.Props) {
   return <PreviewCard.Trigger {...props} render="div" />;
-}
-
-// Port note: React's `act` lets Floating UI's async position computation settle during `render`;
-// here it lands a few microtasks later, so the tests wait for the positioner first.
-async function waitForPositioner() {
-  await waitForPositioned(screen.getByTestId('positioner'));
 }
 
 type RectLike = {
@@ -118,292 +112,21 @@ describe('<PreviewCard.Positioner />', () => {
     }).toThrow('Base UI: <PreviewCard.Portal> is missing.');
   });
 
-  const baselineX = 10;
-  const baselineY = 36;
-  const popupWidth = 52;
-  const popupHeight = 24;
-  const anchorWidth = 72;
-  const anchorHeight = 36;
-  const triggerStyle = { width: `${anchorWidth}px`, height: `${anchorHeight}px` };
-  const popupStyle = { width: `${popupWidth}px`, height: `${popupHeight}px` };
-
-  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
-    it('offsets the side when a number is specified', async () => {
-      const sideOffset = 7;
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner data-testid="positioner" sideOffset={sideOffset}>
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + sideOffset,
-      });
-    });
-
-    it('offsets the side when a function is specified', async () => {
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              data-testid="positioner"
-              sideOffset={(data) => data.positioner.width + data.anchor.width}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX,
-        y: baselineY + popupWidth + anchorWidth,
-      });
-    });
-
-    it('can read the latest side inside sideOffset', async () => {
-      let side = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="left"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside sideOffset', async () => {
-      let align = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside sideOffset', async () => {
-      let side = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              sideOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
-    it('offsets the align when a number is specified', async () => {
-      const alignOffset = 7;
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner data-testid="positioner" alignOffset={alignOffset}>
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + alignOffset,
-        y: baselineY,
-      });
-    });
-
-    it('offsets the align when a function is specified', async () => {
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              data-testid="positioner"
-              alignOffset={(data) => data.positioner.width}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
-        x: baselineX + popupWidth,
-        y: baselineY,
-      });
-    });
-
-    it('can read the latest side inside alignOffset', async () => {
-      let side = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="left"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the side in the browser
-      expect(side).toBe('right');
-    });
-
-    it('can read the latest align inside alignOffset', async () => {
-      let align = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="right"
-              align="start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                align = data.align;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the align in the browser
-      expect(align).toBe('end');
-    });
-
-    it('reads logical side inside alignOffset', async () => {
-      let side = 'none';
-      await render(() => (
-        <PreviewCard.Root open>
-          <Trigger style={triggerStyle}>Trigger</Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner
-              side="inline-start"
-              data-testid="positioner"
-              alignOffset={(data) => {
-                side = data.side;
-                return 0;
-              }}
-            >
-              <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>
-      ));
-      await waitForPositioner();
-
-      // correctly flips the side in the browser
-      expect(side).toBe('inline-end');
-    });
-  });
-
-  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    const { unmount } = await render(() => (
-      <PreviewCard.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
+  positionerConformanceTests({
+    render,
+    viewport: true,
+    createComponent: (props) => (
+      <PreviewCard.Root {...props.root}>
+        <Trigger {...props.trigger}>Trigger</Trigger>
         <PreviewCard.Portal>
-          <PreviewCard.Positioner data-testid="positioner">
-            <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-          </PreviewCard.Positioner>
-        </PreviewCard.Portal>
-      </PreviewCard.Root>
-    ));
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).not.toBe('');
-    });
-    unmount();
-  });
-
-  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    const { unmount } = await render(() => (
-      <PreviewCard.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <PreviewCard.Portal>
-          <PreviewCard.Positioner data-testid="positioner">
-            <PreviewCard.Popup style={popupStyle}>
-              <PreviewCard.Viewport>Popup</PreviewCard.Viewport>
+          <PreviewCard.Positioner {...props.positioner}>
+            <PreviewCard.Popup {...props.popup}>
+              {props.viewport ? <PreviewCard.Viewport>Popup</PreviewCard.Viewport> : 'Popup'}
             </PreviewCard.Popup>
           </PreviewCard.Positioner>
         </PreviewCard.Portal>
       </PreviewCard.Root>
-    ));
-
-    const positioner = screen.getByTestId('positioner');
-    await waitForPositioned(positioner);
-    expect(positioner.style.transform).toBe('');
-    unmount();
+    ),
   });
 
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {

@@ -132,8 +132,6 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
       </FloatingPortal>
     ));
 
-    await flushMicrotasks();
-
     const portal = document.querySelector('[data-testid="portal-element"]') as HTMLElement | null;
     expect(portal).not.toBeNull();
     expect(portal).toHaveClass('closed');
@@ -154,7 +152,6 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
     }
 
     await render(() => <Test />);
-    await flushMicrotasks();
 
     expect(document.querySelector('[aria-owns]')).toHaveAttribute('aria-owns', 'custom-portal');
   });
@@ -165,8 +162,6 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
         <div />
       </FloatingPortalLite>
     ));
-
-    await flushMicrotasks();
 
     const portal = document.querySelector('[data-testid="lite-portal"]');
     expect(portal).not.toBeNull();

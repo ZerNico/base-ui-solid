@@ -133,10 +133,12 @@ describe('useTestInteractions', () => {
   });
 
   it('prop getters are memoized', () => {
+    const renderedGetters: Array<ReturnType<typeof useTestInteractions>> = [];
     const effectRuns = vi.fn();
 
-    // Port note: the component body runs once; the forced update re-evaluates what reads `count`
-    // and the effect depends on the getters, like upstream.
+    // Port note: the component body runs once. The forced update re-evaluates what reads `count`
+    // (here the effect's deps, which record the getters they see, standing in for upstream's
+    // re-render) and the effect depends on the getters, like upstream.
     function App() {
       const [count, setCount] = createSignal(0, { ownedWrite: true });
       const propsList = [
@@ -145,14 +147,22 @@ describe('useTestInteractions', () => {
         { item: { onMouseMove() {} } },
       ];
 
-      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions(propsList);
+      const interactions = useTestInteractions(propsList);
 
       useEffect(
         () => {
           effectRuns();
           setCount((value) => value + 1);
         },
-        () => [getReferenceProps, getFloatingProps, getItemProps],
+        () => {
+          count();
+          renderedGetters.push({ ...interactions });
+          return [
+            interactions.getReferenceProps,
+            interactions.getFloatingProps,
+            interactions.getItemProps,
+          ];
+        },
       );
 
       return <>{count()}</>;
@@ -161,7 +171,11 @@ describe('useTestInteractions', () => {
     render(() => <App />);
     flush();
 
-    // The getters must be stable across the re-render forced by the effect.
+    // The state update re-renders once; stable getters keep the effect from firing again.
     expect(effectRuns).toHaveBeenCalledTimes(1);
+    expect(renderedGetters).toHaveLength(2);
+    expect(renderedGetters[1].getReferenceProps).toBe(renderedGetters[0].getReferenceProps);
+    expect(renderedGetters[1].getFloatingProps).toBe(renderedGetters[0].getFloatingProps);
+    expect(renderedGetters[1].getItemProps).toBe(renderedGetters[0].getItemProps);
   });
 });

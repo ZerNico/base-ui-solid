@@ -1,11 +1,17 @@
 import type { JSX } from '@solidjs/web';
 
 import { expect, vi, describe, it } from 'vitest';
-import { createSignal } from 'solid-js';
 import { Menu } from 'base-ui-solid/menu';
-import { wait, fireEvent, waitFor, screen } from '#test-utils';
+import {
+  createRenderer as createBaseRenderer,
+  popupFocusPropsTests,
+  wait,
+  fireEvent,
+  waitFor,
+  screen,
+} from '#test-utils';
 import { describeMenuConformance } from '../../../test/menuConformance';
-import { portRef, portCallback, createRenderer } from '../../../test/menuPortHelpers';
+import { createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 import { ToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 
@@ -253,172 +259,25 @@ describe('<Menu.Popup />', () => {
     await user.keyboard('[ArrowUp]');
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
+  popupFocusPropsTests({
+    render: createBaseRenderer().render,
+    initialFocus: false,
+    createComponent: (props) => (
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup finalFocus={props.finalFocus}>
+              {props.children}
+              <Menu.Item>Close</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    ),
+  });
+
   describe('prop: finalFocus', () => {
-    it('should focus the trigger by default when closed', async () => {
-      await render(
-        (testProps: any) => <div {...testProps} />,
-        () => ({
-          get children() {
-            return (
-              <>
-                <input />
-                <Menu.Root>
-                  <Menu.Trigger>Open</Menu.Trigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item>Close</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.Root>
-                <input />
-              </>
-            );
-          },
-        }),
-      );
-      const trigger = screen.getByText('Open');
-      await act(async () => {
-        trigger.click();
-      });
-      const closeButton = screen.getByText('Close');
-      await act(async () => {
-        closeButton.click();
-      });
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-    });
-    it('should focus the element provided to the prop when closed', async () => {
-      function TestComponent() {
-        // Port note: the prop takes the element, from a signal set by a ref callback.
-        const [inputElement, setInputElement] = createSignal<HTMLInputElement | null>(null);
-        return (
-          <div>
-            <input />
-            <Menu.Root>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup finalFocus={inputElement()}>
-                    <Menu.Item>Close</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-            <input />
-            <input data-testid="input-to-focus" ref={setInputElement} />
-            <input />
-          </div>
-        );
-      }
-      const { user } = await render(
-        (testProps: any) => <TestComponent {...testProps} />,
-        () => ({}),
-      );
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-      const closeButton = await screen.findByText('Close');
-      await user.click(closeButton);
-      const inputToFocus = screen.getByTestId('input-to-focus');
-      await waitFor(() => {
-        expect(inputToFocus).toHaveFocus();
-      });
-    });
-    it('should focus the element provided to `finalFocus` as a function when closed', async () => {
-      function TestComponent() {
-        const ref = portRef<HTMLInputElement>(null);
-        const getRef = portCallback(() => ref.current, []);
-        return (
-          <div>
-            <Menu.Root>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup finalFocus={getRef}>
-                    <Menu.Item>Close</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-            <input
-              data-testid="input-to-focus"
-              ref={(el) => {
-                ref.current = el;
-              }}
-            />
-          </div>
-        );
-      }
-      const { user } = await render(
-        (testProps: any) => <TestComponent {...testProps} />,
-        () => ({}),
-      );
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-      const closeButton = await screen.findByText('Close');
-      await user.click(closeButton);
-      await waitFor(() => {
-        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
-      });
-    });
-    it('should not move focus when finalFocus is false', async () => {
-      function TestComponent() {
-        return (
-          <div>
-            <Menu.Root>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup finalFocus={false}>
-                    <Menu.Item>Close</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-      const { user } = await render(
-        (testProps: any) => <TestComponent {...testProps} />,
-        () => ({}),
-      );
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-      await user.click(await screen.findByText('Close'));
-      await waitFor(() => {
-        expect(trigger).not.toHaveFocus();
-      });
-    });
-    it('should move focus to trigger when finalFocus returns true', async () => {
-      function TestComponent() {
-        return (
-          <div>
-            <Menu.Root>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup finalFocus={() => true}>
-                    <Menu.Item>Close</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-      const { user } = await render(
-        (testProps: any) => <TestComponent {...testProps} />,
-        () => ({}),
-      );
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-      await user.click(await screen.findByText('Close'));
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
-    });
     it('receives the interaction type of the item press that closed the menu', async () => {
       const finalFocus = vi.fn(() => true);
       const { user } = await render(
@@ -488,34 +347,6 @@ describe('<Menu.Popup />', () => {
         expect(screen.queryByText('Close')).toBe(null);
       });
       expect(finalFocus).toHaveBeenLastCalledWith('mouse');
-    });
-    it('uses default behavior when finalFocus returns null', async () => {
-      function TestComponent() {
-        return (
-          <div>
-            <Menu.Root>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup finalFocus={() => null}>
-                    <Menu.Item>Close</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>
-          </div>
-        );
-      }
-      const { user } = await render(
-        (testProps: any) => <TestComponent {...testProps} />,
-        () => ({}),
-      );
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-      await user.click(await screen.findByText('Close'));
-      await waitFor(() => {
-        expect(trigger).toHaveFocus();
-      });
     });
   });
 });

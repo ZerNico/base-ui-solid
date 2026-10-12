@@ -738,8 +738,6 @@ describe('useTriggerRegistration', () => {
       </>
     ));
 
-    await flushMicrotasks();
-
     expect(store.state.triggerCount).toBe(1);
     expect(store.state.activeTriggerId).toBe('registered-id');
     expect(store.state.activeTriggerElement).toBe(element);
@@ -766,8 +764,6 @@ describe('useTriggerRegistration', () => {
         <CloseOnActiveTriggerUnmountTest store={store} />
       </>
     ));
-
-    await flushMicrotasks();
 
     expect(store.state.activeTriggerId).toBe('registered-1');
 
@@ -813,15 +809,16 @@ describe('useTriggerRegistration', () => {
     setShowFirst(false);
     flush();
 
-    await waitFor(() => {
-      expect(store.context.triggerElements.getById('first')).toBeUndefined();
-      expect(store.context.triggerElements.getById('second')).toBe(second);
-      expect(store.state.triggerCount).toBe(1);
-      expect(store.state.activeTriggerId).toBe('first');
-      expect(store.state.activeTriggerElement).toBe(first);
-      expect(store.state.open).toBe(true);
-      expect(store.setOpen).not.toHaveBeenCalled();
-    });
+    // The close is queued in a microtask, so flush before asserting it never happened.
+    await flushMicrotasks();
+
+    expect(store.setOpen).not.toHaveBeenCalled();
+    expect(store.state.open).toBe(true);
+    expect(store.context.triggerElements.getById('first')).toBeUndefined();
+    expect(store.context.triggerElements.getById('second')).toBe(second);
+    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(first);
   });
 
   it('resets triggerCount when the popup closes', async () => {

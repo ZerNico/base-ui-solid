@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { createSignal, flush, onSettled, Show } from 'solid-js';
 import {
+  createFormDataSpy,
   fireEvent,
   flushMicrotasks,
   isJSDOM,
@@ -28,6 +29,8 @@ async function click(element: Element) {
 describe('<Checkbox.Root />', () => {
   describeConformance(Checkbox.Root, {
     refInstanceof: window.HTMLSpanElement,
+    testRenderPropWith: 'span',
+    button: true,
   });
 
   describe('ARIA attributes', () => {
@@ -150,69 +153,48 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('prop: onClick', () => {
-    it('propagates a single click event to ancestors per user click', async () => {
-      const handleParentClick = vi.fn();
-      await render(() => (
-        <div onClick={handleParentClick}>
-          <Checkbox.Root data-testid="checkbox" />
-        </div>
-      ));
+    it.each([false, true])(
+      'propagates a single click event to ancestors per user click (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(() => (
+          <div onClick={handleParentClick}>
+            <Checkbox.Root
+              nativeButton={nativeButton}
+              render={nativeButton ? 'button' : undefined}
+              data-testid="checkbox"
+            />
+          </div>
+        ));
 
-      await click(screen.getByTestId('checkbox'));
+        await click(screen.getByTestId('checkbox'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
 
-    it('does not propagate to ancestors when stopPropagation() is called', async () => {
-      const handleParentClick = vi.fn();
-      await render(() => (
-        <div onClick={handleParentClick}>
-          <Checkbox.Root
-            data-testid="checkbox"
-            onClick={(event: MouseEvent) => event.stopPropagation()}
-          />
-        </div>
-      ));
+    it.each([false, true])(
+      'does not propagate to ancestors when stopPropagation() is called (nativeButton=%s)',
+      async (nativeButton) => {
+        const handleParentClick = vi.fn();
+        await render(() => (
+          <div onClick={handleParentClick}>
+            <Checkbox.Root
+              nativeButton={nativeButton}
+              render={nativeButton ? 'button' : undefined}
+              data-testid="checkbox"
+              onClick={(event: MouseEvent) => event.stopPropagation()}
+            />
+          </div>
+        ));
 
-      await click(screen.getByTestId('checkbox'));
+        await click(screen.getByTestId('checkbox'));
 
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('propagates a single click event to ancestors with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(() => (
-        <div onClick={handleParentClick}>
-          <Checkbox.Root nativeButton render="button" data-testid="checkbox" />
-        </div>
-      ));
-
-      await click(screen.getByTestId('checkbox'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
-    });
-
-    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
-      const handleParentClick = vi.fn();
-      await render(() => (
-        <div onClick={handleParentClick}>
-          <Checkbox.Root
-            nativeButton
-            render="button"
-            data-testid="checkbox"
-            onClick={(event: MouseEvent) => event.stopPropagation()}
-          />
-        </div>
-      ));
-
-      await click(screen.getByTestId('checkbox'));
-
-      expect(handleParentClick).toHaveBeenCalledTimes(0);
-      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
-    });
+        expect(handleParentClick).toHaveBeenCalledTimes(0);
+        expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+      },
+    );
   });
 
   describe('interactions', () => {
@@ -755,11 +737,7 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the checkbox value in form submission, matching native checkbox behavior',
       async () => {
-        const submitSpy = vi.fn((event: SubmitEvent) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget as HTMLFormElement);
-          return formData.get('test-checkbox');
-        });
+        const submitSpy = createFormDataSpy('test-checkbox');
 
         await render(() => (
           <Form onSubmit={submitSpy}>
@@ -1016,11 +994,7 @@ describe('<Checkbox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
-      const submitSpy = vi.fn((event: SubmitEvent) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget as HTMLFormElement);
-        return formData.get('test-checkbox');
-      });
+      const submitSpy = createFormDataSpy('test-checkbox');
 
       const { user } = await render(() => (
         <>
@@ -1069,11 +1043,7 @@ describe('<Checkbox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('submits uncheckedValue to an external form when unchecked', async () => {
-      const submitSpy = vi.fn((event: SubmitEvent) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget as HTMLFormElement);
-        return formData.get('test-checkbox');
-      });
+      const submitSpy = createFormDataSpy('test-checkbox');
 
       await render(() => (
         <>
@@ -1093,11 +1063,7 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the custom checkbox value in form submission, matching native checkbox behavior',
       async () => {
-        const submitSpy = vi.fn((event: SubmitEvent) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget as HTMLFormElement);
-          return formData.get('test-checkbox');
-        });
+        const submitSpy = createFormDataSpy('test-checkbox');
 
         await render(() => (
           <Form onSubmit={submitSpy}>
@@ -1189,11 +1155,7 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should submit uncheckedValue when checkbox is unchecked and uncheckedValue is specified',
       async () => {
-        const submitSpy = vi.fn((event: SubmitEvent) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget as HTMLFormElement);
-          return formData.get('test-checkbox');
-        });
+        const submitSpy = createFormDataSpy('test-checkbox');
 
         await render(() => (
           <Form onSubmit={submitSpy}>
@@ -1234,11 +1196,7 @@ describe('<Checkbox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
-      const submitSpy = vi.fn((event: SubmitEvent) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget as HTMLFormElement);
-        return formData.get('test-checkbox');
-      });
+      const submitSpy = createFormDataSpy('test-checkbox');
 
       const { user } = await render(() => (
         <form onSubmit={submitSpy}>
@@ -1256,11 +1214,7 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should submit custom uncheckedValue when checkbox is unchecked',
       async () => {
-        const submitSpy = vi.fn((event: SubmitEvent) => {
-          event.preventDefault();
-          const formData = new FormData(event.currentTarget as HTMLFormElement);
-          return formData.get('test-checkbox');
-        });
+        const submitSpy = createFormDataSpy('test-checkbox');
 
         await render(() => (
           <Form onSubmit={submitSpy}>
@@ -1832,13 +1786,14 @@ describe('<Checkbox.Root />', () => {
 
     await click(screen.getByRole('button', { name: 'Toggle' }));
 
-    await waitFor(() => {
-      const labelB = screen.getByText('Label B');
+    const labelB = screen.getByText('Label B');
 
-      expect(labelB.id).not.toBe('');
-      expect(labelA.id).not.toBe(labelB.id);
+    await waitFor(() => {
       expect(checkbox).toHaveAttribute('aria-labelledby', labelB.id);
     });
+
+    expect(labelB.id).not.toBe('');
+    expect(labelB.id).not.toBe(labelA.id);
   });
 
   it('prefers `aria-label` over an associated label', async () => {

@@ -1,11 +1,10 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal } from 'solid-js';
-import userEvent from '@testing-library/user-event';
 import {
   describeConformance,
   fireEvent,
   flushMicrotasks,
-  isJSDOM,
+  pasteText,
   render,
   screen,
 } from '#test-utils';
@@ -50,28 +49,6 @@ describe('<OTPField.Input />', () => {
         ))}
       </OTPField.Root>
     );
-  }
-
-  async function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: {
-          getData: () => value,
-        },
-      });
-      await flushMicrotasks();
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: {
-        getData: () => value,
-      },
-    });
-
-    fireEvent(target, pasteEvent);
-    await flushMicrotasks();
   }
 
   async function pasteWithError(target: HTMLElement, error: Error) {
@@ -299,8 +276,9 @@ describe('<OTPField.Input />', () => {
     expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
   });
 
-  (['disabled', 'readOnly'] as const).forEach((prop) => {
-    it(`does not commit a composition that ends after the field becomes ${prop}`, async () => {
+  it.each([{ prop: 'disabled' as const }, { prop: 'readOnly' as const }])(
+    'does not commit a composition that ends after the field becomes $prop',
+    async ({ prop }) => {
       const onValueChange = vi.fn();
       const [locked, setLocked] = createSignal(false);
 
@@ -329,8 +307,8 @@ describe('<OTPField.Input />', () => {
 
       expect(onValueChange).not.toHaveBeenCalled();
       expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
-    });
-  });
+    },
+  );
 
   it('selects the slot value on mousedown', async () => {
     await render(() => <OTPFieldTest defaultValue="1" />);
@@ -411,9 +389,7 @@ describe('<OTPField.Input />', () => {
   });
 
   it('moves focus to the next slot when typing the same character into a filled slot', async () => {
-    const user = userEvent.setup();
-
-    await render(() => <OTPFieldTest defaultValue="12" />);
+    const { user } = await render(() => <OTPFieldTest defaultValue="12" />);
 
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
 
@@ -635,7 +611,9 @@ describe('<OTPField.Input />', () => {
 
     await focus(inputs[1]);
 
-    await pasteText(inputs[1], '99');
+    pasteText(inputs[1], '99');
+
+    await flushMicrotasks();
 
     expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '', '']);
     expect(document.activeElement).toBe(inputs[1]);
@@ -676,9 +654,7 @@ describe('<OTPField.Input />', () => {
   });
 
   it('allows tabbing out of the field from the active slot', async () => {
-    const user = userEvent.setup();
-
-    await render(() => (
+    const { user } = await render(() => (
       <>
         <OTPFieldTest />
         <button type="button">Next</button>
@@ -799,7 +775,9 @@ describe('<OTPField.Input />', () => {
 
     await focus(inputs[0]);
 
-    await pasteText(inputs[0], '1234');
+    pasteText(inputs[0], '1234');
+
+    await flushMicrotasks();
 
     expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
     expect(document.activeElement).toBe(inputs[0]);
@@ -812,7 +790,9 @@ describe('<OTPField.Input />', () => {
 
     await focus(inputs[2]);
 
-    await pasteText(inputs[2], '99');
+    pasteText(inputs[2], '99');
+
+    await flushMicrotasks();
 
     expect(inputs.map((input) => input.value)).toEqual(['1', '2', '9', '9', '5', '6']);
     expect(document.activeElement).toBe(inputs[4]);

@@ -25,6 +25,8 @@ describe('<Popover.Trigger />', () => {
 
   describeConformance(Popover.Trigger, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => <Popover.Root open>{node()}</Popover.Root>,
   });
 
@@ -299,30 +301,6 @@ describe('<Popover.Trigger />', () => {
 
     clock.withFakeTimers();
 
-    it('does not close the popover if the user clicks too quickly', async () => {
-      await renderFakeTimers(() => (
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      ));
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-
-      fireEvent.click(trigger);
-      flush();
-
-      expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
     it('closes the popover if the user clicks patiently', async () => {
       await renderFakeTimers(() => (
         <Popover.Root>
@@ -345,6 +323,12 @@ describe('<Popover.Trigger />', () => {
       flush();
 
       expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      // Leaving the trigger afterwards doesn't reopen it.
+      fireEvent.mouseLeave(trigger);
+      flush();
+
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks if the user clicks impatiently', async () => {
@@ -362,10 +346,18 @@ describe('<Popover.Trigger />', () => {
       const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
+      flush();
+
+      // The hover opened the popover, so the click below lands on an open popover.
+      expect(trigger).toHaveAttribute('data-popup-open');
 
       clock.tick(PATIENT_CLICK_THRESHOLD - 1);
 
       fireEvent.click(trigger);
+      flush();
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+
       fireEvent.mouseLeave(trigger);
       flush();
 
@@ -374,31 +366,6 @@ describe('<Popover.Trigger />', () => {
       clock.tick(1);
 
       expect(trigger).toHaveAttribute('data-popup-open');
-    });
-
-    it('does not stick if the user clicks patiently', async () => {
-      await renderFakeTimers(() => (
-        <Popover.Root>
-          <Popover.Trigger delay={0} openOnHover />
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup />
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      ));
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-
-      clock.tick(PATIENT_CLICK_THRESHOLD);
-
-      fireEvent.click(trigger);
-      fireEvent.mouseLeave(trigger);
-      flush();
-
-      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks when clicked before the hover delay completes', async () => {

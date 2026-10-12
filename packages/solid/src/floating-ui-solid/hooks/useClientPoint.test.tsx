@@ -138,8 +138,6 @@ function ClientPointStoreTest(props: { store: FloatingRootStore; enabled?: boole
 test('updates position from trigger props', async () => {
   await render(() => <App useTriggerProps />);
 
-  await flushMicrotasks();
-
   fireEvent(
     screen.getByTestId('reference'),
     new MouseEvent('mousemove', {
@@ -184,8 +182,6 @@ test('uses trigger element when dom reference is missing', async () => {
 
 test('renders at mouse event coords', async () => {
   await render(() => <App />);
-
-  await flushMicrotasks();
 
   fireEvent(
     screen.getByTestId('reference'),

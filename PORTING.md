@@ -289,6 +289,10 @@ config listing them as projects, and `test/setupVitest.ts`.
   writes, call `flush()` before asserting.
 - Like upstream, animations are disabled by default (`BASE_UI_ANIMATIONS_DISABLED`). Animation
   tests set it to `false`.
+- Shared suites in `packages/solid/test` (`popupConformanceTests`, `viewportConformanceTests`,
+  `detachedTriggersConformanceTests`, …) are called like upstream. Their `createComponent`
+  receives props with getters: spread or read them in JSX (`<Popover.Root {...props.root}>`,
+  `{props.viewport ? … : …}`), don't destructure them. Each suite's config doc lists its Port notes.
 - Keep upstream's skip conditions exactly (e.g. `skipIf(isJSDOM)`): those tests run in the
   browser pass. Hard skips are allowed only with a reason marker in the comment: `React-only`
   (StrictMode, `React.Activity`, Suspense, React element `render`, React-version conditions) or
@@ -328,12 +332,13 @@ compiles the same JSX differently for the server and the client, so:
 Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.config.mjs`,
 `.remarkrc.mjs` (Markdown via eslint-plugin-mdx), `stylelint.config.mjs`, `.lintignore`.
 
-| Command           | Runs                                                                        |
-| :---------------- | :-------------------------------------------------------------------------- |
-| `pnpm eslint`     | ESLint on the whole repo (cached, `--max-warnings 0`, unused disables fail) |
-| `pnpm eslint:ci`  | The same without cache                                                      |
-| `pnpm stylelint`  | Stylelint on `**/*.css`                                                     |
-| `pnpm typescript` | `tsc` (TS 7, `@typescript/native`), with `pnpm typecheck` as an alias       |
+| Command                | Runs                                                                        |
+| :--------------------- | :-------------------------------------------------------------------------- |
+| `pnpm eslint`          | ESLint on the whole repo (cached, `--max-warnings 0`, unused disables fail) |
+| `pnpm eslint:ci`       | The same without cache                                                      |
+| `pnpm stylelint`       | Stylelint on `**/*.css`                                                     |
+| `pnpm typescript`      | `tsc` (TS 7, `@typescript/native`), with `pnpm typecheck` as an alias       |
+| `pnpm test:lint-rules` | RuleTester cases of the test lint rules (also run by `pnpm eslint`)         |
 
 - **Run ESLint on your files before reporting** (and fix what it reports):
   `pnpm exec eslint --report-unused-disable-directives --max-warnings 0 <files>` (`pnpm eslint <files>`
@@ -347,8 +352,13 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
   `react/no-danger` disables become `solid/no-innerhtml` disables. Drop upstream's
   `react-hooks/*` / `react-compiler/*` disables. `solid/reactivity` is off (its heuristic misreads
   the accessor conventions above. Tests cover reactivity). In tests, `solid/prefer-for` (fixtures
-  mirror upstream's `.map()`) and `vitest/no-disabled-tests` (hard skips carry reason markers) are
-  off.
+  mirror upstream's `.map()`) and `vitest/no-disabled-tests` (an error upstream, but the port's
+  hard skips carry reason markers) are off.
+- Test files and the shared suites (`packages/solid/test/*Tests.tsx`, `describeConformance.tsx`)
+  get upstream's `base-ui-test/*` rules from `scripts/eslint/testRules.mjs` (copied unchanged).
+  `base-ui-test/no-flush-after-render` and the `test/createRenderer` import restriction apply to
+  `packages/solid` only, like upstream's `packages/react`. Upstream's restriction on
+  `@mui/internal-test-utils` imports is dropped (the port doesn't depend on it).
 - Other port-specific settings: `mui/disallow-react-api-in-server-components` is off (no
   `'use client'` in Solid), and `mui/no-floating-cleanup` is replaced by
   `base-ui-solid/no-floating-cleanup`, which ignores `onCleanup()`'s returned `Disposable`

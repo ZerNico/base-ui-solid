@@ -7,6 +7,7 @@ import {
   fireEvent,
   flushMicrotasks,
   isJSDOM,
+  isScrollLocked,
   popupConformanceTests,
   screen,
   wait,
@@ -479,35 +480,16 @@ describe('<Popover.Root />', () => {
     });
 
     describe('prop: defaultOpen', () => {
-      it('should open when the component is rendered', async () => {
-        await render(() => <TestPopover rootProps={{ defaultOpen: true }} />);
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should not open when the component is rendered and open is controlled', async () => {
-        await render(() => <TestPopover rootProps={{ defaultOpen: true, open: false }} />);
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('should not close when the component is rendered and open is controlled', async () => {
-        await render(() => <TestPopover rootProps={{ defaultOpen: true, open: true }} />);
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-
-      it('should remain uncontrolled', async () => {
-        await render(() => <TestPopover rootProps={{ defaultOpen: true }} />);
+      it('remains uncontrolled, so a trigger click closes it', async () => {
+        const { user } = await render(() => <TestPopover rootProps={{ defaultOpen: true }} />);
 
         expect(screen.getByText('Content')).not.toBe(null);
 
-        const anchor = screen.getByTestId('trigger');
+        await user.click(screen.getByTestId('trigger'));
 
-        fireEvent.click(anchor);
-        flush();
-
-        expect(screen.queryByText('Content')).toBe(null);
+        await waitFor(() => {
+          expect(screen.queryByText('Content')).toBe(null);
+        });
       });
 
       it('does not close after hovering out of a popup opened without trigger hover', async () => {
@@ -643,26 +625,6 @@ describe('<Popover.Root />', () => {
     });
 
     describe('BaseUIChangeEventDetails', () => {
-      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(() => (
-          <TestPopover
-            rootProps={{
-              onOpenChange: (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            }}
-          />
-        ));
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        fireEvent.click(trigger);
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
       it('onOpenChange cancel() prevents closing from a close press without changing the trigger', async () => {
         let closePressTriggerId: string | undefined;
 
@@ -839,7 +801,7 @@ describe('<Popover.Root />', () => {
         const close = screen.getByRole('button', { name: 'Close' });
 
         expect(close).not.toBe(null);
-        expect(close).not.to.toHaveFocus();
+        expect(close).not.toHaveFocus();
       });
 
       it('does not change focus when opened with hover and closed', async () => {
@@ -2172,12 +2134,7 @@ describe('<Popover.Root />', () => {
           const doc = popup.ownerDocument;
 
           await waitFor(() => {
-            const isScrollLocked =
-              doc.documentElement.style.overflow === 'hidden' ||
-              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-              doc.body.style.overflow === 'hidden';
-
-            expect(isScrollLocked).toBe(true);
+            expect(isScrollLocked(doc)).toBe(true);
           });
         });
 
@@ -2209,203 +2166,9 @@ describe('<Popover.Root />', () => {
           // Port note: Solid's frame flush precedes the deferred scroll-lock cleanup task.
           // Wait for that cleanup, as upstream's async act does.
           await waitFor(() => {
-            const isScrollLocked =
-              doc.documentElement.style.overflow === 'hidden' ||
-              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-              doc.body.style.overflow === 'hidden';
-
-            expect(isScrollLocked).toBe(false);
+            expect(isScrollLocked(doc)).toBe(false);
           });
         });
-      });
-    });
-
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = createSignal(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPopover
-                rootProps={{
-                  get open() {
-                    return open();
-                  },
-                  onOpenChangeComplete,
-                }}
-                popupProps={{ children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(() => <Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = createSignal(true);
-
-          return (
-            <div>
-              <style>{style}</style>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPopover
-                rootProps={{
-                  get open() {
-                    return open();
-                  },
-                  onOpenChangeComplete,
-                }}
-                popupProps={{ class: 'animation-test-indicator', children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(() => <Test />);
-
-        expect(screen.getByTestId('popover-popup')).not.toBe(null);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = createSignal(false);
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPopover
-                rootProps={{
-                  get open() {
-                    return open();
-                  },
-                  onOpenChangeComplete,
-                }}
-                popupProps={{ children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(() => <Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-        });
-
-        // Port note: upstream's StrictMode replays the newly mounted Popup effect, calling
-        // completion twice. Solid mounts it once, so one completion is expected.
-        await waitFor(() => expect(onOpenChangeComplete.mock.calls.length).toBe(1));
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = createSignal(false);
-
-          return (
-            <div>
-              <style>{style}</style>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPopover
-                rootProps={{
-                  get open() {
-                    return open();
-                  },
-                  onOpenChange: (nextOpen) => setOpen(nextOpen),
-                  onOpenChangeComplete,
-                }}
-                popupProps={{ class: 'animation-test-indicator', children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(() => <Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-      });
-
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        await render(() => (
-          <TestPopover rootProps={{ onOpenChangeComplete }} popupProps={{ children: null }} />
-        ));
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
 

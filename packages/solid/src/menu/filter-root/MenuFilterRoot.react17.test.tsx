@@ -2,8 +2,6 @@ import { renderToString, screen, waitFor } from '#test-utils';
 
 import { expect, describe, it } from 'vitest';
 
-import userEvent from '@testing-library/user-event';
-
 import { ServerFixture1, ServerFixture2 } from './MenuFilterRoot.react17.fixtures';
 
 // Port note: Solid ids use the native hydration allocator; no React 17 module mock applies.
@@ -26,8 +24,7 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React
   });
   it('registers a submenu trigger after fallback ids resolve', async () => {
     const { hydrate } = await renderToString(ServerFixture2);
-    hydrate();
-    const user = userEvent.setup();
+    const { user } = hydrate();
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
     await waitFor(() => {
       expect(input).toHaveFocus();

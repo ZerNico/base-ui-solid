@@ -26,6 +26,10 @@ const SCROLLBAR_HEIGHT = 10;
 
 const px = (value: number) => `${value}px`;
 
+function getAttributeFlags(element: Element, names: string[]) {
+  return Object.fromEntries(names.map((name) => [name, element.hasAttribute(name)]));
+}
+
 async function withMockResizeObserver(run: (notifyResizeObserver: () => void) => Promise<void>) {
   const originalResizeObserver = window.ResizeObserver;
   const observers = new Set<ResizeObserverMock>();
@@ -213,6 +217,8 @@ describe('<ScrollArea.Root />', () => {
 
         await waitFor(() => {
           expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
+        });
+        await waitFor(() => {
           expect(getComputedStyle(verticalThumb).visibility).toBe('visible');
         });
 
@@ -221,6 +227,8 @@ describe('<ScrollArea.Root />', () => {
 
         await waitFor(() => {
           expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
+        });
+        await waitFor(() => {
           expect(getComputedStyle(verticalThumb).visibility).toBe('visible');
         });
       });
@@ -265,9 +273,10 @@ describe('<ScrollArea.Root />', () => {
         await flushMicrotasks();
 
         await waitFor(() => {
-          const corner = screen.getByTestId('corner');
-          expect(corner.style.width).toBe('11px');
-          expect(corner.style.height).toBe('13px');
+          expect(screen.getByTestId('corner').style.width).toBe('11px');
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('corner').style.height).toBe('13px');
         });
       });
     });
@@ -356,13 +365,17 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
+      const expectedThumbSize = `${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`;
+
       await waitFor(() => {
         expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
-          `${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`,
+          expectedThumbSize,
         );
+      });
+      await waitFor(() => {
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).toBe(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+        ).toBe(expectedThumbSize);
       });
     });
 
@@ -423,13 +436,17 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
+      const expectedThumbSize = `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`;
+
       await waitFor(() => {
         expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
-          `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
+          expectedThumbSize,
         );
+      });
+      await waitFor(() => {
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).toBe(`${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+        ).toBe(expectedThumbSize);
       });
     });
 
@@ -447,14 +464,14 @@ describe('<ScrollArea.Root />', () => {
           <ScrollArea.Scrollbar
             orientation="vertical"
             data-testid="vertical-scrollbar"
-            style={{ 'margin-inline': px(margin) }}
+            style={{ 'margin-block': px(margin) }}
           >
             <ScrollArea.Thumb data-testid="vertical-thumb" />
           </ScrollArea.Scrollbar>
           <ScrollArea.Scrollbar
             orientation="horizontal"
             data-testid="horizontal-scrollbar"
-            style={{ 'margin-block': px(margin) }}
+            style={{ 'margin-inline': px(margin) }}
           >
             <ScrollArea.Thumb data-testid="horizontal-thumb" />
           </ScrollArea.Scrollbar>
@@ -463,14 +480,17 @@ describe('<ScrollArea.Root />', () => {
 
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
+      const expectedThumbSize = `${(viewportSize - margin * 2) * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`;
 
       await waitFor(() => {
         expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
-          `${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`,
+          expectedThumbSize,
         );
+      });
+      await waitFor(() => {
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).toBe(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+        ).toBe(expectedThumbSize);
       });
     });
 
@@ -499,13 +519,17 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
+      const expectedThumbSize = `${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`;
+
       await waitFor(() => {
         expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
-          `${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
+          expectedThumbSize,
         );
+      });
+      await waitFor(() => {
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).toBe(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+        ).toBe(expectedThumbSize);
       });
     });
   });
@@ -547,12 +571,14 @@ describe('<ScrollArea.Root />', () => {
         },
       });
 
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      const xEdges = ['data-overflow-x-start', 'data-overflow-x-end'];
+
       await waitFor(() => {
-        expect(root).toHaveAttribute('data-overflow-x-start');
-        expect(root).toHaveAttribute('data-overflow-x-end');
+        expect(getAttributeFlags(root, xEdges)).toEqual({
+          'data-overflow-x-start': true,
+          'data-overflow-x-end': true,
+        });
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       setDirection('rtl');
       flush();
@@ -561,8 +587,10 @@ describe('<ScrollArea.Root />', () => {
       await flushMicrotasks();
 
       await waitFor(() => {
-        expect(root).toHaveAttribute('data-overflow-x-start');
-        expect(root).not.toHaveAttribute('data-overflow-x-end');
+        expect(getAttributeFlags(root, xEdges)).toEqual({
+          'data-overflow-x-start': true,
+          'data-overflow-x-end': false,
+        });
       });
     });
 
@@ -644,36 +672,54 @@ describe('<ScrollArea.Root />', () => {
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
       // Initial: at start (top/left)
-      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      const allAttributes = [
+        'data-has-overflow-x',
+        'data-has-overflow-y',
+        'data-overflow-x-start',
+        'data-overflow-x-end',
+        'data-overflow-y-start',
+        'data-overflow-y-end',
+      ];
+      const atStart = {
+        'data-has-overflow-x': true,
+        'data-has-overflow-y': true,
+        'data-overflow-x-start': false,
+        'data-overflow-x-end': true,
+        'data-overflow-y-start': false,
+        'data-overflow-y-end': true,
+      };
+
       await waitFor(() => {
-        expect(root).toHaveAttribute('data-has-overflow-x');
-        expect(root).toHaveAttribute('data-has-overflow-y');
-        expect(root).not.toHaveAttribute('data-overflow-x-start');
-        expect(root).toHaveAttribute('data-overflow-x-end');
-        expect(root).not.toHaveAttribute('data-overflow-y-start');
-        expect(root).toHaveAttribute('data-overflow-y-end');
-
-        expect(viewport).toHaveAttribute('data-has-overflow-x');
-        expect(viewport).toHaveAttribute('data-has-overflow-y');
-        expect(viewport).not.toHaveAttribute('data-overflow-x-start');
-        expect(viewport).toHaveAttribute('data-overflow-x-end');
-        expect(viewport).not.toHaveAttribute('data-overflow-y-start');
-        expect(viewport).toHaveAttribute('data-overflow-y-end');
-        expect(content).toHaveAttribute('data-has-overflow-x');
-        expect(content).toHaveAttribute('data-has-overflow-y');
-        expect(content).not.toHaveAttribute('data-overflow-x-start');
-        expect(content).toHaveAttribute('data-overflow-x-end');
-        expect(content).not.toHaveAttribute('data-overflow-y-start');
-        expect(content).toHaveAttribute('data-overflow-y-end');
-
-        expect(vScrollbar).toHaveAttribute('data-has-overflow-y');
-        expect(vScrollbar).not.toHaveAttribute('data-overflow-y-start');
-        expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
-        expect(hScrollbar).toHaveAttribute('data-has-overflow-x');
-        expect(hScrollbar).not.toHaveAttribute('data-overflow-x-start');
-        expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
+        expect({
+          root: getAttributeFlags(root, allAttributes),
+          viewport: getAttributeFlags(viewport, allAttributes),
+          content: getAttributeFlags(content, allAttributes),
+          vScrollbar: getAttributeFlags(vScrollbar, [
+            'data-has-overflow-y',
+            'data-overflow-y-start',
+            'data-overflow-y-end',
+          ]),
+          hScrollbar: getAttributeFlags(hScrollbar, [
+            'data-has-overflow-x',
+            'data-overflow-x-start',
+            'data-overflow-x-end',
+          ]),
+        }).toEqual({
+          root: atStart,
+          viewport: atStart,
+          content: atStart,
+          vScrollbar: {
+            'data-has-overflow-y': true,
+            'data-overflow-y-start': false,
+            'data-overflow-y-end': true,
+          },
+          hScrollbar: {
+            'data-has-overflow-x': true,
+            'data-overflow-x-start': false,
+            'data-overflow-x-end': true,
+          },
+        });
       });
-      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;

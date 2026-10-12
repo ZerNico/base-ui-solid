@@ -127,7 +127,6 @@ it('focuses the active item when it is set in the same update as the items mount
   }
 
   await render(() => <App />);
-  await flushMicrotasks();
   setShowItems(true);
   setActiveIndex(1);
   flush();

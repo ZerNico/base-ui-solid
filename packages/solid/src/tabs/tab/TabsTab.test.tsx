@@ -32,6 +32,8 @@ function UnstableRefTab(props: JSX.HTMLAttributes<HTMLAnchorElement> & { href?: 
 describe('<Tabs.Tab />', () => {
   describeConformance(Tabs.Tab, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => (
       <Tabs.Root>
         <Tabs.List>{node()}</Tabs.List>

@@ -2,6 +2,7 @@ import { vi, expect, beforeEach, describe, test } from 'vitest';
 import { createSignal, flush, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import {
+  createRenderer,
   fireEvent,
   flushMicrotasks,
   render,
@@ -318,7 +319,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       }
 
       await render(() => <ThirdPartyApp />);
-      await flushMicrotasks();
 
       const thirdParty = document.createElement('div');
       thirdParty.setAttribute('data-testid', 'third-party');
@@ -407,7 +407,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       try {
         await render(() => <ShadowApp shadowRoot={shadowRoot} />, { container });
-        await flushMicrotasks();
 
         await userEvent.click(document.body);
         await flushMicrotasks();
@@ -470,7 +469,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       }
 
       const { unmount } = await render(() => <NestedApp modal={[true, true]} />);
-      await flushMicrotasks();
 
       let popover1 = screen.getByTestId('popover-1');
       let popover2 = screen.getByTestId('popover-2');
@@ -485,7 +483,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       unmount();
 
       const { unmount: unmount2 } = await render(() => <NestedApp modal={[true, false]} />);
-      await flushMicrotasks();
 
       popover1 = screen.getByTestId('popover-1');
       popover2 = screen.getByTestId('popover-2');
@@ -501,7 +498,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       unmount2();
 
       const { unmount: unmount3 } = await render(() => <NestedApp modal={[false, true]} />);
-      await flushMicrotasks();
 
       popover1 = screen.getByTestId('popover-1');
       popover2 = screen.getByTestId('popover-2');
@@ -517,7 +513,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       unmount3();
 
       await render(() => <NestedApp modal={null} />);
-      await flushMicrotasks();
 
       popover1 = screen.getByTestId('popover-1');
       popover2 = screen.getByTestId('popover-2');
@@ -821,7 +816,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         await render(() => <FocusApp />);
 
-        await flushMicrotasks();
         screen.getByTestId('focus-button').focus();
         await flushMicrotasks();
 
@@ -909,6 +903,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('prop: capture', () => {
+    // Port note: the port's renderer has no StrictMode, so upstream's `{ strict: false }` is dropped.
+    const { render: renderWithUser } = createRenderer();
+
     describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp();
@@ -1030,9 +1027,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
     describe('prop: capture.outsidePress', () => {
       test('when true', async () => {
-        const user = userEvent.setup();
-
-        await render(() => (
+        const { user } = await renderWithUser(() => (
           <Overlay>
             <NestedDialog id="outer">
               <NestedDialog id="inner">{null}</NestedDialog>
@@ -1059,9 +1054,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
     describe('prop: capture.escapeKey', () => {
       test('when false', async () => {
-        const user = userEvent.setup();
-
-        await render(() => (
+        const { user } = await renderWithUser(() => (
           <Overlay>
             <NestedDialog id="outer">
               <NestedDialog id="inner">{null}</NestedDialog>

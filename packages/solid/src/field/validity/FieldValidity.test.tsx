@@ -31,8 +31,9 @@ async function click(element: HTMLElement) {
 }
 
 describe('<Field.Validity />', () => {
-  (['onBlur', 'onSubmit'] as const).forEach((validationMode) => {
-    it(`surfaces valueMissing immediately after a stale custom error in ${validationMode} mode`, async () => {
+  it.each([{ validationMode: 'onBlur' as const }, { validationMode: 'onSubmit' as const }])(
+    'surfaces valueMissing immediately after a stale custom error in $validationMode mode',
+    async ({ validationMode }) => {
       const handleValidity = vi.fn();
       const validate = vi.fn(() => 'custom error');
 
@@ -84,12 +85,13 @@ describe('<Field.Validity />', () => {
       );
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
       expect(screen.getByText('Required')).toBeVisible();
-    });
-  });
+    },
+  );
 
   it.skipIf(isJSDOM)('defers badInput during required change revalidation', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+    // Real browser input is needed: typing `e` into a number input only sets `badInput` when the
+    // browser handles the keystroke, which @testing-library/user-event does not emulate.
+    const { userEvent: user } = await import('vitest/browser');
     const handleValidity = vi.fn();
 
     await render(() => (

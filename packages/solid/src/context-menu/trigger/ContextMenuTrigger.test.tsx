@@ -296,21 +296,15 @@ describe('<ContextMenu.Trigger />', () => {
       ));
 
       const trigger = screen.getByTestId('trigger');
+      // Read `defaultPrevented` after dispatch so Solid's delegated handler and the
+      // document listener have both had a chance to call `preventDefault()`.
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
 
-      let defaultPrevented = false;
-      trigger.addEventListener(
-        'contextmenu',
-        (event) => {
-          defaultPrevented = event.defaultPrevented;
-        },
-        { capture: false },
-      );
-
-      fireEvent.contextMenu(trigger);
+      trigger.dispatchEvent(event);
       flush();
       await flushMicrotasks();
 
-      expect(defaultPrevented).toBe(false);
+      expect(event.defaultPrevented).toBe(false);
     });
   });
 
@@ -326,8 +320,6 @@ describe('<ContextMenu.Trigger />', () => {
         </ContextMenu.Portal>
       </ContextMenu.Root>
     ));
-
-    await flushMicrotasks();
 
     const internalBackdrop = document.querySelector(
       '[data-base-ui-portal] > [data-base-ui-inert][role="presentation"]',

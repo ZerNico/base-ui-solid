@@ -55,7 +55,6 @@ describe('popup handle isOpen', () => {
         </Dialog.Root>
       </div>
     ));
-    await flushMicrotasks();
     expect(screen.getByTestId('state')).toHaveTextContent('open');
   });
 });

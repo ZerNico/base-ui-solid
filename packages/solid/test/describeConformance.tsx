@@ -1,6 +1,8 @@
 import { createSignal, flush } from 'solid-js';
 import type { Component } from 'solid-js';
+import { Dynamic } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from './utils';
 
 export interface ConformanceOptions {
@@ -10,19 +12,34 @@ export interface ConformanceOptions {
   refInstanceof: typeof Element;
   /** The default tag name. */
   defaultTagName?: string;
+  /**
+   * The element the `render` tests render in place of the default one.
+   * Rendering a `button` also sets `nativeButton` on components that accept it, and for those
+   * components the tests run again with a `div` and `nativeButton={false}`.
+   *
+   * Port note: defaults to `'section'` (upstream: `'div'`), which the port's suite has always used
+   * so the rendered element differs from the default `div` of most parts.
+   * @default 'section'
+   */
+  testRenderPropWith?: keyof JSX.IntrinsicElements;
+  /**
+   * Whether the component accepts the `nativeButton` prop.
+   */
+  button?: boolean;
   /** @internal Set by `describeConformance.skip`. */
   skip?: boolean;
 }
 
 /**
  * Port of the subset of upstream's `describeConformance` that applies to Solid:
- * ref forwarding, prop spreading, `class`/`style` (static and state callbacks) and the `render` prop.
+ * ref forwarding, prop spreading, `class`/`style` (static and state callbacks) and the `render` prop
+ * (plus, like upstream, a `with a non-native button` run for `button` parts rendered as a `button`).
  */
 export function describeConformance<P extends Record<string, any>>(
   TestedComponent: Component<P>,
   options: ConformanceOptions,
 ) {
-  const { wrap = (node) => node(), refInstanceof } = options;
+  const { wrap = (node) => node(), refInstanceof, button = false, testRenderPropWith } = options;
   const Tested = TestedComponent as Component<any>;
 
   function renderTested(props: Record<string, any>) {
@@ -80,34 +97,69 @@ export function describeConformance<P extends Record<string, any>>(
       expect(element).not.toHaveClass('a');
     });
 
-    describe('prop: render', () => {
-      it('renders the element returned by a render function', async () => {
-        let element: Element | undefined;
-        await renderTested({
-          ref: (el: Element) => {
-            element = el;
-          },
-          'data-testid': 'tested',
-          class: 'custom-class',
-          render: (props: Record<string, any>) => <section {...props} data-rendered="" />,
+    describeRenderProp(renderTested, testRenderPropWith ?? 'section', button);
+
+    if (button && testRenderPropWith === 'button') {
+      // Button parts also support rendering a non-button element with `nativeButton={false}`.
+      describe('with a non-native button', () => {
+        it('spreads unknown props to the rendered element', async () => {
+          await renderTested({
+            'data-testid': 'tested',
+            'data-foo': 'bar',
+            nativeButton: false,
+            render: (props: Record<string, any>) => <div {...props} />,
+          });
+          const rendered = screen.getByTestId('tested');
+          expect(rendered.tagName).toBe('DIV');
+          expect(rendered).toHaveAttribute('data-foo', 'bar');
         });
-        const rendered = screen.getByTestId('tested');
-        expect(rendered.tagName).toBe('SECTION');
-        expect(rendered).toHaveAttribute('data-rendered');
-        expect(rendered).toHaveClass('custom-class');
-        expect(element).toBe(rendered);
-      });
 
-      it('passes the state to the render function', async () => {
-        const renderFn = vi.fn((props: Record<string, any>) => <span {...props} />);
-        await renderTested({ render: renderFn });
-        expect(renderFn).toHaveBeenCalledWith(expect.any(Object), expect.any(Object));
+        describeRenderProp(renderTested, 'div', button);
       });
+    }
+  });
+}
 
-      it('renders a tag name', async () => {
-        await renderTested({ 'data-testid': 'tested', render: 'section' });
-        expect(screen.getByTestId('tested').tagName).toBe('SECTION');
+function describeRenderProp(
+  renderTested: (props: Record<string, any>) => unknown,
+  element: keyof JSX.IntrinsicElements,
+  button: boolean,
+) {
+  const tagName = element.toUpperCase();
+  const buttonProps = button ? { nativeButton: element === 'button' } : {};
+
+  describe('prop: render', () => {
+    it('renders the element returned by a render function', async () => {
+      let rendered: Element | undefined;
+      await renderTested({
+        ref: (el: Element) => {
+          rendered = el;
+        },
+        'data-testid': 'tested',
+        class: 'custom-class',
+        render: (props: Record<string, any>) => (
+          <Dynamic component={element} {...props} data-rendered="" />
+        ),
+        ...buttonProps,
       });
+      const customRoot = screen.getByTestId('tested');
+      expect(customRoot.tagName).toBe(tagName);
+      expect(customRoot).toHaveAttribute('data-rendered');
+      expect(customRoot).toHaveClass('custom-class');
+      expect(rendered).toBe(customRoot);
+    });
+
+    it('passes the state to the render function', async () => {
+      const renderFn = vi.fn((props: Record<string, any>) => (
+        <Dynamic component={element} {...props} />
+      ));
+      await renderTested({ render: renderFn, ...buttonProps });
+      expect(renderFn).toHaveBeenCalledWith(expect.any(Object), expect.any(Object));
+    });
+
+    it('renders a tag name', async () => {
+      await renderTested({ 'data-testid': 'tested', render: element, ...buttonProps });
+      expect(screen.getByTestId('tested').tagName).toBe(tagName);
     });
   });
 }

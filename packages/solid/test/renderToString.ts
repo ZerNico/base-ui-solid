@@ -3,6 +3,7 @@ import * as Solid from 'solid-js';
 import { createComponent, createStore, flush } from 'solid-js';
 import type { Component } from 'solid-js';
 import { hydrate as solidHydrate } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { onTestFinished, vi } from 'vitest';
 import { isJSDOM } from '@base-ui-solid/utils/testUtils';
 
@@ -130,6 +131,8 @@ export async function renderToString<P extends Record<string, any>>(
       }
       throwOnHydrationWarnings();
       return {
+        /** A `userEvent` instance, like the one `render` returns. */
+        user: userEvent.setup(),
         /** Updates the hydrated component's props and flushes. */
         setProps(nextProps: Partial<P>) {
           setCurrentProps((draft) => {

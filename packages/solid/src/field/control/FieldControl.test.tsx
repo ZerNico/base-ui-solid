@@ -29,6 +29,7 @@ describe('<Field.Control />', () => {
   it('avoids rerendering for uncontrolled input changes', async () => {
     const renderCountRef = { current: 0 };
 
+    // Count renders of Field.Control itself: the render function runs every time it renders.
     await render(() => (
       <Field.Root>
         <Field.Control

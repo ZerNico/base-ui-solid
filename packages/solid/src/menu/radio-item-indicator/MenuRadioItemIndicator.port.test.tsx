@@ -54,21 +54,25 @@ describe('<Menu.RadioItemIndicator /> toggling', () => {
 
     async function expectSelected(value: 'a' | 'b') {
       await waitFor(() => {
-        for (const id of ['a', 'b']) {
-          const item = screen.getByTestId(`item-${id}`);
-          const checked = id === value;
-          const highlighted = item.hasAttribute('data-highlighted');
-          expect({
-            ariaChecked: item.getAttribute('aria-checked'),
+        const ids = ['a', 'b'];
+        expect(
+          ids.map((id) => ({
+            ariaChecked: screen.getByTestId(`item-${id}`).getAttribute('aria-checked'),
             indicator: describeIndicator(screen.queryByTestId(`indicator-${id}`)),
-          }).toEqual({
-            ariaChecked: String(checked),
-            indicator:
-              !checked && !keepMounted
-                ? null
-                : { checked, unchecked: !checked, highlighted, starting: false, ending: false },
-          });
-        }
+          })),
+        ).toEqual(
+          ids.map((id) => {
+            const checked = id === value;
+            const highlighted = screen.getByTestId(`item-${id}`).hasAttribute('data-highlighted');
+            return {
+              ariaChecked: String(checked),
+              indicator:
+                !checked && !keepMounted
+                  ? null
+                  : { checked, unchecked: !checked, highlighted, starting: false, ending: false },
+            };
+          }),
+        );
       });
     }
 

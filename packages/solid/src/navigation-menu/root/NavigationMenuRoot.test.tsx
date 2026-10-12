@@ -772,6 +772,15 @@ function primeOpenPopupSize(
   positioner.style.setProperty('--positioner-height', `${height}px`);
 }
 
+function getPopupSizeVars(popupRoot: HTMLElement, positioner: HTMLElement) {
+  return {
+    popupWidth: popupRoot.style.getPropertyValue('--popup-width'),
+    popupHeight: popupRoot.style.getPropertyValue('--popup-height'),
+    positionerWidth: positioner.style.getPropertyValue('--positioner-width'),
+    positionerHeight: positioner.style.getPropertyValue('--positioner-height'),
+  };
+}
+
 function TestDeeplyNestedNavigationMenu() {
   return (
     <NavigationMenu.Root>
@@ -1511,12 +1520,16 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      expect(trigger).toHaveFocus();
+
+      const link = screen.getByRole('link', { name: 'Link 1' });
+      await act(async () => link.focus());
+      expect(link).toHaveFocus();
 
       await user.keyboard('{Escape}');
-      await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).toBe(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).toBe(null);
+      });
       expect(trigger).toHaveFocus();
     });
 
@@ -1597,15 +1610,36 @@ describe('<NavigationMenu.Root />', () => {
   });
 
   describe('patient click threshold', () => {
-    it('closes if hovered then clicked after the patient threshold', async () => {
+    it('stays open if hovered then clicked within the patient threshold', async () => {
       await render(() => <TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
 
-      fireEvent.click(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('closes if hovered then clicked after the patient threshold', async () => {
+      await render(() => <TestNavigationMenu />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
@@ -1794,7 +1828,7 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
-    async function assertPopupSizeIsPreservedWhenControlledValueClosesExternally(
+    async function expectPopupSizePreservedWhenControlledValueClosesExternally(
       keepMountedPortal = false,
     ) {
       const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
@@ -1875,11 +1909,11 @@ describe('<NavigationMenu.Root />', () => {
     }
 
     it('preserves popup size when controlled value closes externally', async () => {
-      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally();
+      await expectPopupSizePreservedWhenControlledValueClosesExternally();
     });
 
     it('preserves popup size when controlled value closes externally with keepMounted portal', async () => {
-      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally(true);
+      await expectPopupSizePreservedWhenControlledValueClosesExternally(true);
     });
 
     it('clears activation direction when controlled value closes externally after switching triggers', async () => {
@@ -3436,10 +3470,12 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '250px',
+              positionerHeight: '220px',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -3488,10 +3524,12 @@ describe('<NavigationMenu.Root />', () => {
 
           expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '250px',
+              positionerHeight: '220px',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -3541,10 +3579,12 @@ describe('<NavigationMenu.Root />', () => {
 
           expect(screen.getByTestId('nested-popup-1')).not.toHaveAttribute('hidden');
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '250px',
+              positionerHeight: '220px',
+            });
           });
 
           const popupSetPropertyCalls = setPopupPropertySpy.mock.calls as Array<
@@ -3614,10 +3654,12 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '250px',
+              positionerHeight: '300px',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -3664,8 +3706,10 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toMatchObject({
+              positionerWidth: '250px',
+              positionerHeight: '300px',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -3734,8 +3778,10 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('260px');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(getPopupSizeVars(popupRoot, positioner)).toMatchObject({
+              popupHeight: 'auto',
+              positionerHeight: '260px',
+            });
           });
 
           setPropertySpy.mockRestore();
@@ -3832,10 +3878,12 @@ describe('<NavigationMenu.Root />', () => {
           expect(positioner).not.toHaveAttribute('data-instant');
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '500px',
+              positionerHeight: '180px',
+            });
           });
         } finally {
           restoreResizeObserver();
@@ -3886,10 +3934,12 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toEqual({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+              positionerWidth: '500px',
+              positionerHeight: '180px',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -3958,8 +4008,10 @@ describe('<NavigationMenu.Root />', () => {
           await waitForSettledAnimations();
 
           await waitFor(() => {
-            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+            expect(getPopupSizeVars(popupRoot, positioner)).toMatchObject({
+              positionerWidth: '500px',
+              positionerHeight: '180px',
+            });
           });
 
           await finishAnimation(openAnimation);
@@ -3970,8 +4022,10 @@ describe('<NavigationMenu.Root />', () => {
           await finishAnimation(switchAnimation);
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(getPopupSizeVars(popupRoot, positioner)).toMatchObject({
+              popupWidth: 'auto',
+              popupHeight: 'auto',
+            });
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -4037,9 +4091,9 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(triggerProduct).toHaveAttribute('aria-expanded', 'true');
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
           });
+          expect(triggerProduct).toHaveAttribute('aria-expanded', 'true');
 
           const productContent = screen
             .getByText('Product panel')
@@ -4133,13 +4187,11 @@ describe('<NavigationMenu.Root />', () => {
           fireEvent.click(triggerLearn);
           await flushMicrotasks();
 
-          let popupRoot: HTMLElement | null = null;
-
           await waitFor(() => {
-            popupRoot = screen.getByTestId('popup-root');
-            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
             expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
           });
+          expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+          const popupRoot = screen.getByTestId('popup-root');
 
           await act(async () => {
             await waitForAnimationFrame();
@@ -4149,7 +4201,7 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            const hasRunningAnimations = popupRoot!
+            const hasRunningAnimations = popupRoot
               .getAnimations()
               .some((animation) => animation.playState !== 'finished');
             expect(hasRunningAnimations).toBe(false);
@@ -4162,8 +4214,7 @@ describe('<NavigationMenu.Root />', () => {
           await flushMicrotasks();
 
           await waitFor(() => {
-            expect(onOpenChangeComplete.mock.calls.length).toBe(1);
-            expect(onOpenChangeComplete.mock.calls[0][0]).toBe(false);
+            expect(onOpenChangeComplete.mock.calls).toEqual([[false]]);
           });
 
           expect(performance.now() - closeStart).toBeLessThan(325);

@@ -7,6 +7,8 @@ import { ToggleGroup } from '../toggle-group/ToggleGroup';
 describe('<Toggle />', () => {
   describeConformance(Toggle, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
   });
 
   describe('pressed state', () => {

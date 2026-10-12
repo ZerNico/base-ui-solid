@@ -38,7 +38,6 @@ test('uses the supplied root store while preserving DOM and position references'
         }}
       />
     ));
-    await flushMicrotasks();
 
     expect(floating?.context.rootStore).toBe(store);
     expect(floating?.context.dataRef).toBe(store.context.dataRef);

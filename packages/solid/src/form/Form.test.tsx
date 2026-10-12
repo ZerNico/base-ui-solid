@@ -334,8 +334,9 @@ describe('<Form />', () => {
     await flushMicrotasks();
   });
 
-  (['onBlur', 'onChange'] as const).forEach((validationMode) => {
-    it(`blocks submission on a resolved async error in ${validationMode} mode`, async () => {
+  it.each([{ validationMode: 'onBlur' as const }, { validationMode: 'onChange' as const }])(
+    'blocks submission on a resolved async error in $validationMode mode',
+    async ({ validationMode }) => {
       const onFormSubmit = vi.fn();
       const validate = vi.fn((value: unknown) =>
         Promise.resolve(value === 'taken' ? 'Username is taken' : null),
@@ -367,8 +368,8 @@ describe('<Form />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
 
       await flushMicrotasks();
-    });
-  });
+    },
+  );
 
   it('does not submit if an unnamed registered field control is invalid', async () => {
     const onSubmit = vi.fn((event: SubmitEvent) => {

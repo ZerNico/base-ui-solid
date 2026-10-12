@@ -17,6 +17,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
 import remarkConfig from './.remarkrc.mjs';
+import baseUiTestRules from './scripts/eslint/testRules.mjs';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -214,16 +215,24 @@ export default defineConfig(
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
+      // shared suites that test files call
+      // Port note: the port has a single `describeConformance.tsx` (no `conformanceTests/`).
+      'packages/solid/test/describeConformance.tsx',
+      'packages/solid/test/*Tests.tsx',
     ],
     extends: createTestConfig(),
+    plugins: {
+      'base-ui-test': baseUiTestRules,
+    },
     rules: {
       // `createTestConfig()` re-enables `testing-library/flat/react` rules; keep React rules off.
       ...reactRulesOff,
       // Port note: test fixtures mirror upstream's `.map()` lists (static arrays) one to one.
       'solid/prefer-for': 'off',
-      // Port note: hard skips are part of the port's test policy (PORTING.md "Tests"): each
-      // `it.skip`/`describe.skip` carries a `React-only` or `TODO(port): needs <Component>` reason
-      // and is tracked by `pnpm test:compare-upstream`, which keeps names/skips in sync with upstream.
+      // Port note: upstream sets `vitest/no-disabled-tests` to 'error'. Hard skips are part of the
+      // port's test policy (PORTING.md "Tests"): each `it.skip`/`describe.skip` carries a
+      // `React-only` or `TODO(port): needs <Component>` reason and is tracked by
+      // `pnpm test:compare-upstream`, which keeps names/skips in sync with upstream, so it stays off.
       'vitest/no-disabled-tests': 'off',
       'mui/add-undef-to-optional': 'off',
       // Tests type lazily-loaded modules with `typeof import('./x')`, which the rule's
@@ -273,6 +282,12 @@ export default defineConfig(
             'touch events have no equivalent helper yet.',
         },
       ],
+      'base-ui-test/no-chai-style': 'error',
+      'base-ui-test/no-event-init-spies': 'error',
+      'base-ui-test/no-standalone-user-event-setup': 'error',
+      'base-ui-test/no-tests-in-foreach': 'error',
+      'base-ui-test/wait-for-single-expect': 'error',
+      'vitest/no-conditional-expect': 'error',
     },
   },
   {
@@ -281,6 +296,34 @@ export default defineConfig(
       // The e2e suite asserts with Playwright's `expect` (initPlaywrightMatchers),
       // which the scope-naive vitest globals rule mistakes for the vitest global.
       'vitest/prefer-importing-vitest-globals': 'off',
+    },
+  },
+  {
+    name: 'Base UI Solid tests',
+    // `#test-utils` exists only in base-ui-solid; @base-ui-solid/utils tests can't depend on it.
+    files: [
+      `packages/solid/**/*${EXTENSION_TEST_FILE}`,
+      'packages/solid/test/describeConformance.tsx',
+      'packages/solid/test/*Tests.tsx',
+    ],
+    rules: {
+      // Assumes the async `#test-utils` renderer: awaiting the synchronous
+      // `@solidjs/testing-library` renderer (used by @base-ui-solid/utils tests) flushes nothing.
+      'base-ui-test/no-flush-after-render': 'error',
+      // Port note: upstream also restricts `createRenderer`/`describeConformance` imports from
+      // `@mui/internal-test-utils`, which the port doesn't depend on.
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            ...NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED,
+            {
+              regex: '(^|/)test/(createRenderer|describeConformance)$',
+              message: "Import test utilities from '#test-utils'.",
+            },
+          ],
+        },
+      ],
     },
   },
   baseSpecRules,

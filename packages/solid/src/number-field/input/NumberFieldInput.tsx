@@ -342,7 +342,9 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
         // Allow composition events (e.g., pinyin)
         // event.nativeEvent.isComposing does not work in Safari:
         // https://bugs.webkit.org/show_bug.cgi?id=165004
-        event.which === 229 ||
+        // Port note: React's synthetic `which` is the native `keyCode` for keydown events, and
+        // the native `which` is always 0 in some environments (jsdom).
+        event.keyCode === 229 ||
         (event.altKey && !isStepKey) ||
         event.ctrlKey ||
         event.metaKey ||

@@ -8,6 +8,7 @@ import {
   describeConformance,
   isJSDOM,
   wait,
+  pasteText,
 } from '#test-utils';
 import { platform } from '@base-ui-solid/utils/platform';
 import { NumberField } from '..';
@@ -50,28 +51,6 @@ async function act(fn: () => unknown) {
 }
 
 describe('<NumberField.ScrubArea />', () => {
-  function createClipboardData(text: string) {
-    return {
-      getData: (type: string) => (type === 'text/plain' ? text : ''),
-    };
-  }
-
-  function pasteText(target: HTMLElement, value: string) {
-    if (isJSDOM) {
-      fireEvent.paste(target, {
-        clipboardData: createClipboardData(value),
-      });
-      return;
-    }
-
-    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-    Object.defineProperty(pasteEvent, 'clipboardData', {
-      value: createClipboardData(value),
-    });
-
-    fireEvent(target, pasteEvent);
-  }
-
   describeConformance(NumberField.ScrubArea, {
     refInstanceof: window.HTMLSpanElement,
     wrap: (node) => <NumberField.Root>{node()}</NumberField.Root>,

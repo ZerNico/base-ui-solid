@@ -90,8 +90,10 @@ describe('<ScrollArea.Corner />', () => {
 
       await waitFor(() => {
         const style = getComputedStyle(corner);
-        expect(style.getPropertyValue('--scroll-area-corner-width')).toBe('10px');
-        expect(style.getPropertyValue('--scroll-area-corner-height')).toBe('10px');
+        expect({
+          width: style.getPropertyValue('--scroll-area-corner-width'),
+          height: style.getPropertyValue('--scroll-area-corner-height'),
+        }).toEqual({ width: '10px', height: '10px' });
       });
     });
   });

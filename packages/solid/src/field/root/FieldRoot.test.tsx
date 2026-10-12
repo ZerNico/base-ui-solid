@@ -190,14 +190,11 @@ describe('<Field.Root />', () => {
 
     await click(screen.getByRole('button', { name: 'Clear' }));
 
-    await waitFor(() => {
-      const updatedControl = screen.getByRole('textbox');
-      const updatedId = updatedControl.getAttribute('id') ?? '';
+    const updatedId = screen.getByRole('textbox').id;
 
-      expect(updatedId).not.toBe('');
-      expect(updatedId).not.toBe('control-a');
-      expect(label).toHaveAttribute('for', updatedId);
-    });
+    expect(updatedId).not.toBe('');
+    expect(updatedId).not.toBe('control-a');
+    expect(label).toHaveAttribute('for', updatedId);
   });
 
   it.skipIf(isJSDOM)(
@@ -389,45 +386,42 @@ describe('<Field.Root />', () => {
       // expect(screen.queryByText('custom error')).toBe(null);
     });
 
-    (
-      [
-        ['an empty array', () => []],
-        ['an undefined', () => undefined],
-        ['an empty string', () => ''],
-        ['an array of empty strings', () => ['', '']],
-      ] as const
-    ).forEach(([label, validate]) => {
-      it(`treats ${label} result as valid`, async () => {
-        const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
+    it.each([
+      { label: 'an empty array', validate: () => [] },
+      { label: 'an undefined', validate: () => undefined },
+      { label: 'an empty string', validate: () => '' },
+      { label: 'an array of empty strings', validate: () => ['', ''] },
+    ])('treats $label result as valid', async ({ validate }) => {
+      const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
 
-        await render(() => (
-          <Form onSubmit={onSubmit}>
-            <Field.Root name="field" validationMode="onChange" validate={validate}>
-              <Field.Control data-testid="control" />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="submit">submit</button>
-          </Form>
-        ));
+      await render(() => (
+        <Form onSubmit={onSubmit}>
+          <Field.Root name="field" validationMode="onChange" validate={validate}>
+            <Field.Control data-testid="control" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>
+      ));
 
-        const control = screen.getByTestId('control');
+      const control = screen.getByTestId('control');
 
-        await change(control, 'abc');
+      await change(control, 'abc');
 
-        expect(control).not.toHaveAttribute('aria-invalid');
-        expect(control).not.toHaveAttribute('data-invalid');
-        expect(screen.queryByTestId('error')).toBe(null);
-        expect(control).toHaveProperty('validationMessage', '');
+      expect(control).not.toHaveAttribute('aria-invalid');
+      expect(control).not.toHaveAttribute('data-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(control).toHaveProperty('validationMessage', '');
 
-        await click(screen.getByText('submit'));
+      await click(screen.getByText('submit'));
 
-        expect(onSubmit).toHaveBeenCalledTimes(1);
-      });
+      expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
     describe('async validation pending state', () => {
-      (['onSubmit', 'onChange', 'onBlur'] as const).forEach((validationMode) => {
-        it(`publishes neutral validity while a validator is in flight in ${validationMode} mode`, async () => {
+      it.each(['onSubmit', 'onChange', 'onBlur'] as const)(
+        'publishes neutral validity while a validator is in flight in %s mode',
+        async (validationMode) => {
           let resolveValidate: ((value: string | null) => void) | undefined;
           const validate = vi.fn(
             () =>
@@ -473,11 +467,12 @@ describe('<Field.Root />', () => {
           expect(root).toHaveAttribute('data-invalid', '');
           expect(control).toHaveAttribute('aria-invalid', 'true');
           expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
-        });
-      });
+        },
+      );
 
-      (['onChange', 'onBlur'] as const).forEach((validationMode) => {
-        it(`retires a previously valid result to neutral while revalidating in ${validationMode} mode`, async () => {
+      it.each(['onChange', 'onBlur'] as const)(
+        'retires a previously valid result to neutral while revalidating in %s mode',
+        async (validationMode) => {
           const resolvers: Array<(value: string | null) => void> = [];
           const validate = vi.fn(
             () =>
@@ -522,11 +517,12 @@ describe('<Field.Root />', () => {
 
           expect(root).toHaveAttribute('data-invalid', '');
           expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
-        });
-      });
+        },
+      );
 
-      (['onChange', 'onBlur'] as const).forEach((validationMode) => {
-        it(`keeps a previously resolved error while revalidating in ${validationMode} mode`, async () => {
+      it.each(['onChange', 'onBlur'] as const)(
+        'keeps a previously resolved error while revalidating in %s mode',
+        async (validationMode) => {
           const resolvers: Array<(value: string | null) => void> = [];
           const validate = vi.fn(
             () =>
@@ -587,8 +583,8 @@ describe('<Field.Root />', () => {
 
           expect(root).not.toHaveAttribute('data-invalid');
           expect(screen.queryByTestId('error')).toBe(null);
-        });
-      });
+        },
+      );
 
       it('retires a stale native error to neutral once the constraint passes again', async () => {
         const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
@@ -643,8 +639,9 @@ describe('<Field.Root />', () => {
         expect(root).toHaveAttribute('data-valid', '');
       });
 
-      (['onSubmit', 'onChange', 'onBlur'] as const).forEach((validationMode) => {
-        it(`keeps a native constraint failure published while the validator is in flight in ${validationMode} mode`, async () => {
+      it.each(['onSubmit', 'onChange', 'onBlur'] as const)(
+        'keeps a native constraint failure published while the validator is in flight in %s mode',
+        async (validationMode) => {
           const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());
           const validate = vi.fn(() => new Promise<string | null>(() => {}));
 
@@ -673,8 +670,8 @@ describe('<Field.Root />', () => {
           expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
 
           await flushMicrotasks();
-        });
-      });
+        },
+      );
 
       it('retires a resolved async error to neutral while revalidating in onSubmit mode', async () => {
         const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault());

@@ -5,6 +5,8 @@ import { Accordion } from '..';
 describe('<Accordion.Trigger />', () => {
   describeConformance(Accordion.Trigger, {
     refInstanceof: window.HTMLButtonElement,
+    testRenderPropWith: 'button',
+    button: true,
     wrap: (node) => (
       <Accordion.Root>
         <Accordion.Item>{node()}</Accordion.Item>

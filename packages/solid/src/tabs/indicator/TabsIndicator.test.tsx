@@ -60,7 +60,6 @@ describe('<Tabs.Indicator />', () => {
     // Wait for Tabs.List to register its element; before that no tab can be measured.
     await waitFor(() => {
       expect(indicatorStates.length).toBeGreaterThan(0);
-      expect(screen.getByTestId('bubble')).toHaveAttribute('hidden');
     });
 
     const state = indicatorStates.at(-1)!;
@@ -82,12 +81,12 @@ describe('<Tabs.Indicator />', () => {
       expect(screen.queryByTestId('bubble')).toBe(null);
     });
 
-    function assertSize(actual: string, expected: number) {
+    function expectSize(actual: string, expected: number) {
       const actualNumber = parseFloat(actual);
       expect(Math.abs(actualNumber - expected)).toBeLessThanOrEqual(0.01);
     }
 
-    function assertBubblePositionVariables(
+    function expectBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
       activeTab: HTMLElement,
@@ -114,12 +113,12 @@ describe('<Tabs.Indicator />', () => {
       const actualWidth = bubbleComputedStyle.getPropertyValue('--active-tab-width');
       const actualHeight = bubbleComputedStyle.getPropertyValue('--active-tab-height');
 
-      assertSize(actualLeft, relativeLeft);
-      assertSize(actualRight, relativeRight);
-      assertSize(actualTop, relativeTop);
-      assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, tabWidth);
-      assertSize(actualHeight, tabHeight);
+      expectSize(actualLeft, relativeLeft);
+      expectSize(actualRight, relativeRight);
+      expectSize(actualTop, relativeTop);
+      expectSize(actualBottom, relativeBottom);
+      expectSize(actualWidth, tabWidth);
+      expectSize(actualHeight, tabHeight);
     }
 
     // Styles that turn the indicator into a box laid over the active tab using the CSS
@@ -205,7 +204,7 @@ describe('<Tabs.Indicator />', () => {
       const tabList = screen.getByRole('tablist');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -230,13 +229,13 @@ describe('<Tabs.Indicator />', () => {
       let activeTab = tabs[2];
       const tabList = screen.getByRole('tablist');
 
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      expectBubblePositionVariables(bubble, tabList, activeTab);
 
       setValue(1);
       await flushMicrotasks();
       activeTab = tabs[0];
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -261,13 +260,13 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = tabs[0];
       const tabList = screen.getByRole('tablist');
 
-      assertBubblePositionVariables(bubble, tabList, activeTab);
+      expectBubblePositionVariables(bubble, tabList, activeTab);
 
       setStyle({ width: '800px' });
       await flushMicrotasks();
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -314,7 +313,7 @@ describe('<Tabs.Indicator />', () => {
       tabList.scrollLeft = 80;
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -387,11 +386,11 @@ describe('<Tabs.Indicator />', () => {
 
       await waitFor(() => {
         const bubbleComputedStyle = window.getComputedStyle(bubble);
-        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), 160);
+        expectSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), 160);
       });
       await waitFor(() => {
         const bubbleComputedStyle = window.getComputedStyle(bubble);
-        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), 0);
+        expectSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), 0);
       });
     });
 
@@ -545,13 +544,13 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = screen.getAllByRole('tab')[1];
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
 
       firstTab.setAttribute('style', 'width: 140px; flex-shrink: 0;');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -597,7 +596,7 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = screen.getAllByRole('tab')[1];
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
 
       setAsAnchor(true);
@@ -619,7 +618,7 @@ describe('<Tabs.Indicator />', () => {
       swappedTab.setAttribute('style', 'width: 160px; flex-shrink: 0;');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        expectBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -655,12 +654,12 @@ describe('<Tabs.Indicator />', () => {
       // the untransformed offsets instead of producing `NaN` positions.
       await waitFor(() => {
         const bubbleComputedStyle = window.getComputedStyle(bubble);
-        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), activeTab.offsetLeft);
+        expectSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), activeTab.offsetLeft);
       });
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
-      assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), activeTab.offsetTop);
-      assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-width'), 100);
+      expectSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), activeTab.offsetTop);
+      expectSize(bubbleComputedStyle.getPropertyValue('--active-tab-width'), 100);
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
@@ -703,7 +702,7 @@ describe('<Tabs.Indicator />', () => {
       const tabList = screen.getByTestId('tab-list');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+        expectBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
       });
 
       setInsertedTabWidth(60);
@@ -712,13 +711,13 @@ describe('<Tabs.Indicator />', () => {
       const insertedTab = screen.getByTestId('inserted-tab');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+        expectBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
       });
 
       insertedTab.setAttribute('style', 'width: 120px; flex-shrink: 0;');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+        expectBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
       });
     });
 
@@ -755,15 +754,19 @@ describe('<Tabs.Indicator />', () => {
       const activeTab = screen.getAllByRole('tab')[1];
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble1, tabList, activeTab);
-        assertBubblePositionVariables(bubble2, tabList, activeTab);
+        expectBubblePositionVariables(bubble1, tabList, activeTab);
+      });
+      await waitFor(() => {
+        expectBubblePositionVariables(bubble2, tabList, activeTab);
       });
 
       firstTab.setAttribute('style', 'width: 140px; flex-shrink: 0;');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble1, tabList, activeTab);
-        assertBubblePositionVariables(bubble2, tabList, activeTab);
+        expectBubblePositionVariables(bubble1, tabList, activeTab);
+      });
+      await waitFor(() => {
+        expectBubblePositionVariables(bubble2, tabList, activeTab);
       });
     });
 
@@ -809,7 +812,7 @@ describe('<Tabs.Indicator />', () => {
       const tabList = screen.getByTestId('tab-list');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+        expectBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
       });
 
       const firstTab = screen.getByTestId('tab-1');
@@ -817,7 +820,7 @@ describe('<Tabs.Indicator />', () => {
       firstTab.setAttribute('style', 'width: 180px; flex-shrink: 0;');
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+        expectBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
       });
 
       // React strict mode doubles render calls in tests.

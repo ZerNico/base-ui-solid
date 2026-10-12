@@ -12,6 +12,7 @@ import {
   waitFor,
   enterWithMouse,
   isJSDOM,
+  isScrollLocked,
   moveMouse,
   popupConformanceTests,
   popupListConformanceTests,
@@ -20,6 +21,7 @@ import {
   waitSingleFrame,
   waitForPositioned,
   refCallback,
+  createRenderer as createRendererBase,
 } from '#test-utils';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Menu } from 'base-ui-solid/menu';
@@ -37,7 +39,6 @@ import {
   ignoreActWarnings,
 } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
-import { createRenderer as createRendererBase } from '../../../test/createRenderer';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { MenuStore } from '../store/MenuStore';
@@ -999,55 +1000,57 @@ describe('<Menu.Root />', () => {
       });
     });
     describe('nested menus', () => {
-      (
-        [
-          ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
-          ['vertical', 'rtl', 'ArrowLeft', 'ArrowRight'],
-          ['horizontal', 'ltr', 'ArrowDown', 'ArrowUp'],
-          ['horizontal', 'rtl', 'ArrowDown', 'ArrowUp'],
-        ] as const
-      ).forEach(([orientation, direction, openKey, closeKey]) => {
-        it.skipIf(isJSDOM)(
-          `opens a nested menu of a ${orientation} ${direction.toUpperCase()} menu with ${openKey} key and closes it with ${closeKey}`,
-          async () => {
-            const { user } = await render(
-              (testProps: any) => <DirectionProvider {...testProps} />,
-              () => ({
-                direction,
-                get children() {
-                  return (
-                    <>
-                      <Component
-                        rootProps={{ open: true, orientation }}
-                        submenuProps={{ orientation }}
-                      />
-                    </>
-                  );
-                },
-              }),
-            );
-            const submenuTrigger = screen.getByTestId('submenu-trigger');
-            await act(async () => {
-              submenuTrigger.focus();
-            });
-            // This check fails in JSDOM
-            await waitFor(() => {
-              expect(submenuTrigger).toHaveFocus();
-            });
-            await user.keyboard(`[${openKey}]`);
-            let submenu: HTMLElement | null = await screen.findByTestId('submenu');
-            const submenuItem1 = screen.queryByTestId('item-4_1');
-            expect(submenuItem1).not.toBe(null);
-            await waitFor(() => {
-              expect(submenuItem1).toHaveFocus();
-            });
-            await user.keyboard(`[${closeKey}]`);
-            submenu = screen.queryByTestId('submenu');
-            expect(submenu).toBe(null);
+      it.skipIf(isJSDOM).each([
+        { orientation: 'vertical', direction: 'ltr', openKey: 'ArrowRight', closeKey: 'ArrowLeft' },
+        { orientation: 'vertical', direction: 'rtl', openKey: 'ArrowLeft', closeKey: 'ArrowRight' },
+        { orientation: 'horizontal', direction: 'ltr', openKey: 'ArrowDown', closeKey: 'ArrowUp' },
+        { orientation: 'horizontal', direction: 'rtl', openKey: 'ArrowDown', closeKey: 'ArrowUp' },
+      ] as const)(
+        'opens a nested menu of a $orientation $direction menu with $openKey key and closes it with $closeKey',
+        async ({ orientation, direction, openKey, closeKey }) => {
+          const { user } = await render(
+            (testProps: any) => <DirectionProvider {...testProps} />,
+            () => ({
+              direction,
+              get children() {
+                return (
+                  <>
+                    <Component
+                      rootProps={{ open: true, orientation }}
+                      submenuProps={{ orientation }}
+                    />
+                  </>
+                );
+              },
+            }),
+          );
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+          await act(async () => {
+            submenuTrigger.focus();
+          });
+
+          // This check fails in JSDOM
+          await waitFor(() => {
             expect(submenuTrigger).toHaveFocus();
-          },
-        );
-      });
+          });
+
+          await user.keyboard(`[${openKey}]`);
+
+          await screen.findByTestId('submenu');
+
+          const submenuItem1 = screen.getByTestId('item-4_1');
+          await waitFor(() => {
+            expect(submenuItem1).toHaveFocus();
+          });
+
+          await user.keyboard(`[${closeKey}]`);
+
+          expect(screen.queryByTestId('submenu')).toBe(null);
+          expect(submenuTrigger).toHaveFocus();
+        },
+      );
       it('opens submenu on click when openOnHover is false', async () => {
         const { user } = await render(
           (testProps: any) => <Component {...testProps} />,
@@ -1294,44 +1297,6 @@ describe('<Menu.Root />', () => {
         },
       );
     });
-    describe('controlled open', () => {
-      it('returns focus to the opener when a menu is opened programmatically', async () => {
-        function Test() {
-          const [open, setOpen] = createSignal(untrack(() => false));
-          return (
-            <PortFragment>
-              <button type="button" onClick={() => setOpen(true)}>
-                Open menu programmatically
-              </button>
-              <Menu.Root open={open()} triggerId="menu-trigger" onOpenChange={setOpen}>
-                <Menu.Trigger id="menu-trigger">Menu trigger</Menu.Trigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.Item>Close menu</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.Root>
-            </PortFragment>
-          );
-        }
-        const { user } = await render(
-          (testProps: any) => <Test {...testProps} />,
-          () => ({}),
-        );
-        const opener = screen.getByRole('button', { name: 'Open menu programmatically' });
-        await user.click(opener);
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
-        await user.click(screen.getByRole('menuitem', { name: 'Close menu' }));
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).toBe(null);
-        });
-        expect(opener).toHaveFocus();
-      });
-    });
     describe('nested popups', () => {
       it('keeps the menu and dialog open when pressing Shift+Tab inside a nested dialog', async () => {
         function MenuWithNestedDialog() {
@@ -1391,11 +1356,12 @@ describe('<Menu.Root />', () => {
         });
         // Shift+Tab inside the dialog should NOT close the menu or the dialog
         await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+        await flushMicrotasks();
+
         // Both menu and dialog should still be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu-popup')).not.toBe(null);
-          expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
-        });
+        expect(screen.getByTestId('menu-popup')).toBeInTheDocument();
+        expect(screen.getByTestId('dialog-popup')).toBeInTheDocument();
       });
       it.skipIf(isJSDOM)(
         'keeps focus in a nested alert dialog popup when the pointer leaves the triggering menu item',
@@ -1891,6 +1857,42 @@ describe('<Menu.Root />', () => {
       });
     });
     describe('controlled open interactions', () => {
+      it('returns focus to the opener when a menu is opened programmatically', async () => {
+        function Test() {
+          const [open, setOpen] = createSignal(untrack(() => false));
+          return (
+            <PortFragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Open menu programmatically
+              </button>
+              <Menu.Root open={open()} triggerId="menu-trigger" onOpenChange={setOpen}>
+                <Menu.Trigger id="menu-trigger">Menu trigger</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Close menu</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </PortFragment>
+          );
+        }
+        const { user } = await render(
+          (testProps: any) => <Test {...testProps} />,
+          () => ({}),
+        );
+        const opener = screen.getByRole('button', { name: 'Open menu programmatically' });
+        await user.click(opener);
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+        await user.click(screen.getByRole('menuitem', { name: 'Close menu' }));
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+        expect(opener).toHaveFocus();
+      });
       it('does not close after hovering out of a popup opened externally', async () => {
         function App() {
           const [open, setOpen] = createSignal(untrack(() => false));
@@ -1962,11 +1964,7 @@ describe('<Menu.Root />', () => {
           fireEvent.mouseDown(trigger);
           const menu = await screen.findByRole('menu');
           const doc = menu.ownerDocument;
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-          expect(isScrollLocked).toBe(false);
+          expect(isScrollLocked(doc)).toBe(false);
         });
         it('should apply scroll lock when opened via mouse', async () => {
           const { user } = await render(
@@ -1983,11 +1981,7 @@ describe('<Menu.Root />', () => {
           await waitForPositioned(screen.getByTestId('menu-positioner'));
           // Port note: the shared scroll locker acquires its lock in a zero-delay task.
           await waitFor(() => {
-            const isScrollLocked =
-              doc.documentElement.style.overflow === 'hidden' ||
-              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-              doc.body.style.overflow === 'hidden';
-            expect(isScrollLocked).toBe(true);
+            expect(isScrollLocked(doc)).toBe(true);
           });
         });
       });
@@ -2022,11 +2016,7 @@ describe('<Menu.Root />', () => {
           const menu = await screen.findByRole('menu');
           const doc = menu.ownerDocument;
           await waitFor(() => {
-            const isScrollLocked =
-              doc.documentElement.style.overflow === 'hidden' ||
-              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-              doc.body.style.overflow === 'hidden';
-            expect(isScrollLocked).toBe(true);
+            expect(isScrollLocked(doc)).toBe(true);
           });
         });
         it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
@@ -2060,11 +2050,7 @@ describe('<Menu.Root />', () => {
               requestAnimationFrame(() => resolve());
             });
           });
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-          expect(isScrollLocked).toBe(false);
+          expect(isScrollLocked(doc)).toBe(false);
         });
       });
     });
@@ -2112,171 +2098,11 @@ describe('<Menu.Root />', () => {
         });
       });
     });
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-        function Test() {
-          const [open, setOpen] = createSignal(untrack(() => true));
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <Component rootProps={{ open: open(), onOpenChangeComplete }} />
-            </div>
-          );
-        }
-        const { user } = await render(
-          (testProps: any) => <Test {...testProps} />,
-          () => ({}),
-        );
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).toBe(null);
-        });
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        const onOpenChangeComplete = vi.fn();
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-          const [open, setOpen] = createSignal(untrack(() => true));
-          return (
-            <div>
-              {}
-              <style>{style}</style>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <Component
-                rootProps={{ open: open(), onOpenChangeComplete }}
-                popupProps={{ class: 'animation-test-indicator' }}
-              />
-            </div>
-          );
-        }
-        const { user } = await render(
-          (testProps: any) => <Test {...testProps} />,
-          () => ({}),
-        );
-        expect(screen.getByTestId('menu')).not.toBe(null);
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).toBe(null);
-        });
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-        function Test() {
-          const [open, setOpen] = createSignal(untrack(() => false));
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <Component rootProps={{ open: open(), onOpenChangeComplete }} />
-            </div>
-          );
-        }
-        const { user } = await render(
-          (testProps: any) => <Test {...testProps} />,
-          () => ({}),
-        );
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).not.toBe(null);
-        });
-        // Port note: React StrictMode replays the new popup effect; Solid mounts once.
-        await waitFor(() => expect(onOpenChangeComplete.mock.calls.length).toBe(1));
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-        const onOpenChangeComplete = vi.fn();
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-          const [open, setOpen] = createSignal(untrack(() => false));
-          return (
-            <div>
-              {}
-              <style>{style}</style>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <Component
-                rootProps={{ open: open(), onOpenChange: setOpen, onOpenChangeComplete }}
-                popupProps={{ class: 'animation-test-indicator' }}
-              />
-            </div>
-          );
-        }
-        const { user } = await render(
-          (testProps: any) => <Test {...testProps} />,
-          () => ({}),
-        );
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-        expect(screen.queryByTestId('menu')).not.toBe(null);
-      });
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-        await render(
-          (testProps: any) => <Component {...testProps} />,
-          () => ({
-            rootProps: { onOpenChangeComplete },
-          }),
-        );
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
-      });
-    });
     describe('prop: openOnHover', () => {
-      it('should open the menu when the trigger is hovered', async () => {
+      it('opens when the trigger is hovered and closes when it is no longer hovered', async () => {
         await render(
           (testProps: any) => <Component {...testProps} />,
           () => ({
-            triggerProps: { openOnHover: true, delay: 0 },
-          }),
-        );
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await act(async () => {
-          trigger.focus();
-        });
-        enterWithMouse(trigger);
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
-      });
-      it('should close the menu when the trigger is no longer hovered', async () => {
-        await render(
-          (testProps: any) => <Component {...testProps} />,
-          () => ({
-            rootProps: { modal: false },
             triggerProps: { openOnHover: true, delay: 0 },
           }),
         );
@@ -2736,25 +2562,6 @@ describe('<Menu.Root />', () => {
       });
     });
     describe('BaseUIChangeEventDetails', () => {
-      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(
-          (testProps: any) => <Component {...testProps} />,
-          () => ({
-            rootProps: {
-              onOpenChange: (nextOpen: boolean, eventDetails: Menu.Root.ChangeEventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            },
-          }),
-        );
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await userEvent.click(trigger);
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).toBe(null);
-        });
-      });
       it('unmounts on a later normal close after a preventUnmountOnClose cycle and reopen', async () => {
         let preventNextUnmount = true;
         const { user } = await render(

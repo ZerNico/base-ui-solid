@@ -119,13 +119,12 @@ describe('<Menu.CheckboxItem />', () => {
     expect(renderItem4Spy.mock.calls.length).toBe(0);
   });
   describe('state management', () => {
-    (
-      [
-        [true, 'true', 'checked'],
-        [false, 'false', 'unchecked'],
-      ] as const
-    ).forEach(([checked, ariaChecked, dataState]) =>
-      it('adds the state and ARIA attributes when checked', async () => {
+    it.each([
+      { checked: true, ariaChecked: 'true', dataState: 'checked' },
+      { checked: false, ariaChecked: 'false', dataState: 'unchecked' },
+    ])(
+      'adds the state and ARIA attributes when checked=$checked',
+      async ({ checked, ariaChecked, dataState }) => {
         const { user } = await render(
           (testProps: any) => <Menu.Root {...testProps} />,
           () => ({
@@ -150,7 +149,7 @@ describe('<Menu.CheckboxItem />', () => {
         const item = screen.getByRole('menuitemcheckbox');
         expect(item).toHaveAttribute('aria-checked', ariaChecked);
         expect(item).toHaveAttribute(`data-${dataState}`, '');
-      }),
+      },
     );
     it('toggles the checked state when clicked', async () => {
       const { user } = await render(
