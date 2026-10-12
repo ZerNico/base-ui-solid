@@ -85,7 +85,10 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   // and later sibling effects, matching upstream's child-first layout effect ordering.
   usePopupHandleAttachment(() => props.handle, store);
 
-  const shouldRenderInteractions = createMemo(() => open() || mounted());
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = createMemo(() => open() || mounted() || props.handle != null);
 
   // Port note: a render function child is called once with `{ payload }`, where `payload` is an
   // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured. Like Solid's

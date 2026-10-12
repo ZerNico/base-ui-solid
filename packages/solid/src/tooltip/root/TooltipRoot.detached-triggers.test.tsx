@@ -6,6 +6,7 @@ import {
   createRenderer,
   detachedTriggersConformanceTests,
   isJSDOM,
+  recordRender,
   resetBrowserPointer,
   screen,
   waitFor,
@@ -143,6 +144,168 @@ describe('<Tooltip.Root />', () => {
     openInteractions: ['hover', 'focus'],
     ariaExpanded: false,
     throwOnMissingTrigger: true,
+  });
+
+  describe('does not re-render inactive triggers', () => {
+    async function renderTooltip() {
+      const handle = Tooltip.createHandle();
+      const bystander = { renders: 0 };
+
+      await render(() => (
+        <div>
+          <Tooltip.Trigger handle={handle} id="trigger-1" delay={0} closeDelay={0}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={handle} id="trigger-2" delay={0} closeDelay={0}>
+            Trigger 2
+          </Tooltip.Trigger>
+          <Tooltip.Trigger
+            handle={handle}
+            id="trigger-3"
+            render={(props, state) => (
+              <>
+                {recordRender(props, state, () => {
+                  bystander.renders += 1;
+                })}
+                <button {...props} />
+              </>
+            )}
+          >
+            Trigger 3
+          </Tooltip.Trigger>
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </div>
+      ));
+
+      bystander.renders = 0;
+      return {
+        handle,
+        bystander,
+        trigger1: screen.getByRole('button', { name: 'Trigger 1' }),
+        trigger2: screen.getByRole('button', { name: 'Trigger 2' }),
+      };
+    }
+
+    async function expectOpenedBy(trigger: HTMLElement) {
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+    }
+
+    async function expectClosed(trigger: HTMLElement) {
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    }
+
+    it('when opened and closed imperatively', async () => {
+      const { handle, bystander, trigger1 } = await renderTooltip();
+
+      async function openAndClose() {
+        handle.open('trigger-1');
+        await flushMicrotasks();
+        await expectOpenedBy(trigger1);
+        handle.close();
+        await flushMicrotasks();
+        await expectClosed(trigger1);
+      }
+
+      await openAndClose();
+      await openAndClose();
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when the popup moves to another trigger', async () => {
+      const { handle, bystander, trigger1, trigger2 } = await renderTooltip();
+
+      handle.open('trigger-1');
+      await flushMicrotasks();
+      await expectOpenedBy(trigger1);
+      handle.open('trigger-2');
+      await flushMicrotasks();
+      await expectOpenedBy(trigger2);
+      expect(trigger1).not.toHaveAttribute('data-popup-open');
+      handle.close();
+      await flushMicrotasks();
+      await expectClosed(trigger2);
+
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when focus opens and closes the popup', async () => {
+      const { bystander, trigger1 } = await renderTooltip();
+
+      async function openAndClose() {
+        trigger1.focus();
+        await flushMicrotasks();
+        await expectOpenedBy(trigger1);
+        trigger1.blur();
+        await flushMicrotasks();
+        await expectClosed(trigger1);
+      }
+
+      await openAndClose();
+      await openAndClose();
+      expect(bystander.renders).toBe(0);
+    });
+
+    it('when hover opens and closes the popup', async () => {
+      const { bystander, trigger1, trigger2 } = await renderTooltip();
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await expectOpenedBy(trigger1);
+      fireEvent.mouseLeave(trigger1);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await expectOpenedBy(trigger2);
+      fireEvent.mouseLeave(trigger2);
+      await expectClosed(trigger2);
+
+      expect(bystander.renders).toBe(0);
+    });
+  });
+
+  it('closes a cursor-tracking tooltip when an inactive trigger is pressed', async () => {
+    const handle = Tooltip.createHandle();
+
+    await render(() => (
+      <div>
+        <Tooltip.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </Tooltip.Trigger>
+        <Tooltip.Trigger handle={handle} id="trigger-2">
+          Trigger 2
+        </Tooltip.Trigger>
+        <Tooltip.Root handle={handle} trackCursorAxis="both">
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </div>
+    ));
+
+    handle.open('trigger-1');
+    await flushMicrotasks();
+    expect(await screen.findByTestId('popup')).not.toBe(null);
+
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+    fireEvent.pointerDown(trigger2, { pointerType: 'touch' });
+    fireEvent.click(trigger2);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {

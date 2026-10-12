@@ -86,7 +86,10 @@ export function useRenderDialogRoot<Payload>(
   // the dialog through the handle in the same commit).
   usePopupHandleAttachment(() => props.handle, store);
 
-  const shouldRenderInteractions = () => open() || mounted();
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = () => open() || mounted() || props.handle != null;
 
   // Port note: a render-function child is called once (React calls it on every render), with
   // `{ payload }` where `payload` is an accessor (see `PayloadChildRenderFunction`), so the

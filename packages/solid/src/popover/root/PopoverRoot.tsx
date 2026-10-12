@@ -41,7 +41,8 @@ function PopoverRootComponent<Payload>(componentProps: {
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ stickIfOpen: true, openChangeReason: null });
+    store.context.stickIfOpen = true;
+    store.set('openChangeReason', null);
   });
 
   const modal = () => props.modal ?? false;
@@ -65,7 +66,10 @@ function PopoverRootComponent<Payload>(componentProps: {
   };
   useImperativeHandle(() => props.actionsRef, actions);
 
-  const shouldRenderInteractions = () => open() || mounted();
+  // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
+  // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
+  // triggers.
+  const shouldRenderInteractions = () => open() || mounted() || props.handle != null;
 
   // Port note: a render function child is called once with `{ payload }`, where `payload` is an
   // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured.

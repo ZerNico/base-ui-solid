@@ -11,6 +11,7 @@ export {
 } from './utils';
 export { advanceReactClock } from './advanceReactClock';
 export { pasteText } from './clipboard';
+export { recordRender } from './recordRender';
 export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
 export type { Clock } from './createRenderer';

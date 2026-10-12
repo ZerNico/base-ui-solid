@@ -10,7 +10,9 @@ import {
   flushMicrotasks,
   isJSDOM,
   popupConformanceTests,
+  recordRender,
   screen,
+  waitFor,
 } from '#test-utils';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 
@@ -117,6 +119,58 @@ describe('<AlertDialog.Root />', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
     expect(handle.isOpen).toBe(true);
+  });
+
+  it('does not re-render inactive detached triggers when the popup opens and closes', async () => {
+    const handle = AlertDialog.createHandle();
+    const bystander = { renders: 0 };
+
+    const { user } = await render(() => (
+      <div>
+        <AlertDialog.Trigger handle={handle} id="trigger-1">
+          Trigger 1
+        </AlertDialog.Trigger>
+        <AlertDialog.Trigger
+          handle={handle}
+          id="trigger-2"
+          render={(props, state) => (
+            <>
+              {recordRender(props, state, () => {
+                bystander.renders += 1;
+              })}
+              <button {...props} />
+            </>
+          )}
+        >
+          Trigger 2
+        </AlertDialog.Trigger>
+        <AlertDialog.Root handle={handle}>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup data-testid="popup">
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
+      </div>
+    ));
+
+    const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+    async function openAndClose() {
+      await user.click(trigger);
+      expect(await screen.findByTestId('popup')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    }
+
+    bystander.renders = 0;
+    await openAndClose();
+    await openAndClose();
+    expect(bystander.renders).toBe(0);
   });
 
   it('renders a viewport', async () => {

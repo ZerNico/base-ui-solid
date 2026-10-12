@@ -189,6 +189,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
+  // Outlives effect re-runs so a pending reset can't leave `isComposing` stuck.
+  const compositionTimeout = useTimeout();
 
   function clearInsideReactTree() {
     clearInsideReactTreeTimeout.clear();
@@ -226,8 +228,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     }
 
     // Wait until IME is settled. Pressing `Escape` while composing should
-    // close the compose menu, but not the floating element.
-    if (isComposing) {
+    // close the compose menu, but not the floating element. The flag covers Safari, which fires
+    // `compositionend` before `keydown`. `isComposing` covers compositions that began while closed.
+    if (isComposing || event.isComposing) {
       return;
     }
 
@@ -374,6 +377,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         // changes mid-gesture.
         if (!isOpen) {
           sawPressWhileOpen = false;
+          isComposing = false;
+          currentPointerType = '';
+          touchState = null;
         }
         return clearInsideReactTree;
       }
@@ -381,7 +387,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
       dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
-      const compositionTimeout = new Timeout();
       const preventedPressSuppressionTimeout = new Timeout();
       const doc = ownerDocument(floating);
 
@@ -392,8 +397,10 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
       function handleCompositionEnd() {
         // Safari fires `compositionend` before `keydown`, so we need to wait
-        // until the next tick to set `isComposing` to `false`.
+        // until the next tick to set `isComposing` to `false`. Set it here too, since closing
+        // resets it while a composition can continue into the next open session.
         // https://bugs.webkit.org/show_bug.cgi?id=165004
+        isComposing = true;
         compositionTimeout.start(
           // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
           // Only apply to WebKit for the test to remain 0ms.
@@ -805,7 +812,6 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
       return () => {
         unsubscribe();
-        compositionTimeout.clear();
         preventedPressSuppressionTimeout.clear();
         resetPressStartState();
         suppressNextOutsideClick = false;

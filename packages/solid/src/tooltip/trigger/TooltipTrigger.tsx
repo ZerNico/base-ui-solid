@@ -164,14 +164,16 @@ export function TooltipTrigger<Payload>(
       },
     });
 
-    const rootTriggerProps = currentStore.useState('triggerProps', isMountedByThisTrigger);
+    const rootTriggerProps = currentStore.useState(
+      'appliedTriggerProps',
+      () => isMountedByThisTrigger() || trackCursorAxis() !== 'none',
+    );
 
     return {
       isOpenedByThisTrigger,
       delayGroup,
       hoverInteraction,
       disabled,
-      trackCursorAxis,
       hoverProps,
       focusProps,
       rootTriggerProps,
@@ -273,9 +275,6 @@ export function TooltipTrigger<Payload>(
     }
   };
 
-  const shouldApplyRootTriggerProps = () =>
-    isMountedByThisTrigger() || storeParts().trackCursorAxis() !== 'none';
-
   const state = createMemo<TooltipTriggerState>(
     () => ({
       open: storeParts().isOpenedByThisTrigger(),
@@ -331,7 +330,7 @@ export function TooltipTrigger<Payload>(
       return [
         parts.hoverProps(),
         parts.focusProps.reference,
-        shouldApplyRootTriggerProps() ? parts.rootTriggerProps() : undefined,
+        parts.rootTriggerProps(),
         {
           ...ownProps,
           id: thisTriggerId(),

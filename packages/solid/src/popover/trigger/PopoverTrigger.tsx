@@ -19,7 +19,6 @@ import type { PopoverHandle } from '../store/PopoverHandle';
 import type { PopoverHandleStore } from '../store/PopoverStore';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { REASONS } from '../../internals/reasons';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -91,10 +90,9 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
     }),
   );
 
-  const openReason = useStoreState('openChangeReason');
-  const stickIfOpen = useStoreState('stickIfOpen');
-  const openMethod = useStoreState('openMethod');
-  const focusManagerModal = useStoreState('focusManagerModal');
+  const isPressOpenedByThisTrigger = useStoreState('isPressOpenedByTrigger', thisTriggerId);
+  const isTouchPressOpen = useStoreState('isTouchPressOpen', openOnHover);
+  const hasFocusGuards = useStoreState('hasTriggerFocusGuards', thisTriggerId);
 
   // Port note: the interaction hooks take their floating root context once, so they're created
   // again when the trigger moves to another store (upstream re-renders them with the new context).
@@ -103,11 +101,7 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
     return untrack(() => ({
       hoverProps: useHoverReferenceInteraction(context, {
         get enabled() {
-          return (
-            !disabled() &&
-            openOnHover() &&
-            (openMethod() !== 'touch' || openReason() !== REASONS.triggerPress)
-          );
+          return !disabled() && openOnHover() && !isTouchPressOpen();
         },
         mouseOnly: true,
         move: false,
@@ -127,9 +121,7 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
         isClosing: () => store().select('transitionStatus') === 'ending',
       }),
       click: useClick(context, {
-        get stickIfOpen() {
-          return stickIfOpen();
-        },
+        stickIfOpen: () => store().context.stickIfOpen,
       }),
     }));
   });
@@ -150,7 +142,7 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
 
   const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
     open(value) {
-      if (value && openReason() === REASONS.triggerPress) {
+      if (isPressOpenedByThisTrigger()) {
         return pressableTriggerOpenStateMapping.open(value);
       }
 
@@ -207,7 +199,7 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
 
   // Port note: the element is created once, so it stays mounted to the same DOM node whether or
   // not the focus guards are rendered (upstream keys a fragment for that).
-  const shouldRenderFocusGuards = () => isOpenedByThisTrigger() && !focusManagerModal();
+  const shouldRenderFocusGuards = hasFocusGuards;
   // Port note: Solid's array reconciliation replaces the trigger with the leading guard and
   // re-inserts it when both guards are added in the same update, which drops the trigger's focus.
   // The leading guard is added in the next update, after the trailing one, so the trigger isn't
