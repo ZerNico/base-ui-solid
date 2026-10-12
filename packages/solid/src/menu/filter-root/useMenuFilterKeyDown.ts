@@ -116,6 +116,10 @@ export function useMenuFilterKeyDown(hasValue: Accessor<boolean>) {
       currentTarget: HTMLElement;
     },
   ) => {
+    // Like a plain menu, ignore keys while the popup animates out with the input still focused.
+    if (!store.select('open')) {
+      return;
+    }
     const activeItem = store.state.highlightedItem;
     const action = getMenuFilterKeyAction(event, {
       orientation: root.orientation,

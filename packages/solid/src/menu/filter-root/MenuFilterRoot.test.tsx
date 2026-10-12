@@ -15,7 +15,7 @@ import { createEffect, createSignal, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
 import { Dialog } from 'base-ui-solid/dialog';
 import { Menu } from 'base-ui-solid/menu';
@@ -113,6 +113,60 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
     });
   });
   describe('filtering', () => {
+    it.skipIf(isJSDOM).each(['ArrowDown', 'ArrowUp'])(
+      'ignores %s in the input while the popup animates out',
+      async (key) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+        const onOpenChange = vi.fn();
+        const { user } = await render(
+          (testProps: any) => <Menu.FilterProvider {...testProps} />,
+          () => ({
+            get children() {
+              return (
+                <>
+                  <Menu.Root onOpenChange={onOpenChange}>
+                    <Menu.Trigger>Actions</Menu.Trigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup class="filter-menu-exit-test">
+                          <Menu.Input aria-label="Filter actions" />
+                          <Menu.List>
+                            <Menu.Item>Rename</Menu.Item>
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                  <style>{`
+                    .filter-menu-exit-test[data-ending-style] {
+                      animation: filter-menu-exit-test 10s linear;
+                    }
+                    @keyframes filter-menu-exit-test {
+                      from { opacity: 1; }
+                      to { opacity: 0; }
+                    }
+                  `}</style>
+                </>
+              );
+            },
+          }),
+        );
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await act(async () => trigger.focus());
+        await user.keyboard('[ArrowDown]');
+        const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => expect(input).toHaveFocus());
+        await user.keyboard('[Escape]');
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-ending-style');
+        expect(input).toHaveFocus();
+        await user.keyboard(`[${key}]`);
+        expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      },
+    );
     it('highlights the first item while keeping input focus when opened with the keyboard', async () => {
       const { user } = await render(
         (testProps: any) => <Menu.FilterProvider {...testProps} />,
