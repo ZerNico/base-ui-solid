@@ -2,6 +2,7 @@ import {
   act,
   createRenderer,
   fireEvent,
+  firePointer,
   flushMicrotasks,
   isJSDOM,
   screen,
@@ -833,6 +834,133 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       });
       await waitFor(() => {
         expect(scroll.style.overflowAnchor).toBe('auto');
+      });
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+  it.skipIf(isJSDOM).each([false, true])(
+    'releases keyboard inset and scroll slack after focus leaves the field (pointerdown: %s)',
+    async (pointerDown) => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      try {
+        await render((overrides) => (
+          <Drawer.Root open modal={false} {...overrides()}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport data-testid="viewport">
+                  <Drawer.Popup>
+                    <Drawer.Content
+                      data-testid="scroll"
+                      style={{ height: '420px', 'overflow-y': 'auto', 'padding-bottom': '20px' }}
+                    >
+                      <input data-testid="input" type="text" />
+                      <div style={{ height: '900px' }} />
+                      <button data-testid="item" type="button" />
+                    </Drawer.Content>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>
+        ));
+        const viewport = screen.getByTestId('viewport');
+        const scroll = screen.getByTestId('scroll');
+        const input = screen.getByTestId('input');
+        const item = screen.getByTestId('item');
+        scroll.getBoundingClientRect = () => new DOMRect(0, 300, 320, 420);
+        await act(async () => {
+          input.focus();
+          visualViewport.resize(500);
+        });
+        await waitFor(() => {
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        });
+        // Scroll into the slack, where removing it would clamp the scroll position.
+        scroll.scrollTop = scroll.scrollHeight;
+        const scrollTop = scroll.scrollTop;
+        const paddingBottom = scroll.style.paddingBottom;
+        const inset = viewport.style.getPropertyValue('--drawer-keyboard-inset');
+        // A tap's `mousedown` moves focus, and its `mouseup` and `click` are hit-tested at the
+        // same point in the same task, so nothing under the finger may move synchronously.
+        if (pointerDown) {
+          // A consumer can move focus before pointerdown reaches the provider.
+          window.addEventListener('pointerdown', () => item.focus(), { capture: true, once: true });
+          firePointer.down(item, { timeStamp: 1 });
+        } else {
+          item.focus();
+        }
+        expect(scroll.style.paddingBottom).toBe(paddingBottom);
+        expect(scroll.scrollTop).toBe(scrollTop);
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe(inset);
+        await act(async () => {
+          await flushAnimationFrames(1);
+        });
+        expect(scroll.style.paddingBottom).toBe('20px');
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+  it.skipIf(isJSDOM)('activates an item on the first tap while the keyboard is open', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+    const onClick = vi.fn();
+    try {
+      await render((overrides) => (
+        <Drawer.Root open modal={false} {...overrides()}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup
+                  style={{
+                    position: 'fixed',
+                    left: 0,
+                    top: 'calc(360px - var(--drawer-keyboard-inset, 0px))',
+                  }}
+                >
+                  <input data-testid="input" type="text" />
+                  <button
+                    data-testid="item"
+                    type="button"
+                    onClick={onClick}
+                    style={{ display: 'block', width: '200px', height: '40px' }}
+                  >
+                    Select item
+                  </button>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>
+      ));
+      const viewport = screen.getByTestId('viewport');
+      await act(async () => {
+        screen.getByTestId('input').focus();
+        visualViewport.resize(500);
+      });
+      await waitFor(() => {
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+      });
+      const item = screen.getByTestId('item');
+      const itemRect = item.getBoundingClientRect();
+      const x = itemRect.left + itemRect.width / 2;
+      const y = itemRect.top + itemRect.height / 2;
+      // A tap's compatibility mousedown moves focus, then mouseup and click are hit-tested at
+      // the tap point in the same task. A synchronous inset reset on focus loss would move
+      // the item away before they land.
+      fireEvent.mouseDown(item);
+      item.focus();
+      const target = document.elementFromPoint(x, y)!;
+      fireEvent.mouseUp(target);
+      fireEvent.click(target);
+      expect(onClick).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
       });
     } finally {
       visualViewport.restore();
