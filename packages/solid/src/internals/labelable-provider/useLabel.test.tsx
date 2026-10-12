@@ -4,7 +4,7 @@ import { within } from '@solidjs/testing-library';
 import { Select } from 'base-ui-solid/select';
 import { Combobox } from 'base-ui-solid/combobox';
 import { Field } from 'base-ui-solid/field';
-import { flushMicrotasks, render, screen } from '#test-utils';
+import { act, flushMicrotasks, render, screen } from '#test-utils';
 import { useLabel } from './useLabel';
 
 describe('useLabel', () => {
@@ -136,6 +136,106 @@ describe('useLabel', () => {
       }
     } finally {
       host.remove();
+    }
+  });
+
+  it('focuses a control in the light DOM from a label in a shadow root', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      // Port note: `ReactDOM.createPortal` -> Solid's `<Portal mount>`.
+      const { user, unmount } = await render(() => (
+        <Combobox.Root>
+          <Portal mount={container}>
+            <Combobox.Label>Country</Combobox.Label>
+          </Portal>
+          <Combobox.Trigger id="country">Choose a country</Combobox.Trigger>
+        </Combobox.Root>
+      ));
+
+      try {
+        await user.click(within(container).getByText('Country'));
+
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('focuses a control in an ancestor shadow root from a label in a nested shadow root', async () => {
+    const outerHost = document.createElement('div');
+    const outerShadowRoot = outerHost.attachShadow({ mode: 'open' });
+    const outerContainer = document.createElement('div');
+    const innerHost = document.createElement('div');
+    const innerContainer = document.createElement('div');
+    innerHost.attachShadow({ mode: 'open' }).appendChild(innerContainer);
+    outerShadowRoot.append(outerContainer, innerHost);
+    document.body.appendChild(outerHost);
+
+    try {
+      const { user, unmount } = await render(() => (
+        <Combobox.Root>
+          <Portal mount={innerContainer}>
+            <Combobox.Label>Country</Combobox.Label>
+          </Portal>
+          <Portal mount={outerContainer}>
+            <Combobox.Trigger id="country">Choose a country</Combobox.Trigger>
+          </Portal>
+        </Combobox.Root>
+      ));
+
+      try {
+        await user.click(within(innerContainer).getByText('Country'));
+
+        expect(outerShadowRoot.activeElement).toBe(within(outerContainer).getByRole('combobox'));
+      } finally {
+        unmount();
+      }
+    } finally {
+      outerHost.remove();
+    }
+  });
+
+  it('does not throw when a label is clicked in a detached React root', async () => {
+    const container = document.createElement('div');
+
+    const { unmount } = await render(
+      () => (
+        <Field.Root>
+          <Field.Label nativeLabel={false} render="div">
+            Country
+          </Field.Label>
+          <Select.Root>
+            <Select.Trigger id="country">Choose a country</Select.Trigger>
+          </Select.Root>
+        </Field.Root>
+      ),
+      { container },
+    );
+
+    const errors: ErrorEvent[] = [];
+    function handleError(event: ErrorEvent) {
+      event.preventDefault();
+      errors.push(event);
+    }
+    window.addEventListener('error', handleError);
+
+    try {
+      await act(async () => {
+        within(container).getByText('Country').click();
+      });
+
+      expect(errors).toHaveLength(0);
+    } finally {
+      window.removeEventListener('error', handleError);
+      unmount();
     }
   });
 

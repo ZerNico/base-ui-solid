@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Portal } from '@solidjs/web';
 import { within } from '@solidjs/testing-library';
-import { render, describeConformance, screen } from '#test-utils';
+import { act, render, describeConformance, screen } from '#test-utils';
 import { Slider } from '..';
 import { Field } from '../../field';
 
@@ -77,6 +77,77 @@ describe('<Slider.Label />', () => {
       }
     } finally {
       host.remove();
+    }
+  });
+
+  it('focuses a thumb in the light DOM from a label in a shadow root', async () => {
+    const host = document.createElement('div');
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+    document.body.appendChild(host);
+
+    try {
+      // Port note: `ReactDOM.createPortal` -> Solid's `<Portal mount>`.
+      const { user, unmount } = await render(() => (
+        <Field.Root>
+          <Slider.Root defaultValue={50}>
+            <Portal mount={container}>
+              <Slider.Label>Volume</Slider.Label>
+            </Portal>
+            <Slider.Control>
+              <input aria-label="Unrelated range" type="range" />
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>
+      ));
+
+      try {
+        await user.click(within(container).getByText('Volume'));
+
+        expect(screen.getAllByRole('slider')[1]).toHaveFocus();
+      } finally {
+        unmount();
+      }
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('does not throw when the label is clicked in a detached React root', async () => {
+    const container = document.createElement('div');
+
+    const { unmount } = await render(
+      () => (
+        <Field.Root>
+          <Slider.Root defaultValue={50}>
+            <Slider.Label>Volume</Slider.Label>
+            <Slider.Control>
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>
+      ),
+      { container },
+    );
+
+    const errors: ErrorEvent[] = [];
+    function handleError(event: ErrorEvent) {
+      event.preventDefault();
+      errors.push(event);
+    }
+    window.addEventListener('error', handleError);
+
+    try {
+      await act(async () => {
+        within(container).getByText('Volume').click();
+      });
+
+      expect(errors).toHaveLength(0);
+    } finally {
+      window.removeEventListener('error', handleError);
+      unmount();
     }
   });
 
