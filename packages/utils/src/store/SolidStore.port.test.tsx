@@ -124,9 +124,8 @@ describe('SolidStore (port)', () => {
       setControlled(undefined);
       flush();
       expect(store.state.value).toBe(4);
-      // Upstream's message, worded from the new controlled state.
       expect(errorSpy.mock.calls.map((call) => call[0])).toEqual([
-        'A component is changing the uncontrolled state of value to be controlled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+        'A component is changing the controlled state of value to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
       ]);
 
       // Uncontrolled from now on: imperative writes stick.
