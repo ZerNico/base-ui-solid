@@ -1,11 +1,31 @@
-import { createRenderer, screen } from '#test-utils';
-import type { JSX } from '@solidjs/web';
+import { createRenderer, isJSDOM, screen } from '#test-utils';
 import { Drawer } from 'base-ui-solid/drawer';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { useDrawerProviderContext } from './DrawerProviderContext';
 
 const manualDrawer = {};
 const missingDrawer = {};
+
+// Test files don't load Node types.
+interface NodeProcess {
+  getBuiltinModule(id: 'node:v8'): { setFlagsFromString: (flags: string) => void };
+  getBuiltinModule(id: 'node:vm'): { runInNewContext: (code: string) => () => void };
+}
+
+async function collectGarbage() {
+  const nodeProcess = process as unknown as NodeProcess;
+  nodeProcess.getBuiltinModule('node:v8').setFlagsFromString('--expose-gc');
+  const gc = nodeProcess.getBuiltinModule('node:vm').runInNewContext('gc');
+
+  for (let i = 0; i < 3; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setTimeout(resolve);
+    });
+    gc();
+  }
+}
+
 function ProviderControls() {
   const context = useDrawerProviderContext();
   // Port note: context presence is fixed for this component instance.
@@ -91,19 +111,35 @@ describe('<Drawer.Provider />', () => {
     await user.click(screen.getByRole('button', { name: 'Remove registered' }));
     expect(background).toHaveAttribute('data-inactive', '');
   });
-  // React-only: asserts React Profiler render counts.
-  it.skip('does not retain closed drawer registrations', async () => {
-    const onRender = vi.fn();
-    const { user } = await render((overrides) => (
-      <Profiler id="provider" onRender={onRender} {...overrides()}>
-        <Drawer.Provider>
-          <ProviderControls />
-        </Drawer.Provider>
-      </Profiler>
+  // Forcing GC needs V8 access through Node, so this only runs in jsdom.
+  it.skipIf(!isJSDOM)('releases closed drawers once they are removed', async () => {
+    const drawerRefs: WeakRef<object>[] = [];
+    function RegisterClosedDrawers() {
+      const context = useDrawerProviderContext()!;
+      return (
+        <button
+          onClick={() => {
+            for (let i = 0; i < 10; i += 1) {
+              const drawer = {};
+              drawerRefs.push(new WeakRef(drawer));
+              context.setDrawerOpen(drawer, false);
+              context.removeDrawer(drawer);
+            }
+          }}
+        >
+          Register closed drawers
+        </button>
+      );
+    }
+    const { user } = await render(() => (
+      <Drawer.Provider>
+        <RegisterClosedDrawers />
+      </Drawer.Provider>
     ));
-    onRender.mockClear();
-    await user.click(screen.getByRole('button', { name: 'Register closed' }));
-    expect(onRender).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Register closed drawers' }));
+    expect(drawerRefs).toHaveLength(10);
+    await collectGarbage();
+    expect(drawerRefs.filter((ref) => ref.deref() !== undefined)).toHaveLength(0);
   });
   it('synchronizes and restores visual state on Drawer.Indent', async () => {
     const { user, setProps } = await render((overrides) => (
@@ -137,7 +173,3 @@ describe('<Drawer.Provider />', () => {
     expect(screen.getByTestId('background')).toHaveAttribute('data-inactive', '');
   });
 });
-// Port note: Solid has no React Profiler; its React-only test is skipped.
-function Profiler(props: { children?: JSX.Element; id: string; onRender: unknown }) {
-  return props.children;
-}

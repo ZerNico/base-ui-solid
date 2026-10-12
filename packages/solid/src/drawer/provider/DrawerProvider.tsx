@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web';
-import { createMemo, createSignal, untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
 import type { DrawerVisualState, DrawerVisualStateStore } from './DrawerProviderContext';
 import { DrawerProviderContext } from './DrawerProviderContext';
 /**
@@ -9,28 +9,27 @@ import { DrawerProviderContext } from './DrawerProviderContext';
  * Documentation: [Base UI Drawer](https://base-ui-solid.pages.dev/solid/components/drawer)
  */
 export function DrawerProvider(props: DrawerProvider.Props) {
-  const [openDrawers, setOpenDrawers] = createSignal((() => new Set<object>())(), {
-    ownedWrite: true,
-  });
+  const openDrawers = new Set<object>();
+  const [active, setActive] = createSignal(false, { ownedWrite: true });
   const [visualStateStore] = createSignal(createVisualStateStore(), { ownedWrite: true });
   const setDrawerOpen = (drawer: object, open: boolean) => {
-    setOpenDrawers((prev) => {
-      if (prev.has(drawer) === open) {
-        return prev;
-      }
-      const next = new Set(prev);
-      if (open) {
-        next.add(drawer);
-      } else {
-        next.delete(drawer);
-      }
-      return next;
-    });
+    if (openDrawers.has(drawer) === open) {
+      return;
+    }
+    const wasActive = openDrawers.size > 0;
+    if (open) {
+      openDrawers.add(drawer);
+    } else {
+      openDrawers.delete(drawer);
+    }
+    const isActive = openDrawers.size > 0;
+    if (isActive !== wasActive) {
+      setActive(isActive);
+    }
   };
   const removeDrawer = (drawer: object) => {
     setDrawerOpen(drawer, false);
   };
-  const active = createMemo(() => openDrawers().size > 0);
   const contextValue = {
     setDrawerOpen,
     removeDrawer,
