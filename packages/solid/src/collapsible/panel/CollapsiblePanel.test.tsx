@@ -614,6 +614,53 @@ describe('<Collapsible.Panel />', () => {
       expect(getComputedStyle(panel).animationName).toBe('none');
     });
 
+    it('animates on reopen after an initially open panel is removed by the render function', async () => {
+      const { user } = await render(() => (
+        <>
+          <style>{`
+            @keyframes removable-panel-open {
+              from {
+                opacity: 0;
+              }
+
+              to {
+                opacity: 1;
+              }
+            }
+
+            .removable-animation-panel[data-open] {
+              animation: removable-panel-open 10s linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              class="removable-animation-panel"
+              data-testid="panel"
+              render={(props, state) => <>{state.open ? <div {...props} /> : null}</>}
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </>
+      ));
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(screen.getByTestId('panel').getAnimations()).toHaveLength(0);
+
+      await user.click(trigger);
+
+      expect(screen.queryByTestId('panel')).toBe(null);
+
+      await user.click(trigger);
+
+      const panel = screen.getByTestId('panel');
+      expect(panel).toHaveAttribute('data-open');
+      expect(getComputedStyle(panel).animationName).toBe('removable-panel-open');
+      expect(panel.getAnimations()).toHaveLength(1);
+    });
+
     it('still animates on close and reopen after being initially open', async () => {
       const { user } = await render(() => (
         <>

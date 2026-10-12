@@ -126,6 +126,12 @@ export function useCollapsiblePanel(
 
   useIsoLayoutEffect(
     ([isMounted, isOpen, preventOpenAnimation, status]) => {
+      // A render function can remove the panel on close. Clear one-shot open animation
+      // suppression even without an element, so the next open animates normally.
+      if (!isOpen) {
+        shouldPreventMountAnimationRef.current = false;
+      }
+
       const panel = getPanel();
       if (!panel) {
         return undefined;
@@ -204,8 +210,6 @@ export function useCollapsiblePanel(
       // deferred ending phase applies closed styles. This keeps close transitions
       // starting from a measured pixel value, including interrupted opens.
       if (!isOpen && isMounted && (status === 'idle' || status === 'starting')) {
-        shouldPreventMountAnimationRef.current = false;
-
         if (animationType === 'none') {
           setDimensions(EMPTY_DIMENSIONS, false);
           setMounted(false);
