@@ -388,11 +388,19 @@ export function useListNavigation(
     () => [orientation()],
   );
 
+  // Reset on its own: an explicit `focusItemOnOpen` can change one render before `open` does,
+  // which must not discard the key the trigger just recorded.
   useIsoLayoutEffect(
-    ([openValue, focusItemOnOpenValue]) => {
+    ([openValue]) => {
       if (!openValue) {
         keyRef = null;
       }
+    },
+    () => [open()],
+  );
+
+  useIsoLayoutEffect(
+    ([openValue, focusItemOnOpenValue]) => {
       // Explicit values can change with the opening interaction. Keep an inferred 'auto' value
       // from the trigger event, but apply a boolean before the initial highlight is synchronized.
       if (!openValue || focusItemOnOpenValue !== 'auto') {
