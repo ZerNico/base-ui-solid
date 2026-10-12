@@ -1,0 +1,42 @@
+import { sourceUrl } from '../../../../../../config';
+
+# v0.2.0
+
+<Subtitle>Oct 12, 2026</Subtitle>
+<Meta name="description" content="v0.2.0 release notes. Oct 12, 2026." />
+
+## Upstream
+
+- Tracks upstream commit [`4973b8e`](https://github.com/mui/base-ui/commit/4973b8e404c4685cf623277c1d6b22c9a3dc8473), which builds on `@base-ui/react` [v1.9.0](https://github.com/mui/base-ui/releases/tag/v1.9.0)
+- Ports everything upstream changed since v0.1.0. The full list of differences from the React API is in the <a href={sourceUrl('PORTING.md')}>public API differences</a>.
+
+## Breaking changes
+
+- The `highlightItem` action is removed from the `actionsRef` of Combobox, Autocomplete, Menu, Context Menu and Select, as upstream reverted it before releasing it.<br />
+  There is no replacement. The highlight follows keyboard and pointer interaction, and `onItemHighlighted` reports it.
+
+## Bug fixes
+
+- Fix Field Control warning when an uncontrolled `defaultValue` changes. The new default now updates an unedited input.
+- Fix Tabs not selecting tabs whose values are functions
+- Fix Collapsible staying in its closing phase, and losing its open animation, when a `render` function removes the panel
+- Fix Combobox chip focus going stale after returning to the input
+- Fix Popover, Menu, Tooltip and Preview Card starting a viewport transition when the trigger remounts while closed
+- Fix Number Field Scrub Area firing `onClick` twice when the pointer isn't locked
+- Fix Number Field Input treating IME composition keys as regular input in some environments
+- Fix Drawer item taps being lost while dismissing the virtual keyboard
+- Fix Drawer not expanding a collapsed sheet when a touch swipe from a scroll container leaves the popup
+- Fix Field, Select, Combobox and Slider labels not finding their control across shadow roots or in a detached root
+- Fix nested dialog counts carrying into the next open session of a handle-backed Dialog or Drawer
+- Fix Escape closing a popup while an IME composition is active
+- Fix Menu filter input reacting to keys and text while the menu animates out
+- Fix ArrowUp not highlighting the last item when it opens a filterable Menu
+- Fix click interactions reporting an empty `pointerType` instead of `'mouse'` when opening popups
+- Fix the controlled to uncontrolled switch warning naming the wrong direction
+
+## Improvements
+
+- Add `data-disabled` to Fieldset Legend, and export `FieldsetLegendDataAttributes`
+- Limit the WebKit `aria-selected` state on filterable Menu items to while the filter input has focus
+- Keep handle-backed popup roots' interactions mounted so inactive triggers don't update on open and close
+- Docs: update the Paper Mono font

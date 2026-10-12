@@ -10,10 +10,21 @@ export interface Release {
 // `v<x-y-z>/page.mdx` release page and a route. Upstream release notes are in its changelog.
 export const releases: Release[] = [
   {
+    version: 'v0.2.0',
+    versionSlug: 'v0-2-0',
+    date: '2026-10-12',
+    latest: true,
+    highlights: [
+      'Syncs with Base UI v1.9.0',
+      'Removes the unreleased `highlightItem` action, as upstream did',
+      'Fixes for Field, Tabs, Collapsible, Combobox, Drawer, Menu and labels in shadow roots',
+      'Fieldset Legend exposes `data-disabled`',
+    ],
+  },
+  {
     version: 'v0.1.0',
     versionSlug: 'v0-1-0',
     date: '2026-10-06',
-    latest: true,
     highlights: [
       'Render-function children get accessors (`{ payload }`, Combobox items, `*.Value` parts)',
       '`actionsRef`, `inputRef` and element-valued props replace React ref objects',
