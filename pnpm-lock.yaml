@@ -135,8 +135,8 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(rollup@4.64.0)(supports-color@10.2.2)
       '@mui/internal-docs-infra':
-        specifier: 0.13.1-canary.5
-        version: 0.13.1-canary.5(prettier@3.9.9)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)
+        specifier: 0.13.1-canary.7
+        version: 0.13.1-canary.7(prettier@3.9.9)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)
       '@orama/orama':
         specifier: ^3.1.18
         version: 3.1.18
@@ -1759,8 +1759,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.13.1-canary.5':
-    resolution: {integrity: sha512-yGEAYAJOSaTAxMmp7DSuSvDv61fDdW8+i/d+R3rSti7vP9njwhm8ZUexqhPC2TcSInJPsnZl/jPZiVZwB71h4w==}
+  '@mui/internal-docs-infra@0.13.1-canary.7':
+    resolution: {integrity: sha512-DlS9NG/8hchCaozj4lTTIEU1OZyNQ0QibDFfNGTCWwTN+NYr8/W+rUa1D4VoTTThPnYT1TbJMWSgYuxvAKPkZQ==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -8479,7 +8479,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.13.1-canary.5(prettier@3.9.9)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.13.1-canary.7(prettier@3.9.9)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 8.0.5
       '@csstools/postcss-light-dark-function': 3.0.7(postcss@8.5.28)
@@ -10052,7 +10052,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 7.0.1
-      chalk: 5.0.1
+      chalk: 5.6.2
       cli-boxes: 3.0.0
       string-width: 5.1.2
       type-fest: 2.19.0
