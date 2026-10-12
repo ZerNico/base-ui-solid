@@ -170,7 +170,8 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
       return;
     }
 
-    setValue(newValue);
+    // Tab values can be functions, which the setter would otherwise call as updaters.
+    setValue(() => newValue);
   };
 
   const notifyAutomaticValueChange = (
@@ -288,7 +289,7 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
         fallbackValue: TabsTab.Value,
         fallbackReason: TabsRoot.ChangeEventReason,
       ) {
-        setValue(fallbackValue);
+        setValue(() => fallbackValue);
         // Automatic fallbacks are not directional transitions; reset the direction
         // alongside the value so the batched commit keeps both in sync.
         activationDirectionState = {

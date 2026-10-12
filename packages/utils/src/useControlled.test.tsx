@@ -152,6 +152,21 @@ describe('useControlled', () => {
   });
 
   describe('prop: defaultValue', () => {
+    it('stores a function default value instead of calling it', () => {
+      const defaultValue = () => 'called';
+      let result!: Accessor<unknown>;
+      solidRender(() => {
+        [result] = useControlled<unknown>({
+          controlled: () => undefined,
+          default: defaultValue,
+          name: 'TestComponent',
+        });
+        return null;
+      });
+
+      expect(result()).toBe(defaultValue);
+    });
+
     it('warns when changed after initial rendering', () => {
       let setProps!: (newProps: any) => void;
 
