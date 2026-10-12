@@ -1,6 +1,5 @@
 import { createMemo, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -76,18 +75,8 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
 
   const id = useLabelableId({ id: () => componentProps.id || undefined });
 
-  const [valueUnwrapped] = useControlled({
-    controlled: () => componentProps.value,
-    // Port note: keep the default reactive for upstream's development warning; state initializes once.
-    get default() {
-      return componentProps.defaultValue;
-    },
-    name: 'FieldControl',
-    state: 'value',
-  });
-
-  const isControlled = () => componentProps.value !== undefined;
-  const value = () => (isControlled() ? valueUnwrapped() : undefined);
+  const value = () => componentProps.value;
+  const isControlled = () => value() !== undefined;
   // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
   const serializedValue = () => {
     const currentValue = value();
@@ -112,7 +101,7 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
         setFilled(currentValue !== '');
       }
     },
-    () => [serializedValue()],
+    () => [serializedValue(), componentProps.defaultValue],
   );
 
   useValueChanged(serializedValue, () => {
@@ -150,9 +139,7 @@ export function FieldControl(componentProps: FieldControl.Props): JSX.Element {
         name: name(),
         'aria-labelledby': labelId(),
         autofocus: componentProps.autofocus ?? false,
-        ...(isControlled()
-          ? { value: value() }
-          : { defaultValue: untrack(() => componentProps.defaultValue) }),
+        ...(isControlled() ? { value: value() } : { defaultValue: componentProps.defaultValue }),
         // Port note: React's `onChange` fires on every keystroke, like the native `input` event.
         onInput(event: InputEvent) {
           const input = event.currentTarget as HTMLInputElement;

@@ -1,4 +1,4 @@
-import { expect, describe, it, beforeEach } from 'vitest';
+import { expect, describe, it, beforeEach, vi } from 'vitest';
 import { Show, createSignal, flush } from 'solid-js';
 import {
   fireEvent,
@@ -361,6 +361,53 @@ describe('<Field.Control />', () => {
     await flushMicrotasks();
 
     expect(root).not.toHaveAttribute('data-filled');
+  });
+
+  it('forwards a changing defaultValue without warning', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      const [defaultValue, setDefaultValue] = createSignal('');
+      await render(() => (
+        <Field.Root data-testid="root">
+          <Field.Control defaultValue={defaultValue()} />
+        </Field.Root>
+      ));
+
+      const root = screen.getByTestId('root');
+      expect(root).not.toHaveAttribute('data-filled');
+
+      setDefaultValue('value');
+      flush();
+
+      expect(screen.getByRole('textbox')).toHaveValue('value');
+      expect(root).toHaveAttribute('data-filled', '');
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('keeps filled state from the edited value when defaultValue changes', async () => {
+    const [defaultValue, setDefaultValue] = createSignal('');
+    await render(() => (
+      <Field.Root data-testid="root">
+        <Field.Control defaultValue={defaultValue()} />
+      </Field.Root>
+    ));
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole('textbox');
+    await change(input, 'typed');
+    expect(root).toHaveAttribute('data-filled', '');
+
+    setDefaultValue('next');
+    flush();
+    setDefaultValue('');
+    flush();
+
+    expect(input).toHaveValue('typed');
+    expect(root).toHaveAttribute('data-filled', '');
   });
 
   it('sets filled state from a controlled value on a custom element', async () => {
