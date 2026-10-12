@@ -23,7 +23,7 @@ export function ComboboxChip(componentProps: ComboboxChip.Props): JSX.Element {
   const elementProps = omit(componentProps, 'render', 'class', 'style');
 
   const store = useComboboxRootContext();
-  const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
+  const { chipsRef } = useComboboxChipsContext()!;
   const direction = useDirection();
 
   const disabled = store.useState('disabled');
@@ -67,12 +67,18 @@ export function ComboboxChip(componentProps: ComboboxChip.Props): JSX.Element {
         currentSelectedValue.filter((_: any, i: number) => i !== currentIndex),
         createChangeEventDetails(REASONS.none, event),
       );
+      // Commit the removal before focusing so `chipsRef` reflects the remaining chips.
+      // Port note: counterpart of `ReactDOM.flushSync`.
+      flush();
     } else if (event.key === 'Enter' || event.key === ' ') {
       stopEvent(event);
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
       store.context.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event));
+      // The input may mount when opening.
+      // Port note: counterpart of `ReactDOM.flushSync`.
+      flush();
       nextIndex = undefined;
     } else if (
       // Check for printable characters (letters, numbers, symbols)
@@ -114,10 +120,6 @@ export function ComboboxChip(componentProps: ComboboxChip.Props): JSX.Element {
               }
 
               const nextIndex = handleKeyDown(event);
-
-              // Port note: counterpart of `ReactDOM.flushSync`.
-              setHighlightedChipIndex(nextIndex);
-              flush();
 
               if (nextIndex === undefined) {
                 store.context.inputRef.current?.focus();

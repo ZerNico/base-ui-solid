@@ -1,3 +1,4 @@
+import { For, Show, createSignal } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -307,6 +308,53 @@ describe('<Combobox.Chip />', () => {
       await user.keyboard('a');
       expect(input).toHaveFocus();
     });
+    it.each(['ArrowDown', 'ArrowUp'])(
+      'focuses a conditional input when reopening from a chip with %s',
+      async (key) => {
+        function Test() {
+          const [open, setOpen] = createSignal(true);
+
+          return (
+            <Combobox.Root
+              multiple
+              defaultValue={['apple']}
+              open={open()}
+              onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            >
+              <Combobox.Chips>
+                <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+                <Show when={open()}>
+                  <Combobox.Input />
+                </Show>
+              </Combobox.Chips>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(() => <Test />);
+        const chip = screen.getByTestId('chip');
+
+        await user.click(screen.getByRole('combobox'));
+        await user.keyboard('{ArrowLeft}');
+
+        await waitFor(() => expect(screen.queryByRole('combobox')).toBe(null));
+        expect(chip).toHaveFocus();
+
+        await user.keyboard(`{${key}}`);
+
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      },
+    );
+
     it('leaves focus on a chip for modified printable keys', async () => {
       const { user } = await render(() => (
         <Combobox.Root multiple defaultValue={['apple']}>
@@ -344,6 +392,30 @@ describe('<Combobox.Chip />', () => {
       await user.keyboard('{Delete}');
       expect(handleValueChange).toHaveBeenCalledWith(['banana'], expect.anything());
     });
+    it('focuses the next chip after removing a chip rendered from the value', async () => {
+      const { user } = await render(() => (
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: Accessor<string[]>) => (
+                <>
+                  <For each={value()}>
+                    {(item) => <Combobox.Chip data-testid={`chip-${item}`}>{item}</Combobox.Chip>}
+                  </For>
+                  <Combobox.Input />
+                </>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>
+      ));
+
+      await act(async () => screen.getByTestId('chip-banana').focus());
+      await user.keyboard('{Delete}');
+
+      expect(screen.getByTestId('chip-cherry')).toHaveFocus();
+    });
+
     it('mirrors chip keyboard navigation in RTL mode', async () => {
       const { user } = await render(() => (
         <DirectionProvider direction="rtl">

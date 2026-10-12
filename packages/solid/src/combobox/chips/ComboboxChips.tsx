@@ -1,4 +1,4 @@
-import { createSignal, omit } from 'solid-js';
+import { omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -20,25 +20,11 @@ export function ComboboxChips(componentProps: ComboboxChips.Props): JSX.Element 
 
   const store = useComboboxRootContext();
 
-  const open = store.useState('open');
   const hasSelectionChips = store.useState('hasSelectionChips');
-
-  // Port note: upstream resets the highlighted chip during render while the popup is open.
-  const [highlightedChipIndexState, setHighlightedChipIndexState] = createSignal<
-    number | undefined
-  >((prev) => (open() ? undefined : prev), { ownedWrite: true });
-  const highlightedChipIndex = () => (open() ? undefined : highlightedChipIndexState());
-  const setHighlightedChipIndex = (index: number | undefined) => {
-    setHighlightedChipIndexState(() => index);
-  };
 
   const chipsRef: RefObject<Array<HTMLButtonElement | null>> = { current: [] };
 
-  const contextValue: ComboboxChipsContext = {
-    highlightedChipIndex,
-    setHighlightedChipIndex,
-    chipsRef,
-  };
+  const contextValue: ComboboxChipsContext = { chipsRef };
 
   return (
     <ComboboxChipsContext value={contextValue}>

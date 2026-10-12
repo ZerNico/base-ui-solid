@@ -40,7 +40,6 @@ import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissB
 import {
   clickHighlightedItem,
   getChipNavigationKeys,
-  getIndexAfterChipRemoval,
   useListEmpty,
   usePopupSide,
 } from '../utils/parts';
@@ -184,36 +183,10 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
 
     let nextIndex: number | undefined;
 
-    const highlightedChipIndex = untrack(comboboxChipsContext.highlightedChipIndex);
     const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
-    const [previousChipKey, nextChipKey] = getChipNavigationKeys(untrack(direction));
+    const [previousChipKey] = getChipNavigationKeys(untrack(direction));
     const currentSelectedValue = untrack(selectedValue);
 
-    if (highlightedChipIndex !== undefined) {
-      if (event.key === previousChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex > 0) {
-          nextIndex = highlightedChipIndex - 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === nextChipKey) {
-        event.preventDefault();
-        if (highlightedChipIndex < renderedChipsCount - 1) {
-          nextIndex = highlightedChipIndex + 1;
-        } else {
-          nextIndex = undefined;
-        }
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        event.preventDefault();
-        // Move highlight appropriately after removal.
-        nextIndex = getIndexAfterChipRemoval(highlightedChipIndex, currentSelectedValue.length);
-        clearHighlight(event);
-      }
-      return nextIndex;
-    }
-
-    // Handle navigation when no chip is highlighted
     if (
       event.key === previousChipKey &&
       ((event.currentTarget as HTMLInputElement).selectionStart ?? 0) === 0 &&
@@ -490,12 +463,11 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
               return;
             }
 
-            // Handle deletion when no chip is highlighted and the input is empty.
+            // Handle deletion when the input is empty.
             if (
               comboboxChipsContext &&
               event.key === 'Backspace' &&
               input.value === '' &&
-              untrack(comboboxChipsContext.highlightedChipIndex) === undefined &&
               Array.isArray(currentSelectedValue) &&
               currentSelectedValue.length > 0
             ) {
@@ -515,17 +487,10 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
               return;
             }
 
-            const hadHighlightedChip =
-              comboboxChipsContext !== undefined &&
-              untrack(comboboxChipsContext.highlightedChipIndex) !== undefined;
             const nextIndex = handleKeyDown(event);
-
-            comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
             if (nextIndex !== undefined) {
               comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
-            } else if (hadHighlightedChip) {
-              store.context.inputRef.current?.focus();
             }
 
             // event.isComposing
