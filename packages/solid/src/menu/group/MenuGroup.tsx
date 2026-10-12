@@ -5,6 +5,9 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
+/**
+ * @internal
+ */
 export function MenuGroupPlain(componentProps: MenuGroup.Props) {
   const elementProps = omit(componentProps, 'render', 'class', 'style');
 

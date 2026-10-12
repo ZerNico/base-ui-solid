@@ -32,6 +32,9 @@ interface MenuPopupPlainProps extends MenuPopup.Props {
   initialFocus?: FloatingFocusManagerProps['initialFocus'] | undefined;
 }
 
+/**
+ * @internal
+ */
 export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
   const elementProps = omit(
     componentProps,

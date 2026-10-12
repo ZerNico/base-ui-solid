@@ -9,6 +9,9 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
 
+/**
+ * @internal
+ */
 export function MenuRadioGroupPlain(componentProps: MenuRadioGroup.Props) {
   const elementProps = omit(
     componentProps,

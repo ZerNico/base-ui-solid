@@ -53,6 +53,9 @@ import type { HTMLProps } from '../../internals/types';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 import { isKeyboardClick, isKeyboardOpen } from '../utils/isKeyboardOpen';
 
+/**
+ * @internal
+ */
 export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>): JSX.Element {
   const disabledProp = () => props.disabled ?? false;
   const modalProp = () => props.modal;
