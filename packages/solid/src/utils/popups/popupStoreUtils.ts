@@ -44,6 +44,10 @@ type PopupStoreWithOpen<
 > = PopupTriggerDataStore<State> &
   Pick<SyncedFloatingRootContextStore<State>, 'useSyncedValue'> & {
     setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
+    useDerivedState<Key extends keyof State>(
+      key: Key,
+      derive: (rawValue: State[Key], rawState: State) => State[Key],
+    ): void;
   };
 
 /**
@@ -156,6 +160,8 @@ function useMaybeAccessorStoreState<State extends PopupStoreState<unknown>>(
   return () => state()();
 }
 
+// Writes the count for stores without a Root (`useImplicitActiveTrigger` derives it, and the
+// derived value wins). Only runs when a trigger (un)registers while the popup is open.
 function syncTriggerCount(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
   const triggerCount = store.context.triggerElements.size;
   if (store.select('open') && store.state.triggerCount !== triggerCount) {
@@ -439,20 +445,31 @@ export function useTriggerDataForwarding<
     () => [triggerElementRef, read(storeParam), read(triggerIdParam)],
   );
 
-  // Port note: upstream's dependencies are the values of `stateUpdates`; the accessor re-runs
-  // exactly when one of them changes.
+  // While this trigger owns the mounted popup, its trigger-owned values (payload, close delay,
+  // the floating tree ids, ...) are derived into the store instead of written from an effect on
+  // every open. The memo owns the registrations, so they move to a new store with the trigger.
+  void createMemo(() => {
+    const store = read(storeParam);
+    for (const key of Object.keys(untrack(stateUpdatesParam)) as Key[]) {
+      store.useConditionalSyncedValue(
+        key,
+        isMountedByThisTrigger,
+        () => stateUpdatesParam()[key] as State[Key],
+      );
+    }
+  });
+
+  // Only corrects a stale active trigger element (e.g. a trigger that re-rendered its element).
   useIsoLayoutEffect(
-    ([isMounted, store, stateUpdates]) => {
-      if (isMounted) {
-        const changes = {
-          activeTriggerElement: triggerElementRef.current,
-          ...stateUpdates,
-        } as Pick<Readonly<State>, Key | 'activeTriggerElement'>;
-        store.update(changes);
+    ([isMounted, store]) => {
+      if (isMounted && store.state.activeTriggerElement !== triggerElementRef.current) {
+        store.update({ activeTriggerElement: triggerElementRef.current } as Pick<
+          Readonly<State>,
+          'activeTriggerElement'
+        >);
       }
     },
-    () =>
-      [isMountedByThisTrigger(), read(storeParam), stateUpdatesParam(), triggerElementRef] as const,
+    () => [isMountedByThisTrigger(), read(storeParam), triggerElementRef] as const,
   );
 
   return { registerTrigger, isMountedByThisTrigger };
@@ -513,31 +530,55 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
   const reactiveActiveTriggerElement = store.useState('activeTriggerElement');
 
+  // Port note: derived instead of written from the effect below on every open and close.
+  // `triggerCount` counts the registered triggers while the popup is open, and a popup opened
+  // without a trigger (and no active trigger written) claims the lone registered trigger until it
+  // unmounts.
+  const triggerElements = store.context.triggerElements;
+  // The flag only applies while the popup is effectively open: a controlled root may decline a
+  // close request and stay open, and a controlled close never reaches `createPopupOpenState` at
+  // all. The raw flag is cleared on unmount.
+  store.useDerivedState('openedWithoutTrigger', (raw) => (store.select('open') ? raw : false));
+  store.useDerivedState('triggerCount', () =>
+    store.select('open') ? triggerElements.trackedSize() : 0,
+  );
+  // Reads the claimed values from the raw state: what was written, not what is derived. Like
+  // upstream's write, the claim sticks once made: until the popup is closed and unmounted, until an
+  // active trigger is written, or until the lost-trigger path below releases it. So a claimed
+  // trigger that unmounts is still the active one, and its loss closes the popup.
+  let claim: [string, Element] | undefined;
+  const loneTriggerClaim = (rawState: State) => {
+    const state = store.state;
+    if (
+      (!store.select('open') && !state.mounted) ||
+      rawState.activeTriggerId != null ||
+      rawState.activeTriggerElement != null
+    ) {
+      claim = undefined;
+      return undefined;
+    }
+    if (claim === undefined && !state.openedWithoutTrigger) {
+      claim = triggerElements.trackedLoneEntry();
+    }
+    return claim;
+  };
+  store.useDerivedState(
+    'activeTriggerId',
+    (rawId, rawState) => rawId ?? loneTriggerClaim(rawState)?.[0] ?? null,
+  );
+  store.useDerivedState(
+    'activeTriggerElement',
+    (rawElement, rawState) => rawElement ?? loneTriggerClaim(rawState)?.[1] ?? null,
+  );
+
   useIsoLayoutEffect(
     ([openValue]) => {
       if (!openValue) {
         resolvedActiveTriggerIdRef.current = null;
-        if (store.state.triggerCount !== 0) {
-          store.set('triggerCount', 0);
-        }
-        // The flag is cleared only here, once the popup is effectively closed: a controlled root may
-        // decline a close request and stay open, and a controlled close never reaches
-        // `createPopupOpenState` at all.
-        if (store.state.openedWithoutTrigger) {
-          store.set('openedWithoutTrigger', false);
-        }
         return;
       }
 
-      const triggerCount = store.context.triggerElements.size;
-      const stateUpdates = {} as Pick<
-        State,
-        'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'
-      >;
-
-      if (store.state.triggerCount !== triggerCount) {
-        stateUpdates.triggerCount = triggerCount;
-      }
+      const stateUpdates = {} as Pick<State, 'activeTriggerId' | 'activeTriggerElement'>;
 
       const currentActiveTriggerId = store.select('activeTriggerId');
       let lostActiveTriggerId: string | null = null;
@@ -572,22 +613,6 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
 
       if (
-        !lostActiveTriggerId &&
-        !currentActiveTriggerId &&
-        !store.state.openedWithoutTrigger &&
-        triggerCount === 1
-      ) {
-        const iteratorResult = store.context.triggerElements.entries().next();
-        if (!iteratorResult.done) {
-          const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-          stateUpdates.activeTriggerId = implicitTriggerId;
-          stateUpdates.activeTriggerElement = implicitTriggerElement;
-          resolvedActiveTriggerIdRef.current = implicitTriggerId;
-        }
-      }
-
-      if (
-        stateUpdates.triggerCount !== undefined ||
         stateUpdates.activeTriggerId !== undefined ||
         stateUpdates.activeTriggerElement !== undefined
       ) {
@@ -608,6 +633,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
               // If closing is canceled, keep the previous active trigger ownership for the
               // still-open popup instead of claiming another trigger implicitly.
               if (!eventDetails.isCanceled) {
+                claim = undefined;
                 store.update({
                   activeTriggerId: null,
                   activeTriggerElement: null,
@@ -652,11 +678,12 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       store.set('preventUnmountingOnClose', preventUnmountOnClose),
     animateInitialOpen,
     onUnmount() {
+      // Port note: `mounted` is derived from the hook below, so it isn't written here.
       store.update({
         activeTriggerId: null,
         activeTriggerElement: null,
-        mounted: false,
         preventUnmountingOnClose: false,
+        openedWithoutTrigger: false,
       });
       onUnmount?.();
       store.context.onOpenChangeComplete?.(false);

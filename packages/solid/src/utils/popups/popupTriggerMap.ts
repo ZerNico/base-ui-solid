@@ -1,3 +1,4 @@
+import { createSignal } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 
 /**
@@ -30,6 +31,33 @@ function getDevElementIds(map: PopupTriggerMap) {
 export class PopupTriggerMap {
   private idMap: Map<string, Element> = new Map();
 
+  // Port note: lets derived popup state (`triggerCount`, the lone trigger) track registrations.
+  private version = createSignal(
+    0,
+    IS_DEV ? { ownedWrite: true, name: 'BaseUI.PopupTriggerMap.version' } : { ownedWrite: true },
+  );
+
+  private changed() {
+    this.version[1]((value) => value + 1);
+  }
+
+  /**
+   * The number of registered triggers, tracked in a reactive scope.
+   */
+  public trackedSize(): number {
+    this.version[0]();
+    return this.idMap.size;
+  }
+
+  /**
+   * The only registered trigger (`undefined` unless exactly one is registered), tracked in a
+   * reactive scope.
+   */
+  public trackedLoneEntry(): [string, Element] | undefined {
+    this.version[0]();
+    return this.idMap.size === 1 ? this.idMap.entries().next().value : undefined;
+  }
+
   /**
    * Adds a trigger element with the given ID.
    *
@@ -56,7 +84,10 @@ export class PopupTriggerMap {
       elementIds.set(element, id);
     }
 
-    this.idMap.set(id, element);
+    if (this.idMap.get(id) !== element) {
+      this.idMap.set(id, element);
+      this.changed();
+    }
   }
 
   /**
@@ -70,7 +101,9 @@ export class PopupTriggerMap {
       }
     }
 
-    this.idMap.delete(id);
+    if (this.idMap.delete(id)) {
+      this.changed();
+    }
   }
 
   /**

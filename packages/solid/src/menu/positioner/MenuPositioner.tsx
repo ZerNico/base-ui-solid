@@ -182,8 +182,12 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
   });
 
   useEffect(
-    ([floatingTreeRootValue, floatingNodeIdValue]) => {
+    ([floatingTreeRootValue]) => {
       function onMenuOpenChange(details: MenuOpenEventDetails) {
+        // Port note: read the node id when the event arrives. It's derived from the trigger that
+        // opens the menu, so it changes in the same update as the open state, possibly before
+        // this listener would have been re-subscribed with it.
+        const floatingNodeIdValue = store.select('floatingNodeId');
         if (details.open) {
           if (details.parentNodeId === floatingNodeIdValue) {
             store.set('hoverEnabled', false);
@@ -203,7 +207,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
         floatingTreeRootValue.events.off('menuopenchange', onMenuOpenChange);
       };
     },
-    () => [floatingTreeRoot(), floatingNodeId()] as const,
+    () => [floatingTreeRoot()] as const,
   );
 
   useEffect(
@@ -278,11 +282,13 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
   );
 
   useEffect(
-    ([floatingTreeRootValue, openValue, floatingNodeIdValue, floatingParentNodeIdValue]) => {
+    ([floatingTreeRootValue, openValue]) => {
+      // Port note: the tree ids are read when the event is emitted, like the listener above does, so
+      // both sides agree while a trigger takes over the menu's node in the same update.
       const eventDetails: MenuOpenEventDetails = {
         open: openValue,
-        nodeId: floatingNodeIdValue,
-        parentNodeId: floatingParentNodeIdValue,
+        nodeId: store.select('floatingNodeId'),
+        parentNodeId: store.select('floatingParentNodeId'),
         reason: store.select('lastOpenChangeReason'),
       };
 

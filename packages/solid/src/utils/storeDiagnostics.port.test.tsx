@@ -1,7 +1,9 @@
 import { createSignal, flush, For, OBSERVE } from 'solid-js';
 import type { DiagnosticCode, DiagnosticEvent } from 'solid-js';
 import { attribution } from 'solid-js/attribution';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { isJSDOM } from '@base-ui-solid/utils/testUtils';
+import { ContextMenu } from 'base-ui-solid/context-menu';
 import { Dialog } from 'base-ui-solid/dialog';
 import { Menu } from 'base-ui-solid/menu';
 import { Popover } from 'base-ui-solid/popover';
@@ -9,10 +11,11 @@ import { Select } from 'base-ui-solid/select';
 import { Tooltip } from 'base-ui-solid/tooltip';
 import { createRenderer, flushMicrotasks, screen, waitFor } from '#test-utils';
 
-// Port note: regressions absent upstream. Popups copy their props into the store from effects
-// (`useSyncedValue`, `useControlledProp`, ...), like upstream's layout effects, so Solid's dev
-// diagnostics report relays through the store (`EFFECT_RELAY_TEAR`, `EFFECT_WRITES_OWN_SOURCE`)
-// when attribution is enabled (see PORTING.md, "Known issues"). These tests guard that:
+// Port note: regressions absent upstream. Solid's dev diagnostics report effects that relay
+// state (`EFFECT_RELAY_TEAR`, `EFFECT_WRITES_OWN_SOURCE`) when attribution is enabled. The popups
+// derive their store state instead of copying it from effects (see PORTING.md, "Store"), so with
+// animations enabled, as in an app, opening and closing them reports nothing. These tests guard
+// that:
 // - the number of findings per code stays at or below the recorded baseline, so a change that
 //   adds relays fails. A change that removes some only needs the baseline lowered.
 // - the library's own nodes in a finding carry a `BaseUI.` name instead of Solid's anonymous
@@ -20,18 +23,41 @@ import { createRenderer, flushMicrotasks, screen, waitFor } from '#test-utils';
 
 type Counts = Partial<Record<DiagnosticCode, number>>;
 
-// Findings (`info` and `warn` events) recorded on 2026-10-06 with Solid 2.0.0-rc.13. The counts were
-// identical across runs, in isolation and in jsdom and Chromium. All of them are the known
-// upstream-shaped relays: the store's synced props (`useSyncedValues`, `useControlledProp`, ...)
-// and the transition status effects reading the store.
-const BASELINE = {
-  'Popover (controlled open)': { EFFECT_RELAY_TEAR: 6, EFFECT_WRITES_OWN_SOURCE: 1 },
-  'Popover (detached handle)': { EFFECT_RELAY_TEAR: 7, EFFECT_WRITES_OWN_SOURCE: 1 },
-  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 3, EFFECT_WRITES_OWN_SOURCE: 1 },
+type Scenario =
+  | 'Popover (controlled open)'
+  | 'Popover (detached handle)'
+  | 'Select (controlled value and open)'
+  | 'Dialog (controlled open)'
+  | 'Menu (controlled open)'
+  | 'Tooltip (controlled open)'
+  | 'ContextMenu (right-click)';
+
+// With animations disabled (the test default), the close completes synchronously inside the
+// effect that waits for the exit animation, so the closing writes are reported as relays. Apps
+// never take that path: without animations, the completion still waits for a frame.
+const BASELINE_ANIMATIONS_DISABLED = {
+  'Popover (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
+  'Popover (detached handle)': { EFFECT_RELAY_TEAR: 5, EFFECT_WRITES_OWN_SOURCE: 1 },
+  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 5, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Dialog (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
-  'Menu (controlled open)': { EFFECT_RELAY_TEAR: 6, EFFECT_WRITES_OWN_SOURCE: 1 },
+  'Menu (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Tooltip (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
-} satisfies Record<string, Counts>;
+  // Not measured (see the scenario).
+  'ContextMenu (right-click)': {},
+} satisfies Record<Scenario, Counts>;
+
+// Chromium with animations enabled: the app conditions. The remaining Select finding is the
+// floating root store's `open`, still synced from an effect by `useFloatingRootContext` (see
+// PORTING.md).
+const BASELINE_ANIMATIONS_ENABLED = {
+  'Popover (controlled open)': {},
+  'Popover (detached handle)': {},
+  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 1 },
+  'Dialog (controlled open)': {},
+  'Menu (controlled open)': {},
+  'Tooltip (controlled open)': {},
+  'ContextMenu (right-click)': {},
+} satisfies Record<Scenario, Counts>;
 
 // Solid's labels for unnamed nodes.
 const ANONYMOUS_NAMES = new Set(['signal', 'computed', 'effect', 'trackedEffect', 'memo']);
@@ -57,14 +83,27 @@ function getRelayNames(event: DiagnosticEvent): string[] {
   return names.filter((name): name is string => typeof name === 'string');
 }
 
-describe('store diagnostics (port)', () => {
+describe.each([
+  { animations: 'disabled', baseline: BASELINE_ANIMATIONS_DISABLED as Record<Scenario, Counts> },
+  { animations: 'enabled', baseline: BASELINE_ANIMATIONS_ENABLED as Record<Scenario, Counts> },
+])('store diagnostics (port), animations $animations', ({ animations, baseline }) => {
   const { render } = createRenderer();
+
+  // Animations can only run in a browser.
+  const skip = animations === 'enabled' && isJSDOM;
+
+  beforeEach(() => {
+    if (animations === 'enabled') {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    }
+  });
 
   let stopCapture: (() => void) | undefined;
 
   afterEach(() => {
     stopCapture?.();
     stopCapture = undefined;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   function captureDiagnostics() {
@@ -149,7 +188,7 @@ describe('store diagnostics (port)', () => {
     }
   }
 
-  it('Popover (controlled open)', async () => {
+  it.skipIf(skip)('Popover (controlled open)', async () => {
     const events = captureDiagnostics();
     const [open, setOpen] = createSignal(false);
 
@@ -166,11 +205,11 @@ describe('store diagnostics (port)', () => {
 
     await toggleOpen(setOpen);
 
-    expectWithinBaseline(events, BASELINE['Popover (controlled open)']);
+    expectWithinBaseline(events, baseline['Popover (controlled open)']);
     expectNamedLibraryNodes(events);
   });
 
-  it('Popover (detached handle)', async () => {
+  it.skipIf(skip)('Popover (detached handle)', async () => {
     const events = captureDiagnostics();
     const handle = Popover.createHandle();
 
@@ -203,11 +242,11 @@ describe('store diagnostics (port)', () => {
     await settle();
     await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
 
-    expectWithinBaseline(events, BASELINE['Popover (detached handle)']);
+    expectWithinBaseline(events, baseline['Popover (detached handle)']);
     expectNamedLibraryNodes(events);
   });
 
-  it('Select (controlled value and open)', async () => {
+  it.skipIf(skip)('Select (controlled value and open)', async () => {
     const events = captureDiagnostics();
     const [value, setValue] = createSignal('a');
     const [open, setOpen] = createSignal(false);
@@ -249,11 +288,11 @@ describe('store diagnostics (port)', () => {
     await settle();
     expect(screen.getByTestId('value')).toHaveTextContent('b');
 
-    expectWithinBaseline(events, BASELINE['Select (controlled value and open)']);
+    expectWithinBaseline(events, baseline['Select (controlled value and open)']);
     expectNamedLibraryNodes(events);
   });
 
-  it('Dialog (controlled open)', async () => {
+  it.skipIf(skip)('Dialog (controlled open)', async () => {
     const events = captureDiagnostics();
     const [open, setOpen] = createSignal(false);
 
@@ -272,11 +311,11 @@ describe('store diagnostics (port)', () => {
 
     await toggleOpen(setOpen);
 
-    expectWithinBaseline(events, BASELINE['Dialog (controlled open)']);
+    expectWithinBaseline(events, baseline['Dialog (controlled open)']);
     expectNamedLibraryNodes(events);
   });
 
-  it('Menu (controlled open)', async () => {
+  it.skipIf(skip)('Menu (controlled open)', async () => {
     const events = captureDiagnostics();
     const [open, setOpen] = createSignal(false);
 
@@ -296,11 +335,11 @@ describe('store diagnostics (port)', () => {
 
     await toggleOpen(setOpen);
 
-    expectWithinBaseline(events, BASELINE['Menu (controlled open)']);
+    expectWithinBaseline(events, baseline['Menu (controlled open)']);
     expectNamedLibraryNodes(events);
   });
 
-  it('Tooltip (controlled open)', async () => {
+  it.skipIf(skip)('Tooltip (controlled open)', async () => {
     const events = captureDiagnostics();
     const [open, setOpen] = createSignal(false);
 
@@ -319,7 +358,53 @@ describe('store diagnostics (port)', () => {
 
     await toggleOpen(setOpen);
 
-    expectWithinBaseline(events, BASELINE['Tooltip (controlled open)']);
+    expectWithinBaseline(events, baseline['Tooltip (controlled open)']);
+    expectNamedLibraryNodes(events);
+  });
+
+  // Real right-clicks need a browser. Only measured with animations, as in an app.
+  it.skipIf(animations === 'disabled' || isJSDOM)('ContextMenu (right-click)', async () => {
+    const { userEvent } = await import('vitest/browser');
+    const events = captureDiagnostics();
+
+    await render(() => (
+      <ContextMenu.Root>
+        <ContextMenu.Trigger
+          render={(props) => (
+            <div {...props} data-testid="area" style={{ width: '200px', height: '100px' }}>
+              Right click here
+            </div>
+          )}
+        />
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup data-testid="popup">
+              <ContextMenu.Item>Cut</ContextMenu.Item>
+              <ContextMenu.Item>Copy</ContextMenu.Item>
+              <ContextMenu.Separator />
+              <ContextMenu.Item>Paste</ContextMenu.Item>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>
+    ));
+
+    for (let i = 0; i < 3; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await userEvent.click(screen.getByTestId('area'), { button: 'right' });
+      // eslint-disable-next-line no-await-in-loop
+      await settle();
+      // eslint-disable-next-line no-await-in-loop
+      await waitFor(() => expect(screen.getByTestId('popup')).toBeVisible());
+      // eslint-disable-next-line no-await-in-loop
+      await userEvent.keyboard('{Escape}');
+      // eslint-disable-next-line no-await-in-loop
+      await settle();
+      // eslint-disable-next-line no-await-in-loop
+      await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
+    }
+
+    expectWithinBaseline(events, baseline['ContextMenu (right-click)']);
     expectNamedLibraryNodes(events);
   });
 });

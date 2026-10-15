@@ -21,7 +21,6 @@ import type {
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
   const internalStore = useFloatingRootContext(options);
   const store = options.rootContext || internalStore;
-  const domReferenceElement = store.useState('domReferenceElement');
 
   const [localDomReference, setLocalDomReference] = createSignal<
     NarrowedElement<ReferenceType> | null | undefined
@@ -35,16 +34,19 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     return isElement(reference) ? (reference as Element) : null;
   });
 
-  const syncedFloatingElement = createMemo(() => {
-    const floating = localFloatingElement();
-    return floating === undefined ? store.state.floatingElement : floating;
-  });
-
+  // Port note: the local elements override the store's values only once set, so they're synced while
+  // defined (a derived key can't read its own current value as its source).
   store.useSyncedValue('referenceElement', () => localDomReference() ?? null);
-  store.useSyncedValue('domReferenceElement', () =>
-    localDomReference() === undefined ? domReferenceElement() : localDomReferenceElement(),
+  store.useConditionalSyncedValue(
+    'domReferenceElement',
+    () => localDomReference() !== undefined,
+    localDomReferenceElement,
   );
-  store.useSyncedValue('floatingElement', syncedFloatingElement);
+  store.useConditionalSyncedValue(
+    'floatingElement',
+    () => localFloatingElement() !== undefined,
+    () => localFloatingElement() ?? null,
+  );
 
   const floating = useBaseUIFloating(
     new Proxy(options, {

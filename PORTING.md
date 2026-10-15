@@ -214,19 +214,43 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   when Solid flushes and notifies readers only when the selected value changed (`Object.is`).
   Selector arguments may be accessors (`store.useState('isActive', () => index())`). An argument
   that is itself a function must be wrapped (`() => fn`).
-- `SolidStore` keeps its name. Values synced into the store are passed as accessors:
+- `SolidStore` keeps its name and methods, but values synced into the store are **derived**, not
+  copied from effects. This deliberately diverges from upstream's `ReactStore` (its layout-effect
+  helpers have no line-by-line counterpart here) so that opening a popup doesn't trip Solid's
+  `EFFECT_RELAY_TEAR` diagnostics. The sources are passed as accessors:
   `useSyncedValue(key, () => props.x)`, `useSyncedValueWithCleanup(key, accessor)`,
   `useControlledProp(key, () => props.open)` and `useSyncedValues(() => ({ a: a(), b: props.b }))`.
-  They write in an effect (`useIsoLayoutEffect`), like upstream's layout effects.
-- **Synced and controlled props reach the store one update after the prop.** The effect copies the
-  new value, then store readers (`useState`, selectors, `observe`) re-run in the same flush. For
-  users, store-backed output (`data-*` attributes, popup open state, highlighted items) catches up
-  within the same tick, before paint. Code that reads both a prop and store-derived state in one
-  effect can briefly see them differ. `SolidStore.port.test.tsx` and the components'
-  `*.port.test.tsx` guard the settled result, so fix components individually when the lag shows.
-  The `store-sources` branch explored deriving synced keys from registered sources (no lag) and
-  was not adopted: SolidStore grew about 2.4x, selectors reading outside state needed a microtask
-  re-run, it added more dev diagnostics, and it diverged from upstream's `ReactStore.ts`.
+  - A synced key reads its source. `store.state` (and `getSnapshot()`) applies the derived keys as
+    getters, so state and selectors see a new prop in the same flush, with no update of lag.
+  - Only `useStore` selectors track the derived keys they read, so a reader depends on just those
+    keys. Plain `store.state` reads stay untracked, like upstream's plain object, also inside
+    computations (a component body called from a JSX getter must not subscribe its parent).
+  - An imperative write (`set`, `update`) to a synced key wins until the source changes, like
+    upstream's effect that only re-syncs on a change. Keys synced together by `useSyncedValues`
+    share their group: a write holds until any of them changes, like upstream's single effect.
+  - When several registrations sync the same key, the one that changed last wins.
+  - `useControlledProp` derives the key while the prop is defined, and keeps the last controlled
+    value until the next write after the prop becomes `undefined`.
+  - `useConditionalSyncedValue(key, when, value)` syncs only while `when()` is true, and
+    afterwards keeps the last value until it's written (trigger-owned values like `payload` use
+    it while their trigger owns the popup).
+  - `useDerivedState(key, (raw, rawState, writes) => value)` derives a key from what was
+    written (the raw state) and other reactive values. The trigger count, the lone-trigger claim
+    and Select's `selectedIndex` use it. `writes` counts imperative writes to the key, to tell a
+    write of the same value apart from no write.
+  - `subscribe` and `observe` listeners are notified (once per change of a synced group) from an
+    effect, since they're outside Solid.
+  - The snapshot object is replaced when the raw state changes, not when only a derived value
+    does (its getters return the current value). Memoized selectors over derived keys would
+    return stale results, and none exist.
+  - Selectors that read the DOM (`popupElement.id`, `listElement.id`) aren't tracked by Solid.
+    They used to re-run on every store write, now they must read the state key whose change
+    updates the DOM value (`popupIdSelector` always reads `floatingId`).
+  - A derived key must not read its own key as its source (that's a dependency cycle). Express
+    "keep the current value" with `useConditionalSyncedValue`.
+- Behavior that differs from upstream because props no longer lag: a Select item clicked by a
+  descendant in the same update that disables the Root ignores the click (upstream accepts it, see
+  `select/store.test.tsx`).
 - `useContextCallback(key, () => props.onOpenChange)` stores a stable function that calls the latest
   callback (replaces `useStableCallback`). `useStateSetter(key)` returns a plain setter.
 - `createSelector` / `createSelectorMemoized` are copied verbatim (reselect-based).
@@ -373,11 +397,12 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 ## Known issues
 
 - **Diagnostics naming `BaseUI.Store...` or `BaseUI.useIsoLayoutEffect` come from the library.**
-  They're the store's upstream-shaped sync (props copied into the store from effects), not user
-  code. In dev, the store names its nodes after its class and method
-  (`BaseUI.Store(PopoverStore).track`, `.useSyncedValues`, `.useControlledProp(open)`,
-  `.useState(open)`, see `storeDebugName.ts`). `storeDiagnostics.port.test.tsx` caps the findings
-  per popup at a recorded baseline.
+  In dev, the store names its nodes after its class and method (`BaseUI.Store(PopoverStore).track`,
+  `.useSyncedValues`, `.useControlledProp(open)`, `.useState(open)`, see `storeDebugName.ts`).
+  Popups derive their store state (see "Stores and popups"), so with animations enabled, as in an
+  app, opening and closing Popover, Dialog, Menu, Context Menu and Tooltip reports no relay.
+  `storeDiagnostics.port.test.tsx` guards that in Chromium, and caps the findings with animations
+  disabled (the test default), where the close completes synchronously inside an effect.
 
 ### Firefox and WebKit
 
@@ -410,16 +435,17 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules, the Collapsible
   panel's forced idle status) instead of writing them from effects. The remaining ones follow
   upstream's layout-effect design:
-  - `EFFECT_RELAY_TEAR` via `BaseUI.Store(<store>).track` (Select, Combobox, Autocomplete, Popover,
-    Preview Card, Dialog, Drawer, Tooltip, Navigation Menu): popups sync their props into the
-    `Store` from layout effects (`useSyncedValue`, `store.update`), like upstream. Removing it needs
-    a store whose synced keys are derived, not written.
+  - `EFFECT_RELAY_TEAR` via `BaseUI.Store(FloatingRootStore).track` (Select, Combobox,
+    Autocomplete): `useFloatingRootContext` copies `open` and the elements into its store from an
+    effect, like upstream. Deriving them breaks focus and dismissal logic that relies on the
+    floating store changing one update after the component's own state.
+  - Select's list navigation highlights the selected item on open from an effect (`onNavigate`),
+    once the popup element is mounted. Deriving it needs `useListNavigation` to expose the
+    initial highlight instead of reporting it through the callback, for every list.
   - `useCollapsiblePanel.dimensions` and `useFloating.data`: DOM measurement, inherently an effect.
   - OTP Field `focusedIndex`: the effect moves DOM focus after the value commits, and the focus
     handler records the index.
   - Navigation Menu `floatingRootContext` / `positionReference`: the active trigger hands its
     floating context to the root from a layout effect, like upstream.
-  - Popover trigger `shouldRenderBeforeFocusGuard`: intentional, the leading focus guard is added
-    one update after the trailing one so Solid doesn't move (and blur) the trigger.
   - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
     dynamic root (parts can swap their element through `render`).

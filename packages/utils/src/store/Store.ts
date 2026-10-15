@@ -30,16 +30,29 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  declare state: State;
+  get state(): State {
+    return this.currentState;
+  }
+
+  set state(value: State) {
+    this.currentState = value;
+  }
+
+  declare private currentState: State;
 
   declare private listeners: Set<Listener<State>>;
+
+  // Port note: listeners of Solid accessors (`useStore`). They track derived values themselves, so
+  // `SolidStore` only notifies the other listeners when a derived value changes.
+  declare private trackedListeners: Set<Listener<State>>;
 
   // Internal state to handle recursive `setState()` calls
   declare private updateTick: number;
 
   constructor(state: State) {
-    this.state = state;
+    this.currentState = state;
     this.listeners = new Set();
+    this.trackedListeners = new Set();
     this.updateTick = 0;
   }
 
@@ -55,6 +68,26 @@ export class Store<State> {
       this.listeners.delete(fn);
     };
   };
+
+  /**
+   * Like {@link subscribe}, for listeners that only notify Solid accessors.
+   */
+  subscribeTracked = (fn: Listener<State>) => {
+    this.trackedListeners.add(fn);
+    return () => {
+      this.trackedListeners.delete(fn);
+    };
+  };
+
+  /**
+   * Notifies the listeners that don't track derived values (see `SolidStore`).
+   */
+  protected notifyUntrackedListeners() {
+    const state = this.state;
+    for (const listener of this.listeners) {
+      listener(state);
+    }
+  }
 
   /**
    * Returns the current state of the store.
@@ -77,13 +110,15 @@ export class Store<State> {
     this.updateTick += 1;
 
     const currentTick = this.updateTick;
-    for (const listener of this.listeners) {
-      if (currentTick !== this.updateTick) {
-        // If the tick has changed, a recursive `setState` call has been made,
-        // and it has already notified all listeners.
-        return;
+    for (const listeners of [this.listeners, this.trackedListeners]) {
+      for (const listener of listeners) {
+        if (currentTick !== this.updateTick) {
+          // If the tick has changed, a recursive `setState` call has been made,
+          // and it has already notified all listeners.
+          return;
+        }
+        listener(newState);
       }
-      listener(newState);
     }
   }
 
@@ -136,7 +171,8 @@ export class Store<State> {
   }
 }
 
-export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'>;
+export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'> &
+  Partial<Pick<Store<State>, 'subscribeTracked'>>;
 
 type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
   ? Tail<Params>

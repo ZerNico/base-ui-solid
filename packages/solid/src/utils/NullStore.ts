@@ -23,4 +23,7 @@ export class NullStore<
   set<Key extends keyof State>(_key: Key, _value: State[Key]) {}
 
   notifyAll() {}
+
+  // Port note: a detached trigger has nothing to synchronize into.
+  useConditionalSyncedValue() {}
 }

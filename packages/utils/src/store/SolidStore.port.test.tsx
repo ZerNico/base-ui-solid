@@ -98,9 +98,11 @@ describe('SolidStore (port)', () => {
       expect(store.state).toBe(snapshot);
       expect(store.getSnapshot()).toBe(snapshot);
 
+      // Port note: synced values are derived. The snapshot is replaced when the raw state changes, not
+      // when only a synced value does (its getter returns the current value).
       setPart({ value: 2, label: 'a' });
       flush();
-      expect(store.state).not.toBe(snapshot);
+      expect(store.state).toBe(snapshot);
       expect(store.state.value).toBe(2);
 
       dispose();
@@ -187,11 +189,8 @@ describe('SolidStore (port)', () => {
 
       render(() => <Test value={value()} />);
       flush();
-      // The initial call, then the synced value.
-      expect(calls).toEqual([
-        [0, 0],
-        [1, 0],
-      ]);
+      // Port note: the synced value is derived, so the initial call already sees it.
+      expect(calls).toEqual([[1, 1]]);
 
       setValue(2);
       flush();
@@ -200,8 +199,7 @@ describe('SolidStore (port)', () => {
       setValue(3);
       flush();
       expect(calls).toEqual([
-        [0, 0],
-        [1, 0],
+        [1, 1],
         [2, 1],
         [3, 2],
       ]);

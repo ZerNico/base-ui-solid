@@ -275,26 +275,32 @@ export function SelectRoot<
     () => [hasSelectedValue()],
   );
 
-  useIsoLayoutEffect(
-    function syncSelectedIndex([multipleValue, openValue, currentValue, comparer]) {
-      const nextIndex = findSelectionIndex(
-        valuesRef.current,
-        currentValue,
-        comparer,
-        multipleValue,
-      );
+  // Port note: `selectedIndex` is derived instead of written from an effect on every value change.
+  // While closed it follows the value. While open it keeps the index it had when the popup opened
+  // (or what was written since, e.g. by a selected item), like upstream's effect that skips open
+  // popups. Items and the positioner still write it imperatively when the items change.
+  let lastClosed: { index: number | null; raw: number | null; value: unknown } | undefined;
+  const computeSelectedIndex = () =>
+    findSelectionIndex(valuesRef.current, value(), isItemEqualToValue(), multiple());
+  store.useDerivedState('selectedIndex', (raw) => {
+    if (!open()) {
+      const index = computeSelectedIndex();
+      lastClosed = { index, raw, value: untrack(value) };
+      return index;
+    }
+    if (lastClosed === undefined || !Object.is(lastClosed.value, untrack(value))) {
+      lastClosed = { index: untrack(computeSelectedIndex), raw, value: untrack(value) };
+    }
+    return Object.is(raw, lastClosed.raw) ? lastClosed.index : raw;
+  });
 
-      if (nextIndex === null) {
+  useIsoLayoutEffect(
+    function syncSelectedItemText([multipleValue, currentValue, comparer]) {
+      if (findSelectionIndex(valuesRef.current, currentValue, comparer, multipleValue) === null) {
         selectedItemTextRef.current = null;
       }
-
-      if (openValue) {
-        return;
-      }
-
-      store.set('selectedIndex', nextIndex);
     },
-    () => [multiple(), open(), value(), isItemEqualToValue()] as const,
+    () => [multiple(), value(), isItemEqualToValue()] as const,
   );
 
   useValueChanged(value, () => {

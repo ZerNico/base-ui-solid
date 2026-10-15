@@ -1,9 +1,9 @@
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { untrack } from 'solid-js';
 import type { SolidStore } from '@base-ui-solid/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import type { BaseUIChangeEventDetails } from '../../types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import type { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+import type { FloatingRootStore } from '../components/FloatingRootStore';
 
 /**
  * Narrowed to the store members this hook uses so consumers do not need to provide
@@ -61,34 +61,25 @@ export function useSyncedFloatingRootContext<
 
   popupStore.useSyncedValue('floatingId', () => options.floatingId as State['floatingId']);
 
-  useIsoLayoutEffect(
-    ([openValue, floatingIdValue, referenceElementValue, floatingElementValue]) => {
-      const valuesToSync = {
-        open: openValue,
-        floatingId: floatingIdValue,
-        referenceElement: referenceElementValue,
-        floatingElement: floatingElementValue,
-      } as Pick<
-        FloatingRootState,
-        | 'open'
-        | 'floatingId'
-        | 'referenceElement'
-        | 'floatingElement'
-        | 'domReferenceElement'
-        | 'positionReference'
-      >;
-
-      if (isElement(referenceElementValue)) {
-        valuesToSync.domReferenceElement = referenceElementValue;
-      }
-
-      if (store.state.positionReference === store.state.referenceElement) {
-        valuesToSync.positionReference = referenceElementValue;
-      }
-
-      store.update(valuesToSync);
-    },
-    () => [open(), options.floatingId, referenceElement(), floatingElement(), store] as const,
+  // Port note: derived into the floating root store instead of copied by an effect on every open.
+  store.useSyncedValues(() => ({
+    open: open(),
+    floatingId: options.floatingId,
+    referenceElement: referenceElement(),
+    floatingElement: floatingElement(),
+  }));
+  // Only a DOM element replaces the DOM reference.
+  store.useConditionalSyncedValue(
+    'domReferenceElement',
+    () => isElement(referenceElement()),
+    () => referenceElement() as Element | null,
+  );
+  // The position reference follows the reference element until something else is written to it
+  // (e.g. a virtual element from `useClientPoint`), like upstream's sync that only moved it while
+  // it was still the reference element.
+  const followedPositionReference = untrack(() => store.state.positionReference);
+  store.useDerivedState('positionReference', (raw) =>
+    raw === followedPositionReference ? store.state.referenceElement : raw,
   );
 
   // Keep non-reactive context values fresh for interactions that call `store.setOpen`.

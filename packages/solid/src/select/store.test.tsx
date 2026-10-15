@@ -141,11 +141,12 @@ describe('select store synchronization', () => {
     setDisabled(true);
     flush();
 
-    // The root synchronizes its props in a layout effect, after descendant ref callbacks run.
-    // The item receives the new state in the follow-up render.
+    // Port note: upstream synchronizes the root's props in a layout effect, after descendant ref
+    // callbacks run, so the item still accepts the click and the value changes once. Here the
+    // props are derived into the store, so the item already sees `disabled` in the same update
+    // and ignores the click (see PORTING.md).
     expect(clicked).toBe(true);
-    expect(handleValueChange).toHaveBeenCalledTimes(1);
-    expect(handleValueChange.mock.calls[0][0]).toBe('alpha');
+    expect(handleValueChange).toHaveBeenCalledTimes(0);
     expect(screen.getByRole('combobox')).toBeDisabled();
   });
 });

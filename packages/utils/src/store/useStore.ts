@@ -4,6 +4,7 @@ import { isServer } from '@solidjs/web';
 import type { ReadonlyStore } from './Store';
 import { IS_DEV } from '../isDev';
 import { getSelectorDebugName, getStoreDebugName } from './storeDebugName';
+import { runWithTrackedState } from './trackedRead';
 
 /**
  * A selector argument, or an accessor returning it.
@@ -61,7 +62,9 @@ export function useStore(
   return createMemo(
     () => {
       track();
-      return selector(store.getSnapshot(), resolve(a1), resolve(a2), resolve(a3));
+      return runWithTrackedState(() =>
+        selector(store.getSnapshot(), resolve(a1), resolve(a2), resolve(a3)),
+      );
     },
     // Dev-only label for Solid's diagnostics (see `storeDebugName.ts`).
     IS_DEV
@@ -74,7 +77,9 @@ export function useStore(
  * Subscribes to the store for the lifetime of the current owner and returns a function that
  * tracks the store's changes when called in a reactive scope.
  */
-export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'>) {
+export function subscribeToStore(
+  store: Pick<ReadonlyStore<unknown>, 'subscribe' | 'subscribeTracked'>,
+) {
   const [track, trigger] = createSignal(
     undefined,
     // Dev-only label for Solid's diagnostics (see `storeDebugName.ts`).
@@ -88,7 +93,7 @@ export function subscribeToStore(store: Pick<ReadonlyStore<unknown>, 'subscribe'
     // diagnostic. So don't subscribe.
     return track;
   }
-  const unsubscribe = store.subscribe(() => {
+  const unsubscribe = (store.subscribeTracked ?? store.subscribe)(() => {
     trigger(undefined);
   });
   onCleanup(unsubscribe);

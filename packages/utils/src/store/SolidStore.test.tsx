@@ -1,5 +1,4 @@
 import { expect, vi, describe, it } from 'vitest';
-import type { MockInstance } from 'vitest';
 import { createSignal, flush, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { render as solidRender, screen } from '@solidjs/testing-library';
@@ -207,14 +206,18 @@ describe('SolidStore', () => {
   });
 
   it('useSyncedValues depends on entries instead of object identity', () => {
+    // Port note: synced values are derived instead of written with `update`, so the
+    // subscriber notifications are counted instead of the `update` calls. Same expected counts.
     let store!: SolidStore<TestState>;
-    let updateSpy!: MockInstance;
+    let notifications = 0;
 
     function Test(props: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
 
-      if (!updateSpy) {
-        updateSpy = vi.spyOn(store, 'update');
+      if (notifications === 0) {
+        store.subscribe(() => {
+          notifications += 1;
+        });
       }
 
       store.useSyncedValues(() => props.props);
@@ -223,19 +226,19 @@ describe('SolidStore', () => {
 
     const { setProps } = render(Test, { props: { value: 5, label: 'a' } });
 
-    expect(updateSpy.mock.calls.length).toBe(1);
+    expect(notifications).toBe(1);
 
     act(() => {
       setProps({ props: { value: 5, label: 'a' } });
     });
 
-    expect(updateSpy.mock.calls.length).toBe(1);
+    expect(notifications).toBe(1);
 
     act(() => {
       setProps({ props: { value: 6, label: 'a' } });
     });
 
-    expect(updateSpy.mock.calls.length).toBe(2);
+    expect(notifications).toBe(2);
     expect(store.state.value).toBe(6);
   });
 

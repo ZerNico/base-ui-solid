@@ -1,4 +1,4 @@
-import { createMemo, createSignal, omit, onCleanup, Show, untrack } from 'solid-js';
+import { createMemo, createRoot, flatten, omit, onCleanup, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -197,38 +197,44 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
     stateAttributesMapping,
   });
 
-  // Port note: the element is created once, so it stays mounted to the same DOM node whether or
-  // not the focus guards are rendered (upstream keys a fragment for that).
-  const shouldRenderFocusGuards = hasFocusGuards;
-  // Port note: Solid's array reconciliation replaces the trigger with the leading guard and
-  // re-inserts it when both guards are added in the same update, which drops the trigger's focus.
-  // The leading guard is added in the next update, after the trailing one, so the trigger isn't
-  // moved. Both are removed together.
-  const [shouldRenderBeforeFocusGuard, setShouldRenderBeforeFocusGuard] = createSignal(false);
+  // Port note: inserting conditional guards in a Solid fragment can move the trigger (array
+  // reconciliation replaces it with the leading guard and re-inserts it), which drops its focus.
+  // Like Menu's trigger, insert the guards around the stable node in the layout effect instead,
+  // preserving React's keyed fragment behavior.
   useIsoLayoutEffect(
-    ([shouldRender]) => {
-      setShouldRenderBeforeFocusGuard(shouldRender);
+    ([shouldRender, currentStore]) => {
+      const triggerNode = triggerElementRef.current;
+      const parentNode = triggerNode?.parentNode;
+      if (!shouldRender || !triggerNode || !parentNode) {
+        return undefined;
+      }
+      return createRoot((dispose) => {
+        // Port note: dev/HMR JSX can be accessor-backed; resolve it before native DOM insertion.
+        const before = flatten(
+          TriggerFocusGuard({
+            guardRef: currentStore.context.beforeTriggerFocusGuardRef,
+            onFocus: handlePreFocusGuardFocus,
+          }),
+        ) as HTMLElement;
+        const after = flatten(
+          TriggerFocusGuard({
+            guardRef: currentStore.context.triggerFocusTargetRef,
+            onFocus: handleFocusTargetFocus,
+          }),
+        ) as HTMLElement;
+        parentNode.insertBefore(before, triggerNode);
+        parentNode.insertBefore(after, triggerNode.nextSibling);
+        return () => {
+          before.remove();
+          after.remove();
+          dispose();
+        };
+      });
     },
-    () => [shouldRenderFocusGuards()],
+    () => [hasFocusGuards(), store()] as const,
   );
 
-  return (
-    <>
-      <Show when={shouldRenderFocusGuards() && shouldRenderBeforeFocusGuard()}>
-        <TriggerFocusGuard
-          guardRef={store().context.beforeTriggerFocusGuardRef}
-          onFocus={handlePreFocusGuardFocus}
-        />
-      </Show>
-      {element}
-      <Show when={shouldRenderFocusGuards()}>
-        <TriggerFocusGuard
-          guardRef={store().context.triggerFocusTargetRef}
-          onFocus={handleFocusTargetFocus}
-        />
-      </Show>
-    </>
-  );
+  return element;
 }
 
 /**

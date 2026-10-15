@@ -8,6 +8,7 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import type { JSX } from '@solidjs/web';
 import { isNode } from '@floating-ui/utils/dom';
@@ -33,7 +34,7 @@ import type { UseRenderElementComponentProps } from '../../internals/useRenderEl
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 
-type FocusManagerState = null | {
+export type FocusManagerState = null | {
   modal: boolean;
   open: boolean;
   onOpenChange(
@@ -49,7 +50,8 @@ type FocusManagerState = null | {
  */
 interface PortalContextValue {
   readonly portalNode: HTMLElement | null;
-  setFocusManagerState: (state: FocusManagerState) => void;
+  /** Registers the focus manager's state accessor (`null` to unregister). */
+  setFocusManagerState: (state: Accessor<FocusManagerState> | null) => void;
   beforeInsideRef: RefObject<HTMLSpanElement | null>;
   afterInsideRef: RefObject<HTMLSpanElement | null>;
   beforeOutsideRef: RefObject<HTMLSpanElement | null>;
@@ -225,9 +227,12 @@ export function FloatingPortal(componentProps: FloatingPortal.Props<any>) {
   const beforeInsideRef: RefObject<HTMLSpanElement | null> = { current: null };
   const afterInsideRef: RefObject<HTMLSpanElement | null> = { current: null };
 
-  const [focusManagerState, setFocusManagerState] = createSignal<FocusManagerState>(null, {
-    ownedWrite: true,
-  });
+  const [focusManagerSource, setFocusManagerSource] =
+    createSignal<Accessor<FocusManagerState> | null>(null, { ownedWrite: true });
+  const focusManagerState = createMemo(() => focusManagerSource()?.() ?? null);
+  const setFocusManagerState = (source: Accessor<FocusManagerState> | null) => {
+    void setFocusManagerSource(() => source);
+  };
   let focusInsideDisabled = false;
 
   const modal = () => focusManagerState()?.modal;

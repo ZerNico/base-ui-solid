@@ -1,5 +1,5 @@
-import { createMemo, untrack } from 'solid-js';
-import type { Accessor } from 'solid-js';
+import { createMemo, createSignal, getObserver, onCleanup, untrack } from 'solid-js';
+import type { Accessor, Signal } from 'solid-js';
 import { Store } from './Store';
 import { useStore } from './useStore';
 import type { MaybeAccessorArgs } from './useStore';
@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
 import { IS_DEV } from '../isDev';
 import { getStoreDebugName } from './storeDebugName';
+import { isTrackingState, runWithTrackedState } from './trackedRead';
 
 /**
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for Solid.
@@ -18,6 +19,11 @@ import { getStoreDebugName } from './storeDebugName';
  * - `useState` returns an accessor; selector arguments may be accessors.
  * - `useContextCallback` takes an accessor returning the callback, read when it's called.
  */
+/** A source's value meaning "nothing to synchronize": the raw state is used. */
+const UNSET = Symbol('unset');
+
+const NOOP_SOURCE = () => UNSET;
+
 export class SolidStore<
   State extends object,
   Context = Record<string, never>,
@@ -46,49 +52,25 @@ export class SolidStore<
   /**
    * Synchronizes a single external value into the store.
    *
-   * Note that the while the value in `state` is updated immediately, the value returned
-   * by `useState` is updated when Solid flushes (similarly to React's `useState`).
+   * Port note: the key is derived from `value` instead of being written from an
+   * effect, so `state` and `useState` see it in the same flush. An imperative write to the key
+   * wins until `value` changes, like upstream's layout effect that only re-syncs on a change.
    */
   useSyncedValue<Key extends keyof State>(key: Key, value: Accessor<State[Key]>) {
-    // eslint-disable-next-line consistent-this
-    const store = this;
-    useIsoLayoutEffect(
-      ([nextValue]) => {
-        if (store.state[key] !== nextValue) {
-          store.set(key, nextValue);
-        }
-      },
-      () => [value()],
-      IS_DEV ? debugName(store, 'useSyncedValue', key) : undefined,
-    );
+    this.registerDerived(key, value, false);
   }
 
   /**
    * Synchronizes a single external value into the store and
    * cleans it up (sets to `undefined`) on unmount.
    *
-   * Note that the while the value in `state` is updated immediately, the value returned
-   * by `useState` is updated when Solid flushes (similarly to React's `useState`).
+   * Derived, see {@link useSyncedValue}.
    */
   public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
     key: Key,
     value: Accessor<State[Key]>,
   ) {
-    // eslint-disable-next-line consistent-this
-    const store = this;
-    useIsoLayoutEffect(
-      ([nextValue]) => {
-        if (store.state[key] !== nextValue) {
-          store.set(key, nextValue);
-        }
-
-        return () => {
-          store.set(key, undefined as State[Key]);
-        };
-      },
-      () => [value()],
-      IS_DEV ? debugName(store, 'useSyncedValueWithCleanup', key) : undefined,
-    );
+    this.registerDerived(key, value, true);
   }
 
   /**
@@ -96,12 +78,7 @@ export class SolidStore<
    * Each value must match its state key. Pass an exact known subset rather than a broad
    * `Partial<State>`, which may contain `undefined` for required state fields.
    *
-   * Note that the while the values in `state` are updated immediately, the values returned
-   * by `useState` are updated when Solid flushes (similarly to React's `useState`).
-   *
-   * Port note: takes an accessor returning the state part (`() => ({ a: a(), b: props.b })`).
-   * Like upstream's effect dependencies (`[store, ...Object.values(statePart)]`), the store is
-   * updated only when one of the values changed, not when only the object identity did.
+   * Derived, see {@link useSyncedValue}.
    *
    * @param statePart An exact subset of state fields to synchronize. Unknown keys are not accepted.
    */
@@ -134,15 +111,211 @@ export class SolidStore<
         : { equals: haveSameValues },
     );
 
+    const partKeys = Object.keys(untrack(part)) as Key[];
+    const before = untrack(() => partKeys.map((key) => store.state[key]));
+    for (const key of partKeys) {
+      this.registerDerived(key, () => part()[key], false, undefined, false, part);
+    }
+    // One notification per change of the part, like upstream's single `update`.
+    this.notifyOnChange(partKeys, before);
+  }
+
+  /**
+   * Synchronizes `value` into the key while `when` is true. Afterwards the key keeps the
+   * last synchronized value until it's written, like a value written by an effect.
+   */
+  useConditionalSyncedValue<Key extends keyof State>(
+    key: Key,
+    when: Accessor<boolean>,
+    value: Accessor<State[Key]>,
+  ) {
+    this.registerDerived(key, () => (when() ? value() : UNSET), false);
+  }
+
+  /**
+   * Derives a key from the raw state (the value written imperatively) and other reactive
+   * values, e.g. a fallback while nothing was written. Imperative writes go to the raw state.
+   */
+  useDerivedState<Key extends keyof State>(
+    key: Key,
+    derive: (rawValue: State[Key], rawState: State, writes: number) => State[Key],
+  ) {
+    this.registerDerived(key, NOOP_SOURCE, false, derive as DerivedKey['derive']);
+  }
+
+  /** Sources of the derived keys. The last registration of a key wins. */
+  declare private derived: Map<keyof State, DerivedKey[]> | undefined;
+
+  /** Bumped when a registration changes which value a key derives from. */
+  declare private derivedVersion: Signal<number> | undefined;
+
+  /** The snapshot of the current raw state, rebuilt when it or the registrations change. */
+  declare private snapshot: { raw: State; registrations: number; view: State } | undefined;
+
+  /** Changes on every registration, so the snapshot gets the new keys' getters. */
+  declare private registrations: number | undefined;
+
+  /**
+   * The raw state with the derived keys applied as getters. Reading a derived key in a
+   * reactive scope tracks its source, so a reader only depends on the keys it reads. The snapshot
+   * is replaced when the raw state changes (like upstream), not when only a derived value does:
+   * memoized selectors over derived keys would return stale results (none exist in the library).
+   */
+  override get state(): State {
+    const raw = super.state;
+    const derived = this.derived;
+    // Registrations change which values the keys derive from, so selectors track them, also
+    // before the first registration.
+    const tracked = getObserver() !== null && isTrackingState();
+    if (tracked) {
+      this.getDerivedVersion()[0]();
+    }
+    if (derived === undefined || derived.size === 0) {
+      return raw;
+    }
+
+    const previous = this.snapshot;
+    const registrations = this.registrations ?? 0;
+    if (
+      previous !== undefined &&
+      previous.raw === raw &&
+      previous.registrations === registrations
+    ) {
+      return previous.view;
+    }
+
+    const view = { ...raw };
+    for (const key of derived.keys()) {
+      const read = () => {
+        const entries = derived.get(key);
+        return entries === undefined ? raw[key] : resolveDerived(entries, raw, key).value;
+      };
+      Object.defineProperty(view, key, {
+        configurable: true,
+        enumerable: true,
+        get() {
+          // Like upstream's plain state object, a read is a snapshot unless it's made by a
+          // `useStore` selector.
+          return getObserver() !== null && isTrackingState() ? read() : untrack(read);
+        },
+      });
+    }
+    this.snapshot = { raw, registrations, view };
+    return view;
+  }
+
+  override set state(next: State) {
+    const derived = this.derived;
+    if (derived !== undefined && derived.size > 0) {
+      // An imperative write to a derived key wins until its source changes.
+      const current = untrack(() => this.state);
+      for (const [key, entries] of derived) {
+        if (!Object.is(next[key], current[key])) {
+          const entry = untrack(() => resolveDerived(entries, super.state, key));
+          if (entry.derive !== undefined) {
+            // The derivation reads the raw value. Count the write, so it can tell a write of the
+            // same raw value apart from no write.
+            entry.writes = (entry.writes ?? 0) + 1;
+            continue;
+          }
+          const source = untrack(entry.source);
+          if (source !== UNSET) {
+            entry.override = {
+              value: next[key],
+              source: entry.overrideSource === undefined ? source : untrack(entry.overrideSource),
+            };
+          }
+        }
+      }
+    }
+    super.state = next;
+  }
+
+  /**
+   * Notifies the listeners outside Solid (`subscribe`, `observe`) once when any of the keys
+   * changes. Solid accessors track the sources themselves.
+   */
+  private notifyOnChange(keys: (keyof State)[], initialValues: unknown[]) {
+    // eslint-disable-next-line consistent-this
+    const store = this;
+    let previousValues = initialValues;
     useIsoLayoutEffect(
-      ([nextPart]) => {
-        store.update(nextPart);
+      ([values]) => {
+        if (values.some((value, index) => !Object.is(value, previousValues[index]))) {
+          previousValues = values;
+          store.notifyUntrackedListeners();
+        }
       },
-      () => [part()],
-      IS_DEV ? debugName(store, 'useSyncedValues') : undefined,
+      () => [runWithTrackedState(() => keys.map((key) => store.state[key]))] as const,
+      IS_DEV ? debugName(store, 'derived', keys.join(',')) : undefined,
     );
   }
 
+  private getDerivedVersion() {
+    this.derivedVersion ??= createSignal(
+      0,
+      IS_DEV
+        ? { ownedWrite: true, name: `${getStoreDebugName(this)}.derivedVersion` }
+        : { ownedWrite: true },
+    );
+    return this.derivedVersion;
+  }
+
+  private registerDerived<Key extends keyof State>(
+    key: Key,
+    source: Accessor<unknown>,
+    clearOnCleanup: boolean,
+    derive?: DerivedKey['derive'],
+    notify = true,
+    overrideSource?: Accessor<unknown>,
+  ) {
+    // eslint-disable-next-line consistent-this
+    const store = this;
+    store.derived ??= new Map<keyof State, DerivedKey[]>();
+    const derived = store.derived;
+    const version = store.getDerivedVersion();
+
+    // The value before the registration: subscribers are notified if the registration changes it.
+    const before = untrack(() => store.state[key]);
+    const entry: DerivedKey = { source, derive, overrideSource, stamp: 0 };
+    let entries = derived.get(key);
+    if (entries === undefined) {
+      entries = [];
+      derived.set(key, entries);
+    }
+    entries.push(entry);
+    store.registrations = (store.registrations ?? 0) + 1;
+    // Selectors that already read the key re-run, so they track its source from now on. Only
+    // `useStore` selectors track the store, so this can't re-run the component that registers.
+    version[1]((value) => value + 1);
+
+    if (notify) {
+      store.notifyOnChange([key], [before]);
+    }
+
+    onCleanup(() => {
+      const previous = untrack(() => store.state[key]);
+      const remaining = derived.get(key)!.filter((item) => item !== entry);
+      if (remaining.length === 0) {
+        derived.delete(key);
+      } else {
+        derived.set(key, remaining);
+      }
+      store.registrations = (store.registrations ?? 0) + 1;
+      // Keep the last value in the raw state (like upstream's synced value), or clear it.
+      const raw = untrack(() => super.state);
+      super.state = { ...raw, [key]: clearOnCleanup ? undefined : previous };
+      if (
+        !Object.is(
+          untrack(() => store.state[key]),
+          previous,
+        )
+      ) {
+        version[1]((value) => value + 1);
+        store.notifyUntrackedListeners();
+      }
+    });
+  }
   /**
    * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
    * is non-undefined, the store's state at `key` is updated to match `controlled`.
@@ -153,19 +326,14 @@ export class SolidStore<
   ): void {
     // eslint-disable-next-line consistent-this
     const store = this;
-
-    useIsoLayoutEffect(
-      ([controlledValue, isControlled]) => {
-        if (isControlled && !Object.is(store.state[key], controlledValue)) {
-          // Set the internal state to match the controlled value.
-          store.setState({ ...store.state, [key]: controlledValue });
-        }
-      },
+    // Port note: derived while controlled, see `useSyncedValue`. Uncontrolled, the raw state is used.
+    store.registerDerived(
+      key,
       () => {
         const controlledValue = controlled();
-        return [controlledValue, controlledValue !== undefined] as const;
+        return controlledValue === undefined ? UNSET : controlledValue;
       },
-      IS_DEV ? debugName(store, 'useControlledProp', key) : undefined,
+      false,
     );
 
     if (IS_DEV) {
@@ -303,6 +471,85 @@ export class SolidStore<
       }
     });
   }
+}
+
+let nextStamp = 0;
+
+interface DerivedKey {
+  source: Accessor<unknown>;
+  /**
+   * What an imperative write is kept against (defaults to the source's value). Keys synced
+   * together share their group's value, so a write is kept until any of them changes, like
+   * upstream's single effect that re-syncs all of them.
+   */
+  overrideSource?: Accessor<unknown> | undefined;
+  derive?: ((rawValue: any, rawState: any, writes: number) => unknown) | undefined;
+  /** The number of imperative writes to a derived (`derive`) key. */
+  writes?: number | undefined;
+  /** An imperative write, kept while the source still has the value it had then. */
+  override?: { value: unknown; source: unknown } | undefined;
+  /** The last controlled value, kept after the source becomes `UNSET` until the raw state changes. */
+  last?: { value: unknown; raw: unknown } | undefined;
+  /** Increases when the source changes: the most recently changed registration wins. */
+  stamp: number;
+  value?: unknown;
+  /** The source's value (or the derived value) at the last read, and the one before it. */
+  observed?: unknown;
+  previousObserved?: unknown;
+}
+
+function readEntry(entry: DerivedKey, rawState: any, key: PropertyKey) {
+  const rawValue = rawState[key];
+  if (entry.derive !== undefined) {
+    const derived = entry.derive(rawValue, rawState, entry.writes ?? 0);
+    entry.observed = derived;
+    return derived;
+  }
+  let value = entry.source();
+  entry.observed = value;
+  if (value === UNSET) {
+    if (entry.last !== undefined && Object.is(entry.last.raw, rawValue)) {
+      return entry.last.value;
+    }
+    entry.last = undefined;
+    return rawValue;
+  }
+  if (entry.override !== undefined) {
+    const overrideSource = entry.overrideSource === undefined ? value : entry.overrideSource();
+    if (Object.is(entry.override.source, overrideSource)) {
+      value = entry.override.value;
+    } else {
+      entry.override = undefined;
+    }
+  }
+  entry.last = { value, raw: rawValue };
+  return value;
+}
+
+/**
+ * Reads every registration of a key (so a reactive reader tracks all of them) and returns the one
+ * whose source changed last, like upstream where the last effect to write the key wins. A source
+ * that becomes active again counts as a change, even if it brings back the value it kept. An
+ * inactive source (`UNSET`) doesn't write, so it keeps its place.
+ */
+function resolveDerived(entries: DerivedKey[], rawState: any, key: PropertyKey) {
+  let winner: DerivedKey | undefined;
+  for (const entry of entries) {
+    entry.value = readEntry(entry, rawState, key);
+    const observed = entry.observed;
+    if (
+      observed !== UNSET &&
+      (entry.stamp === 0 || !Object.is(observed, entry.previousObserved))
+    ) {
+      nextStamp += 1;
+      entry.stamp = nextStamp;
+    }
+    entry.previousObserved = observed;
+    if (winner === undefined || entry.stamp >= winner.stamp) {
+      winner = entry;
+    }
+  }
+  return winner!;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { createMemo, Show, untrack } from 'solid-js';
+import { createMemo, onCleanup, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
@@ -11,6 +11,7 @@ import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
+import type { FocusManagerState } from './FloatingPortal';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -1013,26 +1014,24 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
   // Synchronize the focus manager state (modal, closeOnFocusOut, open, etc.) to the
   // FloatingPortal context, which uses it to decide whether to render its own guards.
-  useIsoLayoutEffect(
-    ([disabledValue, modalValue, openValue, closeOnFocusOutValue, domReferenceValue]) => {
-      if (disabledValue || !portalContext) {
-        return undefined;
-      }
-
-      portalContext.setFocusManagerState({
-        modal: modalValue,
-        closeOnFocusOut: closeOnFocusOutValue,
-        open: openValue,
-        onOpenChange: store.setOpen,
-        domReference: domReferenceValue,
-      });
-
-      return () => {
-        portalContext.setFocusManagerState(null);
-      };
-    },
-    () => [disabled(), modal(), open(), closeOnFocusOut(), domReference()],
-  );
+  // Port note: the portal derives it from this accessor instead of receiving a copy from an effect.
+  if (portalContext) {
+    const focusManagerState = createMemo((): FocusManagerState =>
+      disabled()
+        ? null
+        : {
+            modal: modal(),
+            closeOnFocusOut: closeOnFocusOut(),
+            open: open(),
+            onOpenChange: store.setOpen,
+            domReference: domReference(),
+          },
+    );
+    portalContext.setFocusManagerState(focusManagerState);
+    onCleanup(() => {
+      portalContext.setFocusManagerState(null);
+    });
+  }
 
   // Keep the floating element tabIndex in sync and clear stale focus records.
   useIsoLayoutEffect(

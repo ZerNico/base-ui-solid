@@ -151,7 +151,10 @@ const activeTriggerIdSelector = (state: S) => state.triggerIdProp ?? state.activ
 const openSelector = (state: S) => state.openProp ?? state.open;
 
 const popupIdSelector = (state: S) => {
-  const popupId = state.popupElement?.id ?? state.floatingId;
+  // Port note: always read `floatingId`. The popup element's DOM `id` isn't reactive, and a change of
+  // the rendered id reaches the store as a `floatingId` change, which re-runs this selector.
+  const floatingId = state.floatingId;
+  const popupId = state.popupElement?.id ?? floatingId;
   return popupId || undefined;
 };
 
@@ -227,7 +230,8 @@ export type PopupStoreSelectors = typeof popupStoreSelectors;
  * be durable. Component handle-store views Pick these from their concrete store (preserving its
  * context and selectors) and add any component-specific trigger-invoked members such as `setOpen`.
  */
-export type PopupTriggerStoreKeys = 'context' | 'select' | 'set' | 'state' | 'update' | 'useState';
+export type PopupTriggerStoreKeys =
+  'context' | 'select' | 'set' | 'state' | 'update' | 'useState' | 'useConditionalSyncedValue';
 
 /**
  * The subset of a popup store that trigger registration and data forwarding rely on. Narrow enough
