@@ -2,12 +2,12 @@ import { untrack } from 'solid-js';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { PopupTriggerMap } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootStore } from '../components/FloatingRootStore';
-import type { FloatingRootState as State } from '../components/FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 /**
@@ -63,26 +63,20 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
       }),
   );
 
-  useIsoLayoutEffect(
-    ([openValue, floatingIdValue, reference, floating]) => {
-      const valuesToSync = { open: openValue, floatingId: floatingIdValue } as Pick<
-        State,
-        'open' | 'floatingId' | 'referenceElement' | 'domReferenceElement' | 'floatingElement'
-      >;
-
-      if (reference !== undefined) {
-        valuesToSync.referenceElement = reference;
-        valuesToSync.domReferenceElement = isElement(reference) ? reference : null;
-      }
-
-      if (floating !== undefined) {
-        valuesToSync.floatingElement = floating;
-      }
-
-      store.update(valuesToSync);
-    },
-    () => [open(), floatingId, elements().reference, elements().floating, store] as const,
-  );
+  // Port note: upstream writes these from a layout effect. Here they're derived (see
+  // `SolidStore.useSyncedValues`): an element option that is `undefined` leaves the element as it
+  // is, and an imperative write (e.g. a ref setter) holds until one of these values changes.
+  store.useSyncedValues(() => {
+    const { reference, floating } = elements();
+    const hasReference = reference !== undefined;
+    return {
+      open: open(),
+      floatingId,
+      referenceElement: hasReference ? reference : SolidStore.KEEP,
+      domReferenceElement: hasReference ? domReference(reference) : SolidStore.KEEP,
+      floatingElement: floating === undefined ? SolidStore.KEEP : floating,
+    };
+  });
 
   // Port note: upstream assigns the latest `onOpenChange` on every render.
   Object.defineProperty(store.context, 'onOpenChange', {
@@ -103,4 +97,8 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   store.context.nested = nested;
 
   return store;
+}
+
+function domReference(reference: ReferenceType | null) {
+  return isElement(reference) ? (reference as Element) : null;
 }

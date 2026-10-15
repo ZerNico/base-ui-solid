@@ -228,7 +228,15 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - An imperative write (`set`, `update`) to a synced key wins until the source changes, like
     upstream's effect that only re-syncs on a change. Keys synced together by `useSyncedValues`
     share their group: a write holds until any of them changes, like upstream's single effect.
-  - When several registrations sync the same key, the one that changed last wins.
+  - `useSyncedValues` also takes a record of accessors, one per key
+    (`useSyncedValues({ open, value })`). Use it when a source reads another key of the same
+    store: with a single accessor, every key depends on all sources, and that dependency closes a
+    cycle.
+  - A synced value of `SolidStore.KEEP` leaves the key as it is (not synchronized at the
+    moment), like a key upstream leaves out of the effect's `update`.
+  - When several registrations sync the same key, a registration that is syncing beats one that
+    isn't (`KEEP`, or a conditional sync whose condition is false). Among those, the one whose
+    source changed last wins, like the last effect to write upstream.
   - `useControlledProp` derives the key while the prop is defined, and keeps the last controlled
     value until the next write after the prop becomes `undefined`.
   - `useConditionalSyncedValue(key, when, value)` syncs only while `when()` is true, and
@@ -248,6 +256,27 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     updates the DOM value (`popupIdSelector` always reads `floatingId`).
   - A derived key must not read its own key as its source (that's a dependency cycle). Express
     "keep the current value" with `useConditionalSyncedValue`.
+- Other state that upstream syncs from layout effects is derived too, so that the components don't
+  trip Solid's diagnostics either (each place has a Port note):
+  - Writable memos (`createSignal(fn)`) apply upstream's reset rules when their sources change and
+    keep what was written otherwise: `useOpenInteractionType`'s open method, `useFloating`'s
+    `isPositioned`, list navigation's `focusItemOnOpen`, Tooltip's `instantType`, Navigation
+    Menu's floating context (its triggers register their contexts with the root).
+  - `useFloatingRootContext` and `useSyncedFloatingRootContext` derive the floating root store's
+    `open`, ids and elements. `useAnchorPositioning` derives the elements' reset while a kept-mounted
+    positioner is unmounted, and passes the anchor to `useFloating` as `positionReference`.
+  - The focus manager registers its state with its portal as an accessor, and resolves the
+    element it manages focus on when it's used (after the DOM updated), since it's found in the
+    DOM.
+  - Popover and Menu triggers build their focus guards in a memo and insert them around the
+    trigger in a layout effect: Solid doesn't allow creating a root inside an effect callback.
+  - The Collapsible and Accordion panels write their measured size to the CSS variables directly
+    (it's only used there), so the variables are not in the server-rendered markup.
+  - OTP Field moves focus to the next input in the input's event handler, after applying the
+    value, instead of from an effect.
+  - Select (`deriveOpenHighlight`) and Menu derive their highlighted index for the current open
+    (the selected item on open, and no highlight once closed for Menu) instead of list navigation
+    writing it through `onNavigate` from an effect.
 - Behavior that differs from upstream because props no longer lag: a Select item clicked by a
   descendant in the same update that disables the Root ignores the click (upstream accepts it, see
   `select/store.test.tsx`).
@@ -399,10 +428,11 @@ Same tooling as upstream (`@mui/internal-code-infra`, same versions): `eslint.co
 - **Diagnostics naming `BaseUI.Store...` or `BaseUI.useIsoLayoutEffect` come from the library.**
   In dev, the store names its nodes after its class and method (`BaseUI.Store(PopoverStore).track`,
   `.useSyncedValues`, `.useControlledProp(open)`, `.useState(open)`, see `storeDebugName.ts`).
-  Popups derive their store state (see "Stores and popups"), so with animations enabled, as in an
-  app, opening and closing Popover, Dialog, Menu, Context Menu and Tooltip reports no relay.
-  `storeDiagnostics.port.test.tsx` guards that in Chromium, and caps the findings with animations
-  disabled (the test default), where the close completes synchronously inside an effect.
+  Components derive their state (see "Stores and popups"), so with animations enabled, as in an
+  app, using them reports no relay. `storeDiagnostics.port.test.tsx` (controlled popups) and
+  `storeDiagnostics.interactions.port.test.tsx` (real clicks, typing and hovering) guard that in
+  Chromium. With animations disabled (the test default) the close completes synchronously inside
+  an effect, so the first file only caps those findings.
 
 ### Firefox and WebKit
 
@@ -429,23 +459,17 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   once with `{ payload }`, where `payload` is an accessor (`PayloadChildRenderFunction`). Call
   `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
 
-- **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, internals used to
-  report about 36 warnings in a typical docs session. They're down to about 18 by keeping memo
-  outputs stable (state, style and props memos compare shallowly) and deriving registrations
-  (Field message ids, Tabs panels, `useTransitionStatus`'s idle and unmount rules, the Collapsible
-  panel's forced idle status) instead of writing them from effects. The remaining ones follow
-  upstream's layout-effect design:
-  - `EFFECT_RELAY_TEAR` via `BaseUI.Store(FloatingRootStore).track` (Select, Combobox,
-    Autocomplete): `useFloatingRootContext` copies `open` and the elements into its store from an
-    effect, like upstream. Deriving them breaks focus and dismissal logic that relies on the
-    floating store changing one update after the component's own state.
-  - Select's list navigation highlights the selected item on open from an effect (`onNavigate`),
-    once the popup element is mounted. Deriving it needs `useListNavigation` to expose the
-    initial highlight instead of reporting it through the callback, for every list.
-  - `useCollapsiblePanel.dimensions` and `useFloating.data`: DOM measurement, inherently an effect.
-  - OTP Field `focusedIndex`: the effect moves DOM focus after the value commits, and the focus
-    handler records the index.
-  - Navigation Menu `floatingRootContext` / `positionReference`: the active trigger hands its
-    floating context to the root from a layout effect, like upstream.
+- **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, the components
+  report no warnings in the docs' demos (`storeDiagnostics.interactions.port.test.tsx` drives them
+  in Chromium). Plain dev builds don't check effect relays at all. What's left is inherent to
+  measuring the DOM after it rendered, which Solid's guide calls a fact to accept. Each is reported
+  as an info, which attribution escalates to a warning once the same relay happened three times:
+  - A Select aligned to a trigger at the viewport's edge falls back to anchoring after measuring
+    (`controlledAlignItemWithTrigger`).
+  - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading
+    its computed style (`forcePanelIdle`, `useTransitionStatus.state`).
+  - Opening a Menu with the keyboard highlights the first item from the item list, whose indices
+    come from the items' DOM order once they rendered.
+  - Tabs reports info-level (not printed) index updates: item indices come from the DOM order.
   - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
     dynamic root (parts can swap their element through `render`).

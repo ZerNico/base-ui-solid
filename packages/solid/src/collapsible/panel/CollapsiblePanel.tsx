@@ -82,6 +82,10 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
     setMounted,
     setOpen,
     transitionStatus,
+    cssVariables: {
+      height: CollapsiblePanelCssVars.collapsiblePanelHeight,
+      width: CollapsiblePanelCssVars.collapsiblePanelWidth,
+    },
   });
 
   const panelState = createMemo<CollapsiblePanelState>(
@@ -98,20 +102,10 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
         state: panelState,
         ref: panel.ref,
         props: () => {
-          const height = panel.height();
-          const width = panel.width();
           const resolvedStyle = resolveStyle(componentProps.style, panelState());
 
           return [
             panel.props(),
-            {
-              style: {
-                [CollapsiblePanelCssVars.collapsiblePanelHeight]:
-                  height === undefined ? 'auto' : `${height}px`,
-                [CollapsiblePanelCssVars.collapsiblePanelWidth]:
-                  width === undefined ? 'auto' : `${width}px`,
-              },
-            },
             elementProps,
             resolvedStyle ? { style: resolvedStyle } : undefined,
             // Resolve the public `style` prop so temporary `animation-name: none`

@@ -1,8 +1,9 @@
 import { createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
+import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui-solid/utils/useOnFirstRender';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
@@ -1088,65 +1089,53 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   useImperativeHandle(() => props.actionsRef, actions);
 
+  // Port note: upstream writes the selected index from a layout effect. Here a memo decides when it
+  // syncs (each sync is a new object), and the store derives the index: the last sync, or what an
+  // item wrote since (items re-assert the index when their registration moves).
+  const syncedSelectedIndex = createMemo<{ index: number | null } | undefined>((previous) => {
+    const openValue = open();
+    const closeQueryValue = closeQuery();
+    const closeQueryReleased = previousCloseQueryRef !== null && closeQueryValue === null;
+    previousCloseQueryRef = closeQueryValue;
+
+    // Closing indexes against the frozen filtered list. Reopening releases that query, so its
+    // rendered coordinates must be synchronized again even though the popup is already open.
+    if (selectionMode() === 'none' || (openValue && (!closeQueryReleased || !hasItems()))) {
+      return previous;
+    }
+
+    // Without `items`, look the selection up in the live registry of mounted item
+    // values (the list stays mounted while closed when closed-state features need
+    // it — trigger interaction and rendered-label autofill force-mount it). Mounted
+    // items re-assert the index themselves when their registration moves; when
+    // nothing is mounted the lookup resolves to `null` and each item re-registers
+    // the index on the next open.
+    // Keep the selected index in the coordinates of the list that is actually rendered.
+    const registry: readonly any[] = hasItems() ? flatFilteredValues() : valuesRef.current;
+    return {
+      index: findSelectionIndex(registry, selectedValue(), isItemEqualToValue(), multiple()),
+    };
+  });
+  let lastSync: { index: number | null } | undefined;
+  let writesAtLastSync = 0;
+  store.useDerivedState('selectedIndex', (raw, _, writes) => {
+    const sync = syncedSelectedIndex();
+    if (sync !== lastSync) {
+      lastSync = sync;
+      writesAtLastSync = writes;
+    }
+    return sync === undefined || writes !== writesAtLastSync ? raw : sync.index;
+  });
+
   useIsoLayoutEffect(
-    function syncSelectedIndex([
-      openValue,
-      closeQueryValue,
-      selectedValueValue,
-      selectionModeValue,
-      multipleValue,
-      hasItemsValue,
-      flatFilteredValuesValue,
-      isItemEqualToValueValue,
-    ]) {
-      const closeQueryReleased = previousCloseQueryRef !== null && closeQueryValue === null;
-      previousCloseQueryRef = closeQueryValue;
-
-      // Closing indexes against the frozen filtered list. Reopening releases that query, so its
-      // rendered coordinates must be synchronized again even though the popup is already open.
-      if (openValue && (!closeQueryReleased || !hasItemsValue)) {
-        return;
-      }
-
+    ([openValue]) => {
       // State-driven (not tied to the internal event path) so controlled closes
       // also clear a pointerdown that never received a matching item mouseup.
       if (!openValue) {
         pointerDownItemRef.current = null;
       }
-
-      if (selectionModeValue === 'none') {
-        return;
-      }
-
-      // Without `items`, look the selection up in the live registry of mounted item
-      // values (the list stays mounted while closed when closed-state features need
-      // it — trigger interaction and rendered-label autofill force-mount it). Mounted
-      // items re-assert the index themselves when their registration moves; when
-      // nothing is mounted the lookup resolves to `null` and each item re-registers
-      // the index on the next open.
-      // Keep the selected index in the coordinates of the list that is actually rendered.
-      const registry: readonly any[] = hasItemsValue ? flatFilteredValuesValue : valuesRef.current;
-
-      setIndices({
-        selectedIndex: findSelectionIndex(
-          registry,
-          selectedValueValue,
-          isItemEqualToValueValue,
-          multipleValue,
-        ),
-      });
     },
-    () =>
-      [
-        open(),
-        closeQuery(),
-        selectedValue(),
-        selectionMode(),
-        multiple(),
-        hasItems(),
-        flatFilteredValues(),
-        isItemEqualToValue(),
-      ] as const,
+    () => [open()] as const,
   );
 
   useIsoLayoutEffect(
@@ -1661,9 +1650,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     () => mergePropsSnapshot(FOCUSABLE_POPUP_PROPS as HTMLProps, dismiss.floating) as HTMLProps,
   );
 
-  const listProps = createMemo(
-    () => mergePropsSnapshot(listNavigation.floating, role().floating) as HTMLProps,
-  );
+  // Port note: merging creates new handler wrappers, so the merged props are only recomputed when
+  // a source's props changed (e.g. not when `role` changed only the input's `aria-controls`).
+  // Otherwise the list re-applies its props after it mounts, as its registration changes `role`.
+  const listPropsSources = createMemo(() => [listNavigation.floating, role().floating] as const, {
+    equals: (a, b) => a.every((props, index) => areShallowEqualProps(props, b[index])),
+  });
+  const listProps = createMemo(() => mergePropsSnapshot(...listPropsSources()) as HTMLProps);
 
   const itemProps = createMemo<HTMLProps>(() => {
     const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
@@ -1686,75 +1679,47 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   store.useContextCallback('requestSubmit', () => requestSubmit);
   store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
 
-  // The prop bags must be in the store before the parts render: they read them with `useStore`
-  // during render, and a layout effect commits only after all children have rendered.
-  useOnFirstRender(() => {
-    store.update({
-      inline: inlineProp(),
-      popupProps: popupProps(),
-      listProps: listProps(),
-      inputProps: inputProps(),
-      triggerProps,
-      itemProps: itemProps(),
-    });
-  });
-
-  const syncedValues = () => ({
-    id: id(),
-    selectedValue: selectedValue(),
-    open: open(),
-    mounted: mounted(),
-    transitionStatus: transitionStatus(),
-    items: storeItems(),
-    inline: inlineProp(),
-    popupProps: popupProps(),
-    listProps: listProps(),
-    inputProps: inputProps(),
-    triggerProps,
-    itemProps: itemProps(),
-    openMethod: openMethod(),
-    selectionMode: selectionMode(),
-    name: name(),
-    form: props.form,
-    disabled: disabled(),
-    readOnly: readOnly(),
-    required: required(),
-    grid: grid(),
-    virtualized: virtualized(),
-    openOnInputClick: openOnInputClick(),
-    itemToStringLabel: itemToStringLabel(),
-    modal: modal(),
-    autoHighlight: autoHighlightMode(),
-    isItemEqualToValue: isItemEqualToValue(),
-    submitOnItemClick: submitOnItemClick(),
-    hasInputValue: hasInputValue(),
-  });
-  const syncedKeys = Object.keys(untrack(syncedValues)) as Array<
-    keyof ReturnType<typeof syncedValues>
-  >;
-
-  useIsoLayoutEffect(
-    (values) => {
-      // `inputOwnsFormValue` is derived here rather than during render because `ComboboxInput`
-      // writes it from a ref callback earlier in the same commit, and it has to land in this same
-      // `update` so subscribers never observe an intermediate snapshot. That is also why
-      // `store.useSyncedValues` can't be used yet: it would need a second write. The dependencies
-      // are derived from `syncedValues` so a newly synchronized field can't be forgotten here.
-      const nextValues: Record<string, unknown> = {};
-      syncedKeys.forEach((key, index) => {
-        nextValues[key] = values[index];
-      });
-      store.update({
-        ...(nextValues as ReturnType<typeof syncedValues>),
-        inputOwnsFormValue:
-          nextValues.selectionMode === 'none' &&
-          (Boolean(nextValues.inline) || !store.state.inputInsidePopup),
-      });
-    },
-    () => {
-      const values = syncedValues();
-      return syncedKeys.map((key) => values[key]);
-    },
+  const syncedValues = {
+    id,
+    selectedValue,
+    open,
+    mounted,
+    transitionStatus,
+    items: storeItems,
+    inline: inlineProp,
+    popupProps,
+    listProps,
+    inputProps,
+    triggerProps: () => triggerProps,
+    itemProps,
+    openMethod,
+    selectionMode,
+    name,
+    form: () => props.form,
+    disabled,
+    readOnly,
+    required,
+    grid,
+    virtualized,
+    openOnInputClick,
+    itemToStringLabel,
+    modal,
+    autoHighlight: autoHighlightMode,
+    isItemEqualToValue,
+    submitOnItemClick,
+    hasInputValue,
+  };
+  // Port note: upstream syncs these from a layout effect (and seeds the prop bags on the first
+  // render, so the parts can read them while rendering). Here they're derived, so they're in the
+  // store before the parts render.
+  store.useSyncedValues(syncedValues);
+  // Derived from the synced values. `ComboboxInput` also writes it when it registers, which the
+  // Root's rule supersedes, like upstream's effect that rewrites it in the same commit.
+  store.useDerivedState(
+    'inputOwnsFormValue',
+    () =>
+      store.state.selectionMode === 'none' &&
+      (Boolean(store.state.inline) || !store.state.inputInsidePopup),
   );
 
   // Port note: the context value's fields are getters.
@@ -1794,14 +1759,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const hiddenInputName = () =>
     multiple() || (selectionMode() === 'none' && inputOwnsFormValue()) ? undefined : name();
 
-  const hiddenInputs = createMemo(() => {
-    const currentSelectedValue = selectedValue();
-    if (!multiple() || !Array.isArray(currentSelectedValue) || !name()) {
-      return [] as string[];
-    }
+  const hiddenInputs = createMemo(
+    () => {
+      const currentSelectedValue = selectedValue();
+      if (!multiple() || !Array.isArray(currentSelectedValue) || !name()) {
+        return [] as string[];
+      }
 
-    return currentSelectedValue.map((value: Value) => stringifyAsValue(value, itemToStringValue()));
-  });
+      return currentSelectedValue.map((value: Value) =>
+        stringifyAsValue(value, itemToStringValue()),
+      );
+      // The serialized values are strings: an equal list keeps the rendered inputs.
+    },
+    { equals: areArraysEqual },
+  );
 
   const hiddenInputProps = createMemo(() =>
     validation.getValidationProps(disabled(), {
@@ -2297,4 +2268,8 @@ export namespace AriaCombobox {
      */
     isItemPress?: boolean | undefined;
   };
+}
+
+function areShallowEqualProps(a: object | undefined, b: object | undefined) {
+  return a === b || (a !== undefined && b !== undefined && fastObjectShallowCompare(a, b));
 }

@@ -1,5 +1,5 @@
 import { untrack } from 'solid-js';
-import type { SolidStore } from '@base-ui-solid/utils/store';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import type { BaseUIChangeEventDetails } from '../../types';
 import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
@@ -62,18 +62,17 @@ export function useSyncedFloatingRootContext<
   popupStore.useSyncedValue('floatingId', () => options.floatingId as State['floatingId']);
 
   // Port note: derived into the floating root store instead of copied by an effect on every open.
-  store.useSyncedValues(() => ({
-    open: open(),
-    floatingId: options.floatingId,
-    referenceElement: referenceElement(),
-    floatingElement: floatingElement(),
-  }));
-  // Only a DOM element replaces the DOM reference.
-  store.useConditionalSyncedValue(
-    'domReferenceElement',
-    () => isElement(referenceElement()),
-    () => referenceElement() as Element | null,
-  );
+  store.useSyncedValues(() => {
+    const reference = referenceElement();
+    return {
+      open: open(),
+      floatingId: options.floatingId,
+      referenceElement: reference,
+      // Only a DOM element replaces the DOM reference.
+      domReferenceElement: isElement(reference) ? (reference as Element) : SolidStore.KEEP,
+      floatingElement: floatingElement(),
+    };
+  });
   // The position reference follows the reference element until something else is written to it
   // (e.g. a virtual element from `useClientPoint`), like upstream's sync that only moved it while
   // it was still the reference element.

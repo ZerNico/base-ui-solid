@@ -38,7 +38,7 @@ type Scenario =
 const BASELINE_ANIMATIONS_DISABLED = {
   'Popover (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Popover (detached handle)': { EFFECT_RELAY_TEAR: 5, EFFECT_WRITES_OWN_SOURCE: 1 },
-  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 5, EFFECT_WRITES_OWN_SOURCE: 1 },
+  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 2, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Dialog (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Menu (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Tooltip (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
@@ -46,13 +46,11 @@ const BASELINE_ANIMATIONS_DISABLED = {
   'ContextMenu (right-click)': {},
 } satisfies Record<Scenario, Counts>;
 
-// Chromium with animations enabled: the app conditions. The remaining Select finding is the
-// floating root store's `open`, still synced from an effect by `useFloatingRootContext` (see
-// PORTING.md).
+// Chromium with animations enabled: the app conditions.
 const BASELINE_ANIMATIONS_ENABLED = {
   'Popover (controlled open)': {},
   'Popover (detached handle)': {},
-  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 1 },
+  'Select (controlled value and open)': {},
   'Dialog (controlled open)': {},
   'Menu (controlled open)': {},
   'Tooltip (controlled open)': {},

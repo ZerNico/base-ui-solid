@@ -1,4 +1,4 @@
-import { createMemo, createRoot, createSignal, flatten, omit, onCleanup, untrack } from 'solid-js';
+import { createMemo, createSignal, omit, onCleanup, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -29,6 +29,7 @@ import { useCompositeRootContext } from '../../internals/composite/root/Composit
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { useInsertedTriggerFocusGuards } from '../../utils/popups/useInsertedTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
@@ -384,41 +385,14 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
     props,
   });
 
-  // Port note: inserting conditional guards in a Solid fragment can move the trigger,
-  // cancelling a native press-drag-release click. Insert siblings around the stable node
-  // in the layout effect instead, preserving React's keyed fragment behavior.
-  useIsoLayoutEffect(
-    ([isOpened, currentStore]) => {
-      const triggerNode = triggerElement;
-      const parentNode = triggerNode?.parentNode;
-      if (!isOpened || !triggerNode || !parentNode) {
-        return undefined;
-      }
-      return createRoot((dispose) => {
-        // Port note: dev/HMR JSX can be accessor-backed; resolve it before native DOM insertion.
-        const before = flatten(
-          TriggerFocusGuard({
-            guardRef: currentStore.context.beforeTriggerFocusGuardRef,
-            onFocus: handlePreFocusGuardFocus,
-          }),
-        ) as HTMLElement;
-        const after = flatten(
-          TriggerFocusGuard({
-            guardRef: currentStore.context.triggerFocusTargetRef,
-            onFocus: handleFocusTargetFocus,
-          }),
-        ) as HTMLElement;
-        parentNode.insertBefore(before, triggerNode);
-        parentNode.insertBefore(after, triggerNode.nextSibling);
-        return () => {
-          before.remove();
-          after.remove();
-          dispose();
-        };
-      });
-    },
-    () => [isOpenedByThisTrigger(), store()] as const,
-  );
+  useInsertedTriggerFocusGuards({
+    enabled: isOpenedByThisTrigger,
+    refs: () => store().context,
+    triggerElement: () => triggerElement,
+    renderGuard: TriggerFocusGuard,
+    onBeforeGuardFocus: handlePreFocusGuardFocus,
+    onAfterGuardFocus: handleFocusTargetFocus,
+  });
 
   return element;
 }

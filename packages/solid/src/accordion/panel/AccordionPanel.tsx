@@ -91,6 +91,10 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
     setMounted,
     setOpen,
     transitionStatus,
+    cssVariables: {
+      height: AccordionPanelCssVars.accordionPanelHeight,
+      width: AccordionPanelCssVars.accordionPanelWidth,
+    },
   });
 
   const { state, triggerId } = useAccordionItemContext();
@@ -109,8 +113,6 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
         state: panelState,
         ref: panel.ref,
         props: () => {
-          const height = panel.height();
-          const width = panel.width();
           const resolvedStyle = resolveStyle(componentProps.style, panelState());
 
           return [
@@ -118,12 +120,6 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
             {
               'aria-labelledby': triggerId(),
               role: 'region',
-              style: {
-                [AccordionPanelCssVars.accordionPanelHeight]:
-                  height === undefined ? 'auto' : `${height}px`,
-                [AccordionPanelCssVars.accordionPanelWidth]:
-                  width === undefined ? 'auto' : `${width}px`,
-              },
             },
             elementProps,
             resolvedStyle ? { style: resolvedStyle } : undefined,

@@ -30,6 +30,11 @@ export class SolidStore<
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
 > extends Store<State> {
   /**
+   * A `useSyncedValues` value that leaves the key as it is: not synchronized at the moment.
+   */
+  static readonly KEEP: typeof UNSET = UNSET;
+
+  /**
    * Creates a new SolidStore instance.
    *
    * @param state Initial state of the store.
@@ -80,11 +85,53 @@ export class SolidStore<
    *
    * Derived, see {@link useSyncedValue}.
    *
+   * Port note: pass a record of accessors (`{ open, value: () => props.value }`) when a source
+   * reads another key of this store: with a single accessor, every key depends on all sources.
+   *
+   * Port note: a key set to {@link SolidStore.KEEP} isn't synchronized at the moment and keeps its
+   * value (upstream leaves such a key out of the effect's `update`).
+   *
    * @param statePart An exact subset of state fields to synchronize. Unknown keys are not accepted.
    */
-  public useSyncedValues<const Key extends keyof State>(statePart: Accessor<Pick<State, Key>>) {
+  public useSyncedValues<const Key extends keyof State>(
+    statePart: Accessor<SyncedValues<State, Key>>,
+  ): void;
+
+  public useSyncedValues<const Key extends keyof State>(
+    statePart: SyncedValueAccessors<State, Key>,
+  ): void;
+
+  public useSyncedValues<const Key extends keyof State>(
+    statePart: Accessor<SyncedValues<State, Key>> | SyncedValueAccessors<State, Key>,
+  ) {
     // eslint-disable-next-line consistent-this
     const store = this;
+
+    if (typeof statePart === 'object') {
+      // Port note: one accessor per key, so each key only depends on its own source. A source may
+      // then read another key of the same store (e.g. a prop bag built from the store's `open`).
+      const accessorKeys = Object.keys(statePart) as Key[];
+      const accessors = statePart as SyncedValueAccessors<State, Key>;
+      // Changes when any of the values does. Only read to decide whether an imperative write
+      // still holds, so it doesn't make the keys depend on each other.
+      const group = createMemo(
+        () => accessorKeys.map((key) => accessors[key]()),
+        IS_DEV
+          ? {
+              equals: haveSameValues,
+              lazy: true,
+              name: `${debugName(store, 'useSyncedValues')}.group`,
+            }
+          : { equals: haveSameValues, lazy: true },
+      );
+      const before = untrack(() => accessorKeys.map((key) => store.state[key]));
+      for (const key of accessorKeys) {
+        this.registerDerived(key, accessors[key], false, undefined, false, group);
+      }
+      this.notifyOnChange(accessorKeys, before);
+      return;
+    }
+
     let keys: string[] | undefined;
 
     const part = createMemo(
@@ -530,23 +577,28 @@ function readEntry(entry: DerivedKey, rawState: any, key: PropertyKey) {
  * Reads every registration of a key (so a reactive reader tracks all of them) and returns the one
  * whose source changed last, like upstream where the last effect to write the key wins. A source
  * that becomes active again counts as a change, even if it brings back the value it kept. An
- * inactive source (`UNSET`) doesn't write, so it keeps its place.
+ * inactive source (`UNSET`) doesn't write: it only wins (keeping its last value) when no source
+ * is active.
  */
 function resolveDerived(entries: DerivedKey[], rawState: any, key: PropertyKey) {
   let winner: DerivedKey | undefined;
+  let winnerActive = false;
   for (const entry of entries) {
     entry.value = readEntry(entry, rawState, key);
     const observed = entry.observed;
-    if (
-      observed !== UNSET &&
-      (entry.stamp === 0 || !Object.is(observed, entry.previousObserved))
-    ) {
+    const active = observed !== UNSET;
+    if (active && (entry.stamp === 0 || !Object.is(observed, entry.previousObserved))) {
       nextStamp += 1;
       entry.stamp = nextStamp;
     }
     entry.previousObserved = observed;
-    if (winner === undefined || entry.stamp >= winner.stamp) {
+    if (
+      winner === undefined ||
+      (active && !winnerActive) ||
+      (active === winnerActive && entry.stamp >= winner.stamp)
+    ) {
       winner = entry;
+      winnerActive = active;
     }
   }
   return winner!;
@@ -584,6 +636,20 @@ type KeysAllowingUndefined<State> = {
 type ObserveSelector<State> = (state: State) => any;
 
 type SelectorFunction<State> = (state: State, ...args: any[]) => any;
+
+/** `useSyncedValues`' record form: one accessor per key. */
+type SyncedValueAccessors<State, Key extends keyof State> = {
+  [K in Key]: Accessor<State[K] | typeof UNSET>;
+} & {
+  // Not a function, so an accessor of the object form doesn't match this form with no keys.
+  call?: never | undefined;
+  apply?: never | undefined;
+};
+
+/** The values synchronized by `useSyncedValues`: each may be `SolidStore.KEEP`. */
+type SyncedValues<State, Key extends keyof State> = {
+  [K in Key]: State[K] | typeof UNSET;
+};
 
 type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];
 

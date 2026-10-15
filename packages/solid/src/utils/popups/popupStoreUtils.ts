@@ -730,21 +730,17 @@ export function usePopupRootSync<
   store: SolidStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   open: Accessor<boolean>,
 ) {
-  useIsoLayoutEffect(
-    ([openValue]) => {
-      if (!openValue && store.state.openMethod !== null) {
-        store.set('openMethod', null);
-      }
-    },
-    () => [open()],
-  );
-
-  useIsoLayoutEffect(
-    () => () => {
-      if (store.state.openMethod !== null) {
-        store.set('openMethod', null);
-      }
-    },
-    () => [store],
-  );
+  // Port note: upstream resets `openMethod` from a layout effect when the popup closes. Here it's
+  // derived: it's the method written since the popup last closed (an interaction can record it
+  // before the popup opens), or none.
+  let wasOpen = untrack(open);
+  let writesAtClose = -1;
+  store.useDerivedState('openMethod', (raw, _, writes) => {
+    const isOpen = open();
+    if (wasOpen && !isOpen) {
+      writesAtClose = writes;
+    }
+    wasOpen = isOpen;
+    return writes === writesAtClose ? (null as State['openMethod']) : raw;
+  });
 }

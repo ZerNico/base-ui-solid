@@ -195,7 +195,23 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
   }
 
   function queueFocusInput(index: number, nextValue: string) {
-    pendingFocus = { index, value: nextValue };
+    // Port note: upstream moves focus from a layout effect once the value commits. The callers are
+    // event handlers, so here the committed value is applied right away and focus moves in the
+    // handler. Its focus handler records the index, which an effect moving focus would relay.
+    // A value the owner hasn't applied yet (a controlled value updated later) keeps the request.
+    // The completion runs after the focus, like upstream, so it can move focus elsewhere.
+    const completion = pendingCompleteValue;
+    pendingCompleteValue = null;
+    flush();
+    if (untrack(value) !== nextValue) {
+      pendingFocus = { index, value: nextValue };
+      pendingCompleteValue = completion;
+      return;
+    }
+    focusInput(index);
+    if (completion != null && completion.value === nextValue) {
+      completeValue(nextValue, completion.eventDetails);
+    }
   }
 
   function requestSubmit() {

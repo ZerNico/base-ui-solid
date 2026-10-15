@@ -77,7 +77,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     open,
     positionerElement,
     setActivationDirection,
-    setFloatingRootContext,
+    registerTriggerContext,
     popupElement,
     viewportElement,
     transitionStatus,
@@ -506,6 +506,11 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
   const hoverInteractionState = useHoverInteractionSharedState(context);
   const shouldBlockSafePolygonPointerEvents = () => pointerType() !== 'touch';
 
+  // Port note: upstream clears the safe-polygon pointer-events block in this effect's cleanup on
+  // every `open` change, and React runs all cleanups before the new setups, so the floating hover
+  // interaction re-applies the block after it on open. Solid runs each effect's cleanup and setup
+  // in turn, so the result would depend on the effect order. Clear it when closing and on unmount
+  // instead: on open, applying the block clears a stale one first.
   useEffect(
     ([isOpen]) => {
       if (!isOpen) {
@@ -515,14 +520,14 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
         hoverInteractionState.restTimeoutPending = false;
         hoverInteractionState.openChangeTimeout.clear();
         hoverInteractionState.restTimeout.clear();
-      }
-
-      return () => {
         clearSafePolygonPointerEventsMutation(hoverInteractionState);
-      };
+      }
     },
     () => [open()],
   );
+  onCleanup(() => {
+    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+  });
 
   const getInlineHandleCloseContext = () => {
     const hoverFloating = untrack(hoverFloatingElement);
@@ -584,10 +589,12 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
   });
   const referenceProps = () => mergePropsSnapshot(click.reference, hoverProps());
 
+  // Port note: the root derives its floating context from the active item's registration.
+  onCleanup(registerTriggerContext({ value: itemValue, context }));
+
   useIsoLayoutEffect(
     ([isActive, trigger]) => {
       if (isActive) {
-        setFloatingRootContext(context);
         prevTriggerElementRef.current = trigger;
       }
     },

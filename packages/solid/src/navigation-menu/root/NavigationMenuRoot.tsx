@@ -21,7 +21,10 @@ import {
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { NavigationMenuPopupAutoSizeResetState } from './NavigationMenuRootContext';
+import type {
+  NavigationMenuPopupAutoSizeResetState,
+  TriggerFloatingRootContext,
+} from './NavigationMenuRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
@@ -104,9 +107,39 @@ export function NavigationMenuRoot<Value = any>(
   const [activationDirection, setActivationDirection] = createSignal<
     'left' | 'right' | 'up' | 'down' | null
   >(null, { ownedWrite: true });
+  // Port note: upstream's active trigger hands its floating context to the root from a layout
+  // effect. Here the triggers register their contexts, and a writable memo derives the active
+  // item's context when the active item changes. Otherwise it keeps the last one (through the exit
+  // animation), until a close or the unmount clears it.
+  const triggerContexts = new Set<TriggerFloatingRootContext>();
+  const [triggerContextsVersion, setTriggerContextsVersion] = createSignal(0, {
+    ownedWrite: true,
+  });
+  const registerTriggerContext = (entry: TriggerFloatingRootContext) => {
+    triggerContexts.add(entry);
+    setTriggerContextsVersion((version) => version + 1);
+    return () => {
+      triggerContexts.delete(entry);
+      setTriggerContextsVersion((version) => version + 1);
+    };
+  };
   const [floatingRootContext, setFloatingRootContextRaw] = createSignal<
     FloatingRootContext | undefined
-  >(undefined, { ownedWrite: true });
+  >(
+    (previous) => {
+      triggerContextsVersion();
+      const activeValue = value();
+      if (activeValue != null) {
+        for (const entry of triggerContexts) {
+          if (entry.value() === activeValue) {
+            return entry.context;
+          }
+        }
+      }
+      return previous;
+    },
+    { ownedWrite: true },
+  );
   const setFloatingRootContext = (context: FloatingRootContext | undefined) => {
     setFloatingRootContextRaw(() => context);
   };
@@ -282,7 +315,7 @@ export function NavigationMenuRoot<Value = any>(
     activationDirection: contextActivationDirection,
     setActivationDirection,
     floatingRootContext,
-    setFloatingRootContext,
+    registerTriggerContext,
     currentContentRef,
     nested,
     rootRef,

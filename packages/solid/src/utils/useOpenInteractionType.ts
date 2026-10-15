@@ -3,7 +3,6 @@ import type { Accessor } from 'solid-js';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useEnhancedClickHandler } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { platform } from '@base-ui-solid/utils/platform';
-import { useValueChanged } from '../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(
   open: boolean | (() => boolean),
@@ -39,18 +38,21 @@ export function useOpenMethodTriggerProps(
  * @param open The open state of the component.
  */
 export function useOpenInteractionType(open: Accessor<boolean>) {
-  const [openMethod, setOpenMethodState] = createSignal<InteractionType | null>(null, {
-    ownedWrite: true,
-  });
+  // Port note: upstream resets the method from an effect when `open` becomes `false`. A writable
+  // memo applies that rule when `open` changes, and otherwise keeps the method the trigger wrote.
+  let wasOpen = untrack(open);
+  const [openMethod, setOpenMethodState] = createSignal<InteractionType | null>(
+    (previous) => {
+      const isOpen = open();
+      const closed = wasOpen && !isOpen;
+      wasOpen = isOpen;
+      return closed ? null : (previous ?? null);
+    },
+    { ownedWrite: true },
+  );
   const setOpenMethod = (value: InteractionType | null) => setOpenMethodState(() => value);
 
   const triggerProps = useOpenMethodTriggerProps(open, setOpenMethod);
-
-  useValueChanged(open, (previousOpen) => {
-    if (previousOpen && !untrack(open)) {
-      setOpenMethod(null);
-    }
-  });
 
   return {
     openMethod,

@@ -38,7 +38,7 @@ unapproved upstream URLs, broken internal destinations, or missing fragment targ
 
 `npm view` on 2026-10-04 verified `@tanstack/solid-start` and `@tanstack/solid-router`
 **2.0.0-rc.8**, and their Solid 2.0 peer ranges. Both are pinned to that release.
-Solid and Solid Web remain at the workspace's **2.0.0-rc.13**.
+Solid and Solid Web remain at the workspace's **2.0.0-rc.15**.
 
 Port note: Start rc.8's server barrel imports a server-function API removed in Solid Web rc.13.
 `src/server.ts` uses the same underlying Start SSR handler and Solid request-event scope directly.

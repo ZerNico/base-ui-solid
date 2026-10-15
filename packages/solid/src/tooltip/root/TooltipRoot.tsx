@@ -17,7 +17,6 @@ import {
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { TooltipStore } from '../store/TooltipStore';
-import type { State as TooltipStoreState } from '../store/TooltipStore';
 import type { TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
 import type { HTMLProps } from '../../internals/types';
@@ -68,49 +67,21 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
-  const isInstantPhase = store.useState('isInstantPhase');
-  const instantType = store.useState('instantType');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   // Animations should be instant in two cases:
   // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef: {
-    current: TooltipStoreState<Payload>['instantType'] | null;
-  } = { current: null };
-
-  useIsoLayoutEffect(
-    ([openStateValue, disabledValue]) => {
-      if (openStateValue && disabledValue) {
-        store.setOpen(false, createChangeEventDetails(REASONS.disabled));
-      }
-    },
-    () => [openState(), disabled(), store],
-  );
-
-  useIsoLayoutEffect(
-    ([transitionStatusValue, isInstantPhaseValue, lastOpenChangeReasonValue, instantTypeValue]) => {
-      if (
-        (transitionStatusValue === 'ending' && lastOpenChangeReasonValue === REASONS.none) ||
-        (transitionStatusValue !== 'ending' && isInstantPhaseValue)
-      ) {
-        // Capture the current instant type so we can restore it later
-        // and set to 'delay' to disable animations while moving from one trigger to another
-        // within a delay group.
-        if (instantTypeValue !== 'delay') {
-          previousInstantTypeRef.current = instantTypeValue;
-        }
-        store.set('instantType', 'delay');
-      } else if (previousInstantTypeRef.current !== null) {
-        store.set('instantType', previousInstantTypeRef.current);
-        previousInstantTypeRef.current = null;
-      }
-    },
-    () =>
-      [transitionStatus(), isInstantPhase(), lastOpenChangeReason(), instantType(), store] as const,
-  );
+  // Port note: upstream sets `'delay'` from a layout effect and restores the previous value
+  // afterwards. Here it's derived over the written value, which therefore needs no restoring.
+  store.useDerivedState('instantType', (raw) => {
+    const state = store.state;
+    const ending = transitionStatus() === 'ending';
+    return (ending && state.openChangeReason === REASONS.none) || (!ending && state.isInstantPhase)
+      ? 'delay'
+      : raw;
+  });
 
   useIsoLayoutEffect(
     ([, activeTriggerIdValue, openValue]) => {

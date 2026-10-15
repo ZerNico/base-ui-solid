@@ -24,8 +24,8 @@
     "./*.spec": null
   },
   "peerDependencies": {
-    "@solidjs/web": "^2.0.0-rc.13",
-    "solid-js": "^2.0.0-rc.13"
+    "@solidjs/web": "^2.0.0-rc.15",
+    "solid-js": "^2.0.0-rc.15"
   },
   "dependencies": {
     "@floating-ui/utils": "^0.2.12",

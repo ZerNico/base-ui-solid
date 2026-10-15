@@ -34,10 +34,13 @@ export function ToolbarButton(componentProps: ToolbarButton.Props) {
   const disabled = () =>
     toolbarDisabled() || (groupContext?.disabled() ?? false) || (componentProps.disabled ?? false);
 
-  const itemMetadata = createMemo<ToolbarRootItemMetadata>(() => ({
-    disabled: disabled(),
-    focusableWhenDisabled: focusableWhenDisabled(),
-  }));
+  const itemMetadata = createMemo<ToolbarRootItemMetadata>(
+    () => ({
+      disabled: disabled(),
+      focusableWhenDisabled: focusableWhenDisabled(),
+    }),
+    { equals: fastObjectShallowCompare },
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

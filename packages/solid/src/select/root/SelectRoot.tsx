@@ -403,6 +403,7 @@ export function SelectRoot<
     get enabled() {
       return !disabled();
     },
+    deriveOpenHighlight: true,
     listRef,
     get activeIndex() {
       return activeIndex();
@@ -422,6 +423,26 @@ export function SelectRoot<
     get focusItemOnHover() {
       return highlightItemOnHover();
     },
+  });
+
+  // Port note: upstream's list navigation highlights the selected item when the popup opens from a
+  // layout effect (through `onNavigate`). Here the store derives it: the open-time highlight, until
+  // something navigates during this open (each open is a new cycle object).
+  const openCycle = createMemo<object | undefined>((previous) =>
+    open() ? (previous ?? {}) : undefined,
+  );
+  let lastOpenCycle: object | undefined;
+  let writesAtOpen = 0;
+  store.useDerivedState('activeIndex', (raw, _, writes) => {
+    const cycle = openCycle();
+    if (cycle !== lastOpenCycle) {
+      lastOpenCycle = cycle;
+      writesAtOpen = writes;
+    }
+    const openHighlight = listNavigation.openHighlightIndex();
+    return cycle !== undefined && writes === writesAtOpen && openHighlight != null
+      ? openHighlight
+      : raw;
   });
 
   const typeahead = useTypeahead(floatingContext, {
@@ -494,27 +515,29 @@ export function SelectRoot<
     });
   });
 
-  store.useSyncedValues(() => ({
-    id: generatedId(),
-    modal: modal(),
-    multiple: multiple(),
-    disabled: disabled(),
-    readOnly: readOnly(),
-    required: required(),
-    highlightItemOnHover: highlightItemOnHover(),
-    value: value(),
-    open: open(),
-    mounted: mounted(),
-    transitionStatus: transitionStatus(),
-    popupProps: popupProps(),
-    triggerProps: mergedTriggerProps(),
-    itemProps: itemProps(),
-    items: props.items,
-    itemToStringLabel: itemToStringLabel(),
-    itemToStringValue: itemToStringValue(),
-    isItemEqualToValue: isItemEqualToValue(),
-    openMethod: renderedOpenMethod(),
-  }));
+  // Port note: one accessor per key (see `SolidStore.useSyncedValues`): some sources read stores
+  // that depend on these keys, which a single accessor would turn into a cycle.
+  store.useSyncedValues({
+    id: generatedId,
+    modal,
+    multiple,
+    disabled,
+    readOnly,
+    required,
+    highlightItemOnHover,
+    value,
+    open,
+    mounted,
+    transitionStatus,
+    popupProps,
+    triggerProps: mergedTriggerProps,
+    itemProps,
+    items: () => props.items,
+    itemToStringLabel,
+    itemToStringValue,
+    isItemEqualToValue,
+    openMethod: renderedOpenMethod,
+  });
 
   const hiddenInputProps = createMemo(() =>
     validation.getValidationProps(disabled(), {

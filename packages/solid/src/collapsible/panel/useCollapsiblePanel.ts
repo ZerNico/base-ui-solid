@@ -44,6 +44,7 @@ export function useCollapsiblePanel(
     setMounted,
     setOpen,
     transitionStatus,
+    cssVariables,
   } = parameters;
 
   let panelElementRef: HTMLDivElement | null = null;
@@ -51,7 +52,11 @@ export function useCollapsiblePanel(
   // disconnected element counts as unmounted (React would have reset the ref to `null`).
   const getPanel = () => (panelElementRef?.isConnected ? panelElementRef : null);
   const animationTypeRef = useTrackedRef<AnimationType | null>(null);
-  const [dimensions, setDimensionsUnwrapped] = createSignal<Dimensions>(EMPTY_DIMENSIONS);
+  // Port note: upstream keeps the measured size in state and renders it as the CSS variables. It's
+  // only used by the variables, so here the measurement writes them to the element directly: a
+  // size read from the DOM after it rendered isn't derivable, and copying it into a signal from
+  // the measuring effect would re-render the panel to apply it (Solid's `EFFECT_RELAY_TEAR`).
+  let dimensions: Dimensions = EMPTY_DIMENSIONS;
   const lastMeasuredDimensionsRef = useTrackedRef<Dimensions>(EMPTY_DIMENSIONS);
   // `beforematch` should reveal the matched content immediately, so the next
   // open cycle skips author-defined motion once and then returns to normal.
@@ -81,18 +86,36 @@ export function useCollapsiblePanel(
   const shouldPreventOpenAnimation = createMemo(
     () => open() && shouldPreventMountAnimationRef.current,
   );
-  const renderedDimensions = createMemo(() => {
-    const currentDimensions = dimensions();
-    return !open() &&
-      mounted() &&
+  function getRenderedDimensions() {
+    return !untrack(open) &&
+      untrack(mounted) &&
       // This fallback only restores a previously measured pixel size after the live
-      // dimensions state has been reset back to `auto`.
+      // dimensions have been reset back to `auto`.
       animationTypeRef.current === 'css-animation' &&
-      currentDimensions.height === undefined &&
-      currentDimensions.width === undefined
+      dimensions.height === undefined &&
+      dimensions.width === undefined
       ? lastMeasuredDimensionsRef.current
-      : currentDimensions;
-  });
+      : dimensions;
+  }
+
+  function applyDimensions() {
+    const panel = panelElementRef;
+    if (!panel) {
+      return;
+    }
+    const { height, width } = getRenderedDimensions();
+    panel.style.setProperty(cssVariables.height, height === undefined ? 'auto' : `${height}px`);
+    panel.style.setProperty(cssVariables.width, width === undefined ? 'auto' : `${width}px`);
+  }
+
+  // The rendered size also depends on the open state (see `getRenderedDimensions`).
+  useIsoLayoutEffect(
+    () => {
+      applyDimensions();
+    },
+    () => [open(), mounted()],
+  );
+
   const shouldPersistHiddenTransitionStyles = () =>
     hiddenUntilFound() && hidden() && animationTypeRef.current !== 'css-animation';
 
@@ -104,7 +127,8 @@ export function useCollapsiblePanel(
       lastMeasuredDimensionsRef.current = nextDimensions;
     }
 
-    setDimensionsUnwrapped(nextDimensions);
+    dimensions = nextDimensions;
+    applyDimensions();
   }
 
   function restorePendingTemporaryStyle() {
@@ -428,7 +452,6 @@ export function useCollapsiblePanel(
   const shouldRender = () => keepMounted() || hiddenUntilFound() || mounted() || open();
 
   return {
-    height: () => renderedDimensions().height,
     props: () => ({
       ...(shouldPersistHiddenTransitionStyles()
         ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
@@ -440,11 +463,11 @@ export function useCollapsiblePanel(
     }),
     ref: (element: HTMLDivElement | null) => {
       panelElementRef = element;
+      applyDimensions();
     },
     shouldPreventOpenAnimation,
     shouldRender,
     transitionStatus: panelTransitionStatus,
-    width: () => renderedDimensions().width,
   };
 }
 
@@ -591,14 +614,16 @@ export interface UseCollapsiblePanelParameters {
   setMounted: (nextMounted: boolean) => void;
   setOpen: (nextOpen: boolean) => void;
   transitionStatus: Accessor<TransitionStatus>;
+  /**
+   * Port note: the names of the CSS variables the measured size is written to.
+   */
+  cssVariables: { height: string; width: string };
 }
 
 export interface UseCollapsiblePanelReturnValue {
-  height: Accessor<number | undefined>;
   props: Accessor<Record<string, unknown>>;
   ref: (element: HTMLDivElement | null) => void;
   shouldPreventOpenAnimation: Accessor<boolean>;
   shouldRender: Accessor<boolean>;
   transitionStatus: Accessor<TransitionStatus>;
-  width: Accessor<number | undefined>;
 }

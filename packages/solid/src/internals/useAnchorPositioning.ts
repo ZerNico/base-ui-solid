@@ -6,6 +6,7 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import {
   autoUpdate,
   flip,
@@ -499,21 +500,24 @@ export function useAnchorPositioningWithHook(
     return middleware;
   });
 
-  useIsoLayoutEffect(
-    ([mountedValue, floatingRootContextValue]) => {
-      // Ensure positioning doesn't run initially for `keepMounted` elements that
-      // aren't initially open.
-      if (!mountedValue && floatingRootContextValue) {
-        floatingRootContextValue.update({
-          referenceElement: null,
-          floatingElement: null,
-          domReferenceElement: null,
-          positionReference: null,
-        });
-      }
-    },
-    () => [mounted(), floatingRootContext()],
-  );
+  // Ensure positioning doesn't run initially for `keepMounted` elements that
+  // aren't initially open.
+  // Port note: upstream writes the `null`s from a layout effect. Here the positioner derives them
+  // into the store while it's unmounted, and otherwise leaves the elements to the Root's sync. The
+  // memo owns the registration, so it moves with the store.
+  void createMemo(() => {
+    const store = floatingRootContext();
+    if (!store) {
+      return;
+    }
+    const unmounted = () => !mounted();
+    store.useSyncedValues({
+      referenceElement: () => (unmounted() ? null : SolidStore.KEEP),
+      floatingElement: () => (unmounted() ? null : SolidStore.KEEP),
+      domReferenceElement: () => (unmounted() ? null : SolidStore.KEEP),
+      positionReference: () => (unmounted() ? null : SolidStore.KEEP),
+    });
+  });
 
   const autoUpdateOptions = createMemo<AutoUpdateOptions>(() => ({
     ancestorScroll: !disableAnchorTracking(),
@@ -551,6 +555,19 @@ export function useAnchorPositioningWithHook(
     },
     get externalTree() {
       return params.externalTree;
+    },
+    // Port note: upstream sets the anchor from a layout effect while mounted. It's derived here,
+    // and kept while unmounted. A function anchor is called when the anchor dependency changes.
+    get positionReference() {
+      if (!mounted()) {
+        return undefined;
+      }
+      anchorDep();
+      return untrack(() => {
+        const anchorValue = anchor();
+        const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
+        return (resolvedAnchor || null) as Element | VirtualElement | null;
+      });
     },
   });
   const { refs, elements, update, context } = floating;
@@ -600,26 +617,6 @@ export function useAnchorPositioningWithHook(
       return base;
     },
     { equals: fastObjectShallowCompare },
-  );
-
-  let registeredPositionReference: Element | VirtualElement | null = null;
-
-  useIsoLayoutEffect(
-    ([mountedValue]) => {
-      if (!mountedValue) {
-        return;
-      }
-
-      const anchorValue = untrack(anchor);
-      const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
-      const finalAnchor = resolvedAnchor || null;
-
-      if (finalAnchor !== registeredPositionReference) {
-        refs.setPositionReference(finalAnchor);
-        registeredPositionReference = finalAnchor;
-      }
-    },
-    () => [mounted(), anchorDep()],
   );
 
   // Port note: upstream also re-reads a ref object anchor in a passive effect, because React sets

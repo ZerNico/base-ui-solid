@@ -119,10 +119,13 @@ export function Toggle<Value extends string>(componentProps: Toggle.Props<Value>
   if (groupContext) {
     // A disabled toggle is natively disabled and cannot hold roving focus.
     // Toolbar reads this metadata to compute its `disabledIndices`.
-    const itemMetadata = createMemo<ToolbarRoot.ItemMetadata>(() => ({
-      disabled: disabled(),
-      focusableWhenDisabled: false,
-    }));
+    const itemMetadata = createMemo<ToolbarRoot.ItemMetadata>(
+      () => ({
+        disabled: disabled(),
+        focusableWhenDisabled: false,
+      }),
+      { equals: fastObjectShallowCompare },
+    );
 
     // Port note: upstream composes the forwarded ref after the composite item's own ref (it's
     // part of `refs`), so an outer composite item rendering this toggle (e.g. `Toolbar.Button`

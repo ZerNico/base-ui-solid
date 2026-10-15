@@ -77,6 +77,14 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
     middleware: latestMiddleware(),
   }));
 
+  // Port note: upstream resets `isPositioned` from a layout effect when `open` becomes `false`. A
+  // writable memo applies that rule when `open` changes, and otherwise keeps what the last position
+  // computation wrote, so the next open starts unpositioned until it's computed again.
+  const [isPositioned, setIsPositioned] = createSignal<boolean>(
+    (previous) => (options.open === false ? false : (previous ?? false)),
+    { ownedWrite: true },
+  );
+
   let isMounted = true;
   onCleanup(() => {
     isMounted = false;
@@ -103,25 +111,24 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
           // setting it to `true` when `open === false` (must be specified).
           isPositioned: untrack(() => options.open) !== false,
         };
-        if (isMounted && !deepEqual(dataRef, fullData)) {
+        if (!isMounted) {
+          return;
+        }
+        const changed = !deepEqual(dataRef, fullData);
+        if (changed) {
           dataRef = fullData;
           // Port note: `ReactDOM.flushSync(() => setData(fullData))`.
           setData(fullData);
-          flush();
         }
+        if (untrack(isPositioned) !== fullData.isPositioned) {
+          setIsPositioned(fullData.isPositioned);
+        } else if (!changed) {
+          return;
+        }
+        flush();
       },
     );
   };
-
-  useIsoLayoutEffect(
-    ([open]) => {
-      if (open === false && dataRef.isPositioned) {
-        dataRef.isPositioned = false;
-        setData((prev) => ({ ...prev, isPositioned: false }));
-      }
-    },
-    () => [options.open],
-  );
 
   useIsoLayoutEffect(
     ([referenceElement, floatingElement]) => {
@@ -214,7 +221,7 @@ export function useFloating<RT extends ReferenceType = ReferenceType>(
       return data().middlewareData;
     },
     get isPositioned() {
-      return data().isPositioned;
+      return isPositioned();
     },
     update,
     refs,

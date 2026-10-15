@@ -9,7 +9,7 @@ Base UI is created by the team behind Radix, Floating UI, and Material UI. This 
 Install the package in your project directory with:
 
 ```bash
-npm install base-ui-solid solid-js@2.0.0-rc.13 @solidjs/web@2.0.0-rc.13
+npm install base-ui-solid solid-js@2.0.0-rc.15 @solidjs/web@2.0.0-rc.15
 ```
 
 Base UI Solid requires Solid 2.0 with the compiler configured for `jsxImportSource: "@solidjs/web"`. Solid 1.x is not supported.

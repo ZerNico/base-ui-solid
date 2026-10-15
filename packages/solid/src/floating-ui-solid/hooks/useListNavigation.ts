@@ -1,4 +1,4 @@
-import { createMemo, untrack } from 'solid-js';
+import { createMemo, createSignal, untrack } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
@@ -102,7 +102,21 @@ export function isCrossOrientationCloseKey(
  * Port note: read lazily like Solid props (`props.x`), so pass a props-like object with getters
  * for reactive options (e.g. `activeIndex`). `externalTree` is read once.
  */
+export interface UseListNavigationReturnValue extends ElementProps {
+  /**
+   * Port note: the index highlighted when the list opens, for lists that derive it (see
+   * `UseListNavigationProps.deriveOpenHighlight`).
+   */
+  openHighlightIndex: () => number | null;
+}
+
 export interface UseListNavigationProps {
+  /**
+   * Port note: whether the list derives the highlight made when it opens from
+   * `openHighlightIndex` instead of receiving it through `onNavigate`.
+   * @default false
+   */
+  deriveOpenHighlight?: boolean | undefined;
   /**
    * A ref that holds an array of list items.
    * @default empty list
@@ -243,7 +257,7 @@ export interface UseListNavigationProps {
 export function useListNavigation(
   store: FloatingRootContext,
   props: UseListNavigationProps,
-): ElementProps {
+): UseListNavigationReturnValue {
   // Port note: the options are read lazily (see `UseListNavigationProps`).
   const listRef = () => props.listRef;
   const activeIndex = () => props.activeIndex;
@@ -311,7 +325,19 @@ export function useListNavigation(
   const contextTree = useFloatingTree();
   const tree = () => props.externalTree ?? contextTree;
 
-  let focusItemOnOpenRef = untrack(focusItemOnOpen);
+  // Port note: upstream keeps this in a ref that a layout effect overwrites when `open` or the
+  // option changes. A writable memo applies the same rule: an explicit value applies when they
+  // change, an inferred 'auto' value written by the trigger event is kept while open.
+  const [focusItemOnOpenState, setFocusItemOnOpenState] = createSignal<boolean | 'auto'>(
+    (previous) => {
+      const openValue = open();
+      const focusItemOnOpenValue = focusItemOnOpen();
+      return !openValue || focusItemOnOpenValue !== 'auto' || previous === undefined
+        ? focusItemOnOpenValue
+        : previous;
+    },
+    { ownedWrite: true },
+  );
   let indexRef = untrack(selectedIndex) ?? -1;
   let keyRef: null | string = null;
   let isPointerModalityRef = true;
@@ -399,17 +425,6 @@ export function useListNavigation(
     () => [open()],
   );
 
-  useIsoLayoutEffect(
-    ([openValue, focusItemOnOpenValue]) => {
-      // Explicit values can change with the opening interaction. Keep an inferred 'auto' value
-      // from the trigger event, but apply a boolean before the initial highlight is synchronized.
-      if (!openValue || focusItemOnOpenValue !== 'auto') {
-        focusItemOnOpenRef = focusItemOnOpenValue;
-      }
-    },
-    () => [open(), focusItemOnOpen()],
-  );
-
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.
   useIsoLayoutEffect(
@@ -420,11 +435,15 @@ export function useListNavigation(
 
       if (openValue && floatingElementValue) {
         indexRef = selectedIndexValue ?? -1;
-        if (focusItemOnOpenRef && selectedIndexValue != null) {
+        if (untrack(focusItemOnOpenState) && selectedIndexValue != null) {
           // Regardless of the pointer modality, we want to ensure the selected
           // item comes into view when the floating element is opened.
           forceScrollIntoViewRef = true;
-          onNavigate();
+          // Port note: a list that derives this highlight (`deriveOpenHighlight`) reads it from
+          // `openHighlightIndex` instead.
+          if (!untrack(() => props.deriveOpenHighlight)) {
+            onNavigate();
+          }
         }
       } else if (previousMountedRef) {
         // Reset the active index when the list is no longer open and mounted (closing or
@@ -440,15 +459,7 @@ export function useListNavigation(
   // Sync `activeIndex` to be the focused item while the floating element is
   // open.
   useIsoLayoutEffect(
-    ([
-      enabledValue,
-      openValue,
-      floatingElementValue,
-      activeIndexValue,
-      nestedValue,
-      triggerOrientationValue,
-      rtlValue,
-    ]) => {
+    ([enabledValue, openValue, floatingElementValue, activeIndexValue]) => {
       if (!enabledValue) {
         return;
       }
@@ -472,45 +483,6 @@ export function useListNavigation(
           indexRef = -1;
           focusItem();
         }
-
-        // Initial sync.
-        if (
-          (!previousOpenRef || !previousMountedRef) &&
-          focusItemOnOpenRef &&
-          (keyRef != null || (focusItemOnOpenRef === true && keyRef == null))
-        ) {
-          let runs = 0;
-          const waitForListPopulated = () => {
-            if (listRef().current[0] == null) {
-              // Avoid letting the browser paint if possible on the first try,
-              // otherwise use rAF. Don't try more than twice, since something
-              // is wrong otherwise.
-              if (runs < 2) {
-                const scheduler = runs
-                  ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
-                  : queueMicrotask;
-                scheduler(waitForListPopulated);
-              }
-              runs += 1;
-            } else {
-              // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-              // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-              // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-              // would regress that behavior (see mui/base-ui#2604).
-              // The key came from the trigger, so it is read on the trigger's orientation.
-              indexRef =
-                keyRef == null ||
-                isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
-                nestedValue
-                  ? getMinListIndex(listRef())
-                  : getMaxListIndex(listRef());
-              keyRef = null;
-              onNavigate();
-            }
-          };
-
-          waitForListPopulated();
-        }
       } else if (!isIndexOutOfListBounds(listRef().current, activeIndexValue)) {
         indexRef = activeIndexValue;
         focusItem();
@@ -532,16 +504,71 @@ export function useListNavigation(
         });
       }
     },
-    () => [
-      enabled(),
-      open(),
-      floatingElement(),
-      activeIndex(),
-      nested(),
-      triggerOrientation(),
-      rtl(),
-      listRef(),
-    ],
+    () => [enabled(), open(), floatingElement(), activeIndex(), listRef()],
+  );
+
+  // Initial sync.
+  // Port note: upstream runs this in the effect above. It writes `activeIndex` (through
+  // `onNavigate`), so here it runs on its own, without tracking it, and the effect above then
+  // focuses the item the write highlighted.
+  useIsoLayoutEffect(
+    ([
+      enabledValue,
+      openValue,
+      floatingElementValue,
+      nestedValue,
+      triggerOrientationValue,
+      rtlValue,
+    ]) => {
+      if (
+        !enabledValue ||
+        !openValue ||
+        !floatingElementValue ||
+        untrack(activeIndex) != null ||
+        selectedIndexRef.current != null
+      ) {
+        return;
+      }
+
+      if (
+        (!previousOpenRef || !previousMountedRef) &&
+        untrack(focusItemOnOpenState) &&
+        (keyRef != null || (untrack(focusItemOnOpenState) === true && keyRef == null))
+      ) {
+        let runs = 0;
+        const waitForListPopulated = () => {
+          if (listRef().current[0] == null) {
+            // Avoid letting the browser paint if possible on the first try,
+            // otherwise use rAF. Don't try more than twice, since something
+            // is wrong otherwise.
+            if (runs < 2) {
+              const scheduler = runs
+                ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
+                : queueMicrotask;
+              scheduler(waitForListPopulated);
+            }
+            runs += 1;
+          } else {
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
+            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
+            // would regress that behavior (see mui/base-ui#2604).
+            // The key came from the trigger, so it is read on the trigger's orientation.
+            indexRef =
+              keyRef == null ||
+              isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
+              nestedValue
+                ? getMinListIndex(listRef())
+                : getMaxListIndex(listRef());
+            keyRef = null;
+            onNavigate();
+          }
+        };
+
+        waitForListPopulated();
+      }
+    },
+    () => [enabled(), open(), floatingElement(), nested(), triggerOrientation(), rtl(), listRef()],
   );
 
   // Ensure the parent floating element has focus when a nested child closes
@@ -862,17 +889,16 @@ export function useListNavigation(
 
   function checkVirtualMouse(event: MouseEvent) {
     if (focusItemOnOpen() === 'auto' && isVirtualClick(event)) {
-      focusItemOnOpenRef = !virtual();
+      setFocusItemOnOpenState(!virtual());
     }
   }
 
   function checkVirtualPointer(event: PointerEvent) {
     // `pointerdown` fires first, reset the state then perform the checks.
     const focusItemOnOpenValue = focusItemOnOpen();
-    focusItemOnOpenRef = focusItemOnOpenValue;
-    if (focusItemOnOpenValue === 'auto' && isVirtualPointerEvent(event)) {
-      focusItemOnOpenRef = true;
-    }
+    setFocusItemOnOpenState(
+      focusItemOnOpenValue === 'auto' && isVirtualPointerEvent(event) ? true : focusItemOnOpenValue,
+    );
   }
 
   // Port note: React's `onFocus` bubbles, so it's `onFocusIn` here.
@@ -992,6 +1018,16 @@ export function useListNavigation(
     },
     get trigger() {
       return enabled() ? trigger : undefined;
+    },
+    /**
+     * Port note: the index highlighted when the list opens (the selected one), while it's open and
+     * mounted, for lists that derive it (`deriveOpenHighlight`). Otherwise `null`.
+     */
+    openHighlightIndex: () => {
+      const selected = selectedIndex();
+      return enabled() && open() && floatingElement() && focusItemOnOpenState() && selected != null
+        ? selected
+        : null;
     },
   };
 }

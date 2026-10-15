@@ -1,5 +1,6 @@
 import { createMemo, createSignal, Show, untrack, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import { SolidStore } from '@base-ui-solid/utils/store';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -283,35 +284,22 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     () => [open(), transitionStatus()] as const,
   );
 
-  useIsoLayoutEffect(
-    ([floatingNodeId]) => {
-      if (contextMenuContext && !parentMenuRootContext) {
-        // This is a context menu root.
-        // It doesn't support detached triggers yet, so we have to sync the parent context manually.
-        store.update({
-          parent: {
-            type: 'context-menu',
-            context: contextMenuContext,
-          },
-          floatingNodeId,
-          floatingParentNodeId: untrack(floatingParentNodeIdFromContext),
-        });
-      } else if (parentMenuRootContext || !store.select('activeTriggerElement')) {
-        // Without an active trigger, the root must supply its own tree IDs.
-        // Read the store here: a trigger can register after render, before this effect.
-        store.update({
-          floatingNodeId,
-          floatingParentNodeId: untrack(floatingParentNodeIdFromContext),
-        });
-      }
-    },
-    () =>
-      [
-        floatingNodeIdFromContext,
-        activeTriggerElement(),
-        floatingParentNodeIdFromContext(),
-      ] as const,
-  );
+  // Port note: upstream writes these from a layout effect. Here the root derives them while it
+  // supplies the tree IDs, and otherwise leaves them to the active trigger's forwarded values.
+  // A context menu root doesn't support detached triggers yet, so it always supplies its parent
+  // context and tree IDs. Without an active trigger, any root supplies its own tree IDs.
+  const contextMenuParent =
+    contextMenuContext && !parentMenuRootContext
+      ? ({ type: 'context-menu', context: contextMenuContext } as const)
+      : undefined;
+  const rootSuppliesTreeIds = () =>
+    contextMenuParent !== undefined || parentMenuRootContext != null || !activeTriggerElement();
+  store.useSyncedValues({
+    parent: () => contextMenuParent ?? SolidStore.KEEP,
+    floatingNodeId: () => (rootSuppliesTreeIds() ? floatingNodeIdFromContext : SolidStore.KEEP),
+    floatingParentNodeId: () =>
+      rootSuppliesTreeIds() ? floatingParentNodeIdFromContext() : SolidStore.KEEP,
+  });
 
   useEffect(
     ([openValue, parentType]) => {
@@ -603,6 +591,25 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get resetOnPointerLeave() {
       return resetOnPointerLeave();
     },
+  });
+
+  // Port note: upstream's list navigation resets the highlight from a layout effect (through
+  // `onNavigate`) when the menu closes. Here the store derives it: a closed menu has none, and an
+  // open one only the index written since it last closed (each open is a new cycle object).
+  const openCycle = createMemo<object | undefined>((previous) =>
+    open() ? (previous ?? {}) : undefined,
+  );
+  let lastOpenCycle: object | undefined;
+  let writesAtClose = 0;
+  store.useDerivedState('activeIndex', (raw, _, writes) => {
+    const cycle = openCycle();
+    if (cycle !== lastOpenCycle) {
+      if (cycle === undefined) {
+        writesAtClose = writes;
+      }
+      lastOpenCycle = cycle;
+    }
+    return cycle !== undefined && writes !== writesAtClose ? raw : null;
   });
 
   const onTyping = (nextTyping: boolean) => {

@@ -53,9 +53,19 @@ export function useBaseUIFloating(
   const open = () => storeState().open();
   const floatingId = () => storeState().floatingId();
 
-  const [positionReference, setPositionReferenceRaw] = createSignal<ReferenceType | null>(null, {
-    ownedWrite: true,
-  });
+  // Port note: `options.positionReference` derives the position reference (`undefined` leaves it
+  // as it is), instead of an effect calling `refs.setPositionReference`. A call still sets it,
+  // until the option changes.
+  const [positionReference, setPositionReferenceRaw] = createSignal<ReferenceType | null>(
+    (previous) => {
+      const node = options.positionReference;
+      if (node === undefined) {
+        return previous ?? null;
+      }
+      return toPositionReference(node, previous ?? null);
+    },
+    { ownedWrite: true },
+  );
 
   const domReferenceRef: { current: NarrowedElement<ReferenceType> | null } = { current: null };
 
@@ -95,13 +105,7 @@ export function useBaseUIFloating(
   });
 
   const setPositionReference = (node: ReferenceType | null) => {
-    const computedPositionReference = isElement(node)
-      ? ({
-          getBoundingClientRect: () => node.getBoundingClientRect(),
-          getClientRects: () => node.getClientRects(),
-          contextElement: node,
-        } satisfies VirtualElement)
-      : node;
+    const computedPositionReference = toPositionReference(node, null);
     // Store the positionReference in state if the DOM reference is specified externally via the
     // `elements.reference` option. This ensures that it won't be overridden on future renders.
     setPositionReferenceRaw(() => computedPositionReference);
@@ -228,4 +232,25 @@ export function useBaseUIFloating(
       return store() as unknown as FloatingRootStore;
     },
   } as UseFloatingReturn;
+}
+
+/**
+ * Wraps an element in a virtual element positioned by it (keeping `previous` when it already
+ * wraps the same element).
+ */
+function toPositionReference(
+  node: ReferenceType | null,
+  previous: ReferenceType | null,
+): ReferenceType | null {
+  if (!isElement(node)) {
+    return node;
+  }
+  if (previous && (previous as VirtualElement).contextElement === node) {
+    return previous;
+  }
+  return {
+    getBoundingClientRect: () => node.getBoundingClientRect(),
+    getClientRects: () => node.getClientRects(),
+    contextElement: node,
+  } satisfies VirtualElement;
 }

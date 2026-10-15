@@ -7,7 +7,7 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { within } from '@solidjs/testing-library';
-import { createSignal, flush, runWithOwner, untrack } from 'solid-js';
+import { createSignal, flush, getOwner, runWithOwner, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { render as renderSolid } from '@solidjs/web';
 import {
@@ -949,6 +949,9 @@ describe('FloatingFocusManager', () => {
       }
 
       function IframeApp() {
+        // Port note: Solid 2 doesn't create reactive roots inside an effect callback without an
+        // owner, so the iframe's app is rendered under this component's (and disposed with it).
+        const owner = getOwner();
         useIsoLayoutEffect(
           () => {
             function createIframe() {
@@ -975,7 +978,7 @@ describe('FloatingFocusManager', () => {
             const root = createIframe();
             if (root) {
               // Port note: a separate root, like upstream's `createRoot`.
-              runWithOwner(null, () => renderSolid(() => <App iframe={root} />, root));
+              runWithOwner(owner, () => renderSolid(() => <App iframe={root} />, root));
             }
           },
           () => [],
