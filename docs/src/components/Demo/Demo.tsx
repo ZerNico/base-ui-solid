@@ -238,7 +238,7 @@ export function Demo(props: DemoProps) {
                       <CheckIcon aria-hidden="true" />
                     </Show>
                     Copy link to source
-                    <span class="sr-only" aria-live="polite">
+                    <span class="bui-sr-only" aria-live="polite">
                       {sourceLinkCopied() && 'Link copied!'}
                     </span>
                   </Menu.Item>

@@ -2,7 +2,7 @@
 
 This is a port of [mui/base-ui](https://github.com/mui/base-ui) (`@base-ui/react`) to Solid 2.0.
 
-- Ported from upstream commit: `81686db2e4ed3581941b7f8aa5feddac6af76152`
+- Ported from upstream commit: `4237c3df37df7fab70d7f4aea3fb536566e64433`
 - Reference checkout: `../base-ui`
 
 The tracked commit is on upstream's default branch, which usually runs ahead of the latest release.
