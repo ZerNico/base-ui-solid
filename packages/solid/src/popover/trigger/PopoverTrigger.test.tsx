@@ -437,6 +437,68 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
+  // Port note: upstream ignores React's act warnings for these real browser interactions, which
+  // Solid doesn't have.
+  describe.skipIf(isJSDOM)('opened by hover', () => {
+    async function renderOpenedByHover(tabIndex?: number) {
+      const { userEvent: user } = await import('vitest/browser');
+      await render(() => (
+        <div>
+          <button data-testid="before">Before</button>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} tabindex={tabIndex}>
+              Toggle
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <button>Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">After</button>
+        </div>
+      ));
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.hover(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      return { trigger, user };
+    }
+
+    it.each([
+      { direction: 'forward', destination: 'after' },
+      { direction: 'backward', destination: 'before' },
+    ])('tabs $direction from the trigger in native order', async ({ direction, destination }) => {
+      const { trigger, user } = await renderOpenedByHover();
+      trigger.focus();
+      await flushMicrotasks();
+      expect(trigger).toHaveFocus();
+
+      await user.tab({ shift: direction === 'backward' });
+
+      expect(screen.getByTestId(destination)).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each([
+      { tabIndex: 0, result: 'onto the trigger' },
+      { tabIndex: -1, result: 'past an untabbable trigger' },
+    ])('tabs $result', async ({ tabIndex }) => {
+      const { trigger, user } = await renderOpenedByHover(tabIndex);
+      screen.getByTestId('before').focus();
+      await flushMicrotasks();
+
+      await user.tab();
+
+      expect(tabIndex === 0 ? trigger : screen.getByTestId('after')).toHaveFocus();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+  });
+
   // Port note: upstream renders with `vitest-browser-react` to drive the real browser keyboard
   // outside React's act environment; the regular `render` does the same here.
   it.skipIf(isJSDOM)(
