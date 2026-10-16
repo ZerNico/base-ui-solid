@@ -94,9 +94,16 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
   }
 }
 
-function getPreviouslyFocusedElement() {
+function getPreviouslyFocusedElement(skipHidden?: boolean) {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
+  for (let i = previouslyFocusedElements.length - 1; i >= 0; i -= 1) {
+    const element = previouslyFocusedElements[i].deref();
+    // The marker skips elements outside an open popup, such as behind a modal.
+    if (!skipHidden || !closest(element, '[hidden],[data-base-ui-inert]')) {
+      return element;
+    }
+  }
+  return undefined;
 }
 
 function getFirstTabbableElement(container: Element | null) {
@@ -848,7 +855,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
       // here as nullish and is intentionally not treated as programmatic.
       const preferPreviousFocus = openInteractionType() == null;
 
-      addPreviouslyFocusedElement(elementFocusedBeforeOpen);
+      // Safari and Firefox on macOS don't focus a pressed button, so record the reference instead.
+      addPreviouslyFocusedElement(
+        elementFocusedBeforeOpen === doc.body && !preferPreviousFocus
+          ? domReferenceValue
+          : elementFocusedBeforeOpen,
+      );
 
       function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
         if (!details.open) {
@@ -969,7 +981,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
           }
           // `returnElement` if it is tabbable, otherwise its first tabbable child,
           // otherwise `returnElement` itself (which may not be tabbable at all).
-          const tabbableReturnElement = getFirstTabbableElement(returnElement);
+          let tabbableReturnElement = getFirstTabbableElement(returnElement);
+          // A hidden element, such as an item in a closed Select or `keepMounted` Menu, can't take
+          // focus. Use the newest visible element focused before it instead, unless the closing
+          // commit already moved focus (e.g. `autoFocus`).
+          if (tabbableReturnElement?.isConnected && closest(tabbableReturnElement, '[hidden]')) {
+            tabbableReturnElement = [activeEl, doc.body].includes(activeElement(doc))
+              ? getPreviouslyFocusedElement(true) || null
+              : null;
+          }
           // Read in the cleanup on purpose: the latest `explicitReturnFocus` decides.
           const hasExplicitReturnFocus =
             props.explicitReturnFocus ?? typeof returnFocusValueOrFn !== 'boolean';

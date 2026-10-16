@@ -1,9 +1,13 @@
 import type { JSX } from '@solidjs/web';
 
 import { expect, vi, describe, it } from 'vitest';
+import { createSignal } from 'solid-js';
+import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { Dialog } from 'base-ui-solid/dialog';
 import { Menu } from 'base-ui-solid/menu';
 import {
   createRenderer as createBaseRenderer,
+  flushMicrotasks,
   popupFocusPropsTests,
   wait,
   fireEvent,
@@ -259,6 +263,140 @@ describe('<Menu.Popup />', () => {
     await user.keyboard('[ArrowUp]');
     await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Two' })).toHaveFocus());
   });
+  it.each([
+    { name: 'its trigger', live: false },
+    // Live regions outside a modal stay exposed to assistive tech.
+    { name: 'its trigger in a live region', live: true },
+  ])(
+    'does not move focus behind a modal dialog to $name when an item hides the menu trigger',
+    async ({ live }) => {
+      function App() {
+        const [step, setStep] = createSignal(1);
+        // Port note: a factory, because Solid JSX runs eagerly and the trigger needs Dialog.Root's context.
+        const dialogTrigger = () => <Dialog.Trigger>Create</Dialog.Trigger>;
+        return (
+          <Dialog.Root>
+            {live ? <div aria-live="polite">{dialogTrigger()}</div> : dialogTrigger()}
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <div hidden={step() !== 1}>
+                  <Menu.Root>
+                    <Menu.Trigger>Template</Menu.Trigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item onClick={() => setStep(2)}>Blank</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                </div>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      const dialogTrigger = screen.getByRole('button', { name: 'Create' });
+      await user.click(dialogTrigger);
+      await user.click(await screen.findByRole('button', { name: 'Template' }));
+      await user.click(await screen.findByRole('menuitem', { name: 'Blank' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Blank' })).toBe(null);
+      });
+      await flushMicrotasks();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(dialogTrigger).not.toHaveFocus();
+    },
+  );
+
+  it('keeps focus on an input that autofocuses when the trigger is hidden as the menu closes', async () => {
+    // Port note: React focuses `autoFocus` elements when they mount, Solid only sets the attribute.
+    // This focuses the input in a layout effect, like React's commit phase.
+    function AutoFocusInput() {
+      let element: HTMLInputElement | undefined;
+      useIsoLayoutEffect(
+        () => {
+          element?.focus();
+        },
+        () => [],
+      );
+      return (
+        <input
+          aria-label="Name"
+          autofocus
+          ref={(node) => {
+            element = node;
+          }}
+        />
+      );
+    }
+
+    function App() {
+      const [renaming, setRenaming] = createSignal(false);
+      const renameRequested = { current: false };
+      return (
+        <div>
+          <Menu.Root>
+            <Menu.Trigger>Other</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          {renaming() && <AutoFocusInput />}
+          <Menu.Root
+            onOpenChangeComplete={(open) => {
+              if (!open && renameRequested.current) {
+                renameRequested.current = false;
+                setRenaming(true);
+              }
+            }}
+          >
+            <Menu.Trigger hidden={renaming()}>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item
+                    onClick={() => {
+                      renameRequested.current = true;
+                    }}
+                  >
+                    Rename
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(() => <App />);
+    // Leaves the other trigger in the return-focus history.
+    await user.click(screen.getByRole('button', { name: 'Other' }));
+    await screen.findByRole('menuitem', { name: 'Item' });
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Item' })).toBe(null);
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Rename' }));
+
+    const input = await screen.findByRole('textbox', { name: 'Name' });
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+    });
+    await flushMicrotasks();
+    expect(input).toHaveFocus();
+  });
+
   popupFocusPropsTests({
     render: createBaseRenderer().render,
     initialFocus: false,
