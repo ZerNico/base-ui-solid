@@ -1,0 +1,31 @@
+import { sourceUrl } from '../../../../../../config';
+
+# v0.3.0
+
+<Subtitle>Oct 16, 2026</Subtitle>
+<Meta name="description" content="v0.3.0 release notes. Oct 16, 2026." />
+
+## Upstream
+
+- Tracks upstream commit [`40aa553`](https://github.com/mui/base-ui/commit/40aa553e26d63ca3a7ce1c9c8b71dc7eefe79a59), which builds on `@base-ui/react` [v1.9.0](https://github.com/mui/base-ui/releases/tag/v1.9.0)
+- Ports everything upstream changed since v0.2.0. The full list of differences from the React API is in the <a href={sourceUrl('PORTING.md')}>public API differences</a>.
+
+## Breaking changes
+
+- Requires `solid-js` and `@solidjs/web` `2.0.0-rc.15` or later
+
+## Bug fixes
+
+- Fix Number Field parsing of formatted negatives, unit labels and non-Latin digits
+- Fix Toast focus traps and timer resets during keyboard and pointer interaction
+- Fix Tab from a hover-opened Popover trigger stopping on a focus guard
+- Fix popups returning focus to hidden targets inside closed `keepMounted` popups
+- Fix popups losing the trigger that reopens them during their exit animation
+- Fix Menu clearing its filter query before the popup finishes closing
+- Fix OTP Field focus when the value shrinks externally. Focus moves to the first empty slot.
+- Fix Select dropping the selected item's highlight when it's disabled while open
+
+## Improvements
+
+- Popups, floating elements, list navigation, Combobox and Select derive their synced state instead of copying it from effects. Opening and closing popups no longer floods the console with Solid's `EFFECT_RELAY_TEAR` diagnostics in development.
+- Docs: focus-visible outline on the Toast demos, and heading badges stay in sync across the page index and search
