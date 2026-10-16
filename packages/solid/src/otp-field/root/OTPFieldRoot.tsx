@@ -9,7 +9,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visual
 import { warn } from '@base-ui-solid/utils/warn';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { contains } from '../../floating-ui-solid/utils';
+import { activeElement, contains } from '../../floating-ui-solid/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -240,6 +240,24 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
     }
   }
 
+  let pendingFocusRedirect = false;
+
+  // When the value shrinks externally, move focus off slots past the first empty one so typing
+  // and Backspace keep working.
+  function redirectFocusPastValue(currentValue: string) {
+    const focusedElement = activeElement(ownerDocument(rootElement));
+
+    if (
+      focusedElement &&
+      inputRefs.current.indexOf(focusedElement as HTMLInputElement) > currentValue.length
+    ) {
+      focusInput(currentValue.length);
+      // Slots may not have their updated indexes yet when leading slots unmount, so sync the
+      // tab stop with the redirect target directly.
+      setFocusedIndex(currentValue.length);
+    }
+  }
+
   useValueChanged(value, () => {
     const currentValue = untrack(value);
     clearErrors(untrack(name));
@@ -255,6 +273,14 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
       if (currentPendingFocus.value === currentValue) {
         focusInput(currentPendingFocus.index);
       }
+    }
+
+    // Port note: React updates the slot list before this runs. Solid runs it first, so when slots
+    // unmounted in this update, the redirect waits for the list (`onMapChange`).
+    if (inputRefs.current.some((input) => input != null && !input.isConnected)) {
+      pendingFocusRedirect = true;
+    } else {
+      redirectFocusPastValue(currentValue);
     }
 
     const currentPendingCompleteValue = pendingCompleteValue;
@@ -427,6 +453,10 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
       elementsRef={inputRefs}
       onMapChange={(newMap) => {
         setInputCount(newMap.size);
+        if (pendingFocusRedirect) {
+          pendingFocusRedirect = false;
+          redirectFocusPastValue(untrack(value));
+        }
       }}
     >
       <OTPFieldRootContext value={contextValue}>

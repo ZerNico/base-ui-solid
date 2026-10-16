@@ -1,5 +1,5 @@
 import { expect, vi, describe, it } from 'vitest';
-import { createSignal, flush, Show } from 'solid-js';
+import { createSignal, flush, For, Show } from 'solid-js';
 import {
   describeConformance,
   fireEvent,
@@ -861,6 +861,177 @@ describe('<OTPField.Root />', () => {
       });
     });
 
+    describe('external value changes', () => {
+      it.each([
+        { name: 'cleared', nextValue: '', expectedIndex: 0 },
+        { name: 'shortened', nextValue: '12', expectedIndex: 2 },
+      ])(
+        'moves focus to the first empty slot when a controlled value is $name while focused',
+        async ({ nextValue, expectedIndex }) => {
+          const onValueChange = vi.fn();
+          const [value, setValue] = createSignal('111111');
+          await render(() => <OTPField value={value()} onValueChange={onValueChange} />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          inputs[5].focus();
+          await flushMicrotasks();
+
+          expect(inputs[5]).toHaveFocus();
+
+          setValue(nextValue);
+          await flushMicrotasks();
+
+          expect(inputs[expectedIndex]).toHaveFocus();
+          expect(inputs[expectedIndex]).toHaveAttribute('tabindex', '0');
+          expect(inputs[5]).toHaveAttribute('tabindex', '-1');
+        },
+      );
+
+      it('keeps focus on the tab stop when leading slots unmount as the value is cleared', async () => {
+        const onValueChange = vi.fn();
+        const [length, setLength] = createSignal(OTP_LENGTH);
+        const [value, setValue] = createSignal('123456');
+
+        // Port note: React keys the slots by their position from the end. `For` keeps the node of
+        // each key the same way, so the trailing slots stay mounted when the leading ones unmount.
+        const slotKeys = () =>
+          Array.from({ length: length() }, (_, index) => OTP_LENGTH - length() + index);
+
+        await render(() => (
+          <OTPFieldBase.Root length={length()} value={value()} onValueChange={onValueChange}>
+            <For each={slotKeys()}>{() => <OTPFieldBase.Input />}</For>
+          </OTPFieldBase.Root>
+        ));
+
+        const lastInput = screen.getAllByRole<HTMLInputElement>('textbox')[5];
+
+        lastInput.focus();
+        await flushMicrotasks();
+
+        expect(lastInput).toHaveFocus();
+
+        // The slot-count dev warning lags one commit behind a runtime `length` change.
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        setLength(3);
+        setValue('');
+        await flushMicrotasks();
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        expect(inputs).toHaveLength(3);
+        expect(inputs[0]).toHaveFocus();
+        expect(inputs[0]).toHaveAttribute('tabindex', '0');
+        expect(inputs[2]).toHaveAttribute('tabindex', '-1');
+      });
+
+      it('keeps focus on a slot that is still reachable after a controlled value shrinks', async () => {
+        const onValueChange = vi.fn();
+        const [value, setValue] = createSignal('111111');
+        await render(() => <OTPField value={value()} onValueChange={onValueChange} />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        inputs[1].focus();
+        await flushMicrotasks();
+
+        setValue('111');
+        await flushMicrotasks();
+
+        expect(inputs[1]).toHaveFocus();
+      });
+
+      it('does not move focus into the field when the value is cleared while focus is outside', async () => {
+        function Test() {
+          const [value, setValue] = createSignal('111111');
+
+          return (
+            <>
+              <OTPField value={value()} onValueChange={(nextValue) => setValue(nextValue)} />
+              <button type="button" onClick={() => setValue('')}>
+                Clear
+              </button>
+            </>
+          );
+        }
+
+        await render(() => <Test />);
+
+        const button = screen.getByRole('button', { name: 'Clear' });
+
+        button.focus();
+        await flushMicrotasks();
+
+        fireEvent.click(button);
+        flush();
+
+        expect(getValues()).toBe('');
+        expect(button).toHaveFocus();
+      });
+
+      it('accepts typing and Backspace after a controlled clear while focused', async () => {
+        vi.useFakeTimers();
+
+        try {
+          function Test() {
+            const [value, setValue] = createSignal('');
+
+            return (
+              <OTPField
+                value={value()}
+                onValueChange={(nextValue) => setValue(nextValue)}
+                onValueComplete={() => {
+                  setTimeout(() => {
+                    setValue('');
+                  }, 300);
+                }}
+              />
+            );
+          }
+
+          await render(() => <Test />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          inputs[0].focus();
+          await flushMicrotasks();
+
+          await change(inputs[0], '111111');
+
+          expect(inputs[5]).toHaveFocus();
+
+          vi.advanceTimersByTime(300);
+          await flushMicrotasks();
+
+          expect(getValues()).toBe('');
+          expect(inputs[0]).toHaveFocus();
+
+          await change(inputs[0], '9');
+
+          expect(inputs[1]).toHaveFocus();
+
+          await change(inputs[1], '8');
+
+          expect(getValues()).toBe('98');
+          expect(inputs[2]).toHaveFocus();
+
+          fireEvent.keyDown(inputs[2], { key: 'Backspace' });
+          flush();
+
+          expect(inputs[1]).toHaveFocus();
+
+          fireEvent.keyDown(inputs[1], { key: 'Backspace' });
+          flush();
+
+          expect(getValues()).toBe('');
+          expect(inputs[0]).toHaveFocus();
+        } finally {
+          vi.useRealTimers();
+        }
+      });
+    });
+
     describe('keyboard', () => {
       it('removes a character and moves focus to the previous slot with backspace', async () => {
         const onValueChange = vi.fn();
@@ -1031,7 +1202,7 @@ describe('<OTPField.Root />', () => {
       expect(firstInput).toHaveFocus();
     });
 
-    it('accepts valid hidden-input autofill and preserves focus when autofill is cleared', async () => {
+    it('accepts valid hidden-input autofill and moves focus to the first slot when autofill is cleared', async () => {
       const onValueChange = vi.fn();
       const onValueInvalid = vi.fn();
 
@@ -1053,7 +1224,9 @@ describe('<OTPField.Root />', () => {
       await change(hiddenInput!, '');
 
       expect(getValues()).toBe('');
-      expect(inputs[5]).toHaveFocus();
+      expect(inputs[0]).toHaveFocus();
+      expect(inputs[0]).toHaveAttribute('tabindex', '0');
+      expect(inputs[5]).toHaveAttribute('tabindex', '-1');
       expect(onValueChange.mock.calls.map((call) => call[0])).toEqual(['123456', '']);
       expect(onValueInvalid).not.toHaveBeenCalled();
     });
