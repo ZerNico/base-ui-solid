@@ -198,30 +198,27 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
       }
 
       const formatOptions = formatOptionsRef.current;
-      const parsedValue = parseNumber(currentInputValue, currentLocale, formatOptions);
-      if (parsedValue === null) {
+
+      // Without a manual edit, the visible text is purely formatted display, so keep the
+      // authoritative numeric value rather than re-parsing it: rounded text discards precision,
+      // and compact text (`1.2K`) can't be reversed (e.g. focus/blur with no edits, or blur after
+      // a programmatic change).
+      let committed = hadManualInput
+        ? parseNumber(currentInputValue, currentLocale, formatOptions)
+        : currentValue;
+      if (hadManualInput && committed === null) {
         return;
       }
 
-      // Avoid applying Intl's default precision unless the format opts into rounding.
-      const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
-
-      let committed: number | null;
-      if (!hadManualInput && !hasRoundingOptions) {
-        // No rounding options and no manual edit: the visible text is purely formatted
-        // display, so keep the authoritative numeric value as-is rather than re-parsing the
-        // rounded text and discarding precision (e.g. focus/blur with no edits, or blur after
-        // a programmatic change).
-        committed = currentValue;
-      } else if (hasRoundingOptions) {
-        // Explicit rounding options apply to the committed value, whether typed or external.
-        committed = removeFloatingPointErrors(parsedValue, formatOptions);
-      } else {
-        committed = parsedValue;
+      // Explicit rounding options apply to the committed value, whether typed or external. Avoid
+      // applying Intl's default precision unless the format opts into rounding.
+      if (committed !== null && hasNumberFormatRoundingOptions(formatOptions)) {
+        committed = removeFloatingPointErrors(committed, formatOptions);
       }
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event);
-      const shouldUpdateValue = currentValue !== committed;
+      // A `NaN` value never equals itself, so don't treat it as changed on every blur
+      const shouldUpdateValue = currentValue !== committed && !Number.isNaN(committed);
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
       // Use the stored value after `setValue` clamps it.
@@ -473,10 +470,10 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
       return;
     }
 
-    allowInputSyncRef.current = false;
     const targetValue = input.value;
 
     if (targetValue.trim() === '') {
+      allowInputSyncRef.current = false;
       setInputValue(targetValue);
       setValue(null, createChangeEventDetails(REASONS.inputClear, event));
       return;
@@ -496,10 +493,12 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
         FORMAT_CONTROL_DETECT_RE.test(ch),
     );
 
+    // A rejected change leaves the synced text in place, so it doesn't count as a manual edit
     if (!isValidCharacterString) {
       return;
     }
 
+    allowInputSyncRef.current = false;
     const parsedValue = parseNumber(targetValue, untrack(locale), formatOptionsRef.current);
 
     setInputValue(targetValue);

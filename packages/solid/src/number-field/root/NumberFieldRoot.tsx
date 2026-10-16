@@ -22,7 +22,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
-  getFormatParts,
+  getAllFormatParts,
+  getLocaleDigits,
   getNumberLocaleDetails,
   PERMILLE,
   PERCENTAGES,
@@ -193,7 +194,7 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
   function getAllowedNonNumericKeys() {
     const currentLocale = untrack(locale);
     const currentFormat = untrack(format);
-    const parts = getFormatParts(currentLocale, currentFormat);
+    const parts = getAllFormatParts(currentLocale, currentFormat);
 
     const keys = new Set<string>(BASE_NON_NUMERIC_SYMBOLS);
     const addAll = (chars: readonly string[]) => chars.forEach((char) => keys.add(char));
@@ -225,6 +226,8 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
         keys.add(' ');
       }
     });
+    // Digits follow the locale's numbering system, such as `১২` in bn-BD
+    addAll(getLocaleDigits(currentLocale, currentFormat));
 
     const currentFormatStyle = untrack(formatStyle);
     const allowPercentSymbols =
@@ -244,9 +247,14 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
 
     // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
     // entry is allowed so native underflow validation can be triggered from the keyboard.
+    // Exponent notations already allow it above for negative exponents (`2E-2`).
     addAll(PLUS_SIGNS_WITH_ASCII);
     if (untrack(minWithDefault) < 0 || untrack(allowOutOfRange)) {
       addAll(MINUS_SIGNS_WITH_ASCII);
+      // Accounting formats show negatives in parentheses, such as `($1.00)`
+      if (currentFormat?.currencySign === 'accounting') {
+        addAll(['(', ')']);
+      }
     }
 
     return keys;
