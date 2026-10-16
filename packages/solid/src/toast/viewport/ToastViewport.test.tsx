@@ -1,4 +1,4 @@
-import { For, flush } from 'solid-js';
+import { createSignal, For, flush } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
 import type { UserEvent } from '@testing-library/user-event';
@@ -299,6 +299,48 @@ describe('<Toast.Viewport />', () => {
     await user.keyboard('{F6}');
 
     expect(button).toHaveFocus();
+  });
+
+  it('keeps the inner focus guards around toasts rendered into an empty list (port regression)', async () => {
+    const manager = Toast.createToastManager();
+    const [showToasts, setShowToasts] = createSignal(true);
+
+    function FilteredList() {
+      const toastManager = Toast.useToastManager();
+      return (
+        <For each={showToasts() ? toastManager.toasts : []} keyed={(toastItem) => toastItem.id}>
+          {(toastItem) => <Toast.Root toast={toastItem()} data-testid="root" />}
+        </For>
+      );
+    }
+
+    const { user } = await render(() => (
+      <>
+        <button type="button">origin</button>
+        <Toast.Provider toastManager={manager}>
+          <Toast.Viewport data-testid="viewport">
+            <FilteredList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </>
+    ));
+
+    manager.add({ title: 'title' });
+    await flushMicrotasks();
+    screen.getByRole('button', { name: 'origin' }).focus();
+    await user.keyboard('{F6}');
+    await flushMicrotasks();
+
+    setShowToasts(false);
+    await flushMicrotasks();
+    setShowToasts(true);
+    await flushMicrotasks();
+
+    const children = [...screen.getByTestId('viewport').children];
+    expect(children).toHaveLength(3);
+    expect(children[0]).toHaveAttribute('data-base-ui-focus-guard');
+    expect(children[1]).toHaveAttribute('data-testid', 'root');
+    expect(children[2]).toHaveAttribute('data-base-ui-focus-guard');
   });
 
   it('keeps focus where the viewport moves it on F6 and returns it to the F6 origin', async () => {

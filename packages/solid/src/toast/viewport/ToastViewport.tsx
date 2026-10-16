@@ -299,9 +299,22 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
       if (!guards || !viewport) {
         return undefined;
       }
-      viewport.insertBefore(guards.before, viewport.firstChild);
-      viewport.appendChild(guards.after);
+      // Solid appends children that render into an empty list after the trailing guard, so the
+      // guards move back to the edges (the toasts themselves never move).
+      const placeGuards = () => {
+        if (viewport.firstChild !== guards.before) {
+          viewport.insertBefore(guards.before, viewport.firstChild);
+        }
+        if (viewport.lastChild !== guards.after) {
+          viewport.appendChild(guards.after);
+        }
+      };
+      placeGuards();
+      const observer =
+        typeof MutationObserver === 'function' ? new MutationObserver(placeGuards) : null;
+      observer?.observe(viewport, { childList: true });
       return () => {
+        observer?.disconnect();
         guards.before.remove();
         guards.after.remove();
       };
