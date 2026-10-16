@@ -645,7 +645,8 @@ function setsStyleProperty(
   if (typeof style === 'string') {
     return style.split(';').some((declaration) => declaration.split(':')[0].trim() === property);
   }
-  return (style as Record<string, unknown>)[property] != null;
+  // A key set to `undefined` also overrides the size: the merged style omits the variable.
+  return property in style;
 }
 
 export interface UseCollapsiblePanelReturnValue {
