@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, For, untrack } from 'solid-js';
 
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import {
@@ -9,8 +9,9 @@ import {
   resetBrowserPointer,
   waitSingleFrame,
 } from '#test-utils';
+import { within } from '@solidjs/testing-library';
 import { Menu } from 'base-ui-solid/menu';
-import { createRenderer, portFlushSync } from '../../../test/menuPortHelpers';
+import { createRenderer, PortFragment, portFlushSync } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 
 // The submenu trigger's VoiceOver branch is covered separately; keep the mainline deterministic.
@@ -164,6 +165,168 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
       await user.type(input, 'x');
       expect(input).toHaveValue('pro');
     });
+    it('resets the controlled query when an item press closes the whole menu', async () => {
+      const onValueChange = vi.fn();
+
+      function ControlledSubmenu() {
+        const [inputValue, setInputValue] = createSignal('');
+
+        return (
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="parent-popup">
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.FilterProvider
+                    value={inputValue()}
+                    onValueChange={(nextValue, eventDetails) => {
+                      onValueChange(nextValue, eventDetails.reason);
+                      setInputValue(nextValue);
+                    }}
+                  >
+                    <Menu.SubmenuRoot defaultOpen>
+                      <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Input aria-label="Filter folders" />
+                            <Menu.List>
+                              <Menu.Item>Projects</Menu.Item>
+                              <Menu.Item>Archive</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(() => <ControlledSubmenu />);
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await user.type(input, 'p');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Archive' })).toBe(null);
+      });
+      expect(onValueChange.mock.calls).toEqual([['p', 'input-change']]);
+
+      await user.click(screen.getByRole('menuitem', { name: 'Projects' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent-popup')).toBe(null);
+      });
+      expect(onValueChange.mock.calls).toEqual([
+        ['p', 'input-change'],
+        ['', 'popup-close'],
+      ]);
+    });
+  });
+
+  describe('prop: filter', () => {
+    it.skipIf(isJSDOM)(
+      'keeps externally filtered items while the submenu animates out',
+      async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const folders = ['Projects', 'Photos', 'Archive'];
+        const onValueChange = vi.fn();
+
+        function ExternalFilterSubmenu() {
+          const { contains } = Menu.useFilter();
+          const [query, setQuery] = createSignal('');
+          const results = () => folders.filter((folder) => contains(folder, query()));
+
+          return (
+            <PortFragment>
+              <style>{`
+                @keyframes filter-submenu-external-exit-test {
+                  to { opacity: 0; }
+                }
+                .filter-submenu-external-exit-test[data-ending-style] {
+                  animation: filter-submenu-external-exit-test 10s linear;
+                }
+              `}</style>
+              <Menu.Root open>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.FilterProvider
+                        filter={null}
+                        value={query()}
+                        onValueChange={(value, eventDetails) => {
+                          onValueChange(value, eventDetails.reason);
+                          setQuery(value);
+                        }}
+                      >
+                        <Menu.SubmenuRoot defaultOpen>
+                          <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup
+                                data-testid="submenu-popup"
+                                class="filter-submenu-external-exit-test"
+                              >
+                                <Menu.Input aria-label="Filter folders" />
+                                <Menu.List data-testid="submenu-list">
+                                  <For each={results()}>
+                                    {(folder) => <Menu.Item>{folder}</Menu.Item>}
+                                  </For>
+                                </Menu.List>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </PortFragment>
+          );
+        }
+
+        function getFolderNames() {
+          return within(screen.getByTestId('submenu-list'))
+            .getAllByRole('menuitem')
+            .map((item) => item.textContent);
+        }
+
+        const { user } = await render(() => <ExternalFilterSubmenu />);
+
+        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await user.click(input);
+        await user.type(input, 'p');
+        await waitFor(() => {
+          expect(getFolderNames()).toEqual(['Projects', 'Photos']);
+        });
+
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('submenu-popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(getFolderNames()).toEqual(['Projects', 'Photos']);
+        expect(input).toHaveValue('p');
+        expect(onValueChange).not.toHaveBeenCalledWith('', 'popup-close');
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu-popup')).toBe(null);
+        });
+        await waitFor(() => {
+          expect(onValueChange).toHaveBeenLastCalledWith('', 'popup-close');
+        });
+      },
+    );
   });
   describe.skipIf(isJSDOM)('inside a plain parent menu', () => {
     it('closes with Escape and returns focus to the highlighted trigger', async () => {
