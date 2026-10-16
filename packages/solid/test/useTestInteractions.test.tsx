@@ -25,9 +25,9 @@ describe('useTestInteractions', () => {
 
       const { onClick, onKeyDown } = getReferenceProps({ onClick: userOnClick });
 
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; these supplied handlers are callable.
       onClick();
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; these supplied handlers are callable.
       onKeyDown();
 
       return null;
@@ -45,7 +45,7 @@ describe('useTestInteractions', () => {
     function App() {
       const { getReferenceProps } = useTestInteractions([{ reference: { onClick() {} } }]);
       expect(() =>
-        // @ts-expect-error
+        // @ts-expect-error The prop getter returns unknown values; the interaction supplies a callable onClick.
         getReferenceProps({ onClick: undefined }).onClick(),
       ).not.toThrowError();
       return null;
@@ -59,7 +59,7 @@ describe('useTestInteractions', () => {
       const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
-        // @ts-expect-error
+        // @ts-expect-error onlyShowVotes is a custom prop outside React HTMLProps.
         onlyShowVotes: true,
         onyx: () => {},
       });
@@ -78,11 +78,11 @@ describe('useTestInteractions', () => {
       const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
-        // @ts-expect-error
+        // @ts-expect-error onyx is a custom callback outside React HTMLProps.
         onyx: () => 'returned value',
       });
 
-      // @ts-expect-error
+      // @ts-expect-error The prop getter returns unknown values; the supplied onyx callback is callable.
       expect(props.onyx()).toBe('returned value');
 
       return null;

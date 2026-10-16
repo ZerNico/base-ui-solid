@@ -93,7 +93,7 @@ const groupItemsReadonly = [
 <Autocomplete.Root
   defaultValue="javascript"
   onValueChange={(value) => {
-    // @ts-expect-error
+    // @ts-expect-error Single selection produces a string, not an array.
     value.pop();
   }}
 />;
