@@ -1,16 +1,13 @@
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Select } from 'base-ui-solid/select';
-import { Field } from 'base-ui-solid/field';
 import styles from './index.module.css';
 
 export default function ExampleSelectGrouped() {
   return (
-    <Field.Root class={styles.Field}>
-      <Field.Label class={styles.Label} nativeLabel={false} render="div">
-        Produce
-      </Field.Label>
+    <div class={styles.Field}>
       <Select.Root items={groupedProduce}>
+        <Select.Label class={styles.Label}>Produce</Select.Label>
         <Select.Trigger class={styles.Select}>
           <Select.Value class={styles.Value} placeholder="Select produce" />
           <Select.Icon>
@@ -52,7 +49,7 @@ export default function ExampleSelectGrouped() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 function CaretUpDownIcon(props: JSX.IntrinsicElements['svg']) {

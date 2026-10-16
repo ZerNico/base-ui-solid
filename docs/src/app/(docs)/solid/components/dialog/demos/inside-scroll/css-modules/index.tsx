@@ -1,6 +1,5 @@
 import { For } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
-import { ScrollArea } from 'base-ui-solid/scroll-area';
 import styles from './index.module.css';
 
 export default function InsideScrollDialog() {
@@ -17,23 +16,16 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root class={styles.Body}>
-              <ScrollArea.Viewport class={styles.BodyViewport}>
-                <ScrollArea.Content class={styles.BodyContent}>
-                  <For each={CONTENT_SECTIONS}>
-                    {(item) => (
-                      <section class={styles.Section}>
-                        <h3 class={styles.SectionTitle}>{item.title}</h3>
-                        <p class={styles.SectionBody}>{item.body}</p>
-                      </section>
-                    )}
-                  </For>
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar class={styles.Scrollbar}>
-                <ScrollArea.Thumb class={styles.ScrollbarThumb} />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+            <div class={styles.Body}>
+              <For each={CONTENT_SECTIONS}>
+                {(item) => (
+                  <section class={styles.Section}>
+                    <h3 class={styles.SectionTitle}>{item.title}</h3>
+                    <p class={styles.SectionBody}>{item.body}</p>
+                  </section>
+                )}
+              </For>
+            </div>
             <div class={styles.Actions}>
               <Dialog.Close class={styles.Button}>Close</Dialog.Close>
             </div>

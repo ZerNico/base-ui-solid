@@ -163,11 +163,13 @@ This can be used to replay attention-grabbing styles by switching animation name
 
 Toasts can be anchored to a specific element using `<Toast.Positioner>` and the `positionerProps` option when adding a toast. This is useful for showing contextual feedback like transient "Copied" toasts that appear near the button that triggered the action.
 
+import { DemoToastAnchored } from './demos/anchored';
+
+<DemoToastAnchored />
+
 Anchored toasts should be rendered in a separate `<Toast.Provider>` from stacked toasts. A global toast manager can be created for each to manage them separately throughout your app:
 
 ```tsx title="Mixing stacked and anchored toasts"
-import { For } from 'solid-js';
-
 const anchoredToastManager = Toast.createToastManager();
 const stackedToastManager = Toast.createToastManager();
 function App() {
@@ -180,39 +182,7 @@ function App() {
     </Toast.Provider>,
   ];
 }
-function AnchoredToasts() {
-  const toastManager = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport>
-        <For each={toastManager.toasts} keyed={(toast) => toast.id}>
-          {(toast) => (
-            <Toast.Positioner toast={toast()}>
-              <Toast.Root toast={toast()}>{/* ... */}</Toast.Root>
-            </Toast.Positioner>
-          )}
-        </For>
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
-function StackedToasts() {
-  const toastManager = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport>
-        <For each={toastManager.toasts} keyed={(toast) => toast.id}>
-          {(toast) => <Toast.Root toast={toast()}>{/* ... */}</Toast.Root>}
-        </For>
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
 ```
-
-import { DemoToastAnchored } from './demos/anchored';
-
-<DemoToastAnchored />
 
 ### Custom position
 

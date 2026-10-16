@@ -51,6 +51,42 @@ Working with Tooltip is a common example.
 </Dialog.Root>
 ```
 
+## How props are merged
+
+When the `render` function renders another part, merge the part's props with the other part's props using [`mergeProps`](/solid/utils/merge-props), so they end up on a single element.
+For example, this toolbar button renders a menu trigger:
+
+```tsx title="index.tsx"
+<Toolbar.Button
+  class="toolbar-button"
+  style={{ color: 'red', padding: '4px' }}
+  onClick={handleToolbarClick}
+  ref={toolbarButtonRef}
+  render={(props) => (
+    <Menu.Trigger
+      {...mergeProps(props, {
+        class: 'menu-trigger',
+        style: { color: 'blue' },
+        onClick: handleMenuClick,
+        ref: menuTriggerRef,
+      })}
+    />
+  )}
+/>
+```
+
+The rendered `<button>` gets:
+
+- `class="menu-trigger toolbar-button"`: class names are combined, starting with the menu trigger's.
+- `style={{ color: 'blue', padding: '4px' }}`: style objects are merged, and the menu trigger's values win.
+- Both click handlers, starting with `handleMenuClick`. Calling [`event.preventBaseUIHandler()`](/solid/handbook/customization#preventing-base-ui-from-handling-a-solid-event) skips every handler that runs after it, so calling it in `handleMenuClick` also skips `handleToolbarClick`. Some parts call it internally.
+- Both refs: `toolbarButtonRef` and `menuTriggerRef` point to the same element.
+
+For other attributes set on both, such as `id` or `title`, the menu trigger's value wins.
+Component props like `disabled` are read by each part separately, so a value on the menu trigger doesn't override the part's own.
+
+A `render` function doesn't merge props automatically. Spreading `props` and then adding attributes in JSX keeps only the last value of each, while `mergeProps` combines them and keeps all the refs.
+
 ## Changing the default rendered element
 
 You can also use the `render` prop to override the rendered element of the component.

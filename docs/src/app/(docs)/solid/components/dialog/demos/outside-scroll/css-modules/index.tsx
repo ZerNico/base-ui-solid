@@ -1,7 +1,6 @@
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Dialog } from 'base-ui-solid/dialog';
-import { ScrollArea } from 'base-ui-solid/scroll-area';
 import styles from './index.module.css';
 
 export default function OutsideScrollDialog() {
@@ -12,59 +11,52 @@ export default function OutsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop class={styles.Backdrop} />
         <Dialog.Viewport class={styles.Viewport}>
-          <ScrollArea.Root style={{ position: undefined }} class={styles.ScrollViewport}>
-            <ScrollArea.Viewport class={styles.ScrollViewport}>
-              <ScrollArea.Content class={styles.ScrollContent}>
-                <Dialog.Popup
-                  ref={(element) => {
-                    popup = element;
-                  }}
-                  class={styles.Popup}
-                  initialFocus={() => popup}
-                >
-                  <div class={styles.PopupHeader}>
-                    <Dialog.Title class={styles.Title}>Dialog</Dialog.Title>
-                    <Dialog.Description class={styles.Description}>
-                      This layout keeps an outer container scrollable while the dialog can extend
-                      past the bottom edge.
-                    </Dialog.Description>
-                    <Dialog.Close class={styles.Close} aria-label="Close">
-                      <XIcon />
-                    </Dialog.Close>
-                  </div>
+          <div class={styles.ScrollContent}>
+            <Dialog.Popup
+              ref={(element) => {
+                popup = element;
+              }}
+              class={styles.Popup}
+              initialFocus={() => popup}
+            >
+              <div class={styles.PopupHeader}>
+                <Dialog.Title class={styles.Title}>Dialog</Dialog.Title>
+                <Dialog.Description class={styles.Description}>
+                  This layout keeps an outer container scrollable while the dialog can extend past
+                  the bottom edge.
+                </Dialog.Description>
+                <Dialog.Close class={styles.Close} aria-label="Close">
+                  <XIcon />
+                </Dialog.Close>
+              </div>
 
-                  <div class={styles.Body}>
-                    <For each={CONTENT_SECTIONS}>
-                      {(item) => (
-                        <section class={styles.Section}>
-                          <h3 class={styles.SectionTitle}>{item.title}</h3>
-                          <p class={styles.SectionBody}>{item.body}</p>
-                        </section>
-                      )}
-                    </For>
-                  </div>
+              <div class={styles.Body}>
+                <For each={CONTENT_SECTIONS}>
+                  {(item) => (
+                    <section class={styles.Section}>
+                      <h3 class={styles.SectionTitle}>{item.title}</h3>
+                      <p class={styles.SectionBody}>{item.body}</p>
+                    </section>
+                  )}
+                </For>
+              </div>
 
-                  <p class={styles.FooterNote}>
-                    Related docs:{' '}
-                    <For each={RELATED_LINKS}>
-                      {(item, index) => (
-                        <>
-                          {index() > 0 ? ', ' : null}
-                          <a class={styles.FooterLink} href={item.href}>
-                            {item.label}
-                          </a>
-                        </>
-                      )}
-                    </For>
-                    .
-                  </p>
-                </Dialog.Popup>
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar class={styles.Scrollbar}>
-              <ScrollArea.Thumb class={styles.ScrollbarThumb} />
-            </ScrollArea.Scrollbar>
-          </ScrollArea.Root>
+              <p class={styles.FooterNote}>
+                Related docs:{' '}
+                <For each={RELATED_LINKS}>
+                  {(item, index) => (
+                    <>
+                      {index() > 0 ? ', ' : null}
+                      <a class={styles.FooterLink} href={item.href}>
+                        {item.label}
+                      </a>
+                    </>
+                  )}
+                </For>
+                .
+              </p>
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>

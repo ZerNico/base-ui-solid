@@ -1,7 +1,6 @@
 import { Dynamic } from '@solidjs/web';
 import type { Component } from 'solid-js';
 import { Popover } from 'base-ui-solid/popover';
-import { Avatar } from 'base-ui-solid/avatar';
 import baseStyles from '../../_index.module.css';
 import styles from './index.module.css';
 
@@ -56,14 +55,13 @@ function ProfilePanel() {
   return (
     <div class={styles.ProfilePanel}>
       <Popover.Title class={styles.Title}>Jason Eventon</Popover.Title>
-      <Avatar.Root class={styles.Avatar}>
-        <Avatar.Image
-          src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
-          width="48"
-          height="48"
-          class={styles.AvatarImage}
-        />
-      </Avatar.Root>
+      <img
+        src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
+        width="48"
+        height="48"
+        alt=""
+        class={styles.Avatar}
+      />
       <span class={styles.Plan}>Pro plan</span>
       <div class={styles.ProfileActions}>
         <a href="#">Profile settings</a>

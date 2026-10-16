@@ -1,12 +1,12 @@
-import { createSignal } from 'solid-js';
+import { createSignal, createUniqueId } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
-import { Field } from 'base-ui-solid/field';
-import { Fieldset } from 'base-ui-solid/fieldset';
 import styles from './index.module.css';
 
 export default function ExampleDialog() {
   const [initialFocusElement, setInitialFocusElement] = createSignal<HTMLElement | null>(null);
   const [finalFocusElement, setFinalFocusElement] = createSignal<HTMLElement | null>(null);
+  const nameId = createUniqueId();
+  const feedbackId = createUniqueId();
 
   return (
     <div class={styles.Container}>
@@ -25,21 +25,26 @@ export default function ExampleDialog() {
                 Your feedback means a lot to us.
               </Dialog.Description>
             </div>
-            <Fieldset.Root class={styles.Fieldset}>
-              <Field.Root class={styles.Field}>
-                <Field.Label class={styles.Label}>Full name</Field.Label>
-                <Field.Control placeholder="Enter your name" class={styles.Input} />
-              </Field.Root>
-              <Field.Root class={styles.Field}>
-                <Field.Label class={styles.Label}>Feedback</Field.Label>
-                <Field.Control
+            <div class={styles.Fields}>
+              <div class={styles.Field}>
+                <label for={nameId} class={styles.Label}>
+                  Full name
+                </label>
+                <input id={nameId} placeholder="Enter your name" class={styles.Input} />
+              </div>
+              <div class={styles.Field}>
+                <label for={feedbackId} class={styles.Label}>
+                  Feedback
+                </label>
+                <input
+                  id={feedbackId}
                   ref={setInitialFocusElement}
                   required
                   placeholder="Enter your feedback"
                   class={styles.Input}
                 />
-              </Field.Root>
-            </Fieldset.Root>
+              </div>
+            </div>
             <div class={styles.Actions}>
               <Dialog.Close class={styles.Button}>Close</Dialog.Close>
             </div>

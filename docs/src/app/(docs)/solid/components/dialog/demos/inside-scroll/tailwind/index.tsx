@@ -1,6 +1,5 @@
 import { For } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
-import { ScrollArea } from 'base-ui-solid/scroll-area';
 
 export default function InsideScrollDialog() {
   return (
@@ -18,23 +17,16 @@ export default function InsideScrollDialog() {
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root class="relative flex min-h-0 flex-auto overflow-hidden has-[>_:first-child:focus-visible]:outline-2 has-[>_:first-child:focus-visible]:outline-offset-0 has-[>_:first-child:focus-visible]:outline-neutral-950 dark:has-[>_:first-child:focus-visible]:outline-white">
-              <ScrollArea.Viewport class="flex-auto min-h-0 overflow-y-auto overscroll-contain outline-none">
-                <ScrollArea.Content class="flex flex-col">
-                  <For each={CONTENT_SECTIONS}>
-                    {(item) => (
-                      <section class="flex flex-col gap-1 p-4">
-                        <h3 class="text-sm font-bold">{item.title}</h3>
-                        <p class="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
-                      </section>
-                    )}
-                  </For>
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar class="pointer-events-none flex w-4 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-150 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
-                <ScrollArea.Thumb class="w-full bg-neutral-950 dark:bg-white" />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+            <div class="flex-auto overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+              <For each={CONTENT_SECTIONS}>
+                {(item) => (
+                  <section class="flex flex-col gap-1 p-4">
+                    <h3 class="text-sm font-bold">{item.title}</h3>
+                    <p class="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
+                  </section>
+                )}
+              </For>
+            </div>
             <div class="flex justify-end gap-3 p-4 border-t border-neutral-950 dark:border-white">
               <Dialog.Close class="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                 Close

@@ -1,11 +1,11 @@
-import { createSignal } from 'solid-js';
+import { createSignal, createUniqueId } from 'solid-js';
 import { Dialog } from 'base-ui-solid/dialog';
-import { Field } from 'base-ui-solid/field';
-import { Fieldset } from 'base-ui-solid/fieldset';
 
 export default function ExampleDialog() {
   const [initialFocusElement, setInitialFocusElement] = createSignal<HTMLElement | null>(null);
   const [finalFocusElement, setFinalFocusElement] = createSignal<HTMLElement | null>(null);
+  const nameId = createUniqueId();
+  const feedbackId = createUniqueId();
 
   return (
     <div class="flex flex-wrap justify-center gap-3">
@@ -26,24 +26,30 @@ export default function ExampleDialog() {
                 Your feedback means a lot to us.
               </Dialog.Description>
             </div>
-            <Fieldset.Root class="flex flex-col gap-3 border-0 p-0 m-0">
-              <Field.Root class="flex flex-col items-start gap-1">
-                <Field.Label class="text-sm font-normal">Full name</Field.Label>
-                <Field.Control
+            <div class="flex flex-col gap-3">
+              <div class="flex flex-col items-start gap-1">
+                <label for={nameId} class="text-sm font-normal">
+                  Full name
+                </label>
+                <input
+                  id={nameId}
                   placeholder="Enter your name"
                   class="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
                 />
-              </Field.Root>
-              <Field.Root class="flex flex-col items-start gap-1">
-                <Field.Label class="text-sm font-normal">Feedback</Field.Label>
-                <Field.Control
+              </div>
+              <div class="flex flex-col items-start gap-1">
+                <label for={feedbackId} class="text-sm font-normal">
+                  Feedback
+                </label>
+                <input
+                  id={feedbackId}
                   ref={setInitialFocusElement}
                   required
                   placeholder="Enter your feedback"
                   class="h-8 w-full border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white"
                 />
-              </Field.Root>
-            </Fieldset.Root>
+              </div>
+            </div>
             <div class="flex justify-end gap-3">
               <Dialog.Close class="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                 Close

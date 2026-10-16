@@ -2,38 +2,15 @@ import { For, createSignal } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Toast } from 'base-ui-solid/toast';
 import { Button } from 'base-ui-solid/button';
-import { Tooltip } from 'base-ui-solid/tooltip';
 import styles from './index.module.css';
 
 const anchoredToastManager = Toast.createToastManager();
-const stackedToastManager = Toast.createToastManager();
 export default function ExampleToast() {
   return (
-    <Tooltip.Provider>
-      <Toast.Provider toastManager={anchoredToastManager}>
-        <AnchoredToasts />
-      </Toast.Provider>
-      <Toast.Provider toastManager={stackedToastManager}>
-        <StackedToasts />
-      </Toast.Provider>
-
-      <div class={styles.ButtonGroup}>
-        <CopyButton />
-        <StackedToastButton />
-      </div>
-    </Tooltip.Provider>
-  );
-}
-function StackedToastButton() {
-  function createToast() {
-    stackedToastManager.add({
-      description: 'Copied',
-    });
-  }
-  return (
-    <button type="button" class={styles.Button} onClick={createToast}>
-      Stacked toast
-    </button>
+    <Toast.Provider toastManager={anchoredToastManager}>
+      <AnchoredToasts />
+      <CopyButton />
+    </Toast.Provider>
   );
 }
 function CopyButton() {
@@ -54,67 +31,34 @@ function CopyButton() {
     });
   }
   return (
-    <Tooltip.Root disabled={copied()}>
-      <Tooltip.Trigger
-        ref={(element) => {
-          buttonRef = element;
-        }}
-        closeOnClick={false}
-        class={styles.CopyButton}
-        onClick={handleCopy}
-        aria-label="Copy to clipboard"
-        render={(props) => <Button {...props} disabled={copied()} focusableWhenDisabled />}
-      >
-        {copied() ? <CheckIcon /> : <ClipboardIcon />}
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={10}>
-          <Tooltip.Popup class={styles.Tooltip}>
-            <Tooltip.Arrow class={styles.Arrow} />
-            Copy
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+    <Button
+      ref={(element) => {
+        buttonRef = element;
+      }}
+      class={styles.CopyButton}
+      onClick={handleCopy}
+      aria-label="Copy to clipboard"
+      disabled={copied()}
+      focusableWhenDisabled
+    >
+      {copied() ? <CheckIcon /> : <ClipboardIcon />}
+    </Button>
   );
 }
 function AnchoredToasts() {
   const toastManager = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport class={styles.AnchoredViewport}>
+      <Toast.Viewport class={styles.Viewport}>
         <For each={toastManager.toasts} keyed={(toast) => toast.id}>
           {(toast) => (
-            <Toast.Positioner toast={toast()} class={styles.AnchoredPositioner}>
-              <Toast.Root toast={toast()} class={styles.AnchoredToast}>
-                <Toast.Arrow class={styles.Arrow} />
+            <Toast.Positioner toast={toast()} class={styles.Positioner}>
+              <Toast.Root toast={toast()} class={styles.Toast}>
                 <Toast.Content>
-                  <Toast.Description class={styles.AnchoredDescription} />
+                  <Toast.Description class={styles.Description} />
                 </Toast.Content>
               </Toast.Root>
             </Toast.Positioner>
-          )}
-        </For>
-      </Toast.Viewport>
-    </Toast.Portal>
-  );
-}
-function StackedToasts() {
-  const toastManager = Toast.useToastManager();
-  return (
-    <Toast.Portal>
-      <Toast.Viewport class={styles.StackedViewport}>
-        <For each={toastManager.toasts} keyed={(toast) => toast.id}>
-          {(toast) => (
-            <Toast.Root toast={toast()} class={styles.StackedToast}>
-              <Toast.Content class={styles.Content}>
-                <div class={styles.Text}>
-                  <Toast.Title class={styles.Title} />
-                  <Toast.Description class={styles.Description} />
-                </div>
-                <Toast.Close class={styles.Close}>Dismiss</Toast.Close>
-              </Toast.Content>
-            </Toast.Root>
           )}
         </For>
       </Toast.Viewport>

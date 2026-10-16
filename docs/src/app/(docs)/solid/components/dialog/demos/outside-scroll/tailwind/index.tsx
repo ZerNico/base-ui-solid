@@ -1,7 +1,6 @@
 import { For } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { Dialog } from 'base-ui-solid/dialog';
-import { ScrollArea } from 'base-ui-solid/scroll-area';
 
 export default function OutsideScrollDialog() {
   let popup: HTMLDivElement | null = null;
@@ -12,69 +11,59 @@ export default function OutsideScrollDialog() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop class="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[600ms] ease-[var(--ease-out-fast)] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
-        <Dialog.Viewport class="group/dialog fixed inset-0">
-          <ScrollArea.Root
-            style={{ position: undefined }}
-            class="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
-          >
-            <ScrollArea.Viewport class="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
-              <ScrollArea.Content class="flex min-h-full items-center justify-center">
-                <Dialog.Popup
-                  ref={(element) => {
-                    popup = element;
-                  }}
-                  initialFocus={() => popup}
-                  class="outline-0 relative mx-auto my-16 flex w-[min(40rem,calc(100vw-2rem))] flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-starting-style:translate-y-[100dvh] data-ending-style:translate-y-[max(100dvh,100%)] data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
+        <Dialog.Viewport class="fixed inset-0 overflow-y-auto overscroll-contain">
+          <div class="flex min-h-full items-center overflow-clip">
+            <Dialog.Popup
+              ref={(element) => {
+                popup = element;
+              }}
+              initialFocus={() => popup}
+              class="outline-0 relative mx-auto my-16 flex w-[min(40rem,calc(100vw-2rem))] flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-starting-style:translate-y-[100dvh] data-ending-style:translate-y-[max(100dvh,100%)] data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
+            >
+              <div class="relative flex flex-col gap-1 pr-8">
+                <Dialog.Title class="text-base font-bold">Dialog</Dialog.Title>
+                <Dialog.Description class="text-sm text-neutral-600 dark:text-neutral-400">
+                  This layout keeps an outer container scrollable while the dialog can extend past
+                  the bottom edge.
+                </Dialog.Description>
+                <Dialog.Close
+                  aria-label="Close"
+                  class="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 border-none bg-transparent p-0 text-neutral-950 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
                 >
-                  <div class="relative flex flex-col gap-1 pr-8">
-                    <Dialog.Title class="text-base font-bold">Dialog</Dialog.Title>
-                    <Dialog.Description class="text-sm text-neutral-600 dark:text-neutral-400">
-                      This layout keeps an outer container scrollable while the dialog can extend
-                      past the bottom edge.
-                    </Dialog.Description>
-                    <Dialog.Close
-                      aria-label="Close"
-                      class="absolute -top-1 -right-1 inline-flex items-center justify-center w-8 h-8 border-none bg-transparent p-0 text-neutral-950 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-                    >
-                      <XIcon />
-                    </Dialog.Close>
-                  </div>
+                  <XIcon />
+                </Dialog.Close>
+              </div>
 
-                  <div class="flex flex-col gap-4">
-                    <For each={CONTENT_SECTIONS}>
-                      {(item) => (
-                        <section class="flex flex-col gap-1">
-                          <h3 class="text-sm font-bold">{item.title}</h3>
-                          <p class="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
-                        </section>
-                      )}
-                    </For>
-                  </div>
+              <div class="flex flex-col gap-4">
+                <For each={CONTENT_SECTIONS}>
+                  {(item) => (
+                    <section class="flex flex-col gap-1">
+                      <h3 class="text-sm font-bold">{item.title}</h3>
+                      <p class="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
+                    </section>
+                  )}
+                </For>
+              </div>
 
-                  <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                    Related docs:{' '}
-                    <For each={RELATED_LINKS}>
-                      {(item, index) => (
-                        <>
-                          {index() > 0 ? ', ' : null}
-                          <a
-                            class="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white focus-visible:outline-offset-2"
-                            href={item.href}
-                          >
-                            {item.label}
-                          </a>
-                        </>
-                      )}
-                    </For>
-                    .
-                  </p>
-                </Dialog.Popup>
-              </ScrollArea.Content>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar class="pointer-events-none flex w-4 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-[75ms] data-scrolling:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-[250ms]">
-              <ScrollArea.Thumb class="w-full bg-neutral-950 dark:bg-white" />
-            </ScrollArea.Scrollbar>
-          </ScrollArea.Root>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">
+                Related docs:{' '}
+                <For each={RELATED_LINKS}>
+                  {(item, index) => (
+                    <>
+                      {index() > 0 ? ', ' : null}
+                      <a
+                        class="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white focus-visible:outline-offset-2"
+                        href={item.href}
+                      >
+                        {item.label}
+                      </a>
+                    </>
+                  )}
+                </For>
+                .
+              </p>
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
