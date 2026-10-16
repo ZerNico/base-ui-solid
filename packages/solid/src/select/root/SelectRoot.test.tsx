@@ -688,6 +688,41 @@ describe('<Select.Root />', () => {
 
       expect(trigger).toHaveTextContent('a');
     });
+    it('highlights the selected item when it moves while open (port regression)', async () => {
+      const [items, setItems] = createSignal(['a', 'b', 'c']);
+      const { user } = await render(() => (
+        // The pointer must not move the highlight in a browser.
+        <Select.Root defaultValue="b" defaultOpen highlightItemOnHover={false}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <For each={items()}>{(item) => <Select.Item value={item}>{item}</Select.Item>}</For>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => expect(optionB).toHaveAttribute('data-highlighted'));
+
+      optionB.focus();
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted'),
+      );
+
+      setItems(['b', 'a', 'c']);
+      await flushMicrotasks();
+
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted'),
+      );
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
   });
 
   describe('prop: itemToStringValue', () => {
@@ -7229,6 +7264,55 @@ describe('<Select.Root />', () => {
         fireEvent.mouseMove(optionA, {
           movementX: 1,
           movementY: 1,
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps the selected item highlighted while the popup animates out (port regression)',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const { user } = await render(() => (
+          <>
+            <style>
+              {`@keyframes select-test-exit { to { opacity: 0; } }
+              .select-test-exit[data-ending-style] { animation: select-test-exit 10s; }`}
+            </style>
+            <Select.Root defaultValue="b" highlightItemOnHover={false}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner alignItemWithTrigger={false}>
+                  <Select.Popup class="select-test-exit" data-testid="popup">
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </>
+        ));
+
+        await act(async () => {
+          screen.getByTestId('trigger').focus();
+        });
+        await user.keyboard('{ArrowDown}');
+        const optionB = await screen.findByRole('option', { name: 'b' });
+        await waitFor(() => {
+          expect(optionB).toHaveFocus();
+        });
+        expect(optionB).toHaveAttribute('data-highlighted');
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
         });
         expect(optionB).toHaveAttribute('data-highlighted');
       },

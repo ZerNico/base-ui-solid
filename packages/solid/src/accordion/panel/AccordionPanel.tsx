@@ -95,6 +95,9 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
       height: AccordionPanelCssVars.accordionPanelHeight,
       width: AccordionPanelCssVars.accordionPanelWidth,
     },
+    // `panelState` is defined below. The hook only reads the style once the panel rendered.
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    style: () => resolveStyle(componentProps.style, panelState()),
   });
 
   const { state, triggerId } = useAccordionItemContext();
@@ -105,6 +108,14 @@ export function AccordionPanel(componentProps: AccordionPanel.Props) {
       transitionStatus: panel.transitionStatus(),
     }),
     { equals: fastObjectShallowCompare },
+  );
+
+  // Applying the `style` prop can replace the size variables (a string sets the whole inline style).
+  useIsoLayoutEffect(
+    () => {
+      panel.applyDimensions();
+    },
+    () => [resolveStyle(componentProps.style, panelState())],
   );
 
   return (

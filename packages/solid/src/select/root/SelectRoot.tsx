@@ -425,24 +425,25 @@ export function SelectRoot<
     },
   });
 
-  // Port note: upstream's list navigation highlights the selected item when the popup opens from a
-  // layout effect (through `onNavigate`). Here the store derives it: the open-time highlight, until
-  // something navigates during this open (each open is a new cycle object).
+  // Port note: upstream's list navigation highlights the selected item from a layout effect
+  // (through `onNavigate`) when the popup opens and whenever the selected index changes while it's
+  // open. Here the store derives it: that highlight, until something navigates after it (each open
+  // is a new cycle object). Like upstream's written one, it's retained while transitioning out.
   const openCycle = createMemo<object | undefined>((previous) =>
     open() ? (previous ?? {}) : undefined,
   );
   let lastOpenCycle: object | undefined;
-  let writesAtOpen = 0;
+  let highlight: number | null = null;
+  let writesAtHighlight = 0;
   store.useDerivedState('activeIndex', (raw, _, writes) => {
     const cycle = openCycle();
-    if (cycle !== lastOpenCycle) {
-      lastOpenCycle = cycle;
-      writesAtOpen = writes;
-    }
     const openHighlight = listNavigation.openHighlightIndex();
-    return cycle !== undefined && writes === writesAtOpen && openHighlight != null
-      ? openHighlight
-      : raw;
+    if (cycle !== undefined && (cycle !== lastOpenCycle || openHighlight !== highlight)) {
+      highlight = openHighlight;
+      writesAtHighlight = writes;
+    }
+    lastOpenCycle = cycle;
+    return writes === writesAtHighlight && highlight != null ? highlight : raw;
   });
 
   const typeahead = useTypeahead(floatingContext, {

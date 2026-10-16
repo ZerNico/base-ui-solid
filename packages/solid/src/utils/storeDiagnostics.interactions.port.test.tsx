@@ -32,7 +32,6 @@ describe.skipIf(isJSDOM)('store diagnostics (port), user interactions', () => {
   let stopCapture: (() => void) | undefined;
 
   beforeEach(() => {
-    (globalThis as any).SPIKE_EFFECT_LABELS = true;
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
   });
 

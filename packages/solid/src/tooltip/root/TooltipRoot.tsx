@@ -68,6 +68,15 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
 
+  useIsoLayoutEffect(
+    ([openStateValue, disabledValue]) => {
+      if (openStateValue && disabledValue) {
+        store.setOpen(false, createChangeEventDetails(REASONS.disabled));
+      }
+    },
+    () => [openState(), disabled(), store],
+  );
+
   // Animations should be instant in two cases:
   // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
   // 2) Closing because another tooltip opened (reason === 'none')

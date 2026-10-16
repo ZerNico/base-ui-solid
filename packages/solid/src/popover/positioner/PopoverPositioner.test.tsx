@@ -124,6 +124,38 @@ describe('<Popover.Positioner />', () => {
     expect(positioner.getBoundingClientRect()).toMatchObject(final);
   });
 
+  it.skipIf(isJSDOM)(
+    'resolves a function anchor rendered after the popover (port regression)',
+    async () => {
+      await render(() => (
+        <div>
+          <Popover.Root open>
+            <Trigger style={{ width: '100px', height: '100px' }}>Trigger</Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                data-testid="positioner"
+                anchor={() => document.getElementById('late-anchor')}
+              >
+                <Popover.Popup style={{ width: '100px', height: '100px' }}>Popup</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <div
+            id="late-anchor"
+            style={{ width: '100px', height: '100px', position: 'relative', top: '200px' }}
+          />
+        </div>
+      ));
+      const positioner = screen.getByTestId('positioner');
+      await waitForPositioned(positioner);
+
+      const anchorRect = document.getElementById('late-anchor')!.getBoundingClientRect();
+      await waitFor(() => {
+        expect(positioner.getBoundingClientRect().y).toBe(anchorRect.bottom);
+      });
+    },
+  );
+
   it.skipIf(isJSDOM)('remains anchored if keepMounted=true', async () => {
     const [top, setTop] = createSignal(0);
 

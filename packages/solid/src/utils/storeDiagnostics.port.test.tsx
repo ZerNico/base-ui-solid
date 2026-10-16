@@ -38,7 +38,7 @@ type Scenario =
 const BASELINE_ANIMATIONS_DISABLED = {
   'Popover (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Popover (detached handle)': { EFFECT_RELAY_TEAR: 5, EFFECT_WRITES_OWN_SOURCE: 1 },
-  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 2, EFFECT_WRITES_OWN_SOURCE: 1 },
+  'Select (controlled value and open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Dialog (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Menu (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },
   'Tooltip (controlled open)': { EFFECT_RELAY_TEAR: 4, EFFECT_WRITES_OWN_SOURCE: 1 },

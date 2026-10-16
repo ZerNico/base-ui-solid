@@ -1,5 +1,6 @@
 import { createMemo, createSignal, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
@@ -45,6 +46,7 @@ export function useCollapsiblePanel(
     setOpen,
     transitionStatus,
     cssVariables,
+    style,
   } = parameters;
 
   let panelElementRef: HTMLDivElement | null = null;
@@ -98,14 +100,20 @@ export function useCollapsiblePanel(
       : dimensions;
   }
 
+  // A variable set by the `style` prop wins, as it did when upstream merges it after the size.
   function applyDimensions() {
     const panel = panelElementRef;
     if (!panel) {
       return;
     }
     const { height, width } = getRenderedDimensions();
-    panel.style.setProperty(cssVariables.height, height === undefined ? 'auto' : `${height}px`);
-    panel.style.setProperty(cssVariables.width, width === undefined ? 'auto' : `${width}px`);
+    const styleValue = untrack(style);
+    if (!setsStyleProperty(styleValue, cssVariables.height)) {
+      panel.style.setProperty(cssVariables.height, height === undefined ? 'auto' : `${height}px`);
+    }
+    if (!setsStyleProperty(styleValue, cssVariables.width)) {
+      panel.style.setProperty(cssVariables.width, width === undefined ? 'auto' : `${width}px`);
+    }
   }
 
   // The rendered size also depends on the open state (see `getRenderedDimensions`).
@@ -452,6 +460,7 @@ export function useCollapsiblePanel(
   const shouldRender = () => keepMounted() || hiddenUntilFound() || mounted() || open();
 
   return {
+    applyDimensions,
     props: () => ({
       ...(shouldPersistHiddenTransitionStyles()
         ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
@@ -618,9 +627,32 @@ export interface UseCollapsiblePanelParameters {
    * Port note: the names of the CSS variables the measured size is written to.
    */
   cssVariables: { height: string; width: string };
+  /**
+   * Port note: the panel's resolved `style` prop, applied to the same element. Only read once the
+   * panel rendered. Call `applyDimensions` when it changes: a string replaces the whole inline
+   * style, the variables included.
+   */
+  style: Accessor<JSX.CSSProperties | string | false | undefined>;
+}
+
+function setsStyleProperty(
+  style: JSX.CSSProperties | string | false | undefined,
+  property: string,
+) {
+  if (!style) {
+    return false;
+  }
+  if (typeof style === 'string') {
+    return style.split(';').some((declaration) => declaration.split(':')[0].trim() === property);
+  }
+  return (style as Record<string, unknown>)[property] != null;
 }
 
 export interface UseCollapsiblePanelReturnValue {
+  /**
+   * Port note: writes the measured size to the CSS variables again.
+   */
+  applyDimensions: () => void;
   props: Accessor<Record<string, unknown>>;
   ref: (element: HTMLDivElement | null) => void;
   shouldPreventOpenAnimation: Accessor<boolean>;

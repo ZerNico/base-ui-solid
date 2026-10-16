@@ -112,8 +112,10 @@ export class SolidStore<
       // then read another key of the same store (e.g. a prop bag built from the store's `open`).
       const accessorKeys = Object.keys(statePart) as Key[];
       const accessors = statePart as SyncedValueAccessors<State, Key>;
-      // Changes when any of the values does. Only read to decide whether an imperative write
-      // still holds, so it doesn't make the keys depend on each other.
+      // Changes when any of the values does. Only read to decide whether an imperative write to
+      // one of the keys still holds, so the keys don't depend on each other otherwise. A source must
+      // therefore not read a key of its own group that was written imperatively: deciding whether
+      // that write holds would evaluate the source again (a cycle).
       const group = createMemo(
         () => accessorKeys.map((key) => accessors[key]()),
         IS_DEV
@@ -169,7 +171,8 @@ export class SolidStore<
 
   /**
    * Synchronizes `value` into the key while `when` is true. Afterwards the key keeps the
-   * last synchronized value until it's written, like a value written by an effect.
+   * last synchronized value until it's written, like a value written by an effect, unless another
+   * registration of the key is synchronizing it.
    */
   useConditionalSyncedValue<Key extends keyof State>(
     key: Key,
@@ -182,6 +185,9 @@ export class SolidStore<
   /**
    * Derives a key from the raw state (the value written imperatively) and other reactive
    * values, e.g. a fallback while nothing was written. Imperative writes go to the raw state.
+   * `derive` also receives how many writes the key had, to tell a write of the same raw value
+   * apart from no write. It runs whenever its inputs change (the store's change notification
+   * reads it), so it may keep state across runs, e.g. to detect an open/close transition.
    */
   useDerivedState<Key extends keyof State>(
     key: Key,

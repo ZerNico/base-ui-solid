@@ -73,6 +73,30 @@ describe('<Collapsible.Panel />', () => {
     }
   });
 
+  it('lets the style prop set the size variables (port regression)', async () => {
+    const [style, setStyle] = createSignal<string | Record<string, string>>({
+      '--collapsible-panel-height': '42px',
+    });
+    await render(() => (
+      <Collapsible.Root defaultOpen>
+        <Collapsible.Panel data-testid="panel" style={style()}>
+          {PANEL_CONTENT}
+        </Collapsible.Panel>
+      </Collapsible.Root>
+    ));
+
+    const panel = screen.getByTestId('panel');
+    expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('42px');
+    expect(panel.style.getPropertyValue('--collapsible-panel-width')).not.toBe('');
+
+    setStyle('color: red');
+    flush();
+
+    expect(panel.style.getPropertyValue('--collapsible-panel-height')).not.toBe('');
+    expect(panel.style.getPropertyValue('--collapsible-panel-height')).not.toBe('42px');
+    expect(panel.style.getPropertyValue('--collapsible-panel-width')).not.toBe('');
+  });
+
   describe('prop: keepMounted', () => {
     it('does not unmount the panel when true', async () => {
       const [open, setOpen] = createSignal(false);

@@ -758,6 +758,37 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).toBe(null);
       });
 
+      it('closes its open state when becoming disabled (port regression)', async () => {
+        const onOpenChange = vi.fn();
+        const [disabled, setDisabled] = createSignal(false);
+        await render(() => (
+          <TestTooltip
+            rootProps={{
+              defaultOpen: true,
+              onOpenChange,
+              get disabled() {
+                return disabled();
+              },
+            }}
+            triggerProps={{ delay: 0 }}
+          />
+        ));
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        setDisabled(true);
+        flush();
+
+        expect(onOpenChange.mock.calls.length).toBe(1);
+        expect(onOpenChange.mock.calls[0][0]).toBe(false);
+        expect(onOpenChange.mock.calls[0][1].reason).toBe(REASONS.disabled);
+
+        setDisabled(false);
+        flush();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
       it('does not throw error when combined with defaultOpen', async () => {
         await render(() => <TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
 

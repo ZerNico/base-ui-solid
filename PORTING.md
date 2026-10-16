@@ -236,7 +236,9 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     moment), like a key upstream leaves out of the effect's `update`.
   - When several registrations sync the same key, a registration that is syncing beats one that
     isn't (`KEEP`, or a conditional sync whose condition is false). Among those, the one whose
-    source changed last wins, like the last effect to write upstream.
+    source changed last wins, like the last effect to write upstream. When two sources change in
+    the same update, the later registration (usually the child) wins, where upstream's parent
+    effect writes last. No part relies on that order.
   - `useControlledProp` derives the key while the prop is defined, and keeps the last controlled
     value until the next write after the prop becomes `undefined`.
   - `useConditionalSyncedValue(key, when, value)` syncs only while `when()` is true, and
@@ -271,7 +273,8 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - Popover and Menu triggers build their focus guards in a memo and insert them around the
     trigger in a layout effect: Solid doesn't allow creating a root inside an effect callback.
   - The Collapsible and Accordion panels write their measured size to the CSS variables directly
-    (it's only used there), so the variables are not in the server-rendered markup.
+    (it's only used there), so the variables are not in the server-rendered markup. A variable set
+    through the `style` prop still wins.
   - OTP Field moves focus to the next input in the input's event handler, after applying the
     value, instead of from an effect.
   - Select (`deriveOpenHighlight`) and Menu derive their highlighted index for the current open

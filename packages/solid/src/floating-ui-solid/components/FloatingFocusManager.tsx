@@ -395,8 +395,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
   // Track pointer/keyboard interactions to disambiguate focus and outside presses.
   useEffect(
-    ([disabledValue, floatingValue, domReferenceValue, floatingForFocus, openValue]) => {
-      const floatingFocusElementValue = getFloatingFocusElement(floatingForFocus);
+    ([disabledValue, floatingValue, domReferenceValue, openValue]) => {
+      const floatingFocusElementValue = getFloatingFocusElement(floatingValue);
       if (disabledValue || !openValue) {
         return undefined;
       }
@@ -442,7 +442,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
         clearPointerDownOutside,
       );
     },
-    () => [disabled(), floating(), domReference(), floating(), open(), portalNode()],
+    () => [disabled(), floating(), domReference(), open(), portalNode()],
   );
 
   // Close on focus out and restore focus within the floating tree when needed.
@@ -451,7 +451,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
       disabledValue,
       domReferenceValue,
       floatingValue,
-      floatingForFocus,
       modalValue,
       ,
       closeOnFocusOutValue,
@@ -460,7 +459,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
       nextFocusableElementValue,
       previousFocusableElementValue,
     ]) => {
-      const floatingFocusElementValue = getFloatingFocusElement(floatingForFocus);
+      const floatingFocusElementValue = getFloatingFocusElement(floatingValue);
       if (disabledValue || !closeOnFocusOutValue) {
         return undefined;
       }
@@ -649,7 +648,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
       disabled(),
       domReference(),
       floating(),
-      floating(),
       modal(),
       portalNode(),
       closeOnFocusOut(),
@@ -760,7 +758,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
         // Port note: upstream reads the focused element before queueing, after the children's
         // layout effects (an `autoFocus` inside) ran. Solid runs them after this effect, so read it
-        // here, once they have.
+        // here, once they have. A focus that a parent's effect moved inside synchronously (which
+        // upstream runs after this check) counts as well, so it's kept rather than moved.
         const focusAlreadyInsideFloatingEl = contains(
           floatingFocusElementValue,
           activeElement(doc),
@@ -830,8 +829,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
   // Track return focus targets and restore focus on unmount/close.
   useIsoLayoutEffect(
-    ([disabledValue, floatingValue, floatingForFocus, domReferenceValue]) => {
-      const floatingFocusElementValue = getFloatingFocusElement(floatingForFocus);
+    ([disabledValue, floatingValue, domReferenceValue]) => {
+      const floatingFocusElementValue = getFloatingFocusElement(floatingValue);
       if (disabledValue || !floatingFocusElementValue) {
         pendingReturnFocus = null;
         return undefined;
@@ -999,7 +998,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
         });
       };
     },
-    () => [disabled(), floating(), floating(), domReference()],
+    () => [disabled(), floating(), domReference()],
   );
 
   // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus

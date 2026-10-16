@@ -86,6 +86,9 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
       height: CollapsiblePanelCssVars.collapsiblePanelHeight,
       width: CollapsiblePanelCssVars.collapsiblePanelWidth,
     },
+    // `panelState` is defined below. The hook only reads the style once the panel rendered.
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    style: () => resolveStyle(componentProps.style, panelState()),
   });
 
   const panelState = createMemo<CollapsiblePanelState>(
@@ -94,6 +97,14 @@ export function CollapsiblePanel(componentProps: CollapsiblePanel.Props) {
       transitionStatus: panel.transitionStatus(),
     }),
     { equals: fastObjectShallowCompare },
+  );
+
+  // Applying the `style` prop can replace the size variables (a string sets the whole inline style).
+  useIsoLayoutEffect(
+    () => {
+      panel.applyDimensions();
+    },
+    () => [resolveStyle(componentProps.style, panelState())],
   );
 
   return (

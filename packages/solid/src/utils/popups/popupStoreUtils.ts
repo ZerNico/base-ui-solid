@@ -46,7 +46,7 @@ type PopupStoreWithOpen<
     setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
     useDerivedState<Key extends keyof State>(
       key: Key,
-      derive: (rawValue: State[Key], rawState: State) => State[Key],
+      derive: (rawValue: State[Key], rawState: State, writes: number) => State[Key],
     ): void;
   };
 
