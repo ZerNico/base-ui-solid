@@ -280,6 +280,10 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - Select (`deriveOpenHighlight`) and Menu derive their highlighted index for the current open
     (the selected item on open, and no highlight once closed for Menu) instead of list navigation
     writing it through `onNavigate` from an effect.
+  - `useOpenStateTransitions` derives the controlled popups' `open` request reset (`false` from
+    the prop's close until the next write), and the filter dropdown derives the query it holds
+    while the popup animates out. Clearing the value at unmount notifies the consumer, so that part
+    stays an effect.
 - Behavior that differs from upstream because props no longer lag: a Select item clicked by a
   descendant in the same update that disables the Root ignores the click (upstream accepts it, see
   `select/store.test.tsx`).
