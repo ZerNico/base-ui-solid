@@ -1,11 +1,11 @@
-import { createMemo, For, omit, Show } from 'solid-js';
+import { createMemo, createSignal, flatten, For, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
-import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { activeElement, contains, getTarget } from '../../floating-ui-solid/utils';
@@ -28,7 +28,6 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
   const store = useToastProviderContext();
   const windowFocusTimeout = useTimeout();
 
-  let handlingFocusGuard = false;
   let markedReadyForMouseLeave = false;
   let touchActive = false;
 
@@ -49,11 +48,10 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
 
   useEffect(
     ([isEmptyValue]) => {
-      // `store.state.viewport` isn't available on the first render, since the portal node hasn't yet
-      // been created. Depending on `isEmpty` ensures the listeners are attached once toasts exist and
-      // the viewport ref is available.
+      // Window focus is tracked even while empty, so toasts added in the background start paused.
+      // `isEmpty` only toggles the F6 and touch listeners.
       const viewport = store.state.viewport;
-      if (!viewport || isEmptyValue) {
+      if (!viewport) {
         return undefined;
       }
 
@@ -62,13 +60,16 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
 
       // Listen globally for F6 so we can force-focus the viewport.
       function handleGlobalKeyDown(event: KeyboardEvent) {
-        if (event.key === 'F6' && getTarget(event) !== viewport) {
-          event.preventDefault();
-          store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
-          viewport?.focus({ preventScroll: true });
-          store.pauseTimers();
-          store.set('focused', true);
+        // Skip presses another viewport already handled.
+        if (event.key !== 'F6' || event.defaultPrevented) {
+          return;
         }
+
+        event.preventDefault();
+        // Set the restore target before focusing: consumer focus handlers may close the toasts.
+        store.set('prevFocusElement', activeElement(doc) as HTMLElement | null);
+        // `handleFocus` pauses only on visible focus, which script focus doesn't get everywhere.
+        viewport?.focus({ preventScroll: true, focusVisible: true });
       }
 
       function handleWindowBlur(event: FocusEvent) {
@@ -76,6 +77,7 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
           return;
         }
 
+        windowFocusTimeout.clear();
         store.set('isWindowFocused', false);
         store.pauseTimers();
       }
@@ -85,33 +87,29 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
           return;
         }
 
-        const target = getTarget(event);
-        const activeEl = activeElement(ownerDocument(viewport));
-        if (
-          target === win ||
-          !contains(viewport, target as HTMLElement | null) ||
-          !isFocusVisible(activeEl)
-        ) {
-          store.resumeTimers();
-        }
-
-        // Wait for the `handleFocus` event to fire.
-        windowFocusTimeout.start(0, () => store.set('isWindowFocused', true));
+        // This capture listener also sees element focus, e.g. a click on a toast while nothing
+        // had focus. Wait for `handleFocus` so keyboard focus inside the viewport keeps the pause,
+        // and resume after the flag flips so toasts added in between start running too.
+        windowFocusTimeout.start(0, () => {
+          store.set('isWindowFocused', true);
+          if (!store.select('expanded')) {
+            store.resumeTimers();
+          }
+        });
       }
 
       return mergeCleanups(
-        addEventListener(win, 'keydown', handleGlobalKeyDown),
         addEventListener(win, 'blur', handleWindowBlur, true),
         addEventListener(win, 'focus', handleWindowFocus, true),
-        addEventListener(doc, 'pointerdown', store.handleDocumentPointerDown, true),
+        !isEmptyValue && addEventListener(win, 'keydown', handleGlobalKeyDown),
+        !isEmptyValue &&
+          addEventListener(doc, 'pointerdown', store.handleDocumentPointerDown, true),
       );
     },
     () => [isEmpty()],
   );
 
   function handleFocusGuard(event: FocusEvent) {
-    handlingFocusGuard = true;
-
     // If we're coming off the container, move to the first toast that can hold
     // focus, skipping toasts that are animating out or inert because they're limited.
     const firstFocusableToast =
@@ -127,13 +125,27 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
   }
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Tab' && event.shiftKey && getTarget(event) === store.state.viewport) {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    const isF6 = event.key === 'F6';
+    if (isF6) {
+      // Keep F6 pressed inside the viewport away from the global F6 listeners (including this
+      // one's), which would pull focus back to the viewport. Without a return target, leave the
+      // default action to the browser.
+      event.stopPropagation();
+    }
+
+    if (
+      (isF6 ||
+        (event.key === 'Tab' && event.shiftKey && getTarget(event) === store.state.viewport)) &&
+      store.state.prevFocusElement &&
+      store.restoreFocusToPrevElement()
+    ) {
+      // Cancel only if focus moved: a hidden or disabled return target leaves the
+      // browser free to move focus. `handleBlur` resumes the timers.
       event.preventDefault();
-      // Restoring focus blurs the viewport, and `handleBlur` resumes the timers
-      // from there. Resuming here as well would also fire when the previously
-      // focused element lives inside the viewport, letting toasts dismiss out
-      // from under the keyboard.
-      store.restoreFocusToPrevElement();
     }
   }
 
@@ -190,11 +202,6 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
   // Port note: reads the latest `focused` from the store, since the handler can run again before
   // Solid flushes the previous update (React re-renders in between).
   function handleFocus() {
-    if (handlingFocusGuard) {
-      handlingFocusGuard = false;
-      return;
-    }
-
     if (store.state.focused) {
       return;
     }
@@ -202,7 +209,8 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
     // Only set focused when the active element is focus-visible.
     // This prevents the viewport from staying expanded when clicking inside without
     // keyboard navigation.
-    if (isFocusVisible(activeElement(ownerDocument(store.state.viewport)))) {
+    const activeEl = activeElement(ownerDocument(store.state.viewport));
+    if (contains(store.state.viewport, activeEl) && isFocusVisible(activeEl)) {
       store.set('focused', true);
       store.pauseTimers();
     }
@@ -266,19 +274,49 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
     );
   }
 
+  const [viewportElement, setViewportElement] = createSignal<HTMLDivElement | null>(null, {
+    ownedWrite: true,
+  });
+
+  // Port note: upstream renders the inner guards around the children. A Solid fragment moves the
+  // toasts when guards are added on both sides (array reconciliation replaces the toast with the
+  // leading guard and re-inserts it), and moving a focused toast drops its focus without a
+  // `focusout`. So the guards are built in a memo (owned, and disposed when they're no longer
+  // rendered) and inserted at the viewport's edges in a layout effect, which only moves DOM nodes,
+  // like the triggers' focus guards (`useInsertedTriggerFocusGuards`).
+  const innerGuards = createMemo(() => {
+    if (!showFocusGuard()) {
+      return null;
+    }
+    return untrack(() => ({
+      before: flatten(<FocusGuard onFocus={handleFocusGuard} />) as HTMLElement,
+      after: flatten(<FocusGuard onFocus={handleFocusGuard} />) as HTMLElement,
+    }));
+  });
+
+  useIsoLayoutEffect(
+    ([guards, viewport]) => {
+      if (!guards || !viewport) {
+        return undefined;
+      }
+      viewport.insertBefore(guards.before, viewport.firstChild);
+      viewport.appendChild(guards.after);
+      return () => {
+        guards.before.remove();
+        guards.after.remove();
+      };
+    },
+    () => [innerGuards(), viewportElement()] as const,
+  );
+
   const childrenProps = {
     get children() {
-      return (
-        <>
-          {renderFocusGuard()}
-          {componentProps.children}
-          {renderFocusGuard()}
-        </>
-      );
+      return componentProps.children;
     },
   };
 
   const setViewport = (element: HTMLDivElement | null) => {
+    setViewportElement(element);
     store.setViewport(element);
   };
 

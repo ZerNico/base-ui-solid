@@ -1,6 +1,7 @@
-import { flush } from 'solid-js';
+import { For, flush } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
+import type { UserEvent } from '@testing-library/user-event';
 import { Toast } from 'base-ui-solid/toast';
 import {
   createRenderer,
@@ -8,7 +9,9 @@ import {
   fireEvent,
   flushMicrotasks,
   isJSDOM,
+  resetBrowserPointer,
   screen,
+  wait,
   waitFor,
 } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
@@ -82,6 +85,9 @@ describe('<Toast.Viewport />', () => {
       const removeWindowListener = vi.spyOn(iframeWindow, 'removeEventListener');
       const addDocumentListener = vi.spyOn(iframeDocument, 'addEventListener');
       const removeDocumentListener = vi.spyOn(iframeDocument, 'removeEventListener');
+      const liveWindowListeners = (type: string) =>
+        addWindowListener.mock.calls.filter((call) => call[0] === type).length -
+        removeWindowListener.mock.calls.filter((call) => call[0] === type).length;
 
       function Controls() {
         const toastManager = Toast.useToastManager();
@@ -119,8 +125,8 @@ describe('<Toast.Viewport />', () => {
         );
 
         expect(addWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(1);
-        expect(addWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(1);
-        expect(addWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(1);
+        expect(liveWindowListeners('blur')).toBe(1);
+        expect(liveWindowListeners('focus')).toBe(1);
         expect(
           addDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
         ).toHaveLength(1);
@@ -138,10 +144,9 @@ describe('<Toast.Viewport />', () => {
         expect(removeWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(
           1,
         );
-        expect(removeWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(1);
-        expect(removeWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(
-          1,
-        );
+        // Window focus tracking stays attached while the viewport is empty.
+        expect(liveWindowListeners('blur')).toBe(1);
+        expect(liveWindowListeners('focus')).toBe(1);
         expect(
           removeDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
         ).toHaveLength(1);
@@ -151,8 +156,8 @@ describe('<Toast.Viewport />', () => {
           expect(iframeDocument.querySelector('[data-testid="root"]')).not.toBe(null),
         );
         expect(addWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(2);
-        expect(addWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(2);
-        expect(addWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(2);
+        expect(liveWindowListeners('blur')).toBe(1);
+        expect(liveWindowListeners('focus')).toBe(1);
         expect(
           addDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
         ).toHaveLength(2);
@@ -270,6 +275,355 @@ describe('<Toast.Viewport />', () => {
     await user.tab(); // last toast close button
     await user.tab(); // last toast action button
     await user.tab();
+
+    expect(button).toHaveFocus();
+  });
+
+  it('returns focus to previous element when F6 is pressed from inside the viewport', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+
+    await user.click(button);
+    await user.keyboard('{F6}');
+    await user.tab();
+    expect(screen.getByTestId('root')).toHaveFocus();
+
+    await user.keyboard('{F6}');
+
+    expect(button).toHaveFocus();
+  });
+
+  it('keeps focus where the viewport moves it on F6 and returns it to the F6 origin', async () => {
+    const manager = Toast.createToastManager();
+    const otherManager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <>
+        <button type="button">origin</button>
+        <button type="button">other</button>
+        <Toast.Provider toastManager={manager}>
+          <Toast.Viewport
+            onFocus={(event) => {
+              if (event.target === event.currentTarget) {
+                event.currentTarget.querySelector<HTMLElement>('[data-testid="root"]')?.focus();
+              }
+            }}
+          >
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <Toast.Provider toastManager={otherManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </>
+    ));
+
+    manager.add({ title: 'title' });
+    await flushMicrotasks();
+    // The other viewport's F6 listener is registered second, so it only acts if the first
+    // listener leaves the press unhandled.
+    otherManager.add({ title: 'other' });
+    await flushMicrotasks();
+
+    const origin = screen.getByRole('button', { name: 'origin' });
+    origin.focus();
+    await flushMicrotasks();
+
+    await user.keyboard('{F6}');
+    expect(screen.getAllByTestId('root')[0]).toHaveFocus();
+
+    await user.tab({ shift: true });
+
+    expect(origin).toHaveFocus();
+  });
+
+  it('returns focus to the F6 origin when focusing the viewport closes the last toast', async () => {
+    const manager = Toast.createToastManager();
+    const otherManager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <>
+        <button type="button">origin</button>
+        <Toast.Provider toastManager={manager}>
+          <Toast.Viewport data-testid="viewport" onFocus={() => manager.close()}>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <Toast.Provider toastManager={otherManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </>
+    ));
+
+    manager.add({ title: 'title' });
+    await flushMicrotasks();
+    // The other viewport's F6 listener is registered second, so it only acts if the first
+    // listener leaves the press unhandled.
+    otherManager.add({ title: 'other' });
+    await flushMicrotasks();
+
+    const origin = screen.getByRole('button', { name: 'origin' });
+    origin.focus();
+    await flushMicrotasks();
+
+    await user.keyboard('{F6}');
+
+    expect(origin).toHaveFocus();
+  });
+
+  it('does not restore focus on an F6 press prevented by the consumer', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport" onKeyDown={(event) => event.preventDefault()}>
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+    await user.click(screen.getByRole('button', { name: 'add' }));
+    await user.keyboard('{F6}');
+    const viewport = screen.getByTestId('viewport');
+    expect(viewport).toHaveFocus();
+
+    await user.keyboard('{F6}');
+
+    expect(viewport).toHaveFocus();
+  });
+
+  it('leaves F6 to the browser when the viewport was entered without F6', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    await user.click(screen.getByRole('button', { name: 'add' }));
+
+    const root = screen.getByTestId('root');
+    root.focus();
+    await flushMicrotasks();
+
+    expect(fireEvent.keyDown(root, { key: 'F6' })).toBe(true);
+    flush();
+    expect(root).toHaveFocus();
+  });
+
+  it('leaves F6 to the browser when the viewport was entered without F6 after an earlier F6 visit', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    await user.keyboard('{F6}');
+    expect(screen.getByTestId('viewport')).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(button).toHaveFocus();
+
+    const root = screen.getByTestId('root');
+    root.focus();
+    await flushMicrotasks();
+
+    expect(fireEvent.keyDown(root, { key: 'F6' })).toBe(true);
+    flush();
+    expect(root).toHaveFocus();
+  });
+
+  it('leaves F6 to the browser when the element focused before F6 was removed', async ({
+    onTestFinished,
+  }) => {
+    const manager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <Toast.Provider toastManager={manager}>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    manager.add({ title: 'title' });
+    await flushMicrotasks();
+
+    const origin = document.createElement('button');
+    document.body.appendChild(origin);
+    onTestFinished(() => origin.remove());
+    origin.focus();
+    await flushMicrotasks();
+
+    await user.keyboard('{F6}');
+    expect(screen.getByTestId('viewport')).toHaveFocus();
+    origin.remove();
+
+    expect(fireEvent.keyDown(screen.getByTestId('viewport'), { key: 'F6' })).toBe(true);
+    flush();
+    expect(screen.getByTestId('viewport')).toHaveFocus();
+  });
+
+  it('ignores F6 while the viewport is empty', async () => {
+    await render(() => (
+      <>
+        <button type="button">page</button>
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </>
+    ));
+
+    const button = screen.getByRole('button', { name: 'page' });
+    button.focus();
+    await flushMicrotasks();
+
+    expect(fireEvent.keyDown(button, { key: 'F6' })).toBe(true);
+    flush();
+    expect(button).toHaveFocus();
+  });
+
+  it.each([
+    { name: 'with an F6 origin', enterWithF6: true },
+    { name: 'without an F6 origin', enterWithF6: false },
+  ])('handles F6 in the focused viewport $name before other providers', async ({ enterWithF6 }) => {
+    const firstManager = Toast.createToastManager();
+    const secondManager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <>
+        <button type="button">origin</button>
+        <Toast.Provider toastManager={firstManager}>
+          <Toast.Viewport data-testid="first-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <Toast.Provider toastManager={secondManager}>
+          <Toast.Viewport data-testid="second-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      </>
+    ));
+    const origin = screen.getByRole('button', { name: 'origin' });
+    firstManager.add({ title: 'first' });
+    await flushMicrotasks();
+    secondManager.add({ title: 'second' });
+    origin.focus();
+    await flushMicrotasks();
+    // The first viewport's global listener was registered first, so F6 enters it.
+    const firstViewport = screen.getByTestId('first-viewport');
+    if (enterWithF6) {
+      await user.keyboard('{F6}');
+    } else {
+      firstViewport.focus();
+      await flushMicrotasks();
+    }
+    expect(firstViewport).toHaveFocus();
+
+    expect(fireEvent.keyDown(firstViewport, { key: 'F6' })).toBe(!enterWithF6);
+    flush();
+    expect(enterWithF6 ? origin : firstViewport).toHaveFocus();
+  });
+
+  it('returns focus to the body on F6 when nothing had focus before entering', async () => {
+    const manager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <Toast.Provider toastManager={manager}>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+      </Toast.Provider>
+    ));
+
+    manager.add({ title: 'title' });
+    await flushMicrotasks();
+    expect(document.activeElement).toBe(document.body);
+
+    await user.keyboard('{F6}');
+    await user.tab();
+    expect(screen.getByTestId('root')).toHaveFocus();
+
+    await user.keyboard('{F6}');
+
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('leaves shift+Tab to the browser on a viewport focused without F6 after an earlier F6 visit', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    await user.keyboard('{F6}');
+    await user.tab({ shift: true });
+    expect(button).toHaveFocus();
+
+    const viewport = screen.getByTestId('viewport');
+    viewport.focus();
+    await flushMicrotasks();
+
+    expect(fireEvent.keyDown(viewport, { key: 'Tab', shiftKey: true })).toBe(true);
+  });
+
+  it.each([
+    { name: 'F6', exit: (user: UserEvent) => user.keyboard('{F6}') },
+    { name: 'shift+Tab', exit: (user: UserEvent) => user.tab({ shift: true }) },
+  ])('returns focus to the page on $name after F6 with two providers', async ({ exit }) => {
+    const firstManager = Toast.createToastManager();
+    const secondManager = Toast.createToastManager();
+    const { user } = await render(() => (
+      <>
+        <Toast.Provider toastManager={firstManager}>
+          <Toast.Viewport data-testid="first-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <Toast.Provider toastManager={secondManager}>
+          <Toast.Viewport data-testid="second-viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+        <button type="button">page</button>
+      </>
+    ));
+
+    firstManager.add({ title: 'first' });
+    secondManager.add({ title: 'second' });
+    await flushMicrotasks();
+
+    const button = screen.getByRole('button', { name: 'page' });
+    button.focus();
+    await flushMicrotasks();
+
+    await user.keyboard('{F6}');
+    expect([screen.getByTestId('first-viewport'), screen.getByTestId('second-viewport')]).toContain(
+      document.activeElement,
+    );
+
+    await exit(user);
 
     expect(button).toHaveFocus();
   });
@@ -492,6 +846,13 @@ describe('<Toast.Viewport />', () => {
 
     clock.withFakeTimers();
 
+    function dispatchWindowEvent(type: 'blur' | 'focus') {
+      const event = new FocusEvent(type);
+      // jsdom reports an empty `composedPath()` for events dispatched on the window.
+      Object.defineProperty(event, 'composedPath', { value: () => [window] });
+      window.dispatchEvent(event);
+    }
+
     it('pauses timers when hovering', async () => {
       await renderFakeTimers(() => (
         <Toast.Provider>
@@ -562,6 +923,78 @@ describe('<Toast.Viewport />', () => {
       clock.tick(5001);
 
       expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('runs timers when onFocus redirects focus outside the viewport', async () => {
+      const manager = Toast.createToastManager();
+      let origin: HTMLButtonElement | undefined;
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <button
+            ref={(element) => {
+              origin = element;
+            }}
+            type="button"
+          >
+            origin
+          </button>
+          <Toast.Viewport data-testid="viewport" onFocus={() => origin?.focus()}>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ title: 'title' });
+      origin?.focus();
+      await flushMicrotasks();
+      expect(origin).toHaveFocus();
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'origin' }), { key: 'F6' });
+      flush();
+
+      expect(origin).toHaveFocus();
+      expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-expanded');
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
+    });
+
+    it('runs new toast timers after onFocus closes the last toast', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport" onFocus={() => manager.close()}>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      const origin = screen.getByRole('button', { name: 'origin' });
+      manager.add({ title: 'first' });
+      origin.focus();
+      await flushMicrotasks();
+      expect(origin).toHaveFocus();
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'origin' }), { key: 'F6' });
+      flush();
+      clock.tick(100);
+      expect(origin).toHaveFocus();
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
+
+      manager.add({ title: 'second' });
+      await flushMicrotasks();
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).not.toHaveAttribute('data-expanded');
+      mouseEnter(viewport);
+      expect(viewport).toHaveAttribute('data-expanded');
+      clock.tick(5001);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      mouseLeave(viewport);
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBeInTheDocument();
     });
 
     it.each(['hovering', 'focused'] as const)(
@@ -652,44 +1085,6 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
       expect(screen.queryByTestId('root')).toBe(null);
-    });
-
-    it('keeps timers paused when shift+Tab returns focus inside the viewport', async () => {
-      await renderFakeTimers(() => (
-        <Toast.Provider>
-          <Toast.Viewport data-testid="viewport">
-            <List />
-          </Toast.Viewport>
-          <Button />
-        </Toast.Provider>
-      ));
-
-      const button = screen.getByRole('button', { name: 'add' });
-
-      button.focus();
-      await flushMicrotasks();
-      fireEvent.click(button);
-      flush();
-
-      // Pressing F6 from a control inside the toast makes the restore target
-      // itself live inside the viewport.
-      const close = document.querySelector('[aria-label="close-press"]') as HTMLElement;
-      close.focus();
-      await flushMicrotasks();
-      fireEvent.keyDown(close, { key: 'F6' });
-      flush();
-
-      const viewport = screen.getByTestId('viewport');
-      expect(viewport).toHaveFocus();
-
-      fireEvent.keyDown(viewport, { key: 'Tab', shiftKey: true });
-      flush();
-
-      expect(close).toHaveFocus();
-
-      clock.tick(5001);
-      // Focus never left the viewport, so the toast must stay put.
-      expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
     it('keeps the viewport focused when Tab is pressed without shift', async () => {
@@ -806,6 +1201,128 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
+    it('keeps a toast added while the window is blurred paused until the window regains focus', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <Toast.Portal>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+          </Toast.Portal>
+        </Toast.Provider>
+      ));
+
+      dispatchWindowEvent('blur');
+      await flushMicrotasks();
+      manager.add({ title: 'title' });
+      await flushMicrotasks();
+
+      clock.tick(5001);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      dispatchWindowEvent('focus');
+      await flushMicrotasks();
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('keeps timers paused when the window blurs again before its focus settles', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <Toast.Portal>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+          </Toast.Portal>
+        </Toast.Provider>
+      ));
+
+      manager.add({ title: 'title' });
+      await flushMicrotasks();
+      dispatchWindowEvent('blur');
+      await flushMicrotasks();
+      dispatchWindowEvent('focus');
+      dispatchWindowEvent('blur');
+      await flushMicrotasks();
+
+      clock.tick(5001);
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      dispatchWindowEvent('focus');
+      await flushMicrotasks();
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('runs the timer of a toast added after the window regained focus while empty', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <Toast.Portal>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+          </Toast.Portal>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'manual', title: 'manual', timeout: 0 });
+      await flushMicrotasks();
+      dispatchWindowEvent('blur');
+      await flushMicrotasks();
+      manager.close('manual');
+      await flushMicrotasks();
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('root')).toBe(null);
+
+      dispatchWindowEvent('focus');
+      clock.tick(1);
+      await flushMicrotasks();
+      manager.add({ title: 'title' });
+      await flushMicrotasks();
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('runs the timer of a toast added by a window focus listener after the window blurred while empty', async ({
+      onTestFinished,
+    }) => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      dispatchWindowEvent('blur');
+      await flushMicrotasks();
+      // Registered after the viewport's listener, so it runs before the deferred focus update.
+      const addToast = () => manager.add({ title: 'title' });
+      window.addEventListener('focus', addToast);
+      onTestFinished(() => window.removeEventListener('focus', addToast));
+
+      dispatchWindowEvent('focus');
+      await flushMicrotasks();
+      expect(screen.getByTestId('root')).toBeInTheDocument();
+
+      clock.tick(5001);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
     it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
       await renderFakeTimers(() => (
         <Toast.Provider>
@@ -827,6 +1344,85 @@ describe('<Toast.Viewport />', () => {
 
       button.focus();
       await flushMicrotasks();
+
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('keeps timers paused on F6 after the outer focus guard returned focus to the page', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+      manager.add({ title: 'title' });
+      await flushMicrotasks();
+      const origin = screen.getByRole('button', { name: 'origin' });
+      const viewport = screen.getByTestId('viewport');
+
+      origin.focus();
+      await flushMicrotasks();
+      fireEvent.keyDown(origin, { key: 'F6' });
+      flush();
+      expect(viewport).toHaveFocus();
+
+      // Leaving without the keyboard keeps the guards rendered, so tabbing forward from
+      // the page reaches the outer guard, which returns focus to the F6 origin.
+      origin.focus();
+      await flushMicrotasks();
+      const outerGuard = viewport.previousElementSibling as HTMLElement;
+      outerGuard.focus();
+      await flushMicrotasks();
+      expect(origin).toHaveFocus();
+
+      fireEvent.keyDown(origin, { key: 'F6' });
+      flush();
+      expect(viewport).toHaveFocus();
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('resumes timers after tabbing past the last toast when the F6 origin was disabled', async () => {
+      const manager = Toast.createToastManager();
+      await renderFakeTimers(() => (
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <button type="button">other</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+      manager.add({ title: 'title' });
+      await flushMicrotasks();
+      const origin = screen.getByRole<HTMLButtonElement>('button', { name: 'origin' });
+      const viewport = screen.getByTestId('viewport');
+
+      origin.focus();
+      await flushMicrotasks();
+      fireEvent.keyDown(origin, { key: 'F6' });
+      flush();
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      screen.getByTestId('root').focus();
+      await flushMicrotasks();
+      origin.disabled = true;
+      // Tabbing past the last toast lands on the trailing guard, which can't restore focus.
+      const trailingGuard = viewport.lastElementChild as HTMLElement;
+      trailingGuard.focus();
+      await flushMicrotasks();
+
+      screen.getByRole('button', { name: 'other' }).focus();
+      await flushMicrotasks();
+      expect(viewport).not.toHaveAttribute('data-expanded');
 
       clock.tick(5001);
 
@@ -1263,6 +1859,285 @@ describe('<Toast.Viewport />', () => {
       await flushMicrotasks();
 
       expect(button).toHaveFocus();
+    });
+  });
+
+  describe.skipIf(isJSDOM)('real browser input', () => {
+    function TitleList() {
+      const toastManager = Toast.useToastManager();
+      return (
+        <For each={toastManager.toasts} keyed={(toast) => toast.id}>
+          {(toast) => (
+            <Toast.Root toast={toast()} data-testid={toast().id}>
+              <Toast.Title data-testid={`${toast().id}-title`} />
+            </Toast.Root>
+          )}
+        </For>
+      );
+    }
+
+    it('returns focus to the origin when onClose adds an unmounted replacement toast', async () => {
+      const { userEvent } = await import('vitest/browser');
+      const manager = Toast.createToastManager();
+      await render(() => (
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+      const origin = screen.getByRole('button', { name: 'origin' });
+      manager.add({
+        id: 'first',
+        title: 'first',
+        onClose: () => manager.add({ id: 'replacement', title: 'replacement' }),
+      });
+      origin.focus();
+      await flushMicrotasks();
+      await userEvent.keyboard('{F6}{Tab}');
+      await flushMicrotasks();
+      expect(screen.getByTestId('first')).toHaveFocus();
+      await userEvent.keyboard('{Escape}');
+      await flushMicrotasks();
+      expect(await screen.findByTestId('replacement')).toBeInTheDocument();
+      expect(screen.queryByTestId('first')).not.toBeInTheDocument();
+      expect(origin).toHaveFocus();
+    });
+
+    it.each([
+      {
+        name: 'hidden',
+        disable: (element: HTMLButtonElement) => {
+          element.hidden = true;
+        },
+      },
+      {
+        name: 'disabled',
+        disable: (element: HTMLButtonElement) => {
+          element.disabled = true;
+        },
+      },
+      {
+        name: 'inert',
+        disable: (element: HTMLButtonElement) => {
+          element.inert = true;
+        },
+      },
+    ])('leaves F6 to the browser when its origin becomes $name', async ({ disable }) => {
+      const manager = Toast.createToastManager();
+      const { user } = await render(() => (
+        <Toast.Provider toastManager={manager}>
+          <button type="button">origin</button>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+      const origin = screen.getByRole<HTMLButtonElement>('button', { name: 'origin' });
+      manager.add({ title: 'title' });
+      origin.focus();
+      await flushMicrotasks();
+      await user.keyboard('{F6}');
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveFocus();
+      disable(origin);
+
+      expect(fireEvent.keyDown(viewport, { key: 'F6' })).toBe(true);
+    });
+
+    it('keeps timers paused when a hovered toast is clicked while nothing had focus', async ({
+      onTestFinished,
+    }) => {
+      const { userEvent } = await import('vitest/browser');
+      onTestFinished(resetBrowserPointer);
+      const manager = Toast.createToastManager();
+
+      await render(() => (
+        <Toast.Provider toastManager={manager} timeout={300}>
+          <Toast.Viewport>
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'toast', title: 'title' });
+      await flushMicrotasks();
+      expect(document.activeElement).toBe(document.body);
+
+      await userEvent.click(screen.getByTestId('toast-title'));
+      await flushMicrotasks();
+      expect(screen.getByTestId('toast')).toHaveFocus();
+
+      await wait(600);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('toast')).toBeInTheDocument();
+    });
+
+    it('keeps timers paused when the window regains focus while a toast is hovered', async ({
+      onTestFinished,
+    }) => {
+      const { userEvent } = await import('vitest/browser');
+      onTestFinished(resetBrowserPointer);
+      const manager = Toast.createToastManager();
+
+      await render(() => (
+        <Toast.Provider toastManager={manager} timeout={300}>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'toast', title: 'title' });
+      await flushMicrotasks();
+
+      await userEvent.hover(screen.getByTestId('toast'));
+      await flushMicrotasks();
+      expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
+
+      // Focusing an element in the parent frame blurs this window for real.
+      const parentInput = window.parent.document.createElement('input');
+      // Keep the parent layout unchanged so the pointer stays over the toast.
+      parentInput.style.position = 'fixed';
+      parentInput.style.left = '-1000px';
+      window.parent.document.body.appendChild(parentInput);
+      onTestFinished(() => parentInput.remove());
+
+      parentInput.focus();
+      await wait(50);
+      await flushMicrotasks();
+      expect(document.hasFocus()).toBe(false);
+
+      window.focus();
+      await wait(50);
+      await flushMicrotasks();
+      expect(document.hasFocus()).toBe(true);
+
+      await wait(600);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('toast')).toBeInTheDocument();
+    });
+
+    it('moves focus to a visible toast when the next one was limited', async () => {
+      const { userEvent } = await import('vitest/browser');
+      const manager = Toast.createToastManager();
+
+      await render(() => (
+        <Toast.Provider toastManager={manager} limit={2} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'oldest', title: 'oldest' });
+      manager.add({ id: 'middle', title: 'middle' });
+      manager.add({ id: 'newest', title: 'newest' });
+      await flushMicrotasks();
+
+      const middle = screen.getByTestId('middle');
+      expect(screen.getByTestId('oldest')).toHaveAttribute('inert');
+
+      await userEvent.keyboard('{F6}');
+      await flushMicrotasks();
+      expect(screen.getByTestId('viewport')).toHaveFocus();
+
+      middle.focus();
+      await flushMicrotasks();
+      expect(middle).toHaveFocus();
+      expect(middle.matches(':focus-visible')).toBe(true);
+
+      await userEvent.keyboard('{Escape}');
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(middle).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId('newest')).toHaveFocus();
+    });
+
+    it('moves focus to a toast that stays open when onClose closes another', async () => {
+      const { userEvent } = await import('vitest/browser');
+      const manager = Toast.createToastManager();
+
+      await render(() => (
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'oldest', title: 'oldest' });
+      manager.add({
+        id: 'middle',
+        title: 'middle',
+        onClose: () => manager.close('oldest'),
+      });
+      manager.add({ id: 'newest', title: 'newest' });
+      await flushMicrotasks();
+
+      const middle = screen.getByTestId('middle');
+      const oldest = screen.getByTestId('oldest');
+
+      await userEvent.keyboard('{F6}');
+      await flushMicrotasks();
+      middle.focus();
+      await flushMicrotasks();
+      expect(middle.matches(':focus-visible')).toBe(true);
+
+      await userEvent.keyboard('{Escape}');
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(middle).not.toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(oldest).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId('newest')).toHaveFocus();
+    });
+
+    it('moves focus to the next toast when the closed toast adds one in onClose', async () => {
+      const { userEvent } = await import('vitest/browser');
+      const manager = Toast.createToastManager();
+
+      await render(() => (
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <TitleList />
+          </Toast.Viewport>
+        </Toast.Provider>
+      ));
+
+      manager.add({ id: 'oldest', title: 'oldest' });
+      manager.add({
+        id: 'middle',
+        title: 'middle',
+        onClose: () => manager.add({ id: 'added', title: 'added' }),
+      });
+      manager.add({ id: 'newest', title: 'newest' });
+      await flushMicrotasks();
+
+      const middle = screen.getByTestId('middle');
+
+      await userEvent.keyboard('{F6}');
+      await flushMicrotasks();
+      middle.focus();
+      await flushMicrotasks();
+      expect(middle.matches(':focus-visible')).toBe(true);
+
+      await userEvent.keyboard('{Escape}');
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(middle).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId('added')).toBeInTheDocument();
+      expect(screen.getByTestId('oldest')).toHaveFocus();
     });
   });
 });
