@@ -432,17 +432,23 @@ export function SelectRoot<
   const openCycle = createMemo<object | undefined>((previous) =>
     open() ? (previous ?? {}) : undefined,
   );
-  let lastOpenCycle: object | undefined;
+  // Without a selected index to sync (nothing selected, or navigation disabled), the highlight is
+  // left as it is.
   let highlight: number | null = null;
+  let highlightCycle: object | undefined;
   let writesAtHighlight = 0;
   store.useDerivedState('activeIndex', (raw, _, writes) => {
     const cycle = openCycle();
     const openHighlight = listNavigation.openHighlightIndex();
-    if (cycle !== undefined && (cycle !== lastOpenCycle || openHighlight !== highlight)) {
+    if (
+      cycle !== undefined &&
+      openHighlight != null &&
+      (cycle !== highlightCycle || openHighlight !== highlight)
+    ) {
       highlight = openHighlight;
+      highlightCycle = cycle;
       writesAtHighlight = writes;
     }
-    lastOpenCycle = cycle;
     return writes === writesAtHighlight && highlight != null ? highlight : raw;
   });
 

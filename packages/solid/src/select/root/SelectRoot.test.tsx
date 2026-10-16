@@ -688,6 +688,38 @@ describe('<Select.Root />', () => {
 
       expect(trigger).toHaveTextContent('a');
     });
+    it('keeps the selected item highlighted when disabled while open (port regression)', async () => {
+      const [disabled, setDisabled] = createSignal(false);
+      await render(() => (
+        <Select.Root
+          defaultValue="b"
+          defaultOpen
+          highlightItemOnHover={false}
+          disabled={disabled()}
+        >
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => expect(optionB).toHaveAttribute('data-highlighted'));
+
+      setDisabled(true);
+      await flushMicrotasks();
+
+      expect(optionB).toHaveAttribute('data-highlighted');
+    });
+
     it('highlights the selected item when it moves while open (port regression)', async () => {
       const [items, setItems] = createSignal(['a', 'b', 'c']);
       const { user } = await render(() => (
