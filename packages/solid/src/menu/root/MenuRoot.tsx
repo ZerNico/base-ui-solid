@@ -227,6 +227,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
+    () => props.open,
     () => {
       store.set('allowMouseEnter', false);
     },

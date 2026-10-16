@@ -40,10 +40,15 @@ function PopoverRootComponent<Payload>(componentProps: {
 
   usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.context.stickIfOpen = true;
-    store.set('openChangeReason', null);
-  });
+  const { forceUnmount } = useOpenStateTransitions(
+    open,
+    store,
+    () => props.open,
+    () => {
+      store.context.stickIfOpen = true;
+      store.set('openChangeReason', null);
+    },
+  );
 
   const modal = () => props.modal ?? false;
 

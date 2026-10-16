@@ -1947,7 +1947,114 @@ describe('<Menu.Root />', () => {
         flush();
         expect(screen.queryByRole('menu')).toBe(null);
       });
+
+      it('keeps the trigger that reopens the menu before its exit animation completes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let finishExit!: () => void;
+        const exitFinished = new Promise<void>((resolve) => {
+          finishExit = resolve;
+        });
+        const [open, setOpen] = createSignal(false);
+        // Lets the test hold a controlled reopen back, so it commits only after the exit
+        // animation's completion callback has run.
+        let deferOpenChange = false;
+        let deferredOpen: boolean | null = null;
+
+        const { user } = await render(() => (
+          <Menu.Root
+            open={open()}
+            onOpenChange={(nextOpen) => {
+              if (deferOpenChange) {
+                deferredOpen = nextOpen;
+              } else {
+                setOpen(nextOpen);
+              }
+            }}
+          >
+            <Menu.Trigger>Trigger 1</Menu.Trigger>
+            <Menu.Trigger>Trigger 2</Menu.Trigger>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        ));
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+        const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+        const popup = screen.getByTestId('popup');
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        Object.defineProperty(popup, 'getAnimations', {
+          value: () => [{ finished: exitFinished }],
+          configurable: true,
+        });
+
+        setOpen(false);
+        await flushMicrotasks();
+        expect(popup).toHaveAttribute('data-ending-style');
+
+        deferOpenChange = true;
+        await user.click(trigger2);
+        await waitFor(() => {
+          expect(deferredOpen).toBe(true);
+        });
+
+        finishExit();
+        await flushMicrotasks();
+        setOpen(true);
+        await flushMicrotasks();
+
+        expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears the active trigger when a controlled close completes without a reopen', async () => {
+        const [open, setOpen] = createSignal(false);
+
+        const { user } = await render(() => (
+          <Menu.Root open={open()} onOpenChange={(nextOpen) => setOpen(nextOpen)}>
+            <Menu.Trigger>Trigger 1</Menu.Trigger>
+            <Menu.Trigger>Trigger 2</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        ));
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        setOpen(false);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        setOpen(true);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
     });
+
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('interaction type tracking (openMethod)', () => {
         it('should not apply scroll lock when opened via touch', async () => {

@@ -758,6 +758,35 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).toBe(null);
       });
 
+      it('reopens when re-enabled if the disabled close was canceled', async () => {
+        const [disabled, setDisabled] = createSignal(false);
+        await render(() => (
+          <TestTooltip
+            rootProps={{
+              defaultOpen: true,
+              get disabled() {
+                return disabled();
+              },
+              onOpenChange: (open, details) => {
+                if (!open && details.reason === REASONS.disabled) {
+                  details.cancel();
+                }
+              },
+            }}
+            triggerProps={{ delay: 0 }}
+          />
+        ));
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        setDisabled(true);
+        await flushMicrotasks();
+        expect(screen.queryByText('Content')).toBe(null);
+
+        setDisabled(false);
+        await flushMicrotasks();
+        expect(screen.queryByText('Content')).not.toBe(null);
+      });
+
       it('closes its open state when becoming disabled (port regression)', async () => {
         const onOpenChange = vi.fn();
         const [disabled, setDisabled] = createSignal(false);

@@ -14,6 +14,7 @@ import {
   waitFor,
   refCallback,
 } from '#test-utils';
+import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { Popover } from '..';
 import { Menu } from '../../menu';
 import { Combobox } from '../../combobox';
@@ -1922,6 +1923,132 @@ describe('<Popover.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByText('Content')).toBe(null);
         });
+      });
+
+      it('clears the active trigger when `unmount` is called right after a controlled close', async () => {
+        const [open, setOpen] = createSignal(false);
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
+        const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
+
+        function App() {
+          // Runs after the Root's effects for the closing update, like upstream's parent effect.
+          useEffect(
+            ([openValue]) => {
+              if (!openValue) {
+                actionsRef.current?.unmount();
+              }
+            },
+            () => [open()],
+          );
+
+          return (
+            <Popover.Root
+              open={open()}
+              onOpenChange={(nextOpen) => setOpen(nextOpen)}
+              actionsRef={refCallback(actionsRef)}
+            >
+              <Popover.Trigger>Trigger 1</Popover.Trigger>
+              <Popover.Trigger>Trigger 2</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(() => <App />);
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        await user.click(trigger1);
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        setOpen(false);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        setOpen(true);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears the active trigger when a popup part calls `unmount` as a controlled close renders', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const [open, setOpen] = createSignal(false);
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
+        const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
+
+        function UnmountOnClose(props: { open: boolean }) {
+          useIsoLayoutEffect(
+            ([openValue]) => {
+              if (!openValue) {
+                actionsRef.current?.unmount();
+              }
+            },
+            () => [props.open],
+          );
+          return null;
+        }
+
+        await render(() => (
+          <Popover.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            actionsRef={refCallback(actionsRef)}
+          >
+            <Popover.Trigger>Trigger 1</Popover.Trigger>
+            <Popover.Trigger>Trigger 2</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup
+                  data-testid="popup"
+                  render={(props, state) => (
+                    <div {...props}>
+                      <UnmountOnClose open={state.open} />
+                    </div>
+                  )}
+                />
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        ));
+        const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+        fireEvent.click(trigger1);
+        flush();
+        await waitFor(() => {
+          expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+        });
+
+        // A pending exit animation leaves the part's `unmount` call as the only one.
+        Object.defineProperty(screen.getByTestId('popup'), 'getAnimations', {
+          value: () => [{ finished: new Promise(() => {}) }],
+          configurable: true,
+        });
+
+        setOpen(false);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        setOpen(true);
+        await flushMicrotasks();
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.toBe(null);
+        });
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       });
     });
 

@@ -66,7 +66,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
   }));
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store, () => props.open);
 
   useIsoLayoutEffect(
     ([openStateValue, disabledValue]) => {
