@@ -23,6 +23,9 @@ export const mdxOptions = {
   recmaPlugins: [recmaSolidComponents],
   jsxImportSource: '@solidjs/web',
   remarkPlugins: [
+    // Port note: upstream runs this after transformMarkdownMetadata, so its page index (which
+    // `docs-infra validate` checks) keeps `[Preview]`/`[New]`, and strips them again for search.
+    // This site builds no page index, so it runs first and keeps the tags out of search too.
     remarkHeadingTags,
     remarkGfm,
     [transformMarkdownMetadata, { titleSuffix: ' · Base UI Solid' }],
