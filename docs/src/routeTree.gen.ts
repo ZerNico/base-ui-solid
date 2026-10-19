@@ -81,6 +81,7 @@ import { Route as DocsSolidOverviewReleasesV001RouteImport } from './routes/_doc
 import { Route as DocsSolidOverviewReleasesV010RouteImport } from './routes/_docs.solid.overview.releases.v0-1-0'
 import { Route as DocsSolidOverviewReleasesV020RouteImport } from './routes/_docs.solid.overview.releases.v0-2-0'
 import { Route as DocsSolidOverviewReleasesV030RouteImport } from './routes/_docs.solid.overview.releases.v0-3-0'
+import { Route as DocsSolidOverviewReleasesV031RouteImport } from './routes/_docs.solid.overview.releases.v0-3-1'
 
 const DocsRoute = DocsRouteImport.update({
   id: '/_docs',
@@ -491,6 +492,12 @@ const DocsSolidOverviewReleasesV030Route =
     path: '/v0-3-0',
     getParentRoute: () => DocsSolidOverviewReleasesRoute,
   } as any)
+const DocsSolidOverviewReleasesV031Route =
+  DocsSolidOverviewReleasesV031RouteImport.update({
+    id: '/v0-3-1',
+    path: '/v0-3-1',
+    getParentRoute: () => DocsSolidOverviewReleasesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WebsiteIndexRoute
@@ -561,6 +568,7 @@ export interface FileRoutesByFullPath {
   '/solid/overview/releases/v0-1-0': typeof DocsSolidOverviewReleasesV010Route
   '/solid/overview/releases/v0-2-0': typeof DocsSolidOverviewReleasesV020Route
   '/solid/overview/releases/v0-3-0': typeof DocsSolidOverviewReleasesV030Route
+  '/solid/overview/releases/v0-3-1': typeof DocsSolidOverviewReleasesV031Route
   '/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -627,6 +635,7 @@ export interface FileRoutesByTo {
   '/solid/overview/releases/v0-1-0': typeof DocsSolidOverviewReleasesV010Route
   '/solid/overview/releases/v0-2-0': typeof DocsSolidOverviewReleasesV020Route
   '/solid/overview/releases/v0-3-0': typeof DocsSolidOverviewReleasesV030Route
+  '/solid/overview/releases/v0-3-1': typeof DocsSolidOverviewReleasesV031Route
   '/solid/overview/releases': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRoutesById {
@@ -702,6 +711,7 @@ export interface FileRoutesById {
   '/_docs/solid/overview/releases/v0-1-0': typeof DocsSolidOverviewReleasesV010Route
   '/_docs/solid/overview/releases/v0-2-0': typeof DocsSolidOverviewReleasesV020Route
   '/_docs/solid/overview/releases/v0-3-0': typeof DocsSolidOverviewReleasesV030Route
+  '/_docs/solid/overview/releases/v0-3-1': typeof DocsSolidOverviewReleasesV031Route
   '/_docs/solid/overview/releases/': typeof DocsSolidOverviewReleasesIndexRoute
 }
 export interface FileRouteTypes {
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/solid/overview/releases/v0-1-0'
     | '/solid/overview/releases/v0-2-0'
     | '/solid/overview/releases/v0-3-0'
+    | '/solid/overview/releases/v0-3-1'
     | '/solid/overview/releases/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -841,6 +852,7 @@ export interface FileRouteTypes {
     | '/solid/overview/releases/v0-1-0'
     | '/solid/overview/releases/v0-2-0'
     | '/solid/overview/releases/v0-3-0'
+    | '/solid/overview/releases/v0-3-1'
     | '/solid/overview/releases'
   id:
     | '__root__'
@@ -915,6 +927,7 @@ export interface FileRouteTypes {
     | '/_docs/solid/overview/releases/v0-1-0'
     | '/_docs/solid/overview/releases/v0-2-0'
     | '/_docs/solid/overview/releases/v0-3-0'
+    | '/_docs/solid/overview/releases/v0-3-1'
     | '/_docs/solid/overview/releases/'
   fileRoutesById: FileRoutesById
 }
@@ -1430,6 +1443,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DocsSolidOverviewReleasesV030RouteImport
       parentRoute: typeof DocsSolidOverviewReleasesRoute
     }
+    '/_docs/solid/overview/releases/v0-3-1': {
+      id: '/_docs/solid/overview/releases/v0-3-1'
+      path: '/v0-3-1'
+      fullPath: '/solid/overview/releases/v0-3-1'
+      preLoaderRoute: typeof DocsSolidOverviewReleasesV031RouteImport
+      parentRoute: typeof DocsSolidOverviewReleasesRoute
+    }
   }
 }
 
@@ -1461,6 +1481,7 @@ interface DocsSolidOverviewReleasesRouteChildren {
   DocsSolidOverviewReleasesV010Route: typeof DocsSolidOverviewReleasesV010Route
   DocsSolidOverviewReleasesV020Route: typeof DocsSolidOverviewReleasesV020Route
   DocsSolidOverviewReleasesV030Route: typeof DocsSolidOverviewReleasesV030Route
+  DocsSolidOverviewReleasesV031Route: typeof DocsSolidOverviewReleasesV031Route
   DocsSolidOverviewReleasesIndexRoute: typeof DocsSolidOverviewReleasesIndexRoute
 }
 
@@ -1470,6 +1491,7 @@ const DocsSolidOverviewReleasesRouteChildren: DocsSolidOverviewReleasesRouteChil
     DocsSolidOverviewReleasesV010Route: DocsSolidOverviewReleasesV010Route,
     DocsSolidOverviewReleasesV020Route: DocsSolidOverviewReleasesV020Route,
     DocsSolidOverviewReleasesV030Route: DocsSolidOverviewReleasesV030Route,
+    DocsSolidOverviewReleasesV031Route: DocsSolidOverviewReleasesV031Route,
     DocsSolidOverviewReleasesIndexRoute: DocsSolidOverviewReleasesIndexRoute,
   }
 
