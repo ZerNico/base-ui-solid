@@ -441,4 +441,66 @@ describe('useAnimationsFinished', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
   });
+  it('waits for an animation that an element created later starts in the next frame', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const animation = createAnimation();
+    const onFinished = vi.fn();
+    let animations: Animation[] = [];
+    const getAnimations = vi.fn(() => animations);
+
+    /**
+     * Like a component rendered inside a popup that animates it (e.g. Motion): its effect runs
+     * after the popup's, and it starts the animation in the next frame.
+     */
+    function AnimatesNextFrame() {
+      createEffect(
+        () => undefined,
+        () => {
+          requestAnimationFrame(() => {
+            animations = [animation.animation];
+          });
+        },
+      );
+      return null;
+    }
+
+    function Popup() {
+      let ref: HTMLDivElement | undefined;
+      const runOnceAnimationsFinish = useAnimationsFinished(() => ref);
+
+      useEffect(
+        () => {
+          runOnceAnimationsFinish(onFinished);
+        },
+        () => [],
+      );
+
+      return (
+        <div
+          ref={(element) => {
+            ref = element;
+            element.getAnimations = getAnimations;
+          }}
+        >
+          <AnimatesNextFrame />
+        </div>
+      );
+    }
+
+    try {
+      await render(() => <Popup />);
+      await waitFor(() => expect(getAnimations).toHaveBeenCalled());
+      expect(onFinished).not.toHaveBeenCalled();
+
+      animations = [];
+      animation.finish();
+      await flushMicrotasks();
+
+      expect(onFinished).toHaveBeenCalledTimes(1);
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
 });

@@ -1,4 +1,4 @@
-import { flush } from 'solid-js';
+import { flush, onCleanup } from 'solid-js';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { NOOP } from '@base-ui-solid/utils/empty';
 import { resolveRef } from '../utils/resolveRef';
@@ -45,6 +45,27 @@ export function useAnimationsFinished(
   batch = false,
 ) {
   const frame = useAnimationFrame();
+  let frameRequest = 0;
+  let disposed = false;
+  onCleanup(() => {
+    disposed = true;
+  });
+
+  /**
+   * Port note: upstream checks for animations one frame after the effect that asks for it. React
+   * runs the effects of children before those of their parents, so by then the elements rendered
+   * inside the popup (e.g. a `render` component that animates the popup) have started their
+   * animations, or requested the frame they start them in. Solid runs the effects of a flush in
+   * creation order, parents first, so the frame is requested once the flush is over.
+   */
+  const requestFrameAfterFlush = (fn: () => void) => {
+    const request = frameRequest;
+    queueMicrotask(() => {
+      if (!disposed && request === frameRequest) {
+        frame.request(fn);
+      }
+    });
+  };
 
   return (
     /**
@@ -59,6 +80,7 @@ export function useAnimationsFinished(
     signal: AbortSignal | null = null,
   ) => {
     frame.cancel();
+    frameRequest += 1;
 
     const element = resolveRef(elementOrAccessor);
     if (element == null) {
@@ -138,7 +160,7 @@ export function useAnimationsFinished(
       // If `[data-starting-style]` isn't present, fall back to waiting one more frame
       // to give "open" animations a chance to be registered.
       if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
-        frame.request(exec);
+        requestFrameAfterFlush(exec);
         return;
       }
 
@@ -159,6 +181,6 @@ export function useAnimationsFinished(
       return;
     }
 
-    frame.request(exec);
+    requestFrameAfterFlush(exec);
   };
 }
