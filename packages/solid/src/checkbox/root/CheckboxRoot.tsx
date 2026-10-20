@@ -326,6 +326,7 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
 
   const inputAriaProps = createMemo(
     () => validation.getValidationProps(disabled(), getDescriptionProps({})) as Record<string, any>,
+    { equals: fastObjectShallowCompare },
   );
 
   // React <19 sets an empty value if `undefined` is passed explicitly

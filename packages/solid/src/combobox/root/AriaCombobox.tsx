@@ -1090,33 +1090,39 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useImperativeHandle(() => props.actionsRef, actions);
 
   // Port note: upstream writes the selected index from a layout effect. Here a memo decides when it
-  // syncs (each sync is a new object), and the store derives the index: the last sync, or what an
-  // item wrote since (items re-assert the index when their registration moves).
-  const syncedSelectedIndex = createMemo<{ index: number | null } | undefined>((previous) => {
-    const openValue = open();
-    const closeQueryValue = closeQuery();
-    const closeQueryReleased = previousCloseQueryRef !== null && closeQueryValue === null;
-    previousCloseQueryRef = closeQueryValue;
+  // syncs (each sync is a new object, numbered so that two syncs to the same index still differ),
+  // and the store derives the index: the last sync, or what an item wrote since (items re-assert the
+  // index when their registration moves).
+  let syncCount = 0;
+  const syncedSelectedIndex = createMemo<{ index: number | null; sync: number } | undefined>(
+    (previous) => {
+      const openValue = open();
+      const closeQueryValue = closeQuery();
+      const closeQueryReleased = previousCloseQueryRef !== null && closeQueryValue === null;
+      previousCloseQueryRef = closeQueryValue;
 
-    // Closing indexes against the frozen filtered list. Reopening releases that query, so its
-    // rendered coordinates must be synchronized again even though the popup is already open.
-    if (selectionMode() === 'none' || (openValue && (!closeQueryReleased || !hasItems()))) {
-      return previous;
-    }
+      // Closing indexes against the frozen filtered list. Reopening releases that query, so its
+      // rendered coordinates must be synchronized again even though the popup is already open.
+      if (selectionMode() === 'none' || (openValue && (!closeQueryReleased || !hasItems()))) {
+        return previous;
+      }
 
-    // Without `items`, look the selection up in the live registry of mounted item
-    // values (the list stays mounted while closed when closed-state features need
-    // it — trigger interaction and rendered-label autofill force-mount it). Mounted
-    // items re-assert the index themselves when their registration moves; when
-    // nothing is mounted the lookup resolves to `null` and each item re-registers
-    // the index on the next open.
-    // Keep the selected index in the coordinates of the list that is actually rendered.
-    const registry: readonly any[] = hasItems() ? flatFilteredValues() : valuesRef.current;
-    return {
-      index: findSelectionIndex(registry, selectedValue(), isItemEqualToValue(), multiple()),
-    };
-  });
-  let lastSync: { index: number | null } | undefined;
+      // Without `items`, look the selection up in the live registry of mounted item
+      // values (the list stays mounted while closed when closed-state features need
+      // it — trigger interaction and rendered-label autofill force-mount it). Mounted
+      // items re-assert the index themselves when their registration moves; when
+      // nothing is mounted the lookup resolves to `null` and each item re-registers
+      // the index on the next open.
+      // Keep the selected index in the coordinates of the list that is actually rendered.
+      const registry: readonly any[] = hasItems() ? flatFilteredValues() : valuesRef.current;
+      syncCount += 1;
+      return {
+        index: findSelectionIndex(registry, selectedValue(), isItemEqualToValue(), multiple()),
+        sync: syncCount,
+      };
+    },
+  );
+  let lastSync: { index: number | null; sync: number } | undefined;
   let writesAtLastSync = 0;
   store.useDerivedState('selectedIndex', (raw, _, writes) => {
     const sync = syncedSelectedIndex();

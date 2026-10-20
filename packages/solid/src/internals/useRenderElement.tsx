@@ -79,7 +79,9 @@ export function useRenderElement<
 
   // `children` are kept out of the memo: they must only be created once by the rendered element,
   // so they're read lazily through the (stable) object that provided them.
-  const childrenSource = createMemo(() => computed().childrenSource);
+  const childrenSource = createMemo(() => computed().childrenSource, {
+    equals: areChildrenSourcesEqual,
+  });
 
   // Port note: ref attachment reads current props imperatively, outside dependency tracking.
   const refCallback = (node: Element) =>
@@ -148,8 +150,27 @@ interface ComputedRenderElementProps {
 function areComputedPropsEqual(a: ComputedRenderElementProps, b: ComputedRenderElementProps) {
   return (
     a.ref === b.ref &&
-    a.childrenSource === b.childrenSource &&
+    areChildrenSourcesEqual(a.childrenSource, b.childrenSource) &&
     fastObjectShallowCompare(a.props, b.props)
+  );
+}
+
+// Wrappers made for children that a props getter already evaluated. They hold plain values, so two
+// of them are equal when they hold the same children (a provided source may be a lazy getter, so
+// it's only compared by identity).
+const evaluatedChildrenSources = new WeakSet<object>();
+
+function areChildrenSourcesEqual(
+  a: ComputedRenderElementProps['childrenSource'],
+  b: ComputedRenderElementProps['childrenSource'],
+) {
+  return (
+    a === b ||
+    (a !== undefined &&
+      b !== undefined &&
+      evaluatedChildrenSources.has(a) &&
+      evaluatedChildrenSources.has(b) &&
+      a.children === b.children)
   );
 }
 
@@ -188,10 +209,12 @@ function computeRenderElementProps<State extends Record<string, any>, TagName>(
     // eslint-disable-next-line guard-for-in
     for (const key in resolvedProps) {
       if (key === 'children') {
-        childrenSource = resolvedProps[CHILDREN_SOURCE as any] ?? {
+        childrenSource = resolvedProps[CHILDREN_SOURCE as any];
+        if (childrenSource === undefined) {
           // Children that were already evaluated by a props getter.
-          children: resolvedProps.children,
-        };
+          childrenSource = { children: resolvedProps.children };
+          evaluatedChildrenSources.add(childrenSource);
+        }
         continue;
       }
       if (key === 'ref') {

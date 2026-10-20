@@ -74,43 +74,47 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
   const domReference = untrack(floatingRootContext).useState('domReferenceElement');
 
   // Port note: upstream computes these during render.
-  const positioning = createMemo(() => {
-    const parentValue = parent();
-    let anchor = componentProps.anchor;
-    let sideOffset = componentProps.sideOffset ?? 0;
-    let alignOffset = componentProps.alignOffset ?? 0;
-    let align = componentProps.align;
-    let collisionAvoidance = componentProps.collisionAvoidance ?? DROPDOWN_COLLISION_AVOIDANCE;
-    if (parentValue.type === 'context-menu') {
-      anchor = componentProps.anchor ?? parentValue.context?.anchor;
-      align = align ?? 'start';
-      if (!componentProps.side && align !== 'center') {
-        alignOffset = componentProps.alignOffset ?? 2;
-        sideOffset = componentProps.sideOffset ?? -5;
+  const positioning = createMemo(
+    () => {
+      const parentValue = parent();
+      let anchor = componentProps.anchor;
+      let sideOffset = componentProps.sideOffset ?? 0;
+      let alignOffset = componentProps.alignOffset ?? 0;
+      let align = componentProps.align;
+      let collisionAvoidance = componentProps.collisionAvoidance ?? DROPDOWN_COLLISION_AVOIDANCE;
+      if (parentValue.type === 'context-menu') {
+        anchor = componentProps.anchor ?? parentValue.context?.anchor;
+        align = align ?? 'start';
+        if (!componentProps.side && align !== 'center') {
+          alignOffset = componentProps.alignOffset ?? 2;
+          sideOffset = componentProps.sideOffset ?? -5;
+        }
       }
-    }
 
-    let computedSide = componentProps.side;
-    let computedAlign = align;
-    if (parentValue.type === 'menu') {
-      computedSide = computedSide ?? 'inline-end';
-      computedAlign = computedAlign ?? 'start';
-      collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
-    } else if (parentValue.type === 'menubar') {
-      computedSide =
-        computedSide ?? (parentValue.context.orientation === 'vertical' ? 'inline-end' : 'bottom');
-      computedAlign = computedAlign ?? 'start';
-    }
+      let computedSide = componentProps.side;
+      let computedAlign = align;
+      if (parentValue.type === 'menu') {
+        computedSide = computedSide ?? 'inline-end';
+        computedAlign = computedAlign ?? 'start';
+        collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
+      } else if (parentValue.type === 'menubar') {
+        computedSide =
+          computedSide ??
+          (parentValue.context.orientation === 'vertical' ? 'inline-end' : 'bottom');
+        computedAlign = computedAlign ?? 'start';
+      }
 
-    return {
-      anchor,
-      sideOffset,
-      alignOffset,
-      collisionAvoidance,
-      side: computedSide,
-      align: computedAlign,
-    };
-  });
+      return {
+        anchor,
+        sideOffset,
+        alignOffset,
+        collisionAvoidance,
+        side: computedSide,
+        align: computedAlign,
+      };
+    },
+    { equals: fastObjectShallowCompare },
+  );
 
   const contextMenu = () => parent().type === 'context-menu';
 
