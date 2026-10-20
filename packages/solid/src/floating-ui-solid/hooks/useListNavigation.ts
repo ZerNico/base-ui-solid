@@ -1,4 +1,4 @@
-import { createMemo, createSignal, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
@@ -117,6 +117,12 @@ export interface UseListNavigationProps {
    * @default false
    */
   deriveOpenHighlight?: boolean | undefined;
+  /**
+   * Port note: a value that changes whenever the items in `listRef` change (the list published
+   * them in DOM order). When given, a keyboard open highlights its first item once the list is
+   * populated, instead of waiting a microtask and then a frame for it.
+   */
+  listVersion?: unknown;
   /**
    * A ref that holds an array of list items.
    * @default empty list
@@ -525,7 +531,8 @@ export function useListNavigation(
         !openValue ||
         !floatingElementValue ||
         untrack(activeIndex) != null ||
-        selectedIndexRef.current != null
+        selectedIndexRef.current != null ||
+        'listVersion' in props
       ) {
         return;
       }
@@ -569,6 +576,68 @@ export function useListNavigation(
       }
     },
     () => [enabled(), open(), floatingElement(), nested(), triggerOrientation(), rtl(), listRef()],
+  );
+
+  // Port note: for lists that publish a `listVersion`, the effect above is split in two. Whether
+  // this open highlights the first or the last item is decided once, when the list opens (the same
+  // rules as above, with the key the trigger recorded), so it is derived. Which item that is
+  // depends on what is rendered and visible, so it's measured after the render, when the list
+  // version changes, instead of polling for the list. Each open decides at most one highlight.
+  const initialHighlightIntent = createMemo<{ toStart: boolean; done: boolean } | null | undefined>(
+    (previous) => {
+      if (!('listVersion' in props) || !enabled() || !open() || !floatingElement()) {
+        return undefined;
+      }
+      if (previous !== undefined) {
+        return previous;
+      }
+      return untrack(() => {
+        const focusItemOnOpenValue = focusItemOnOpenState();
+        if (
+          selectedIndexRef.current != null ||
+          (previousOpenRef && previousMountedRef) ||
+          !focusItemOnOpenValue ||
+          (keyRef == null && focusItemOnOpenValue !== true)
+        ) {
+          return null;
+        }
+        // The key came from the trigger, so it is read on the trigger's orientation.
+        const toStart =
+          keyRef == null ||
+          isMainOrientationToEndKey(keyRef, triggerOrientation(), rtl()) ||
+          nested();
+        keyRef = null;
+        return { toStart, done: false };
+      });
+    },
+  );
+
+  createEffect(
+    () => [initialHighlightIntent(), props.listVersion],
+    () => {
+      untrack(() => {
+        const intent = initialHighlightIntent();
+        if (!intent || intent.done) {
+          return;
+        }
+        // Something highlighted an item since the list opened.
+        if (activeIndex() != null) {
+          intent.done = true;
+          return;
+        }
+        const list = listRef();
+        if (list.current[0] == null) {
+          return;
+        }
+        intent.done = true;
+        // Initially focus the first non-disabled item. `disabledIndices` is deliberately omitted
+        // here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped on open even
+        // when the consumer passes an empty `disabledIndices` array (see mui/base-ui#2604).
+        indexRef = intent.toStart ? getMinListIndex(list) : getMaxListIndex(list);
+        onNavigate();
+      });
+    },
+    IS_DEV ? { name: 'BaseUI.useListNavigation.initialHighlight' } : undefined,
   );
 
   // Ensure the parent floating element has focus when a nested child closes

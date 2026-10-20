@@ -22,7 +22,8 @@ import { createRenderer, flushMicrotasks, screen, waitFor } from '#test-utils';
 // (see PORTING.md, "Stores and popups"). Decisions made from layout measurements are effects by
 // nature and are not covered: a Select aligned to a trigger at the viewport's edge falls back to
 // anchoring, a Collapsible panel without CSS motion skips its transition phases, and a Menu opened
-// with the keyboard highlights its first item after the items are sorted by their DOM order.
+// with the keyboard highlights its first item after the items are sorted by their DOM order (an
+// advisory relay from the measuring effect, which must not escalate to a warning).
 
 const FRUITS = ['Apple', 'Banana', 'Cherry'];
 
@@ -219,8 +220,12 @@ describe.skipIf(isJSDOM)('store diagnostics (port), user interactions', () => {
 
     // The first item is highlighted from the item list, whose indices come from the items' DOM
     // order once they rendered. Like the measurements above, it's relayed after the open renders.
-    expectNoFindings(events, (event) =>
-      event.message.includes('writing "BaseUI.Store(MenuStore).track"'),
+    // The first item is highlighted once it's rendered and visible, which is measured.
+    expectNoFindings(
+      events,
+      (event) =>
+        event.severity === 'info' &&
+        event.message.includes('effect "BaseUI.useListNavigation.initialHighlight"'),
     );
   });
 

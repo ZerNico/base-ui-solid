@@ -470,13 +470,20 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   report no warnings in the docs' demos (`storeDiagnostics.interactions.port.test.tsx` drives them
   in Chromium). Plain dev builds don't check effect relays at all. What's left is inherent to
   measuring the DOM after it rendered, which Solid's guide calls a fact to accept. Each is reported
-  as an info, which attribution escalates to a warning once the same relay happened three times:
+  as an info, which attribution escalates to a warning once the same relay happened three times,
+  unless the effect's apply half takes no argument (Solid's sign of a measuring effect, rc.16).
+  The library's wrapped effects always take their dependencies, so only the native measuring
+  effects below stay advisory:
   - A Select aligned to a trigger at the viewport's edge falls back to anchoring after measuring
     (`controlledAlignItemWithTrigger`).
   - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading
     its computed style (`forcePanelIdle`, `useTransitionStatus.state`).
   - Opening a Menu with the keyboard highlights the first item from the item list, whose indices
-    come from the items' DOM order once they rendered.
+    come from the items' DOM order once they rendered. Which end to highlight is derived when the
+    menu opens. The item is resolved by a measuring effect (`BaseUI.useListNavigation.initialHighlight`,
+    which stays advisory) when the list publishes its items (`listVersion`), instead of polling for
+    the list (a microtask, then a frame) like upstream. `CompositeList`'s flush is the one place
+    that sorts by DOM order, also a measuring effect (`BaseUI.CompositeList.flush`).
   - Tabs reports info-level (not printed) index updates: item indices come from the DOM order.
   - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
     dynamic root (parts can swap their element through `render`).

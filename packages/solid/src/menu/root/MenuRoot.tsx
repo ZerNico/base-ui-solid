@@ -533,6 +533,10 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
 
   const direction = useDirection();
 
+  // Bumped when the item list publishes its items (in DOM order, after they rendered), so list
+  // navigation can highlight an item once they're there.
+  const [itemsVersion, setItemsVersion] = createSignal(0);
+
   const listNavigation = useListNavigation(floatingRootContext, {
     get enabled() {
       return !disabled();
@@ -573,6 +577,9 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
       return direction() === 'rtl';
     },
     disabledIndices: EMPTY_ARRAY,
+    get listVersion() {
+      return itemsVersion();
+    },
     onNavigate(nextActiveIndex, event) {
       store.setActiveIndex(nextActiveIndex, getHighlightReason(event), event);
     },
@@ -807,7 +814,10 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get parentVirtualFocus() {
       return parentVirtualFocus();
     },
-    syncHighlightedItem,
+    onItemsChange() {
+      setItemsVersion((version) => version + 1);
+      syncHighlightedItem();
+    },
   };
 
   // Port note: a render function child is called once with `{ payload }`, where `payload` is an

@@ -52,7 +52,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
     'style',
   );
 
-  const { store, virtualFocus, syncHighlightedItem } = useMenuRootContext();
+  const { store, virtualFocus, onItemsChange } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
 
@@ -376,7 +376,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
-          onMapChange={syncHighlightedItem}
+          onMapChange={onItemsChange}
         >
           {/* Port note: rendered here so the children are created under the providers. */}
           {usePositioner(componentProps, state, {

@@ -19,8 +19,11 @@ export interface MenuRootContext<Payload = unknown> {
   setRenderedFloatingId: (id: string | undefined) => void;
   virtualFocus: boolean;
   parentVirtualFocus: boolean;
-  /** Re-emits `onItemHighlighted` after the item registry settles. */
-  syncHighlightedItem: () => void;
+  /**
+   * Called when the item registry settles: publishes the items for the derived highlight and
+   * re-emits `onItemHighlighted`.
+   */
+  onItemsChange: () => void;
 }
 
 export const MenuRootContext = createContext<MenuRootContext | null>(null);

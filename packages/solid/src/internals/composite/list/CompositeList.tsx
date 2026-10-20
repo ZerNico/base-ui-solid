@@ -1,7 +1,8 @@
 /* eslint-disable no-bitwise */
-import { createSignal, onCleanup } from 'solid-js';
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 import type { CompositeListRegistration } from './CompositeListContext';
@@ -196,13 +197,19 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     () => [props.elementsRef, props.labelsRef],
   );
 
-  useIsoLayoutEffect(
+  // The one place the list reads its order from the DOM, once the items are rendered, so a
+  // consumer that depends on the order derives from what this flush publishes.
+  // Port note: a measuring effect in Solid's terms. Its apply half takes no argument, as it reads
+  // the document order rather than the tick, so the extra pass it costs is reported as advisory.
+  createEffect(
+    mapTick,
     () => {
+      // The listeners read reactive state imperatively, like the wrapped effects do.
       if (isDirty) {
-        flush();
+        untrack(flush);
       }
     },
-    () => [mapTick()],
+    IS_DEV ? { name: 'BaseUI.CompositeList.flush' } : undefined,
   );
 
   onCleanup(() => {
