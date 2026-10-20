@@ -7,6 +7,7 @@ import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayout
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { platform } from '@base-ui-solid/utils/platform';
+import { useIsHydrated } from '@base-ui-solid/utils/hydration';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -186,10 +187,30 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = createSignal(
-    untrack(() => formatNumber(value(), locale(), format())),
-  );
-  const [inputMode, setInputMode] = createSignal<InputMode>('numeric');
+  //
+  // Port note: upstream syncs the formatted value into the input value from a layout effect after
+  // every render. Here it's a writable memo: it formats the value again when the value, the
+  // formatting props, or a forced render change. Typing writes it, and while the input holds an
+  // uncommitted edit (`allowInputSyncRef`), a change keeps what was typed. So it's only updated on
+  // blur rather than every keystroke, but still follows a value changed externally.
+  const [inputValue, setInputValue] = createSignal<string>((previous) => {
+    renderTick();
+    const nextInputValue = formatNumber(value(), locale(), format());
+    return previous === undefined || allowInputSyncRef.current ? nextInputValue : previous;
+  });
+
+  // iOS numeric software keyboard doesn't have a minus key, so we need to use the default
+  // keyboard to let the user input a negative number. Its "numeric" input mode doesn't have a
+  // decimal key either, so "decimal" is better than "text" when possible.
+  // Port note: upstream sets it from a layout effect. Here it's derived once hydrated, so the
+  // server-rendered `numeric` mode hydrates unchanged.
+  const isHydrated = useIsHydrated();
+  const inputMode = (): InputMode => {
+    if (!platform.os.ios || !isHydrated()) {
+      return 'numeric';
+    }
+    return minWithDefault() >= 0 ? 'decimal' : 'text';
+  };
 
   function getAllowedNonNumericKeys() {
     const currentLocale = untrack(locale);
@@ -379,55 +400,6 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
       valueRef.current = currentValue;
     },
     () => [value(), renderTick()],
-  );
-
-  // We need to update the input value when the external `value` prop changes. This ends up acting
-  // as a single source of truth to update the input value, bypassing the need to manually set it in
-  // each event handler.
-  // This is done inside a layout effect as an alternative to the technique to set state during
-  // render as we're accessing a ref, which must be inside an effect.
-  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  //
-  // Port note: upstream runs this after every render, since the value can be formatted
-  // differently even if it hasn't changed. Here it re-runs whenever the value, the formatting
-  // props, or a forced render change. The input value is read untracked, so the effect doesn't
-  // depend on the state it writes.
-  useIsoLayoutEffect(
-    function syncFormattedInputValueOnValueChange([currentValue, currentLocale, currentFormat]) {
-      // This ensures the value is only updated on blur rather than every keystroke, but still
-      // allows the input value to be updated when the value is changed externally.
-      if (!allowInputSyncRef.current) {
-        return;
-      }
-
-      const nextInputValue = formatNumber(currentValue, currentLocale, currentFormat);
-
-      if (nextInputValue !== untrack(inputValue)) {
-        setInputValue(nextInputValue);
-      }
-    },
-    () => [value(), locale(), format(), renderTick()] as const,
-  );
-
-  useIsoLayoutEffect(
-    function setDynamicInputModeForIOS([currentMinWithDefault]) {
-      if (!platform.os.ios) {
-        return;
-      }
-
-      // iOS numeric software keyboard doesn't have a minus key, so we need to use the default
-      // keyboard to let the user input a negative number.
-      let computedInputMode: InputMode = 'text';
-
-      if (currentMinWithDefault >= 0) {
-        // iOS numeric software keyboard doesn't have a decimal key for "numeric" input mode, but
-        // this is better than the "text" input if possible to use.
-        computedInputMode = 'decimal';
-      }
-
-      setInputMode(computedInputMode);
-    },
-    () => [minWithDefault()],
   );
 
   // Programmatic focus leaves the caret at the start (Chrome/Firefox) or selects the whole value

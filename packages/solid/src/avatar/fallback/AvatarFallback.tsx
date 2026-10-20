@@ -1,4 +1,4 @@
-import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import { createMemo, createSignal, omit } from 'solid-js';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -20,17 +20,19 @@ export function AvatarFallback(componentProps: AvatarFallback.Props) {
   const delay = () => componentProps.delay ?? 0;
 
   const { imageLoadingStatus } = useAvatarRootContext();
-  const [delayPassed, setDelayPassed] = createSignal(untrack(delay) === 0);
+  // Once the fallback is shown without a delay, keep it visible. Otherwise a later change from no
+  // delay to a number would re-hide an already-visible fallback.
+  // Port note: upstream sets it from an effect when the delay is `0`. Here a writable memo applies
+  // that rule, and only the timer writes it.
+  const [delayPassed, setDelayPassed] = createSignal<boolean>(
+    (previous) => previous === true || delay() === 0,
+  );
   const timeout = useTimeout();
 
   useEffect(
     ([currentDelay]) => {
       if (currentDelay > 0) {
         timeout.start(currentDelay, () => setDelayPassed(true));
-      } else {
-        // Once the fallback is shown without a delay, keep it visible. Otherwise a later
-        // change from no delay to a number would re-hide an already-visible fallback.
-        setDelayPassed(true);
       }
       return timeout.clear;
     },

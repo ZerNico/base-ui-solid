@@ -159,7 +159,12 @@ export function SliderRoot<Value extends number | readonly number[]>(
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActiveState] = createSignal(-1);
+  // Port note: upstream resets it to `-1` from a layout effect when the slider becomes disabled.
+  // Here a disabled slider has no active thumb, and becoming disabled clears the written one.
+  const [activeState, setActiveState] = createSignal<number>((previous) =>
+    disabled() || previous === undefined ? -1 : previous,
+  );
+  const active = () => (disabled() ? -1 : activeState());
   const [lastUsedThumbIndex, setLastUsedThumbIndex] = createSignal(-1);
   const [dragging, setDragging] = createSignal(false);
   // Port note: written by `CompositeList`'s flush, which runs in an effect.
@@ -297,7 +302,7 @@ export function SliderRoot<Value extends number | readonly number[]>(
   }
 
   useIsoLayoutEffect(
-    ([currentActive, isDisabled]) => {
+    ([isDisabled]) => {
       if (!isDisabled) {
         return;
       }
@@ -309,12 +314,8 @@ export function SliderRoot<Value extends number | readonly number[]>(
         // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
         (activeEl as HTMLElement).blur();
       }
-
-      if (currentActive !== -1) {
-        setActive(-1);
-      }
     },
-    () => [active(), disabled()],
+    () => [disabled()],
   );
 
   const state = createMemo<SliderRootState>(

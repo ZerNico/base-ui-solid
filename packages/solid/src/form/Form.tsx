@@ -1,4 +1,4 @@
-import { createSignal, omit, untrack } from 'solid-js';
+import { createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -10,7 +10,6 @@ import { REASONS } from '../internals/reasons';
 import type { BaseUIComponentProps } from '../internals/types';
 import { FormContext } from '../internals/form-context/FormContext';
 import { useRenderElement } from '../internals/useRenderElement';
-import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -72,14 +71,9 @@ export function Form<FormValues extends Record<string, any> = Record<string, any
     return hasInvalid;
   }
 
-  const [errors, setErrors] = createSignal(untrack(() => componentProps.errors));
-
-  useValueChanged(
-    () => componentProps.errors,
-    () => {
-      setErrors(() => untrack(() => componentProps.errors));
-    },
-  );
+  // Port note: upstream copies a changed `errors` prop into state from an effect. Here it's a
+  // writable memo: the prop's errors until a field clears its own, and new ones when it changes.
+  const [errors, setErrors] = createSignal<Form.Props['errors']>(() => componentProps.errors);
 
   useEffect(
     () => {
