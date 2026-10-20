@@ -180,7 +180,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   const open = store.useState('open');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
-  const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
@@ -328,14 +327,17 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     () => [open(), parent().type] as const,
   );
 
-  useIsoLayoutEffect(
-    ([openValue, hoverEnabledValue]) => {
-      if (!openValue && !hoverEnabledValue) {
-        store.set('hoverEnabled', true);
-      }
-    },
-    () => [open(), hoverEnabled()] as const,
-  );
+  // Port note: upstream re-enables hover from a layout effect once the menu is closed. Here the
+  // store derives it: a closed menu has hover enabled, and an open one what was written since it
+  // last closed (a write while closed is reset, as the effect did).
+  let hoverWritesWhileClosed = 0;
+  store.useDerivedState('hoverEnabled', (raw, _, writes) => {
+    if (!open()) {
+      hoverWritesWhileClosed = writes;
+      return true;
+    }
+    return writes !== hoverWritesWhileClosed ? raw : true;
+  });
 
   const setOpen = (
     nextOpen: boolean,
