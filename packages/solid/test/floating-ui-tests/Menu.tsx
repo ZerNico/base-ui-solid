@@ -324,7 +324,7 @@ export function MenuComponent(componentProps: MenuProps & ButtonProps) {
                 parent.setActiveIndex(item.index());
               }
             },
-          }),
+          }) as JSX.HTMLAttributes<Element>,
         )}
       >
         {componentProps.label}

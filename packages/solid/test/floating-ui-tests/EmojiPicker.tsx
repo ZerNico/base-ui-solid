@@ -261,7 +261,7 @@ export function Main() {
                   ref={refs.setFloating}
                   class={styles.Floating}
                   style={floating.floatingStyles}
-                  {...getFloatingProps(getListFloatingProps())}
+                  {...getFloatingProps(getListFloatingProps() as JSX.HTMLAttributes<HTMLElement>)}
                 >
                   <span class={styles.Label}>Emoji Picker</span>
                   <input

@@ -167,7 +167,7 @@ function PopoverComponent(props: Props) {
           'aria-expanded': open() ? 'true' : 'false',
           'aria-controls': open() ? context.floatingId : undefined,
           'data-open': open() ? '' : undefined,
-        } as Record<string, unknown>),
+        }),
       )}
       <FloatingPortal>
         <Show when={open()}>
