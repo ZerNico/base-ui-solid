@@ -664,11 +664,6 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
 
     lastHighlightIndex = itemIndex;
     store.context.reportedItem = item;
-    // Only virtual focus renders from the highlighted element. Publishing it in every menu would
-    // notify each item's subscription on every highlight change.
-    if (virtualFocus) {
-      store.set('highlightedItem', item);
-    }
     // The tag left by the write that produced this committed value.
     const { highlightReason, highlightEvent } = store.context;
     store.context.highlightReason = REASONS.none;
@@ -694,6 +689,26 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     },
     () => [activeIndex()],
   );
+
+  // Only virtual focus renders from the highlighted element. Publishing it in every menu would
+  // notify each item's subscription on every highlight change.
+  // Port note: upstream publishes it from the effect that reports `onItemHighlighted`. Here the
+  // store derives it from the highlighted index and the item list, so the input's
+  // `aria-activedescendant` follows the highlight in the same flush. An item removed in this
+  // commit stays registered until the list flushes, so the previous item is kept until then.
+  if (virtualFocus) {
+    let lastHighlightedItem: HTMLElement | undefined;
+    store.useDerivedState('highlightedItem', () => {
+      itemsVersion();
+      const index = activeIndex();
+      const item =
+        index === null ? undefined : (store.context.itemDomElements.current[index] ?? undefined);
+      if (item?.isConnected !== false) {
+        lastHighlightedItem = item;
+      }
+      return lastHighlightedItem;
+    });
+  }
 
   // Under virtual focus an element inside the popup holds real focus, so it takes the
   // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
