@@ -84,6 +84,17 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
   const [tabMap, setTabMap] = createSignal(new Map<Node, CompositeMetadata<TabsTab.Metadata>>());
   let lastKnownTabElement: Node | undefined;
 
+  // Implicit uncontrolled selections are still automatic changes, so notify
+  // once when the tabs first register. Explicit defaults are treated as user-owned.
+  let shouldNotifyInitialValueChange = !hasExplicitDefaultValueProp;
+  // useControlled warns if defaultValue changes after mount, but the
+  // disabled-default honor policy below still needs a stable initial value.
+  const initialDefaultValue = defaultValueProp;
+  // An explicit defaultValue can intentionally point at a disabled tab on mount.
+  // Once that selection becomes valid, later disabled states should fall back.
+  let shouldHonorDisabledDefaultValue = hasExplicitDefaultValueProp;
+  let didRegisterTabs = false;
+
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = (selectedValue: TabsTab.Value): HTMLElement | null =>
     findTabElement(tabMap(), selectedValue);
@@ -172,6 +183,12 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
 
     // Tab values can be functions, which the setter would otherwise call as updaters.
     setValue(() => newValue);
+
+    // Only an enabled tab can be selected, so selecting the explicit default ends the policy of
+    // keeping it while it is disabled.
+    if (newValue === initialDefaultValue) {
+      shouldHonorDisabledDefaultValue = false;
+    }
   };
 
   const notifyAutomaticValueChange = (
@@ -234,133 +251,107 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
     onValueChange,
     orientation,
     registerMountedTabPanel,
-    setTabMap: (map) => setTabMap(map),
+    setTabMap: (map) => {
+      setTabMap(map);
+      untrack(() => applyAutomaticValueChange(map));
+    },
     tabActivationDirection,
     value,
   };
 
-  const selectedTabMetadata = createMemo(() => {
-    const currentValue = value();
-    for (const tabMetadata of tabMap().values()) {
-      if (tabMetadata.value === currentValue) {
-        return tabMetadata;
-      }
-    }
-    return undefined;
-  });
-
-  // Find the first non-disabled tab value.
-  // Used as a fallback when the current selection is disabled or missing.
-  const firstEnabledTabValue = createMemo(() => {
-    for (const tabMetadata of tabMap().values()) {
-      if (!tabMetadata.disabled) {
-        return tabMetadata.value;
-      }
-    }
-    return undefined;
-  });
-
-  // Implicit uncontrolled selections are still automatic changes, so notify
-  // once when the tabs first register. Explicit defaults are treated as user-owned.
-  let shouldNotifyInitialValueChange = !hasExplicitDefaultValueProp;
-  // useControlled warns if defaultValue changes after mount, but the
-  // disabled-default honor policy below still needs a stable initial value.
-  const initialDefaultValue = defaultValueProp;
-  // An explicit defaultValue can intentionally point at a disabled tab on mount.
-  // Once that selection becomes valid, later disabled states should fall back.
-  let shouldHonorDisabledDefaultValue = hasExplicitDefaultValueProp;
-  let didRegisterTabs = false;
-
   // Uncontrolled roots own automatic fallback. Controlled roots keep the exact
   // value supplied by the parent, even when that tab is disabled or missing.
-  useIsoLayoutEffect(
-    ([
-      currentFirstEnabledTabValue,
-      currentIsControlled,
-      currentSelectedTabMetadata,
-      currentTabMap,
-      currentValue,
-    ]) => {
-      if (currentIsControlled) {
-        return;
-      }
+  // Port note: upstream checks this from an effect after every render. The selection can only
+  // become disabled or missing when the tabs change, so it runs where the list publishes its tabs
+  // (`CompositeList`'s flush, which reads their DOM order) instead of from an effect that writes
+  // the value it tracks. A user's selection is always an enabled tab, so it only needs to end the
+  // disabled-default honor policy below (see `onValueChange`).
+  function applyAutomaticValueChange(
+    currentTabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
+  ) {
+    const currentIsControlled = isControlled();
+    const currentValue = value();
+    const currentSelectedTabMetadata = findTabMetadata(currentTabMap, currentValue);
+    const currentFirstEnabledTabValue = findFirstEnabledTabValue(currentTabMap);
 
-      function commitAutomaticValueChange(
-        fallbackValue: TabsTab.Value,
-        fallbackReason: TabsRoot.ChangeEventReason,
-      ) {
-        setValue(() => fallbackValue);
-        // Automatic fallbacks are not directional transitions; reset the direction
-        // alongside the value so the batched commit keeps both in sync.
-        activationDirectionState = {
-          previousValue: fallbackValue,
-          tabActivationDirection: 'none',
-        };
-        notifyAutomaticValueChange(fallbackValue, fallbackReason);
-        // Mark the initial notification as delivered only after the consumer
-        // callback returns. The fallback value is queued first so automatic
-        // consistency updates are not cancelable through a throwing handler.
+    if (currentIsControlled) {
+      return;
+    }
+
+    function commitAutomaticValueChange(
+      fallbackValue: TabsTab.Value,
+      fallbackReason: TabsRoot.ChangeEventReason,
+    ) {
+      setValue(() => fallbackValue);
+      // Automatic fallbacks are not directional transitions; reset the direction
+      // alongside the value so the batched commit keeps both in sync.
+      activationDirectionState = {
+        previousValue: fallbackValue,
+        tabActivationDirection: 'none',
+      };
+      notifyAutomaticValueChange(fallbackValue, fallbackReason);
+      // Mark the initial notification as delivered only after the consumer
+      // callback returns. The fallback value is queued first so automatic
+      // consistency updates are not cancelable through a throwing handler.
+      shouldNotifyInitialValueChange = false;
+    }
+
+    if (currentTabMap.size === 0) {
+      // A Suspense boundary outside the root can clean up layout effects while
+      // keeping the previous tabs connected. Don't treat that as removal.
+      if (didRegisterTabs && currentValue !== null && !lastKnownTabElement?.isConnected) {
+        commitAutomaticValueChange(null, REASONS.missing);
+      }
+      return;
+    }
+
+    didRegisterTabs = true;
+    lastKnownTabElement = currentTabMap.keys().next().value;
+
+    const selectionIsDisabled = currentSelectedTabMetadata?.disabled;
+    const selectionIsMissing = currentSelectedTabMetadata == null && currentValue !== null;
+
+    if (!selectionIsDisabled && currentValue === initialDefaultValue) {
+      shouldHonorDisabledDefaultValue = false;
+    }
+
+    if (
+      shouldHonorDisabledDefaultValue &&
+      selectionIsDisabled &&
+      currentValue === initialDefaultValue
+    ) {
+      return;
+    }
+
+    const shouldNotifyInitial = shouldNotifyInitialValueChange;
+
+    if (selectionIsDisabled || selectionIsMissing) {
+      const fallbackValue = currentFirstEnabledTabValue ?? null;
+
+      if (currentValue === fallbackValue) {
+        // Already at the fallback value; no commit or notification needed,
+        // but record that the implicit-initial transition has resolved.
         shouldNotifyInitialValueChange = false;
-      }
-
-      if (currentTabMap.size === 0) {
-        // A Suspense boundary outside the root can clean up layout effects while
-        // keeping the previous tabs connected. Don't treat that as removal.
-        if (didRegisterTabs && currentValue !== null && !lastKnownTabElement?.isConnected) {
-          commitAutomaticValueChange(null, REASONS.missing);
-        }
         return;
       }
 
-      didRegisterTabs = true;
-      lastKnownTabElement = currentTabMap.keys().next().value;
+      let fallbackReason: TabsRoot.ChangeEventReason = REASONS.missing;
 
-      const selectionIsDisabled = currentSelectedTabMetadata?.disabled;
-      const selectionIsMissing = currentSelectedTabMetadata == null && currentValue !== null;
-
-      if (!selectionIsDisabled && currentValue === initialDefaultValue) {
-        shouldHonorDisabledDefaultValue = false;
+      if (shouldNotifyInitial) {
+        fallbackReason = REASONS.initial;
+      } else if (selectionIsDisabled) {
+        fallbackReason = REASONS.disabled;
       }
 
-      if (
-        shouldHonorDisabledDefaultValue &&
-        selectionIsDisabled &&
-        currentValue === initialDefaultValue
-      ) {
-        return;
-      }
+      commitAutomaticValueChange(fallbackValue, fallbackReason);
+      return;
+    }
 
-      const shouldNotifyInitial = shouldNotifyInitialValueChange;
-
-      if (selectionIsDisabled || selectionIsMissing) {
-        const fallbackValue = currentFirstEnabledTabValue ?? null;
-
-        if (currentValue === fallbackValue) {
-          // Already at the fallback value; no commit or notification needed,
-          // but record that the implicit-initial transition has resolved.
-          shouldNotifyInitialValueChange = false;
-          return;
-        }
-
-        let fallbackReason: TabsRoot.ChangeEventReason = REASONS.missing;
-
-        if (shouldNotifyInitial) {
-          fallbackReason = REASONS.initial;
-        } else if (selectionIsDisabled) {
-          fallbackReason = REASONS.disabled;
-        }
-
-        commitAutomaticValueChange(fallbackValue, fallbackReason);
-        return;
-      }
-
-      if (shouldNotifyInitial && currentSelectedTabMetadata != null) {
-        notifyAutomaticValueChange(currentValue, REASONS.initial);
-        shouldNotifyInitialValueChange = false;
-      }
-    },
-    () => [firstEnabledTabValue(), isControlled(), selectedTabMetadata(), tabMap(), value()],
-  );
+    if (shouldNotifyInitial && currentSelectedTabMetadata != null) {
+      notifyAutomaticValueChange(currentValue, REASONS.initial);
+      shouldNotifyInitialValueChange = false;
+    }
+  }
 
   const state = createMemo<TabsRootState>(
     () => ({
@@ -381,6 +372,29 @@ export function TabsRoot(componentProps: TabsRoot.Props) {
       </CompositeList>
     </TabsRootContext>
   );
+}
+
+function findTabMetadata(
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
+  selectedValue: TabsTab.Value,
+) {
+  for (const tabMetadata of tabMap.values()) {
+    if (tabMetadata.value === selectedValue) {
+      return tabMetadata;
+    }
+  }
+  return undefined;
+}
+
+// Find the first non-disabled tab value.
+// Used as a fallback when the current selection is disabled or missing.
+function findFirstEnabledTabValue(tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>) {
+  for (const tabMetadata of tabMap.values()) {
+    if (!tabMetadata.disabled) {
+      return tabMetadata.value;
+    }
+  }
+  return undefined;
 }
 
 function findTabElement(
