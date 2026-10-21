@@ -1,4 +1,5 @@
-import { createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { JSX } from '@solidjs/web';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -1608,6 +1609,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     get grid() {
       return grid() ? gridNavigation : undefined;
     },
+    deriveOpenHighlight: true,
     onNavigate(nextActiveIndex, event) {
       // Ignore automatic navigation while closed, including selected-index sync for inline lists.
       // Inline lists remain navigable while `open` is false, so still allow resets (clearing the
@@ -1627,6 +1629,53 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       });
     },
   });
+
+  // Port note: upstream's list navigation highlights the selected item from a layout effect
+  // (through `onNavigate`) when the list opens and whenever the selected index changes while it's
+  // open. Here the store derives it, like Select: that highlight, until something writes the
+  // highlight after it (each open is a new cycle object), retained while transitioning out. An
+  // inline list is always open to list navigation. Like the effect, it's only considered when the
+  // list opens or the index changes, and skipped when `onNavigate` would ignore it (while the
+  // combobox is closed or ending).
+  const openCycle = createMemo<object | undefined>((previous) =>
+    inline() || open() ? (previous ?? {}) : undefined,
+  );
+  const openHighlight = createMemo<{ cycle: object; index: number } | undefined>((previous) => {
+    const cycle = openCycle();
+    const index = listNavigation.openHighlightIndex();
+    if (
+      cycle === undefined ||
+      index == null ||
+      !untrack(open) ||
+      untrack(transitionStatus) === 'ending'
+    ) {
+      return previous;
+    }
+    return previous?.cycle === cycle && previous.index === index ? previous : { cycle, index };
+  });
+  let appliedOpenHighlight: { cycle: object; index: number } | undefined;
+  let writesAtOpenHighlight = 0;
+  store.useDerivedState('activeIndex', (raw, _, writes) => {
+    const highlight = openHighlight();
+    if (highlight !== appliedOpenHighlight) {
+      appliedOpenHighlight = highlight;
+      writesAtOpenHighlight = writes;
+    }
+    return highlight !== undefined && writes === writesAtOpenHighlight ? highlight.index : raw;
+  });
+  // The derived highlight is an automatic navigation, so it's reported like the written one was.
+  // This effect only notifies, it writes no state.
+  createEffect(
+    openHighlight,
+    (highlight) => {
+      if (highlight !== undefined) {
+        untrack(() =>
+          emitHighlight(valuesRef.current[highlight.index], highlight.index, REASONS.none),
+        );
+      }
+    },
+    IS_DEV ? { name: 'BaseUI.Combobox.openHighlightChange' } : undefined,
+  );
 
   const inputProps = createMemo(() => {
     const isGrid = grid();

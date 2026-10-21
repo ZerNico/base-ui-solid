@@ -282,9 +282,10 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     through the `style` prop still wins.
   - OTP Field moves focus to the next input in the input's event handler, after applying the
     value, instead of from an effect.
-  - Select (`deriveOpenHighlight`) and Menu derive their highlighted index for the current open
-    (the selected item on open, and no highlight once closed for Menu) instead of list navigation
-    writing it through `onNavigate` from an effect.
+  - Select, Combobox (`deriveOpenHighlight`) and Menu derive their highlighted index for the
+    current open (the selected item on open, and no highlight once closed for Menu) instead of list
+    navigation writing it through `onNavigate` from an effect. Combobox still reports the derived
+    highlight to `onItemHighlighted`, from an effect that only calls it.
   - `useOpenStateTransitions` derives the controlled popups' `open` request reset (`false` from
     the prop's close until the next write), and the filter dropdown derives the query it holds
     while the popup animates out. Clearing the value at unmount notifies the consumer, so that part
