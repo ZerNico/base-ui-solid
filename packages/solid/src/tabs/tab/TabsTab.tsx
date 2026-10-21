@@ -1,6 +1,6 @@
-import { createMemo, omit, untrack } from 'solid-js';
+import { createEffect, createMemo, omit, untrack } from 'solid-js';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -85,8 +85,35 @@ export function TabsTab(componentProps: TabsTab.Props) {
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
-  useIsoLayoutEffect(
-    ([isActive, currentIndex, currentHighlightedIndex, isDisabled, listElement]) => {
+  // Port note: the highlight moving onto this tab changes nothing here (the sync below is then a
+  // no-op), so it doesn't re-run the effect. That includes the effect's own write. The effect reads
+  // where focus is, so it is a measuring effect.
+  const highlightSyncDeps = createMemo(
+    () => ({
+      isActive: active(),
+      currentIndex: index(),
+      currentHighlightedIndex: highlightedIndex(),
+      isDisabled: disabled(),
+      listElement: tabsListElement(),
+    }),
+    {
+      equals: (previous, next) =>
+        previous.isActive === next.isActive &&
+        previous.currentIndex === next.currentIndex &&
+        previous.isDisabled === next.isDisabled &&
+        previous.listElement === next.listElement &&
+        (previous.currentHighlightedIndex === next.currentHighlightedIndex ||
+          next.currentHighlightedIndex === next.currentIndex),
+      ...(IS_DEV ? { name: 'BaseUI.TabsTab.highlightSync.deps' } : {}),
+    },
+  );
+
+  createEffect(
+    highlightSyncDeps,
+    () => {
+      const { isActive, currentIndex, currentHighlightedIndex, isDisabled, listElement } =
+        untrack(highlightSyncDeps);
+
       if (isNavigating) {
         isNavigating = false;
         return;
@@ -109,10 +136,10 @@ export function TabsTab(componentProps: TabsTab.Props) {
       // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
       // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
       if (!isDisabled) {
-        onHighlightedIndexChange(currentIndex);
+        untrack(() => onHighlightedIndexChange(currentIndex));
       }
     },
-    () => [active(), index(), highlightedIndex(), disabled(), tabsListElement()],
+    IS_DEV ? { name: 'BaseUI.TabsTab.highlightSync' } : undefined,
   );
 
   const { getButtonProps, buttonRef } = useButton({
