@@ -7,6 +7,7 @@ import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-solid/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-solid/components/FloatingTree';
 import { useSyncedFloatingRootContext } from '../../floating-ui-solid/hooks/useSyncedFloatingRootContext';
@@ -443,6 +444,7 @@ export function useTriggerDataForwarding<
       return () => registerTrigger(null);
     },
     () => [triggerElementRef, read(storeParam), read(triggerIdParam)],
+    IS_DEV ? 'BaseUI.useTriggerDataForwarding.migrateTrigger' : undefined,
   );
 
   // While this trigger owns the mounted popup, its trigger-owned values (payload, close delay,
@@ -470,6 +472,7 @@ export function useTriggerDataForwarding<
       }
     },
     () => [isMountedByThisTrigger(), read(storeParam), triggerElementRef] as const,
+    IS_DEV ? 'BaseUI.useTriggerDataForwarding.activeTriggerElement' : undefined,
   );
 
   return { registerTrigger, isMountedByThisTrigger };
