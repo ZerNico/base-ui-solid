@@ -1,10 +1,12 @@
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import type { FieldDirtySource } from '../../internals/field-root-context/FieldRootContext';
 import {
   DEFAULT_VALIDITY_STATE,
   fieldValidityMapping,
@@ -53,7 +55,29 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
   const disabled = () => (disabledFieldset?.() ?? false) || (componentProps.disabled ?? false);
 
   const [touchedState, setTouchedUnwrapped] = createSignal(false);
-  const [dirtyState, setDirtyUnwrapped] = createSignal(false);
+  // Port note: upstream's controls write `dirty` from an effect when their value changes. Here a
+  // control registers its dirty state (`useFieldDirtySource`), and `dirty` is a writable memo over
+  // it: what the control derived for its latest value, or what a handler wrote since.
+  let markedDirty = false;
+  const [dirtySource, setDirtySource] = createSignal<Accessor<FieldDirtySource> | undefined>(
+    undefined,
+  );
+  const [dirtyState, setDirtyUnwrapped] = createSignal<boolean>((previous) => {
+    const source = dirtySource()?.();
+    const nextDirty = source === undefined ? (previous ?? false) : source.dirty;
+    if (nextDirty) {
+      markedDirty = true;
+    }
+    return nextDirty;
+  });
+  const registerDirtySource = (source: Accessor<FieldDirtySource>) => {
+    setDirtySource(() => source);
+    return () => {
+      if (untrack(dirtySource) === source) {
+        setDirtySource(undefined);
+      }
+    };
+  };
   const [filled, setFilled] = createSignal(false);
   const [focused, setFocused] = createSignal(false);
   const focusOwnerRef: RefObject<unknown> = { current: undefined };
@@ -61,7 +85,20 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
   const dirty = () => componentProps.dirty ?? dirtyState();
   const touched = () => componentProps.touched ?? touchedState();
 
-  const markedDirtyRef: RefObject<boolean> = { current: untrack(dirty) };
+  // Latched once the field is dirty. Reading it brings the derived `dirty` up to date, so a control
+  // validating right after its value changed sees the change.
+  markedDirty ||= untrack(dirty);
+  const markedDirtyRef: RefObject<boolean> = {
+    get current() {
+      if (!markedDirty && untrack(dirty)) {
+        markedDirty = true;
+      }
+      return markedDirty;
+    },
+    set current(value) {
+      markedDirty = value;
+    },
+  };
   const registeredFieldIdRef: RefObject<string | undefined> = { current: undefined };
   const [registeredFieldName, setRegisteredFieldName] = createSignal<string>();
   const effectiveName = () => name() ?? registeredFieldName();
@@ -172,6 +209,7 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
     disabled,
     setTouched,
     setDirty,
+    registerDirtySource,
     setFilled,
     setFocused,
     focusOwnerRef,

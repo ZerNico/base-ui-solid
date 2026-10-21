@@ -25,6 +25,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 /**
  * Represents the switch itself.
@@ -62,8 +63,6 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
   const {
     state: fieldState,
     setTouched,
-    setDirty,
-    validityData,
     setFilled,
     validationMode,
     disabled: fieldDisabled,
@@ -116,10 +115,11 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
     () => [checked()],
   );
 
+  useFieldDirtySource(checked, (currentChecked, initialValue) => currentChecked !== initialValue);
+
   useValueChanged(checked, () => {
     const currentChecked = untrack(checked);
     clearErrors(untrack(name));
-    setDirty(currentChecked !== untrack(validityData).initialValue);
 
     validation.change(currentChecked);
   });

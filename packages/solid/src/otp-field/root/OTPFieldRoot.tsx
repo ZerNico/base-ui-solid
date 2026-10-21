@@ -38,6 +38,7 @@ import {
   normalizeOTPValueWithDetails,
 } from '../utils/otp';
 import type { OTPValidationType } from '../utils/otp';
+import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -85,8 +86,6 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
   const nameProp = () => componentProps.name;
 
   const {
-    setDirty,
-    validityData,
     disabled: fieldDisabled,
     setFilled,
     invalid,
@@ -258,10 +257,11 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
     }
   }
 
+  useFieldDirtySource(value, (currentValue, initialValue) => currentValue !== initialValue);
+
   useValueChanged(value, () => {
     const currentValue = untrack(value);
     clearErrors(untrack(name));
-    setDirty(currentValue !== untrack(validityData).initialValue);
 
     validation.change(currentValue);
 

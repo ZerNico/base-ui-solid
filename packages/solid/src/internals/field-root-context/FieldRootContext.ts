@@ -12,6 +12,12 @@ import type { FieldControlRegistration } from '../field-register-control/useFiel
 
 type StateSetter<T> = (value: T | ((prev: T) => T)) => void;
 
+/**
+ * A control's dirty state: `undefined` until its value changes, then a new object for each change
+ * (numbered, so two changes with the same result still differ).
+ */
+export type FieldDirtySource = { dirty: boolean; change: number } | undefined;
+
 export interface FieldRootContext {
   invalid: Accessor<boolean | undefined>;
   name: Accessor<string | undefined>;
@@ -20,6 +26,11 @@ export interface FieldRootContext {
   disabled: Accessor<boolean | undefined>;
   setTouched: StateSetter<boolean>;
   setDirty: StateSetter<boolean>;
+  /**
+   * Port note: registers the control's dirty state (see `useFieldDirtySource`), which the field
+   * derives `dirty` from. Returns a function that unregisters it.
+   */
+  registerDirtySource: (source: Accessor<FieldDirtySource>) => () => void;
   setFilled: StateSetter<boolean>;
   setFocused: StateSetter<boolean>;
   /**
@@ -53,6 +64,7 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   disabled: () => undefined,
   setTouched: NOOP,
   setDirty: NOOP,
+  registerDirtySource: () => NOOP,
   setFilled: NOOP,
   setFocused: NOOP,
   focusOwnerRef: { current: undefined },

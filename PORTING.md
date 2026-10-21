@@ -174,6 +174,11 @@ local `/solid/…` paths (`docs/src/mdx/markdownPlugin.mjs`).
 - React restores a controlled input's DOM value when the consumer rejects a change. Solid doesn't,
   so controlled inputs restore it themselves after flushing the update (see `FieldControl`).
 - `defaultValue`/`defaultChecked` are set as DOM properties by Solid, as in React.
+- A Field's `dirty` state is derived. Upstream's controls compare their value with the field's
+  initial value from an effect and write the result. Here a control registers the comparison
+  (`useFieldDirtySource`), which has no opinion until the value first changes, and the field's
+  `dirty` is a writable memo over it, so handlers can still write it. `FieldControl` keeps the
+  effect: a Combobox input rendered as a field-aware `Input` has two controls writing `dirty`.
 
 ### Contexts
 

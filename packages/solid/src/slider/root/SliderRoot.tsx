@@ -37,6 +37,7 @@ import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../internals/reasons';
+import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 function areValuesEqual(
   newValue: number | readonly number[],
@@ -120,8 +121,6 @@ export function SliderRoot<Value extends number | readonly number[]>(
     disabled: fieldDisabled,
     name: fieldName,
     setTouched,
-    setDirty,
-    validityData,
     validation,
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
@@ -209,21 +208,17 @@ export function SliderRoot<Value extends number | readonly number[]>(
     nameProp,
   );
 
+  useFieldDirtySource(fieldValue, (currentFieldValue, initialValue) =>
+    Array.isArray(currentFieldValue) && Array.isArray(initialValue)
+      ? !areArraysEqual(currentFieldValue, initialValue)
+      : currentFieldValue !== initialValue,
+  );
+
   useValueChanged(fieldValue, () => {
     const currentFieldValue = untrack(fieldValue);
     clearErrors(untrack(name));
 
     validation.change(currentFieldValue);
-
-    const initialValue = untrack(validityData).initialValue as
-      number | readonly number[] | undefined;
-    let isDirty: boolean;
-    if (Array.isArray(currentFieldValue) && Array.isArray(initialValue)) {
-      isDirty = !areArraysEqual(currentFieldValue, initialValue);
-    } else {
-      isDirty = currentFieldValue !== initialValue;
-    }
-    setDirty(isDirty);
   });
 
   const setValue = (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {

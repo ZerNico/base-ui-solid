@@ -46,6 +46,7 @@ import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import type { HTMLProps } from '../../internals/types';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';
+import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 /**
  * Groups all parts of the select.
@@ -80,10 +81,8 @@ export function SelectRoot<
 
   const { clearErrors } = useFormContext();
   const {
-    setDirty,
     setTouched,
     setFocused,
-    validityData,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -303,16 +302,13 @@ export function SelectRoot<
     () => [multiple(), value(), isItemEqualToValue()] as const,
   );
 
+  useFieldDirtySource(value, (currentValue, initialValue) =>
+    isSelectedValueDirty(currentValue, initialValue, isItemEqualToValue()),
+  );
+
   useValueChanged(value, () => {
     const currentValue = untrack(value);
     clearErrors(untrack(name));
-    setDirty(
-      isSelectedValueDirty(
-        currentValue,
-        untrack(validityData).initialValue,
-        untrack(isItemEqualToValue),
-      ),
-    );
 
     validation.change(currentValue);
   });

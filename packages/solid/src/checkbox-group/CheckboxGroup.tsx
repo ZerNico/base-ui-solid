@@ -22,6 +22,7 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import type { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useValueChanged } from '../internals/useValueChanged';
+import { useFieldDirtySource } from '../internals/field-root-context/useFieldDirtySource';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -48,8 +49,6 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
     state: fieldState,
     validation,
     setFilled,
-    setDirty,
-    validityData,
   } = useFieldRootContext();
   const { labelId, registerControlId, getDescriptionProps } = useLabelableContext();
   const { clearErrors, elementRef } = useFormContext();
@@ -139,6 +138,13 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
     () => [value()],
   );
 
+  useFieldDirtySource(value, (currentValue, initialValue) => {
+    const initialArray = Array.isArray(initialValue)
+      ? (initialValue as readonly string[])
+      : EMPTY_ARRAY;
+    return !areArraysEqual(currentValue, initialArray);
+  });
+
   useValueChanged(value, () => {
     const currentFieldName = untrack(fieldName);
     if (currentFieldName) {
@@ -146,12 +152,6 @@ export function CheckboxGroup(componentProps: CheckboxGroup.Props): JSX.Element 
     }
 
     const currentValue = untrack(value);
-    const initialValue = untrack(validityData).initialValue;
-    const initialArray = Array.isArray(initialValue)
-      ? (initialValue as readonly string[])
-      : EMPTY_ARRAY;
-
-    setDirty(!areArraysEqual(currentValue, initialArray));
 
     validation.change(currentValue);
   });

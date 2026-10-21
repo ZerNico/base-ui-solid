@@ -33,6 +33,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -80,12 +81,10 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
   const {
     disabled: rootDisabled,
     name: fieldName,
-    setDirty,
     setFilled,
     setTouched,
     state: fieldState,
     validationMode,
-    validityData,
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
@@ -246,6 +245,11 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
     () => [checked(), computedIndeterminate()],
   );
 
+  // A checkbox in a group leaves the field's dirty state to the group.
+  if (!groupContext) {
+    useFieldDirtySource(checked, (currentChecked, initialValue) => currentChecked !== initialValue);
+  }
+
   useValueChanged(checked, () => {
     if (groupContext) {
       return;
@@ -253,7 +257,6 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
 
     const currentChecked = untrack(checked);
     clearErrors(untrack(name));
-    setDirty(currentChecked !== untrack(validityData).initialValue);
 
     validation.change(currentChecked);
   });

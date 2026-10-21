@@ -22,6 +22,7 @@ import { useValueChanged } from '../internals/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { REASONS } from '../internals/reasons';
+import { useFieldDirtySource } from '../internals/field-root-context/useFieldDirtySource';
 
 const MODIFIER_KEYS = [SHIFT];
 const UNSET = Symbol('unset');
@@ -58,9 +59,7 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
     disabled: fieldDisabled,
     state: fieldState,
     validation,
-    setDirty,
     setFilled,
-    validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const { clearErrors, elementRef } = useFormContext();
@@ -218,11 +217,15 @@ export function RadioGroup<Value>(componentProps: RadioGroup.Props<Value>): JSX.
     () => componentProps.name,
   );
 
+  useFieldDirtySource(
+    checkedValue,
+    (currentCheckedValue, initialValue) => currentCheckedValue !== initialValue,
+  );
+
   useValueChanged(checkedValue, () => {
     const currentCheckedValue = untrack(checkedValue);
     clearErrors(untrack(name));
 
-    setDirty(currentCheckedValue !== untrack(validityData).initialValue);
     setFilled(currentCheckedValue != null);
 
     validation.change(currentCheckedValue);
