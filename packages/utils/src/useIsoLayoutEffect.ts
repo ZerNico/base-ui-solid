@@ -45,6 +45,33 @@ export function useIsoLayoutEffect<const Deps extends readonly unknown[]>(
 }
 
 /**
+ * `useIsoLayoutEffect` for an effect that measures the DOM and writes what it measured.
+ *
+ * Port note: Solid's diagnostics treat an effect whose apply function takes no arguments as a
+ * measurement, so a write it makes after reading layout is not escalated as a copied value. The
+ * apply here reads the dependencies itself to keep that shape. Use it only where the write depends
+ * on the DOM, so effects that copy state stay visible to the diagnostics.
+ */
+export function useMeasuringLayoutEffect<const Deps extends readonly unknown[]>(
+  effect: EffectCallback<Deps>,
+  deps: () => Deps,
+  name: string | undefined = IS_DEV ? 'BaseUI.useMeasuringLayoutEffect' : undefined,
+) {
+  const memoizedDeps = createMemo(
+    deps,
+    name === undefined ? { equals: areDepsEqual } : { equals: areDepsEqual, name: `${name}.deps` },
+  );
+  createEffect(
+    memoizedDeps,
+    () => {
+      const cleanup = untrack(() => effect(memoizedDeps()));
+      return cleanup ? () => runCleanup(cleanup) : undefined;
+    },
+    name === undefined ? undefined : { name },
+  );
+}
+
+/**
  * React's `useEffect` and `useLayoutEffect` both map to Solid's effect phase, which runs after
  * the DOM has been updated and before the browser paints.
  */

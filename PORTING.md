@@ -477,12 +477,15 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   measuring the DOM after it rendered, which Solid's guide calls a fact to accept. Each is reported
   as an info, which attribution escalates to a warning once the same relay happened three times,
   unless the effect's apply half takes no argument (Solid's sign of a measuring effect, rc.16).
-  The library's wrapped effects always take their dependencies, so only the native measuring
-  effects below stay advisory:
+  `useIsoLayoutEffect` always passes its dependencies, so effects that copy state stay visible.
+  Effects that measure use `useMeasuringLayoutEffect` or a native effect instead, so they stay
+  advisory:
   - A Select aligned to a trigger at the viewport's edge falls back to anchoring after measuring
     (`controlledAlignItemWithTrigger`).
   - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading
-    its computed style (`forcePanelIdle`, `useTransitionStatus.state`).
+    its computed style (`forcePanelIdle`, `useTransitionStatus.state`), from a measuring effect
+    (`BaseUI.useCollapsiblePanel.measure`). It reads `mounted` untracked and keeps the `'ending'`
+    status once it unmounted the panel, so its own `setMounted(false)` doesn't run it again.
   - Opening a Menu with the keyboard highlights the first item from the item list, whose indices
     come from the items' DOM order once they rendered. Which end to highlight is derived when the
     menu opens. The item is resolved by a measuring effect (`BaseUI.useListNavigation.initialHighlight`,

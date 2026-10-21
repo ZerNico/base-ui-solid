@@ -2,7 +2,11 @@ import { createMemo, createSignal, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
-import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import {
+  useEffect,
+  useIsoLayoutEffect,
+  useMeasuringLayoutEffect,
+} from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { Timeout } from '@base-ui-solid/utils/useTimeout';
 import { useTrackedRef } from '@base-ui-solid/utils/useTrackedRef';
@@ -156,8 +160,19 @@ export function useCollapsiblePanel(
     restorePendingTemporaryStyle();
   });
 
-  useIsoLayoutEffect(
-    ([isMounted, isOpen, preventOpenAnimation, status]) => {
+  // Port note: the measurement re-runs when the transition moves, not when this effect's own
+  // `setMounted(false)` lands. `mounted` is read untracked, and the status keeps `'ending'` once an
+  // ending pass unmounts the panel (it only leaves it for `'starting'`), as the effect has nothing
+  // to do for that step.
+  const measuredStatus = createSignal<TransitionStatus>((previous) => {
+    const status = transitionStatus();
+    return status === undefined && previous === 'ending' ? previous : status;
+  })[0];
+
+  useMeasuringLayoutEffect(
+    ([isOpen, preventOpenAnimation, status]) => {
+      const isMounted = mounted();
+
       // A render function can remove the panel on close. Clear one-shot open animation
       // suppression even without an element, so the next open animates normally.
       if (!isOpen) {
@@ -281,7 +296,8 @@ export function useCollapsiblePanel(
 
       return undefined;
     },
-    () => [mounted(), open(), shouldPreventOpenAnimation(), transitionStatus()],
+    () => [open(), shouldPreventOpenAnimation(), measuredStatus()],
+    IS_DEV ? 'BaseUI.useCollapsiblePanel.measure' : undefined,
   );
 
   useOpenChangeComplete({
