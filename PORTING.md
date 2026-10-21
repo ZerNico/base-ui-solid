@@ -489,6 +489,9 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
     which stays advisory) when the list publishes its items (`listVersion`), instead of polling for
     the list (a microtask, then a frame) like upstream. `CompositeList`'s flush is the one place
     that sorts by DOM order, also a measuring effect (`BaseUI.CompositeList.flush`).
-  - Tabs reports info-level (not printed) index updates: item indices come from the DOM order.
+  - Tabs: tab indices come from the DOM order, so the uncontrolled root's fallback to the first
+    enabled tab (which also notifies `onValueChange`) and a tab's highlight sync (which reads where
+    focus is) run after the tab map is published. They take their dependencies, so a repeated
+    relay escalates to a warning.
   - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
     dynamic root (parts can swap their element through `render`).
