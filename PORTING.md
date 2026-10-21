@@ -481,7 +481,9 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   Effects that measure use `useMeasuringLayoutEffect` or a native effect instead, so they stay
   advisory:
   - A Select aligned to a trigger at the viewport's edge falls back to anchoring after measuring
-    (`controlledAlignItemWithTrigger`).
+    (`controlledAlignItemWithTrigger`). The popup's measuring effect tracks whether it tries to
+    align (`alignItemWithTriggerRequested`) rather than whether it still does, so the fallback
+    doesn't run it again.
   - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading
     its computed style (`forcePanelIdle`, `useTransitionStatus.state`), from a measuring effect
     (`BaseUI.useCollapsiblePanel.measure`). It reads `mounted` untracked and keeps the `'ending'`

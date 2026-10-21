@@ -4,7 +4,11 @@ import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { platform } from '@base-ui-solid/utils/platform';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
-import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import {
+  useEffect,
+  useIsoLayoutEffect,
+  useMeasuringLayoutEffect,
+} from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui-solid/utils/clamp';
@@ -232,18 +236,22 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
     () => [open(), positioner.alignItemWithTriggerActive, positionerElement()],
   );
 
-  useIsoLayoutEffect(
+  // Port note: a measuring effect. It tracks whether the popup tries to align rather than whether
+  // it still does, and reads that untracked, so falling back below doesn't run it again: the
+  // fallback does what that run would have done.
+  useMeasuringLayoutEffect(
     ([
       isOpen,
       currentPositionerElement,
       currentTriggerElement,
-      alignItemWithTriggerActive,
+      ,
       currentListElement,
       currentHighlightItemOnHover,
       currentDirection,
       isPositioned,
     ]) => {
       const popupElement = store.context.popupRef.current;
+      const alignItemWithTriggerActive = positioner.alignItemWithTriggerActive;
 
       // Wait for Floating UI's first positioning pass before reading DOM geometry.
       // We replace the final coordinates for aligned selects, but still need middleware
@@ -262,12 +270,15 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
       initialPlaced = true;
       popupElement.style.removeProperty(SelectPositionerCssVars.transformOrigin);
 
-      if (!alignItemWithTriggerActive) {
-        // The wrapper supplies the scroller: the list owns scrolling once it has mounted, and
-        // this effect re-runs (cancelling the stale frame) when that happens.
+      // The wrapper supplies the scroller: the list owns scrolling once it has mounted, and
+      // this effect re-runs (cancelling the stale frame) when that happens.
+      const requestScrollArrowVisibility = () =>
         scrollArrowFrame.request(() =>
           store.context.handleScrollArrowVisibility(currentListElement || popupElement),
         );
+
+      if (!alignItemWithTriggerActive) {
+        requestScrollArrowVisibility();
         return;
       }
 
@@ -382,6 +393,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
         if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
           clearStyles(currentPositionerElement, originalPositionerStyles);
           positioner.setControlledAlignItemWithTrigger(false);
+          requestScrollArrowVisibility();
           return;
         }
 
@@ -437,7 +449,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
       open(),
       positionerElement(),
       triggerElement(),
-      positioner.alignItemWithTriggerActive,
+      positioner.alignItemWithTriggerRequested,
       listElement(),
       highlightItemOnHover(),
       direction(),

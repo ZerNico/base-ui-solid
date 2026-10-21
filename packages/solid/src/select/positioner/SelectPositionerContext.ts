@@ -9,6 +9,7 @@ import type { Side, UseAnchorPositioningReturnValue } from '../../internals/useA
 export interface SelectPositionerContext extends Omit<UseAnchorPositioningReturnValue, 'side'> {
   side: 'none' | Side;
   alignItemWithTriggerActive: boolean;
+  alignItemWithTriggerRequested: boolean;
   setControlledAlignItemWithTrigger: (value: boolean | ((prev: boolean) => boolean)) => void;
   scrollUpArrowRef: RefObject<HTMLDivElement | null>;
   scrollDownArrowRef: RefObject<HTMLDivElement | null>;

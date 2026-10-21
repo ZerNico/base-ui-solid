@@ -86,6 +86,12 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
   const alignItemWithTriggerActive = createMemo(
     () => mounted() && controlledAlignItemWithTrigger() && openMethod() !== 'touch',
   );
+  // Port note: whether the popup tries to align, before its measurement falls back. The popup's
+  // measuring effect tracks this rather than `alignItemWithTriggerActive`, so the fallback it
+  // writes doesn't run it again.
+  const alignItemWithTriggerRequested = createMemo(
+    () => mounted() && alignItemWithTrigger() && openMethod() !== 'touch',
+  );
 
   // Port note: counterpart of `React.useImperativeHandle(alignItemWithTriggerActiveRef, …)`.
   useIsoLayoutEffect(
@@ -295,6 +301,9 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
     },
     get alignItemWithTriggerActive() {
       return alignItemWithTriggerActive();
+    },
+    get alignItemWithTriggerRequested() {
+      return alignItemWithTriggerRequested();
     },
     setControlledAlignItemWithTrigger,
     scrollUpArrowRef,
