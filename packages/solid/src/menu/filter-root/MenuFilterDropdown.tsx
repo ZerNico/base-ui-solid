@@ -2,7 +2,6 @@ import { omit, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { isVirtualPointerEvent } from '../../floating-ui-solid/utils/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
@@ -77,15 +76,19 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   store.useSyncedValue('filterTriggerProps', () => filterTriggerProps);
   // Only `setOpen` records a keyboard open, so a controlled close that bypasses it must not leave
   // the next programmatic open looking like one.
-  useIsoLayoutEffect(
-    () =>
-      untrack(() => {
-        if (!open()) {
-          store.set('keyboardOpen', false);
-        }
-      }),
-    () => [open(), store],
-  );
+  // Port note: upstream resets it from a layout effect when the menu closes. Here the store
+  // derives it: since the menu last closed, it's `false` until the next write. A controlled
+  // keyboard open writes it while the menu is still closed, so only the close itself resets it.
+  let wasOpen: boolean | undefined;
+  let keyboardWritesAtClose: number | undefined;
+  store.useDerivedState('keyboardOpen', (raw, _, writes) => {
+    const openValue = open();
+    if (!openValue && wasOpen !== false) {
+      keyboardWritesAtClose = writes;
+    }
+    wasOpen = openValue;
+    return writes === keyboardWritesAtClose ? false : raw;
+  });
   // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
   // registered id that no element carries.
   const triggerId = () =>
