@@ -460,6 +460,7 @@ export function useListNavigation(
       }
     },
     () => [enabled(), open(), floatingElement(), selectedIndex()],
+    IS_DEV ? 'BaseUI.useListNavigation.selectedSync' : undefined,
   );
 
   // Sync `activeIndex` to be the focused item while the floating element is
@@ -511,6 +512,7 @@ export function useListNavigation(
       }
     },
     () => [enabled(), open(), floatingElement(), activeIndex(), listRef()],
+    IS_DEV ? 'BaseUI.useListNavigation.activeSync' : undefined,
   );
 
   // Initial sync.
@@ -576,6 +578,7 @@ export function useListNavigation(
       }
     },
     () => [enabled(), open(), floatingElement(), nested(), triggerOrientation(), rtl(), listRef()],
+    IS_DEV ? 'BaseUI.useListNavigation.initialSync' : undefined,
   );
 
   // Port note: for lists that publish a `listVersion`, the effect above is split in two. Whether

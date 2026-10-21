@@ -87,6 +87,8 @@ export type SelectStoreContext = {
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   onOpenChangeComplete: (open: boolean) => void;
+  // Called when the item list publishes its items (in DOM order, after they rendered).
+  onItemsChange: () => void;
 };
 
 export const selectors = {

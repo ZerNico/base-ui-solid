@@ -173,6 +173,7 @@ export function SelectRoot<
           setOpen: NOOP,
           handleScrollArrowVisibility: NOOP,
           onOpenChangeComplete: NOOP,
+          onItemsChange: NOOP,
           listRef,
           popupRef,
           scrollHandlerRef,
@@ -395,11 +396,19 @@ export function SelectRoot<
 
   const dismiss = useDismiss(floatingContext);
 
+  // Bumped when the item list publishes its items (in DOM order, after they rendered), so list
+  // navigation can highlight an item once they're there.
+  const [itemsVersion, setItemsVersion] = createSignal(0);
+  store.useContextCallback('onItemsChange', () => () => setItemsVersion((version) => version + 1));
+
   const listNavigation = useListNavigation(floatingContext, {
     get enabled() {
       return !disabled();
     },
     deriveOpenHighlight: true,
+    get listVersion() {
+      return itemsVersion();
+    },
     listRef,
     get activeIndex() {
       return activeIndex();

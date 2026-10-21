@@ -208,6 +208,7 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
     // out, otherwise the first item update would be treated as the initial registration.
     const prevSize = prevMapSize;
     prevMapSize = map.size;
+    store.context.onItemsChange();
 
     if (store.context.valuesRef.current.length === 0) {
       return;
