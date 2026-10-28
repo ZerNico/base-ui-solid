@@ -3,12 +3,9 @@ import type { JSX } from '@solidjs/web';
 import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { platform } from '@base-ui-solid/utils/platform';
+import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
-import {
-  useEffect,
-  useIsoLayoutEffect,
-  useMeasuringLayoutEffect,
-} from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { clamp } from '@base-ui-solid/utils/clamp';
@@ -239,7 +236,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
   // Port note: a measuring effect. It tracks whether the popup tries to align rather than whether
   // it still does, and reads that untracked, so falling back below doesn't run it again: the
   // fallback does what that run would have done.
-  useMeasuringLayoutEffect(
+  useIsoLayoutEffect(
     ([
       isOpen,
       currentPositionerElement,
@@ -455,6 +452,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
       direction(),
       positioner.isPositioned,
     ],
+    { name: IS_DEV ? 'BaseUI.SelectPopup.alignItemWithTrigger' : undefined, measuring: true },
   );
 
   useEffect(

@@ -478,11 +478,18 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   measuring the DOM after it rendered, which Solid's guide calls a fact to accept. Each is reported
   as an info, which attribution escalates to a warning once the same relay happened three times,
   unless the effect's apply half takes no argument (Solid's sign of a measuring effect, rc.16).
-  `useIsoLayoutEffect` always passes its dependencies, so effects that copy state stay visible.
-  Effects that measure use `useMeasuringLayoutEffect` or a native effect instead, so they stay
-  advisory:
+  `useIsoLayoutEffect` passes its dependencies to the effect, so effects that copy state stay
+  visible. Effects that measure pass `{ measuring: true }` (or are a native effect whose apply
+  takes no argument), so they stay advisory.
+
+  The policy for these diagnostics: derive a value that comes from props or state (a memo, a
+  writable memo, or the store's `useDerivedState`) instead of copying it from an effect, since that
+  removes a stale frame and is right on the server. Mark an effect as measuring only when its write
+  depends on the DOM. Don't restructure code only to avoid an advisory finding or an effect's single
+  re-run after its own write: accept those, and note them here. The accepted ones:
   - A Select aligned to a trigger at the viewport's edge falls back to anchoring after measuring
-    (`controlledAlignItemWithTrigger`). The popup's measuring effect tracks whether it tries to
+    (`controlledAlignItemWithTrigger`). The popup's measuring effect
+    (`BaseUI.SelectPopup.alignItemWithTrigger`) tracks whether it tries to
     align (`alignItemWithTriggerRequested`) rather than whether it still does, so the fallback
     doesn't run it again.
   - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading

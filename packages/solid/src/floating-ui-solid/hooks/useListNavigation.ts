@@ -2,10 +2,7 @@ import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
-import {
-  useIsoLayoutEffect,
-  useMeasuringLayoutEffect,
-} from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { platform } from '@base-ui-solid/utils/platform';
@@ -528,7 +525,7 @@ export function useListNavigation(
   // (see the effect below). It reads which items are rendered, so it's a measuring effect.
   let pendingInitialHighlight: (() => boolean) | null = null;
 
-  useMeasuringLayoutEffect(
+  useIsoLayoutEffect(
     ([
       enabledValue,
       openValue,
@@ -602,7 +599,7 @@ export function useListNavigation(
       }
     },
     () => [enabled(), open(), floatingElement(), nested(), triggerOrientation(), rtl(), listRef()],
-    IS_DEV ? 'BaseUI.useListNavigation.initialSync' : undefined,
+    { name: IS_DEV ? 'BaseUI.useListNavigation.initialSync' : undefined, measuring: true },
   );
 
   // Port note: resolves a pending initial highlight when the list publishes its items. Which item
