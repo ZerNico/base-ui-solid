@@ -49,6 +49,11 @@ type PopupStoreWithOpen<
       key: Key,
       derive: (rawValue: State[Key], rawState: State, writes: number) => State[Key],
     ): void;
+    useResetState<Key extends keyof State>(
+      key: Key,
+      reset: () => { value: State[Key] } | undefined,
+      options?: { hold?: boolean | undefined },
+    ): void;
   };
 
 /**
@@ -680,18 +685,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   // `true` on unmount means a request made since then.
   // Port note: upstream resets it from a layout effect. Here it's derived: `false` from the prop's
   // close until the next write.
-  let lastOpenProp: boolean | undefined;
-  let writesAtPropClose: number | undefined;
-  store.useDerivedState('open', (raw, _, writes) => {
-    const openPropValue = openProp();
-    if (openPropValue !== lastOpenProp) {
-      lastOpenProp = openPropValue;
-      if (openPropValue === false) {
-        writesAtPropClose = writes;
-      }
-    }
-    return writes === writesAtPropClose ? (false as State['open']) : raw;
-  });
+  store.useResetState('open', () =>
+    openProp() === false ? { value: false as State['open'] } : undefined,
+  );
 
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
@@ -764,14 +760,7 @@ export function usePopupRootSync<
   // Port note: upstream resets `openMethod` from a layout effect when the popup closes. Here it's
   // derived: it's the method written since the popup last closed (an interaction can record it
   // before the popup opens), or none.
-  let wasOpen = untrack(open);
-  let writesAtClose = -1;
-  store.useDerivedState('openMethod', (raw, _, writes) => {
-    const isOpen = open();
-    if (wasOpen && !isOpen) {
-      writesAtClose = writes;
-    }
-    wasOpen = isOpen;
-    return writes === writesAtClose ? (null as State['openMethod']) : raw;
-  });
+  store.useResetState('openMethod', () =>
+    open() ? undefined : { value: null as State['openMethod'] },
+  );
 }

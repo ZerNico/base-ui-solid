@@ -20,13 +20,13 @@ describe('SolidStore (port)', () => {
     function setup(options?: { everyRun?: boolean; hold?: boolean }) {
       const store = new SolidStore<TestState>(initialState);
       const [reset, setReset] = createSignal<{ value: number } | undefined>(undefined);
-      let lastReset!: () => { value: number } | undefined;
+      const onReset = vi.fn();
       const dispose = createRoot((disposeRoot) => {
-        lastReset = store.useResetState('value', reset, options);
+        store.useResetState('value', reset, { ...options, onReset });
         return disposeRoot;
       });
       flush();
-      return { store, setReset, lastReset: () => lastReset(), dispose };
+      return { store, setReset, onReset, dispose };
     }
 
     it('reads the reset value until the next write', () => {
@@ -49,35 +49,37 @@ describe('SolidStore (port)', () => {
     });
 
     it('resets to the same value again after a run without a reset', () => {
-      const { store, setReset, lastReset, dispose } = setup();
+      const { store, setReset, onReset, dispose } = setup();
       setReset({ value: 0 });
       flush();
-      const first = lastReset();
+      expect(onReset).toHaveBeenCalledTimes(1);
       store.set('value', 2);
 
       // The same value again is no reset.
       setReset({ value: 0 });
       flush();
       expect(store.state.value).toBe(2);
-      expect(lastReset()).toBe(first);
+      expect(onReset).toHaveBeenCalledTimes(1);
 
       setReset(undefined);
       flush();
       setReset({ value: 0 });
       flush();
       expect(store.state.value).toBe(0);
-      expect(lastReset()).not.toBe(first);
+      expect(onReset).toHaveBeenCalledTimes(2);
+      expect(onReset).toHaveBeenLastCalledWith(0);
       dispose();
     });
 
     it('resets on every run with `everyRun`', () => {
-      const { store, setReset, dispose } = setup({ everyRun: true });
+      const { store, setReset, onReset, dispose } = setup({ everyRun: true });
       setReset({ value: 0 });
       flush();
       store.set('value', 2);
       setReset({ value: 0 });
       flush();
       expect(store.state.value).toBe(0);
+      expect(onReset).toHaveBeenCalledTimes(2);
       dispose();
     });
 

@@ -1,5 +1,4 @@
-import { createEffect, createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
-import { IS_DEV } from '@base-ui-solid/utils/isDev';
+import { createMemo, createSignal, flush, For, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -1090,13 +1089,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   useImperativeHandle(() => props.actionsRef, actions);
 
-  // Port note: upstream writes the selected index from a layout effect. Here a memo decides when it
-  // syncs (each sync is a new object, numbered so that two syncs to the same index still differ),
-  // and the store derives the index: the last sync, or what an item wrote since (items re-assert the
-  // index when their registration moves).
-  let syncCount = 0;
-  const syncedSelectedIndex = createMemo<{ index: number | null; sync: number } | undefined>(
-    (previous) => {
+  // Port note: upstream writes the selected index from a layout effect. Here the store derives it:
+  // the last sync (every one, also to the same index), or what an item wrote since (items re-assert
+  // the index when their registration moves).
+  store.useResetState(
+    'selectedIndex',
+    () => {
       const openValue = open();
       const closeQueryValue = closeQuery();
       const closeQueryReleased = previousCloseQueryRef !== null && closeQueryValue === null;
@@ -1105,7 +1103,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // Closing indexes against the frozen filtered list. Reopening releases that query, so its
       // rendered coordinates must be synchronized again even though the popup is already open.
       if (selectionMode() === 'none' || (openValue && (!closeQueryReleased || !hasItems()))) {
-        return previous;
+        return undefined;
       }
 
       // Without `items`, look the selection up in the live registry of mounted item
@@ -1116,23 +1114,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       // the index on the next open.
       // Keep the selected index in the coordinates of the list that is actually rendered.
       const registry: readonly any[] = hasItems() ? flatFilteredValues() : valuesRef.current;
-      syncCount += 1;
       return {
-        index: findSelectionIndex(registry, selectedValue(), isItemEqualToValue(), multiple()),
-        sync: syncCount,
+        value: findSelectionIndex(registry, selectedValue(), isItemEqualToValue(), multiple()),
       };
     },
+    { everyRun: true },
   );
-  let lastSync: { index: number | null; sync: number } | undefined;
-  let writesAtLastSync = 0;
-  store.useDerivedState('selectedIndex', (raw, _, writes) => {
-    const sync = syncedSelectedIndex();
-    if (sync !== lastSync) {
-      lastSync = sync;
-      writesAtLastSync = writes;
-    }
-    return sync === undefined || writes !== writesAtLastSync ? raw : sync.index;
-  });
 
   useIsoLayoutEffect(
     ([openValue]) => {
@@ -1633,48 +1620,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // Port note: upstream's list navigation highlights the selected item from a layout effect
   // (through `onNavigate`) when the list opens and whenever the selected index changes while it's
   // open. Here the store derives it, like Select: that highlight, until something writes the
-  // highlight after it (each open is a new cycle object), retained while transitioning out. An
-  // inline list is always open to list navigation. Like the effect, it's only considered when the
-  // list opens or the index changes, and skipped when `onNavigate` would ignore it (while the
-  // combobox is closed or ending).
-  const openCycle = createMemo<object | undefined>((previous) =>
-    inline() || open() ? (previous ?? {}) : undefined,
-  );
-  const openHighlight = createMemo<{ cycle: object; index: number } | undefined>((previous) => {
-    const cycle = openCycle();
-    const index = listNavigation.openHighlightIndex();
-    if (
-      cycle === undefined ||
-      index == null ||
-      !untrack(open) ||
-      untrack(transitionStatus) === 'ending'
-    ) {
-      return previous;
-    }
-    return previous?.cycle === cycle && previous.index === index ? previous : { cycle, index };
-  });
-  let appliedOpenHighlight: { cycle: object; index: number } | undefined;
-  let writesAtOpenHighlight = 0;
-  store.useDerivedState('activeIndex', (raw, _, writes) => {
-    const highlight = openHighlight();
-    if (highlight !== appliedOpenHighlight) {
-      appliedOpenHighlight = highlight;
-      writesAtOpenHighlight = writes;
-    }
-    return highlight !== undefined && writes === writesAtOpenHighlight ? highlight.index : raw;
-  });
+  // highlight after it, retained while transitioning out. An inline list is always open to list
+  // navigation. Like the effect, it's only considered when the list opens or the index changes,
+  // and skipped when `onNavigate` would ignore it (while the combobox is closed or ending).
   // The derived highlight is an automatic navigation, so it's reported like the written one was.
-  // This effect only notifies, it writes no state.
-  createEffect(
-    openHighlight,
-    (highlight) => {
-      if (highlight !== undefined) {
-        untrack(() =>
-          emitHighlight(valuesRef.current[highlight.index], highlight.index, REASONS.none),
-        );
-      }
+  store.useResetState(
+    'activeIndex',
+    () => {
+      const listOpen = inline() || open();
+      const index = listNavigation.openHighlightIndex();
+      return listOpen && index != null && untrack(open) && untrack(transitionStatus) !== 'ending'
+        ? { value: index }
+        : undefined;
     },
-    IS_DEV ? { name: 'BaseUI.Combobox.openHighlightChange' } : undefined,
+    {
+      onReset(index) {
+        if (index != null) {
+          emitHighlight(valuesRef.current[index], index, REASONS.none);
+        }
+      },
+    },
   );
 
   const inputProps = createMemo(() => {

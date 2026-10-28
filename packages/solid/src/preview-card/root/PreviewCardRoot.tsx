@@ -57,14 +57,11 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   // Port note: upstream clears the payload from a layout effect when the popup is open without an
   // active trigger. Here the store derives it: no payload then, and none until the next write.
-  let payloadWritesWhenCleared: number | undefined;
-  store.useDerivedState('payload', (raw, _, writes) => {
-    if (open() && activeTriggerId() == null) {
-      payloadWritesWhenCleared = writes;
-      return undefined;
-    }
-    return writes === payloadWritesWhenCleared ? undefined : raw;
-  });
+  store.useResetState(
+    'payload',
+    () => (open() && activeTriggerId() == null ? { value: undefined } : undefined),
+    { hold: true },
+  );
 
   useImperativeHandle(() => props.actionsRef, {
     unmount: forceUnmount,

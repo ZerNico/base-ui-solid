@@ -330,13 +330,8 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   // Port note: upstream re-enables hover from a layout effect once the menu is closed. Here the
   // store derives it: a closed menu has hover enabled, and an open one what was written since it
   // last closed (a write while closed is reset, as the effect did).
-  let hoverWritesWhileClosed = 0;
-  store.useDerivedState('hoverEnabled', (raw, _, writes) => {
-    if (!open()) {
-      hoverWritesWhileClosed = writes;
-      return true;
-    }
-    return writes !== hoverWritesWhileClosed ? raw : true;
+  store.useResetState('hoverEnabled', () => (open() ? undefined : { value: true }), {
+    hold: true,
   });
 
   const setOpen = (
@@ -605,21 +600,9 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
 
   // Port note: upstream's list navigation resets the highlight from a layout effect (through
   // `onNavigate`) when the menu closes. Here the store derives it: a closed menu has none, and an
-  // open one only the index written since it last closed (each open is a new cycle object).
-  const openCycle = createMemo<object | undefined>((previous) =>
-    open() ? (previous ?? {}) : undefined,
-  );
-  let lastOpenCycle: object | undefined;
-  let writesAtClose = 0;
-  store.useDerivedState('activeIndex', (raw, _, writes) => {
-    const cycle = openCycle();
-    if (cycle !== lastOpenCycle) {
-      if (cycle === undefined) {
-        writesAtClose = writes;
-      }
-      lastOpenCycle = cycle;
-    }
-    return cycle !== undefined && writes !== writesAtClose ? raw : null;
+  // open one only the index written since it last closed.
+  store.useResetState('activeIndex', () => (open() ? undefined : { value: null }), {
+    hold: true,
   });
 
   const onTyping = (nextTyping: boolean) => {

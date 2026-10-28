@@ -253,6 +253,12 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     written (the raw state) and other reactive values. The trigger count, the lone-trigger claim
     and Select's `selectedIndex` use it. `writes` counts imperative writes to the key, to tell a
     write of the same value apart from no write.
+  - `useResetState(key, reset, options)` stands in for an effect that writes a key when something
+    changes: while `reset()` returns `{ value }`, a change resets the key to that value, which it
+    reads until the next write. The popups' `open` and `openMethod`, the Tooltip and PreviewCard
+    `payload`, Menu's `hoverEnabled` and `keyboardOpen`, and the open highlight and selected index
+    of Menu, Select and Combobox use it. `hold` drops writes while the reset applies, `everyRun`
+    resets on every run (Combobox's selected index syncs), and `onReset` notifies from an effect.
   - `subscribe` and `observe` listeners are notified (once per change of a synced group) from an
     effect, since they're outside Solid.
   - The snapshot object is replaced when the raw state changes, not when only a derived value

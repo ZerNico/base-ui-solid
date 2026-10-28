@@ -1,4 +1,4 @@
-import { createMemo, createSignal, getObserver, onCleanup, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, getObserver, onCleanup, untrack } from 'solid-js';
 import type { Accessor, Signal } from 'solid-js';
 import { Store } from './Store';
 import { useStore } from './useStore';
@@ -206,14 +206,18 @@ export class SolidStore<
    * between counts, so closing and reopening resets to the same value again). Options:
    * - `everyRun`: every run of `reset` that returns a value is a reset, even to the same value.
    * - `hold`: while `reset` returns a value, writes don't change the key.
-   *
-   * Returns the last reset (a new object for each one), e.g. to notify about it.
+   * - `onReset`: called with each reset's value, from an effect after the reset (it should only
+   *   notify, as a write from it would come a flush late).
    */
   useResetState<Key extends keyof State>(
     key: Key,
     reset: () => { value: State[Key] } | undefined,
-    options: { everyRun?: boolean | undefined; hold?: boolean | undefined } = {},
-  ): Accessor<{ value: State[Key] } | undefined> {
+    options: {
+      everyRun?: boolean | undefined;
+      hold?: boolean | undefined;
+      onReset?: ((value: State[Key]) => void) | undefined;
+    } = {},
+  ) {
     // Each reset gets an id, so a reset to the same value is told apart from no reset.
     const resets = createMemo<ResetEvent<State[Key]>>((previous) => {
       const next = reset();
@@ -249,7 +253,21 @@ export class SolidStore<
       return last !== undefined && writes === writesAtReset ? last.value : raw;
     });
 
-    return createMemo(() => resets().last);
+    const { onReset } = options;
+    if (onReset !== undefined) {
+      let notifiedId = 0;
+      createEffect(
+        () => resets().id,
+        (id) => {
+          const { last } = untrack(resets);
+          if (id !== notifiedId && last !== undefined) {
+            notifiedId = id;
+            untrack(() => onReset(last.value));
+          }
+        },
+        IS_DEV ? { name: `${getStoreDebugName(this)}.reset(${String(key)})` } : undefined,
+      );
+    }
   }
 
   /** Sources of the derived keys. The last registration of a key wins. */

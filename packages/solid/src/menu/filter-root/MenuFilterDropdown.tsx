@@ -79,16 +79,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   // Port note: upstream resets it from a layout effect when the menu closes. Here the store
   // derives it: since the menu last closed, it's `false` until the next write. A controlled
   // keyboard open writes it while the menu is still closed, so only the close itself resets it.
-  let wasOpen: boolean | undefined;
-  let keyboardWritesAtClose: number | undefined;
-  store.useDerivedState('keyboardOpen', (raw, _, writes) => {
-    const openValue = open();
-    if (!openValue && wasOpen !== false) {
-      keyboardWritesAtClose = writes;
-    }
-    wasOpen = openValue;
-    return writes === keyboardWritesAtClose ? false : raw;
-  });
+  store.useResetState('keyboardOpen', () => (open() ? undefined : { value: false }));
   // Trust the rendered element's id once it exists: an explicitly empty id must not fall back to a
   // registered id that no element carries.
   const triggerId = () =>
