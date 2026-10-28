@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getTarget, isInteractiveElement } from '../../floating-ui-solid/utils/element';
+import { getTarget, isInteractiveElement } from '../../utils/popups/element';
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(

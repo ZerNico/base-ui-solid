@@ -13,9 +13,9 @@ import {
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  contains,
-} from '../../floating-ui-solid/utils';
-import { getEmptyRootContext } from '../../floating-ui-solid/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { contains } from '../../utils/popups/element';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();

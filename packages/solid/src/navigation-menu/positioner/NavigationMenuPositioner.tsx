@@ -9,8 +9,8 @@ import {
   disableFocusInside,
   enableFocusInside,
   isOutsideEvent,
-} from '../../floating-ui-solid/utils';
-import { getEmptyRootContext } from '../../floating-ui-solid/utils/getEmptyRootContext';
+} from '../../utils/popups/focus/tabbable';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

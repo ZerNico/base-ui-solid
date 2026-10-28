@@ -9,13 +9,13 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 import type { PreviewCardHandleStore } from '../store/PreviewCardStore';
-import {
-  getInlineRectTriggerProps,
-  usePopupHandleStore,
-  useTriggerDataForwarding,
-} from '../../utils/popups';
+import { getInlineRectTriggerProps } from '../../utils/popups/inlineRect';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-solid';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 
 /**
  * A link that opens the preview card.

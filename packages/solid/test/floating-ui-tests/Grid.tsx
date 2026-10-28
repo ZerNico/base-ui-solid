@@ -3,12 +3,10 @@
 import { createSignal, Show } from 'solid-js';
 import { useTestInteractions } from '#test-utils';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import {
-  FloatingFocusManager,
-  useClick,
-  useDismiss,
-  useListNavigation,
-} from '../../src/floating-ui-solid';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useFloating } from './useFloating';
 import styles from './Grid.module.css';
 import { gridNavigationWithColumns } from './gridNavigationWithColumns';

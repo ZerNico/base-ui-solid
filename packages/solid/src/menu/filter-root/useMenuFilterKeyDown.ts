@@ -8,14 +8,14 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { stopEvent } from '../../floating-ui-solid/utils/event';
-import { getMaxListIndex, getMinListIndex } from '../../floating-ui-solid/utils/composite';
+import { stopEvent } from '../../utils/popups/event';
+import { getMaxListIndex, getMinListIndex } from '../../internals/composite/listIndex';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-solid/hooks/useListNavigation';
+} from '../../utils/popups/interactions/useListNavigation';
 
 export type MenuFilterKeyAction =
   /** Native text editing in the input; list navigation and parent handlers stay out of it. */

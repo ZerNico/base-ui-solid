@@ -1,23 +1,20 @@
 import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
-import type { Placement } from '../../src/floating-ui-solid/types';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import type { Placement } from '../../src/utils/popups/positioning/dom';
+import { autoUpdate, flip, offset, shift } from '../../src/utils/popups/positioning/dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
   FloatingNode,
-  FloatingPortal,
   FloatingTree,
-  offset,
-  safePolygon,
-  shift,
-  useClick,
-  useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../src/floating-ui-solid';
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Popover.module.css';

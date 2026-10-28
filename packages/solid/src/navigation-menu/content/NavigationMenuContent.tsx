@@ -5,8 +5,8 @@ import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { FloatingNode } from '../../floating-ui-solid';
-import { contains, getTarget } from '../../floating-ui-solid/utils';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
+import { contains, getTarget } from '../../utils/popups/element';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

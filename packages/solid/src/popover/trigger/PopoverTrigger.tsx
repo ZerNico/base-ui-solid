@@ -12,13 +12,16 @@ import {
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-solid';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import type { PopoverHandleStore } from '../store/PopoverStore';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useInsertedTriggerFocusGuards } from '../../utils/popups/useInsertedTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';

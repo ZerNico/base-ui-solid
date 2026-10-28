@@ -2,7 +2,7 @@ import { untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
-import { closest, getTarget } from '../../floating-ui-solid/utils';
+import { closest, getTarget } from '../../utils/popups/element';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 

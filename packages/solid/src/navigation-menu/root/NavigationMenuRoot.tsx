@@ -12,9 +12,9 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-solid';
-import type { FloatingRootContext } from '../../floating-ui-solid';
-import { activeElement, contains } from '../../floating-ui-solid/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import type { FloatingRootContext } from '../../utils/popups/types';
+import { activeElement, contains } from '../../utils/popups/element';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuRootContext,

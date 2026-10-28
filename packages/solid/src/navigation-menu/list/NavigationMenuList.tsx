@@ -1,9 +1,10 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-solid';
-import type { ElementProps } from '../../floating-ui-solid';
-import { closest, getTarget } from '../../floating-ui-solid/utils';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import type { ElementProps } from '../../utils/popups/types';
+import { closest, getTarget } from '../../utils/popups/element';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
@@ -12,7 +13,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../floating-ui-solid/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

@@ -1,8 +1,8 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import type { FloatingRootContext } from '../../floating-ui-solid';
-import { FloatingRootStore } from '../../floating-ui-solid/components/FloatingRootStore';
+import type { FloatingRootContext } from './types';
+import { FloatingRootStore } from './floating-root/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';

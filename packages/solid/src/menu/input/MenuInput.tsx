@@ -9,7 +9,7 @@ import type {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { useFilterDropdownValueContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
-import { activeElement } from '../../floating-ui-solid/utils';
+import { activeElement } from '../../utils/popups/element';
 import { useMenuFilterKeyDown } from '../filter-root/useMenuFilterKeyDown';
 import { useMenuFilterPart } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';

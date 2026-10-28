@@ -13,8 +13,8 @@ import {
   usePopupHandleAttachment,
   usePopupRootStore,
   usePopupRootSync,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 
 export function useRenderDialogRoot<Payload>(
   mode: DialogRootMode,

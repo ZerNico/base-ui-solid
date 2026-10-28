@@ -6,18 +6,13 @@ import { useId } from '@base-ui-solid/utils/useId';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTestInteractions } from '#test-utils';
-import type { Placement } from '../../src/floating-ui-solid/types';
-import {
-  arrow,
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
-  FloatingPortal,
-  offset,
-  useClick,
-  useDismiss,
-  useListNavigation,
-} from '../../src/floating-ui-solid';
+import type { Placement } from '../../src/utils/popups/positioning/dom';
+import { arrow, autoUpdate, flip, offset } from '../../src/utils/popups/positioning/dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useFloating } from './useFloating';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';

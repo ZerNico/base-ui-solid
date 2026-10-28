@@ -1,6 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { getSide } from '@floating-ui/utils';
-import type { Middleware } from '../floating-ui-solid';
+import type { Middleware } from './popups/positioning/dom';
 import { DEFAULT_SIDES } from './adaptiveOriginConstants';
 
 export const adaptiveOrigin: Middleware = {

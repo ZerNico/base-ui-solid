@@ -11,13 +11,11 @@ import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import {
-  useClick,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useTypeahead,
-} from '../../floating-ui-solid';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -30,7 +28,10 @@ import type { SelectStoreContext, State as StoreState } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
+} from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -42,7 +43,6 @@ import {
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import type { HTMLProps } from '../../internals/types';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';

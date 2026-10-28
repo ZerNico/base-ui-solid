@@ -3,7 +3,7 @@ import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useMenubarContext } from '../../menubar/MenubarContext';
-import { isVirtualPointerEvent } from '../../floating-ui-solid/utils/event';
+import { isVirtualPointerEvent } from '../../utils/popups/event';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';

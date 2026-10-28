@@ -18,8 +18,9 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../../floating-ui-solid/hooks/useListNavigation';
-import { activeElement, contains, stopEvent } from '../../floating-ui-solid/utils';
+} from '../../utils/popups/interactions/useListNavigation';
+import { activeElement, contains } from '../../utils/popups/element';
+import { stopEvent } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { moveHighlightFrom } from '../filter-root/moveHighlightFrom';

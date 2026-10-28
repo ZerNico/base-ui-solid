@@ -7,15 +7,15 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import { useFloatingParentNodeIdAccessor } from '../../floating-ui-solid/components/FloatingTree';
 import {
+  useFloatingParentNodeIdAccessor,
   FloatingTree,
-  useDismiss,
   useFloatingNodeId,
-  useListNavigation,
-  useTypeahead,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-solid';
+} from '../../utils/popups/tree/FloatingTree';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
+import { useSyncedFloatingRootContext } from '../../utils/popups/floating-root/useSyncedFloatingRootContext';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -39,7 +39,7 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore } from '../store/MenuStore';
 import type { State as MenuStoreState } from '../store/MenuStore';
 import type { MenuHandle } from '../store/MenuHandle';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
@@ -48,7 +48,7 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { HTMLProps } from '../../internals/types';
 import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';

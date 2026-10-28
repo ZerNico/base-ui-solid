@@ -4,7 +4,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import { createMemo, createSignal, omit, untrack } from 'solid-js';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { isVirtualClick } from '../../floating-ui-solid/utils/event';
+import { isVirtualClick } from '../../utils/popups/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { NOOP } from '../../internals/noop';
@@ -13,7 +13,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getElementTransform } from '../../utils/getElementTransform';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import type { SwipeDirection } from '../../utils/useSwipeDismiss';
 import { getDisplacement, useSwipeDismiss } from '../../utils/useSwipeDismiss';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';

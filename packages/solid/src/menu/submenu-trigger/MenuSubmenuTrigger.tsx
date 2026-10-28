@@ -10,7 +10,9 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import { getTarget } from '@base-ui-solid/utils/shadowDom';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-solid';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -19,7 +21,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';

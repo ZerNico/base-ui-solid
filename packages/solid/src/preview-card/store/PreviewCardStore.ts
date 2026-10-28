@@ -1,18 +1,15 @@
 import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import type { InlineRectCoords } from '../../utils/popups/inlineRect';
 import type {
-  InlineRectCoords,
   PopupStoreContext,
   PopupStoreState,
   PopupTriggerStoreKeys,
-} from '../../utils/popups';
-import {
-  applyPopupOpenChange,
-  createInitialPopupStoreState,
-  popupStoreSelectors,
-  PopupTriggerMap,
-  updateInlineRectCoords,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { applyPopupOpenChange } from '../../utils/popups/popupStoreUtils';
+import { createInitialPopupStoreState, popupStoreSelectors } from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import type { PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';

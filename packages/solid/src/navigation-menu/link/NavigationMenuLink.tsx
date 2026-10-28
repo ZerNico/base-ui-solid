@@ -1,7 +1,7 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { useFloatingTree } from '../../floating-ui-solid';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

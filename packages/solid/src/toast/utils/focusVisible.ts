@@ -1,1 +1,1 @@
-export { matchesFocusVisible as isFocusVisible } from '../../floating-ui-solid/utils';
+export { matchesFocusVisible as isFocusVisible } from '../../utils/popups/element';

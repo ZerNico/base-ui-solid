@@ -1,7 +1,7 @@
 import { createMemo, omit, Show } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-solid';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';

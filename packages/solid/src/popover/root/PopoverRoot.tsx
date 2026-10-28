@@ -2,7 +2,8 @@ import { Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import { useDismiss, FloatingTree } from '../../floating-ui-solid';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import type { State as PopoverStoreState } from '../store/PopoverStore';
@@ -17,8 +18,8 @@ import {
   usePopupInteractionProps,
   usePopupRootSync,
   usePopupHandleAttachment,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 
 function PopoverRootComponent<Payload>(componentProps: {
   props: PopoverRoot.Props<Payload>;

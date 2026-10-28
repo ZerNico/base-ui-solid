@@ -1,8 +1,6 @@
 // Upstream names that were renamed in the port, applied to paths inside the mapped source and
 // test folders. Keep this in sync with the "Renamed modules" section of PORTING.md.
 const RENAMES = [
-  // A Solid port of upstream's vendored `@floating-ui/react` fork.
-  [/(^|\/)floating-ui-react(?=\/|$)/, '$1floating-ui-solid'],
   // The store class that binds a Store to the framework's reactivity.
   [/(^|\/)ReactStore(?=\.)/, '$1SolidStore'],
   // Docs pages live under `/solid/` instead of `/react/`.
@@ -10,7 +8,7 @@ const RENAMES = [
 ];
 
 /**
- * Maps a path below a mapped folder (for example `floating-ui-react/hooks/useHover.ts`) to the
+ * Maps a path below a mapped folder (for example `store/ReactStore.ts`) to the
  * port's name for it.
  * @param {string} relativePath
  */

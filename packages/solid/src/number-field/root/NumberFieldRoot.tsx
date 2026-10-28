@@ -12,7 +12,7 @@ import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { activeElement } from '../../floating-ui-solid/utils';
+import { activeElement } from '../../utils/popups/element';
 import type { InputMode } from './NumberFieldRootContext';
 import { NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';

@@ -2,7 +2,8 @@ import { createMemo, omit } from 'solid-js';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-solid';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
+import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -16,7 +17,10 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ClosePartContext, useClosePartCount } from '../../utils/closePart';
-import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
+import {
+  FOCUSABLE_POPUP_PROPS,
+  createDefaultInitialFocus,
+} from '../../utils/popups/popupStoreUtils';
 
 /**
  * A container for the popover contents.

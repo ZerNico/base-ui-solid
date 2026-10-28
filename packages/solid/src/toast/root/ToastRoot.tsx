@@ -6,7 +6,7 @@ import { inertValue } from '@base-ui-solid/utils/inertValue';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-solid/utils';
+import { activeElement, closest, contains, getTarget } from '../../utils/popups/element';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';

@@ -37,9 +37,9 @@ vi.mock('@base-ui-solid/utils/useId', async () => {
     },
   };
 });
-vi.mock('../../floating-ui-solid/utils/event', async () => {
-  const actual = await vi.importActual<typeof import('../../floating-ui-solid/utils/event')>(
-    '../../floating-ui-solid/utils/event',
+vi.mock('../../utils/popups/event', async () => {
+  const actual = await vi.importActual<typeof import('../../utils/popups/event')>(
+    '../../utils/popups/event',
   );
   return {
     ...actual,

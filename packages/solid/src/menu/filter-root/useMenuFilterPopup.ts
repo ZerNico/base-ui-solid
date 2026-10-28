@@ -7,16 +7,11 @@ import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { warn } from '@base-ui-solid/utils/warn';
 import type { HTMLProps } from '../../internals/types';
-import {
-  activeElement,
-  contains,
-  getTarget,
-  isTypeableElement,
-} from '../../floating-ui-solid/utils';
+import { activeElement, contains, getTarget, isTypeableElement } from '../../utils/popups/element';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { refocusOwner, isRefocusingOwner } from '../../filter-dropdown/utils/refocusOwner';
 import type { MenuRoot } from '../root/MenuRoot';
-import { isCrossOrientationCloseKey } from '../../floating-ui-solid/hooks/useListNavigation';
+import { isCrossOrientationCloseKey } from '../../utils/popups/interactions/useListNavigation';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 export function useMenuFilterPopup(orientation: Accessor<MenuRoot.Orientation>): HTMLProps {

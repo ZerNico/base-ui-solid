@@ -3,8 +3,8 @@ import {
   getMaxListIndex,
   getMinListIndex,
   getNextListIndex,
-} from '../../floating-ui-solid/utils/composite';
-import { isMainOrientationToEndKey } from '../../floating-ui-solid/hooks/useListNavigation';
+} from '../../internals/composite/listIndex';
+import { isMainOrientationToEndKey } from '../../utils/popups/interactions/useListNavigation';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 import type { MenuStore } from '../store/MenuStore';

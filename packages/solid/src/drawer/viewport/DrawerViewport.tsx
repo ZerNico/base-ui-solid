@@ -9,7 +9,7 @@ import { createMemo, createSignal, flush, omit, untrack } from 'solid-js';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import * as DialogViewportDataAttributes from '../../dialog/viewport/DialogViewportDataAttributes';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-solid/utils';
+import { activeElement, closest, contains, getTarget } from '../../utils/popups/element';
 import {
   BASE_UI_SWIPE_IGNORE_ATTRIBUTE,
   BASE_UI_SWIPE_IGNORE_SELECTOR,

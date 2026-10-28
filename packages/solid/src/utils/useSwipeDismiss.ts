@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { closest, contains, getTarget } from '../floating-ui-solid/utils';
+import { closest, contains, getTarget } from './popups/element';
 import { findScrollableAncestor, findScrollableTouchTarget } from './scrollable';
 import type { ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';

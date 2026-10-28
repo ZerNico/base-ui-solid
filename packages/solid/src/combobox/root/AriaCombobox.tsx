@@ -12,16 +12,14 @@ import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import type { ElementProps } from '../../floating-ui-solid';
-import {
-  getOverflowAncestors,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useClick,
-} from '../../floating-ui-solid';
-import { gridNavigation } from '../../floating-ui-solid/hooks/gridNavigation';
-import { activeElement, closest, contains, getTarget } from '../../floating-ui-solid/utils';
+import type { ElementProps } from '../../utils/popups/types';
+import { getOverflowAncestors } from '../../utils/popups/positioning/dom';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
+import { activeElement, closest, contains, getTarget } from '../../utils/popups/element';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -41,7 +39,10 @@ import {
 } from './ComboboxRootContext';
 import { selectors } from '../store';
 import type { ComboboxStoreContext, State as StoreState } from '../store';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
+import {
+  attachPreventUnmountOnClose,
+  FOCUSABLE_POPUP_PROPS,
+} from '../../utils/popups/popupStoreUtils';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -56,7 +57,6 @@ import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import type { Group } from '../../internals/resolveValueLabel';
 import {

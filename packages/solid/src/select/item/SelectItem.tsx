@@ -20,7 +20,7 @@ import {
   removeItem,
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
-import { isVirtualClick } from '../../floating-ui-solid/utils/event';
+import { isVirtualClick } from '../../utils/popups/event';
 
 /**
  * An individual option in the select popup.

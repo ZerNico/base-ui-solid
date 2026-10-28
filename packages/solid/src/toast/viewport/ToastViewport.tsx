@@ -8,7 +8,7 @@ import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
-import { activeElement, contains, getTarget } from '../../floating-ui-solid/utils';
+import { activeElement, contains, getTarget } from '../../utils/popups/element';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';

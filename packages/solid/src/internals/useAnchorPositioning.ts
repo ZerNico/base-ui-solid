@@ -14,24 +14,26 @@ import {
   offset,
   shift as floatingShift,
   size,
-} from '../floating-ui-solid';
+} from '../utils/popups/positioning/dom';
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  Placement,
   FloatingRootContext,
+  FloatingContext,
+} from '../utils/popups/types';
+import type {
+  Placement,
   VirtualElement,
   Padding,
-  FloatingContext,
   Side as PhysicalSide,
   MiddlewareState,
   AutoUpdateOptions,
   Middleware,
-  FloatingTreeStore,
-} from '../floating-ui-solid';
-import { useBaseUIFloating } from '../floating-ui-solid/hooks/useFloating';
+} from '../utils/popups/positioning/dom';
+import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
+import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
-import { arrow } from '../floating-ui-solid/middleware/arrow';
+import { arrow } from '../utils/popups/positioning/arrow';
 import { hide } from '../utils/hideMiddleware';
 import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
 import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';

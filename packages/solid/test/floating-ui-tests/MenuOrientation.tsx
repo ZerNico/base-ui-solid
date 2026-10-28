@@ -8,29 +8,26 @@ import { useTestInteractions } from '#test-utils';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
-import type { ElementProps } from '../../src/floating-ui-solid/types';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import type { ElementProps } from '../../src/utils/popups/types';
+import { autoUpdate, flip, offset, shift } from '../../src/utils/popups/positioning/dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
 import {
-  autoUpdate,
-  flip,
-  FloatingFocusManager,
   FloatingNode,
-  FloatingPortal,
   FloatingTree,
-  offset,
-  safePolygon,
-  shift,
-  useClick,
-  useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useListNavigation,
-  useTypeahead,
-} from '../../src/floating-ui-solid';
+} from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useClick } from '../../src/utils/popups/interactions/useClick';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
+import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
-import { gridNavigation } from '../../src/floating-ui-solid/hooks/gridNavigation';
+import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './MenuOrientation.module.css';
 

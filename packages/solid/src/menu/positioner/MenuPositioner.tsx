@@ -3,7 +3,7 @@ import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { FloatingNode } from '../../floating-ui-solid';
+import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';

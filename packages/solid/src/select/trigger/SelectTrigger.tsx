@@ -15,7 +15,7 @@ import { fieldValidityMapping } from '../../internals/field-constants/constants'
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
-import { contains, getFloatingFocusElement } from '../../floating-ui-solid/utils';
+import { contains, getFloatingFocusElement } from '../../utils/popups/element';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { useButton } from '../../internals/use-button';
 import type { FieldRootState } from '../../field/root/FieldRoot';

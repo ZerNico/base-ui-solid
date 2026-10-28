@@ -1,6 +1,6 @@
 import { omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { FloatingPortal } from '../../floating-ui-solid';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';

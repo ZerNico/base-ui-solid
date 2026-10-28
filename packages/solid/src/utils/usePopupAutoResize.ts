@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { NOOP, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
-import type { Dimensions } from '../floating-ui-solid/types';
+import type { Dimensions } from './popups/positioning/dom';
 import type { Side } from '../internals/useAnchorPositioning';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
 import * as CommonPositionerCssVars from './CommonPositionerCssVars';

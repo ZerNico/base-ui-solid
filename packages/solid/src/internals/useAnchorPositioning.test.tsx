@@ -7,9 +7,10 @@ import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
 
-vi.mock('../floating-ui-solid', async () => {
-  const actual =
-    await vi.importActual<typeof import('../floating-ui-solid')>('../floating-ui-solid');
+vi.mock('../utils/popups/positioning/dom', async () => {
+  const actual = await vi.importActual<typeof import('../utils/popups/positioning/dom')>(
+    '../utils/popups/positioning/dom',
+  );
 
   return {
     ...actual,

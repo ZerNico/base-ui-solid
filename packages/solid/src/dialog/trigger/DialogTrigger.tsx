@@ -11,9 +11,10 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import type { DialogHandle } from '../store/DialogHandle';
 import type { DialogHandleStore } from '../store/DialogStore';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick } from '../../floating-ui-solid';
+import { useClick } from '../../utils/popups/interactions/useClick';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**

@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-solid';
+import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
@@ -15,7 +15,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { usePositioner } from '../../utils/usePositioner';
-import { createInlineMiddleware } from '../../utils/popups';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
 /**
  * Positions the popup against the trigger.

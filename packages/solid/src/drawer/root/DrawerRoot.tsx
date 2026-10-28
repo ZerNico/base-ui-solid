@@ -11,7 +11,7 @@ import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import type { DrawerHandle } from '../handle';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type {

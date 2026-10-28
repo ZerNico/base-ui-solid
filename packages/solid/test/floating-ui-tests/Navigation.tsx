@@ -2,20 +2,15 @@ import { createSignal, omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/floating-ui-solid/utils/getEmptyRootContext';
+import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
 import type { HTMLProps } from '../../src/internals/types';
-import {
-  flip,
-  FloatingFocusManager,
-  FloatingNode,
-  FloatingPortal,
-  offset,
-  safePolygon,
-  shift,
-  useDismiss,
-  useFloatingNodeId,
-  useFocus,
-} from '../../src/floating-ui-solid';
+import { flip, offset, shift } from '../../src/utils/popups/positioning/dom';
+import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
+import { FloatingNode, useFloatingNodeId } from '../../src/utils/popups/tree/FloatingTree';
+import { FloatingPortal } from '../../src/utils/popups/portal/FloatingPortal';
+import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
+import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
+import { useFocus } from '../../src/utils/popups/interactions/useFocus';
 import { useFloating } from './useFloating';
 import { useHover } from './useHover';
 import styles from './Navigation.module.css';

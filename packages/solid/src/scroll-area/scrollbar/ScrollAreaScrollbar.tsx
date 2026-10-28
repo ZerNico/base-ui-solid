@@ -3,7 +3,7 @@ import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { contains, getTarget } from '../../floating-ui-solid/utils';
+import { contains, getTarget } from '../../utils/popups/element';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../internals/useRenderElement';

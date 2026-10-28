@@ -7,7 +7,7 @@ import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-solid/utils/warn';
 import { platform } from '@base-ui-solid/utils/platform';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { stopEvent } from '../../floating-ui-solid/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';

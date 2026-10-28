@@ -8,28 +8,25 @@ import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import {
-  safePolygon,
-  useClick,
-  useFloatingRootContext,
-  useFloatingTree,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-solid';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
+import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
-} from '../../floating-ui-solid/hooks/useHoverInteractionSharedState';
+} from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { closest, contains } from '../../utils/popups/element';
 import {
-  closest,
-  contains,
   getTabbableNearElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
-  stopEvent,
-} from '../../floating-ui-solid/utils';
-import type { HandleCloseContextBase } from '../../floating-ui-solid/hooks/useHoverShared';
+} from '../../utils/popups/focus/tabbable';
+import { stopEvent } from '../../utils/popups/event';
+import type { HandleCloseContextBase } from '../../utils/popups/interactions/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {

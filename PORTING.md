@@ -19,7 +19,6 @@ the right files. Add new renames there and here.
 
 | Upstream                                    | Port                                        |
 | :------------------------------------------ | :------------------------------------------ |
-| `packages/react/src/floating-ui-react/`     | `packages/solid/src/floating-ui-solid/`     |
 | `packages/utils/src/store/ReactStore.ts(x)` | `packages/utils/src/store/SolidStore.ts(x)` |
 | `ReactStore` (class and test names)         | `SolidStore`                                |
 | `docs/src/app/(docs)/react/`                | `docs/src/app/(docs)/solid/`                |
@@ -305,7 +304,7 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
 
 Floating UI:
 
-- `@floating-ui/react-dom` is replaced by `floating-ui-solid/dom` (built on `@floating-ui/dom`), with
+- `@floating-ui/react-dom` is replaced by `utils/popups/positioning/dom` (built on `@floating-ui/dom`), with
   the same API: `useFloating`, middleware accepting `deps`, `arrow` accepting a ref object, and the
   DOM utilities. Options objects are read lazily (pass getters for reactive options). The returned
   object (and `FloatingContext`) exposes `x`, `y`, `placement`, `strategy`, `middlewareData`,

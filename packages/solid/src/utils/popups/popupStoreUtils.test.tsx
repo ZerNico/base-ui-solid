@@ -5,19 +5,18 @@ import { flushMicrotasks, render, screen, waitFor } from '#test-utils';
 import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './';
+import type { PopupStoreContext, PopupStoreState, PopupStoreSelectors } from './store';
 import {
   applyPopupOpenChange,
-  createInitialPopupStoreState,
   createPopupOpenState,
-  PopupTriggerMap,
-  popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
   useTriggerDataForwarding,
   useTriggerRegistration,
-} from './';
-import { useSyncedFloatingRootContext } from '../../floating-ui-solid';
+} from './popupStoreUtils';
+import { createInitialPopupStoreState, popupStoreSelectors } from './store';
+import { PopupTriggerMap } from './popupTriggerMap';
+import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';

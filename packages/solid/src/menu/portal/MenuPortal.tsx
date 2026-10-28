@@ -1,5 +1,5 @@
 import { omit, Show } from 'solid-js';
-import { FloatingPortal } from '../../floating-ui-solid';
+import { FloatingPortal } from '../../utils/popups/portal/FloatingPortal';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuPortalContext } from './MenuPortalContext';

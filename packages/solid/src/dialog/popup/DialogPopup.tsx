@@ -2,7 +2,7 @@ import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { FloatingFocusManager } from '../../floating-ui-solid';
+import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -10,7 +10,10 @@ import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
+import {
+  FOCUSABLE_POPUP_PROPS,
+  createDefaultInitialFocus,
+} from '../../utils/popups/popupStoreUtils';
 import * as DialogPopupCssVars from './DialogPopupCssVars';
 import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 

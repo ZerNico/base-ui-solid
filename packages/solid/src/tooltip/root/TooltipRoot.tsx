@@ -4,7 +4,8 @@ import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss } from '../../floating-ui-solid';
+import { useClientPoint } from '../../utils/popups/interactions/useClientPoint';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
@@ -13,8 +14,8 @@ import {
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { TooltipStore } from '../store/TooltipStore';
 import type { TooltipHandle } from '../store/TooltipHandle';

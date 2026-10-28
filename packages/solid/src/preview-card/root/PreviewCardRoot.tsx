@@ -2,20 +2,21 @@ import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import { useDismiss, FloatingTree } from '../../floating-ui-solid';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 import {
   usePopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 import type { HTMLProps } from '../../internals/types';
 

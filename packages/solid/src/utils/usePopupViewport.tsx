@@ -11,7 +11,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { usePopupAutoResize } from './usePopupAutoResize';
-import type { Dimensions } from '../floating-ui-solid/types';
+import type { Dimensions } from './popups/positioning/dom';
 import type { Side } from '../internals/useAnchorPositioning';
 import { useDirection } from '../direction-provider';
 import { adaptiveOrigin } from './adaptiveOriginMiddleware';

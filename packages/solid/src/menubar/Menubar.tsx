@@ -8,7 +8,7 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingTree,
-} from '../floating-ui-solid';
+} from '../utils/popups/tree/FloatingTree';
 import type { MenuRoot } from '../menu/root/MenuRoot';
 import type { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';

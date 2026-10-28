@@ -9,7 +9,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visual
 import { warn } from '@base-ui-solid/utils/warn';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { activeElement, contains } from '../../floating-ui-solid/utils';
+import { activeElement, contains } from '../../utils/popups/element';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';

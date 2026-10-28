@@ -1,10 +1,6 @@
 import type { HTMLProps } from '../src/internals/types';
-import type { ElementProps } from '../src/floating-ui-solid/types';
-import {
-  ACTIVE_KEY,
-  FOCUSABLE_ATTRIBUTE,
-  SELECTED_KEY,
-} from '../src/floating-ui-solid/utils/constants';
+import type { ElementProps } from '../src/utils/popups/types';
+import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../src/utils/popups/constants';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean | undefined;

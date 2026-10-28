@@ -1,4 +1,4 @@
-import type { Middleware } from '../floating-ui-solid/dom';
+import type { Middleware } from './popups/positioning/dom';
 
 export const hide: Middleware = {
   name: 'hide',

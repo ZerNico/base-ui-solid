@@ -7,17 +7,17 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { safePolygon } from '../../utils/popups/interactions/safePolygon';
+import { useClick } from '../../utils/popups/interactions/useClick';
 import {
-  safePolygon,
-  useClick,
   useFloatingTree,
-  useFocus,
-  useHoverReferenceInteraction,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-solid';
-import { FloatingTreeStore } from '../../floating-ui-solid/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-solid/utils';
+} from '../../utils/popups/tree/FloatingTree';
+import { useFocus } from '../../utils/popups/interactions/useFocus';
+import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
+import { contains } from '../../utils/popups/element';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -27,7 +27,8 @@ import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useInsertedTriggerFocusGuards } from '../../utils/popups/useInsertedTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';

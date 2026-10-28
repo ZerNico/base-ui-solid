@@ -1,10 +1,10 @@
 import { createSignal, untrack } from 'solid-js';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui-solid/utils/useScrollLock';
-import { useDismiss } from '../../floating-ui-solid';
-import { contains, getTarget } from '../../floating-ui-solid/utils';
+import { useDismiss } from '../../utils/popups/interactions/useDismiss';
+import { contains, getTarget } from '../../utils/popups/element';
 import type { DialogStore } from '../store/DialogStore';
-import { usePopupInteractionProps } from '../../utils/popups';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 
 /**
  * Port note: `store`, `parentContext` and `isDrawer` are read once (they don't change for the

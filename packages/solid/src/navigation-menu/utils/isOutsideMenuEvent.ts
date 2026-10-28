@@ -1,6 +1,7 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { FloatingTreeType } from '../../floating-ui-solid';
-import { contains, getNodeChildren } from '../../floating-ui-solid/utils';
+import type { FloatingTreeType } from '../../utils/popups/types';
+import { contains } from '../../utils/popups/element';
+import { getNodeChildren } from '../../utils/popups/tree/nodes';
 
 interface Targets {
   currentTarget: HTMLElement | null;

@@ -15,7 +15,7 @@ import {
   contains,
   getTarget,
   isInteractiveElement,
-} from '../../floating-ui-solid/utils';
+} from '../../utils/popups/element';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import * as DrawerViewportCssVars from '../viewport/DrawerViewportCssVars';

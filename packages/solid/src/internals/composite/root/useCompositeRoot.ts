@@ -24,7 +24,7 @@ import {
 import type { ModifierKey } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
-import { getTarget } from '../../../floating-ui-solid/utils';
+import { getTarget } from '../../../utils/popups/element';
 import type { CompositeGridNavigator } from './gridNavigation';
 
 /**

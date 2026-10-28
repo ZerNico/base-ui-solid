@@ -9,7 +9,7 @@ import type {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-solid/utils';
+import { activeElement, contains, getTarget } from '../utils/popups/element';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<

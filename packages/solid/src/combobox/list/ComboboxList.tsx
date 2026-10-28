@@ -12,7 +12,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { stopEvent } from '../../floating-ui-solid/utils';
+import { stopEvent } from '../../utils/popups/event';
 import { clickHighlightedItem } from '../utils/parts';
 
 /**

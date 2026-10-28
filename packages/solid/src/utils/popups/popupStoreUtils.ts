@@ -8,10 +8,10 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import { useId } from '@base-ui-solid/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-solid/utils/constants';
-import { useFloatingParentNodeId } from '../../floating-ui-solid/components/FloatingTree';
-import { useSyncedFloatingRootContext } from '../../floating-ui-solid/hooks/useSyncedFloatingRootContext';
-import type { SyncedFloatingRootContextStore } from '../../floating-ui-solid/hooks/useSyncedFloatingRootContext';
+import { FOCUSABLE_ATTRIBUTE } from './constants';
+import { useFloatingParentNodeId } from './tree/FloatingTree';
+import { useSyncedFloatingRootContext } from './floating-root/useSyncedFloatingRootContext';
+import type { SyncedFloatingRootContextStore } from './floating-root/useSyncedFloatingRootContext';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import type { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';

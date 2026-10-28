@@ -7,7 +7,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
-import { contains } from '../floating-ui-solid/utils';
+import { contains } from '../utils/popups/element';
 import { SHIFT } from '../internals/composite/composite';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
