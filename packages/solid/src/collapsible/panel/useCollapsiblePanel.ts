@@ -160,19 +160,10 @@ export function useCollapsiblePanel(
     restorePendingTemporaryStyle();
   });
 
-  // Port note: the measurement re-runs when the transition moves, not when this effect's own
-  // `setMounted(false)` lands. `mounted` is read untracked, and the status keeps `'ending'` once an
-  // ending pass unmounts the panel (it only leaves it for `'starting'`), as the effect has nothing
-  // to do for that step.
-  const measuredStatus = createSignal<TransitionStatus>((previous) => {
-    const status = transitionStatus();
-    return status === undefined && previous === 'ending' ? previous : status;
-  })[0];
-
+  // Port note: the effect reads the panel's computed style, so it is a measuring effect. It runs
+  // once more after its own `setMounted(false)`, which at most repeats the same writes.
   useMeasuringLayoutEffect(
-    ([isOpen, preventOpenAnimation, status]) => {
-      const isMounted = mounted();
-
+    ([isMounted, isOpen, preventOpenAnimation, status]) => {
       // A render function can remove the panel on close. Clear one-shot open animation
       // suppression even without an element, so the next open animates normally.
       if (!isOpen) {
@@ -296,7 +287,7 @@ export function useCollapsiblePanel(
 
       return undefined;
     },
-    () => [open(), shouldPreventOpenAnimation(), measuredStatus()],
+    () => [mounted(), open(), shouldPreventOpenAnimation(), transitionStatus()],
     IS_DEV ? 'BaseUI.useCollapsiblePanel.measure' : undefined,
   );
 

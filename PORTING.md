@@ -487,8 +487,8 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
     doesn't run it again.
   - A Collapsible or Accordion panel without CSS motion skips its transition phases after reading
     its computed style (`forcePanelIdle`, `useTransitionStatus.state`), from a measuring effect
-    (`BaseUI.useCollapsiblePanel.measure`). It reads `mounted` untracked and keeps the `'ending'`
-    status once it unmounted the panel, so its own `setMounted(false)` doesn't run it again.
+    (`BaseUI.useCollapsiblePanel.measure`). It runs once more after its own `setMounted(false)`,
+    which is accepted.
   - Opening a Menu or a Select with the keyboard highlights the first item from the item list, whose indices
     come from the items' DOM order once they rendered. Which end to highlight is derived when the
     menu opens. The item is resolved by a measuring effect (`BaseUI.useListNavigation.initialHighlight`,
