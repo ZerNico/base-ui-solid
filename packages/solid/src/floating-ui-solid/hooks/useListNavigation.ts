@@ -2,7 +2,10 @@ import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import {
+  useIsoLayoutEffect,
+  useMeasuringLayoutEffect,
+} from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { platform } from '@base-ui-solid/utils/platform';
@@ -519,7 +522,13 @@ export function useListNavigation(
   // Port note: upstream runs this in the effect above. It writes `activeIndex` (through
   // `onNavigate`), so here it runs on its own, without tracking it, and the effect above then
   // focuses the item the write highlighted.
-  useIsoLayoutEffect(
+  //
+  // Port note: upstream polls for the list (a microtask, then a frame). Lists that publish a
+  // `listVersion` keep the highlight pending instead, and resolve it once the list has its items
+  // (see the effect below). It reads which items are rendered, so it's a measuring effect.
+  let pendingInitialHighlight: (() => boolean) | null = null;
+
+  useMeasuringLayoutEffect(
     ([
       enabledValue,
       openValue,
@@ -528,13 +537,14 @@ export function useListNavigation(
       triggerOrientationValue,
       rtlValue,
     ]) => {
+      pendingInitialHighlight = null;
+
       if (
         !enabledValue ||
         !openValue ||
         !floatingElementValue ||
         untrack(activeIndex) != null ||
-        selectedIndexRef.current != null ||
-        'listVersion' in props
+        selectedIndexRef.current != null
       ) {
         return;
       }
@@ -544,9 +554,37 @@ export function useListNavigation(
         untrack(focusItemOnOpenState) &&
         (keyRef != null || (untrack(focusItemOnOpenState) === true && keyRef == null))
       ) {
+        // Returns whether the list had items to highlight.
+        const highlightInitialItem = () => {
+          if (listRef().current[0] == null) {
+            return false;
+          }
+          // Initially focus the first non-disabled item. `disabledIndices` is deliberately
+          // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+          // on open even when the consumer passes an empty `disabledIndices` array. Passing it
+          // would regress that behavior (see mui/base-ui#2604).
+          // The key came from the trigger, so it is read on the trigger's orientation.
+          indexRef =
+            keyRef == null ||
+            isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
+            nestedValue
+              ? getMinListIndex(listRef())
+              : getMaxListIndex(listRef());
+          keyRef = null;
+          onNavigate();
+          return true;
+        };
+
+        if ('listVersion' in props) {
+          if (!highlightInitialItem()) {
+            pendingInitialHighlight = highlightInitialItem;
+          }
+          return;
+        }
+
         let runs = 0;
         const waitForListPopulated = () => {
-          if (listRef().current[0] == null) {
+          if (!highlightInitialItem()) {
             // Avoid letting the browser paint if possible on the first try,
             // otherwise use rAF. Don't try more than twice, since something
             // is wrong otherwise.
@@ -557,20 +595,6 @@ export function useListNavigation(
               scheduler(waitForListPopulated);
             }
             runs += 1;
-          } else {
-            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-            // would regress that behavior (see mui/base-ui#2604).
-            // The key came from the trigger, so it is read on the trigger's orientation.
-            indexRef =
-              keyRef == null ||
-              isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
-              nestedValue
-                ? getMinListIndex(listRef())
-                : getMaxListIndex(listRef());
-            keyRef = null;
-            onNavigate();
           }
         };
 
@@ -581,63 +605,19 @@ export function useListNavigation(
     IS_DEV ? 'BaseUI.useListNavigation.initialSync' : undefined,
   );
 
-  // Port note: for lists that publish a `listVersion`, the effect above is split in two. Whether
-  // this open highlights the first or the last item is decided once, when the list opens (the same
-  // rules as above, with the key the trigger recorded), so it is derived. Which item that is
-  // depends on what is rendered and visible, so it's measured after the render, when the list
-  // version changes, instead of polling for the list. Each open decides at most one highlight.
-  const initialHighlightIntent = createMemo<{ toStart: boolean; done: boolean } | null | undefined>(
-    (previous) => {
-      if (!('listVersion' in props) || !enabled() || !open() || !floatingElement()) {
-        return undefined;
-      }
-      if (previous !== undefined) {
-        return previous;
-      }
-      return untrack(() => {
-        const focusItemOnOpenValue = focusItemOnOpenState();
-        if (
-          selectedIndexRef.current != null ||
-          (previousOpenRef && previousMountedRef) ||
-          !focusItemOnOpenValue ||
-          (keyRef == null && focusItemOnOpenValue !== true)
-        ) {
-          return null;
-        }
-        // The key came from the trigger, so it is read on the trigger's orientation.
-        const toStart =
-          keyRef == null ||
-          isMainOrientationToEndKey(keyRef, triggerOrientation(), rtl()) ||
-          nested();
-        keyRef = null;
-        return { toStart, done: false };
-      });
-    },
-  );
-
+  // Port note: resolves a pending initial highlight when the list publishes its items. Which item
+  // it is depends on what is rendered and visible, so this is a measuring effect (its apply takes
+  // no argument). An item highlighted since the list opened wins.
   createEffect(
-    () => [initialHighlightIntent(), props.listVersion],
+    () => props.listVersion,
     () => {
       untrack(() => {
-        const intent = initialHighlightIntent();
-        if (!intent || intent.done) {
+        if (!pendingInitialHighlight) {
           return;
         }
-        // Something highlighted an item since the list opened.
-        if (activeIndex() != null) {
-          intent.done = true;
-          return;
+        if (activeIndex() != null || pendingInitialHighlight()) {
+          pendingInitialHighlight = null;
         }
-        const list = listRef();
-        if (list.current[0] == null) {
-          return;
-        }
-        intent.done = true;
-        // Initially focus the first non-disabled item. `disabledIndices` is deliberately omitted
-        // here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped on open even
-        // when the consumer passes an empty `disabledIndices` array (see mui/base-ui#2604).
-        indexRef = intent.toStart ? getMinListIndex(list) : getMaxListIndex(list);
-        onNavigate();
       });
     },
     IS_DEV ? { name: 'BaseUI.useListNavigation.initialHighlight' } : undefined,

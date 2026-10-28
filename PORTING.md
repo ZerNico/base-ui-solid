@@ -490,10 +490,11 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
     (`BaseUI.useCollapsiblePanel.measure`). It runs once more after its own `setMounted(false)`,
     which is accepted.
   - Opening a Menu or a Select with the keyboard highlights the first item from the item list, whose indices
-    come from the items' DOM order once they rendered. Which end to highlight is derived when the
-    menu opens. The item is resolved by a measuring effect (`BaseUI.useListNavigation.initialHighlight`,
-    which stays advisory) when the list publishes its items (`listVersion`), instead of polling for
-    the list (a microtask, then a frame) like upstream. `CompositeList`'s flush is the one place
+    come from the items' DOM order once they rendered. Upstream's initial sync decides it, as a
+    measuring effect (`BaseUI.useListNavigation.initialSync`). When the list isn't populated yet,
+    it stays pending and a second measuring effect (`BaseUI.useListNavigation.initialHighlight`)
+    resolves it once the list publishes its items (`listVersion`), instead of polling for the list
+    (a microtask, then a frame) like upstream. Both stay advisory. `CompositeList`'s flush is the one place
     that sorts by DOM order, also a measuring effect (`BaseUI.CompositeList.flush`).
   - Tabs: tab indices come from the DOM order. The uncontrolled root's fallback to the first
     enabled tab (which also notifies `onValueChange`) runs where `CompositeList` publishes the tab

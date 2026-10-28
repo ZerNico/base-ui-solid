@@ -218,14 +218,14 @@ describe.skipIf(isJSDOM)('store diagnostics (port), user interactions', () => {
       await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
     }
 
-    // The first item is highlighted from the item list, whose indices come from the items' DOM
-    // order once they rendered. Like the measurements above, it's relayed after the open renders.
-    // The first item is highlighted once it's rendered and visible, which is measured.
+    // The first item is highlighted once it's rendered and visible, which is measured (when the
+    // list opens, or once it publishes its items).
     expectNoFindings(
       events,
       (event) =>
         event.severity === 'info' &&
-        event.message.includes('effect "BaseUI.useListNavigation.initialHighlight"'),
+        (event.message.includes('effect "BaseUI.useListNavigation.initialSync"') ||
+          event.message.includes('effect "BaseUI.useListNavigation.initialHighlight"')),
     );
   });
 
