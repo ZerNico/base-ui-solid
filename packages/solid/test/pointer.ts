@@ -1,3 +1,4 @@
+import { flush } from 'solid-js';
 import { createEvent, fireEvent } from '@solidjs/testing-library';
 
 export function enterWithMouse(element: HTMLElement, init?: MouseEventInit) {
@@ -67,4 +68,24 @@ export const firePointer = {
 export function pressWithTouch(element: HTMLElement) {
   fireEvent.pointerDown(element, { pointerType: 'touch' });
   fireEvent.mouseDown(element);
+}
+
+/**
+ * Presses an element the way Chrome performs a screen reader activation (TalkBack, VoiceOver,
+ * NVDA): a zero-pressure 1x1 mouse press with no buttons, followed by a `detail: 0` click.
+ */
+export function pressWithScreenReader(element: Element) {
+  const pointerInit = { pointerType: 'mouse', width: 1, height: 1, pressure: 0 };
+  // Port note: upstream's `fireEvent` flushes React after each event (`act`), `flush()` does the
+  // same for Solid.
+  fireEvent.pointerDown(element, { ...pointerInit, detail: 0, buttons: 0 });
+  flush();
+  fireEvent.mouseDown(element, { detail: 0 });
+  flush();
+  fireEvent.pointerUp(element, pointerInit);
+  flush();
+  fireEvent.mouseUp(element, { detail: 0 });
+  flush();
+  fireEvent.click(element, { detail: 0 });
+  flush();
 }

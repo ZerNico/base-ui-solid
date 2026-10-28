@@ -8,6 +8,7 @@ import {
   createRenderer,
   describeConformance,
   isJSDOM,
+  pressWithScreenReader,
   act,
   fireEvent,
   flushMicrotasks,
@@ -438,6 +439,31 @@ describe('<Combobox.Trigger />', () => {
       });
       expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
       expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerPress);
+    });
+    it.skipIf(isJSDOM)('keeps focus on the input after a screen reader press', async () => {
+      await render(() => (
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      ));
+      const trigger = screen.getByTestId('trigger');
+      pressWithScreenReader(trigger);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toHaveFocus();
+      });
     });
   });
   describe('drag selection', () => {

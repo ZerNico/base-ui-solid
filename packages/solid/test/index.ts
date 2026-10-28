@@ -16,7 +16,13 @@ export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
 export { mockRuntimeLocale } from './mockRuntimeLocale';
 export type { Clock } from './createRenderer';
-export { enterWithMouse, firePointer, moveMouse, pressWithTouch } from './pointer';
+export {
+  enterWithMouse,
+  firePointer,
+  moveMouse,
+  pressWithScreenReader,
+  pressWithTouch,
+} from './pointer';
 export { renderToString } from './renderToString';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { isScrollLocked } from './scrollLock';
