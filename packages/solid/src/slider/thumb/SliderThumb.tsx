@@ -218,7 +218,10 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
       : -1;
   };
 
-  const getInsetPosition = () => {
+  // The last position and indicator edge applied, including updates that haven't rendered yet.
+  let appliedInset: [number | undefined, number] = [undefined, -1];
+
+  const getInsetPosition = (sync?: boolean) => {
     const control = controlRef.current;
     const thumb = thumbElement;
     if (!control || !thumb) {
@@ -229,41 +232,60 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
     const controlRect = control.getBoundingClientRect();
 
     const side = untrack(vertical) ? 'height' : 'width';
+
+    // A hidden control measures 0, so keep the last position until it can be measured again.
+    if (!controlRect[side]) {
+      return;
+    }
+
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
     // px distance from the starting edge (inline-start or bottom) to the thumb center
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * untrack(thumbValuePercent)) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    // `min === max` has no valid position, which hides the thumb.
     const nextInsetPosition = Number.isFinite(nextPositionPercent)
       ? nextPositionPercent
       : undefined;
 
+    // The indicator edge this thumb drives: 0 = start, 1 = end, -1 = none.
+    let indicatorEdge = -1;
+    if (untrack(index) === 0) {
+      indicatorEdge = 0;
+    } else if (untrack(last)) {
+      indicatorEdge = 1;
+    }
+
+    const [appliedPosition, appliedEdge] = appliedInset;
+    if (nextInsetPosition === appliedPosition && indicatorEdge === appliedEdge) {
+      return;
+    }
+
+    appliedInset = [nextInsetPosition, indicatorEdge];
+
     setPositionPercent(nextInsetPosition);
 
-    if (untrack(index) === 0) {
+    if (indicatorEdge === 0) {
       setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
-    } else if (untrack(last)) {
+    } else if (indicatorEdge === 1) {
       setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+    }
+
+    // Port note: upstream wraps the update in `ReactDOM.flushSync`.
+    if (sync) {
+      flush();
     }
   };
 
   useIsoLayoutEffect(
     ([isInset]) => {
       if (isInset) {
-        queueMicrotask(getInsetPosition);
-      }
-    },
-    () => [inset()],
-  );
-
-  useIsoLayoutEffect(
-    ([isInset]) => {
-      if (isInset) {
         getInsetPosition();
       }
+      // `index` and `last` decide which indicator edge this thumb drives.
     },
-    () => [inset(), thumbValuePercent()],
+    () => [inset(), thumbValuePercent(), index(), last()],
   );
 
   useIsoLayoutEffect(
@@ -272,25 +294,36 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
         return undefined;
       }
 
-      const control = controlRef.current;
-      const thumb = thumbElement;
+      let resizeObserver: ResizeObserver | undefined;
+      let cancelled = false;
 
-      if (!control || !thumb) {
-        return undefined;
-      }
+      // Port note: upstream waits for the control's ref, which React attaches after this
+      // descendant's layout effect. Here it's set before any effect runs, but the microtask is
+      // kept so the first measurement happens at the same point as upstream's.
+      queueMicrotask(() => {
+        const control = controlRef.current;
+        const thumb = thumbElement;
 
-      const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
-      if (typeof ResizeObserverCtor !== 'function') {
-        return undefined;
-      }
+        if (cancelled || !control || !thumb) {
+          return;
+        }
 
-      const resizeObserver = new ResizeObserverCtor(getInsetPosition);
+        const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+        if (typeof ResizeObserverCtor === 'function') {
+          // Observer callbacks run before paint; flush so a resize never paints a stale position.
+          resizeObserver = new ResizeObserverCtor(() => getInsetPosition(true));
+          resizeObserver.observe(control);
+          resizeObserver.observe(thumb);
+        }
 
-      resizeObserver.observe(control);
-      resizeObserver.observe(thumb);
+        // Still before the first paint, so flush to avoid a frame with the thumb hidden.
+        // The observer exists first, so an unmount during this flush disconnects it.
+        getInsetPosition(true);
+      });
 
       return () => {
-        resizeObserver.disconnect();
+        cancelled = true;
+        resizeObserver?.disconnect();
       };
     },
     () => [inset()],
