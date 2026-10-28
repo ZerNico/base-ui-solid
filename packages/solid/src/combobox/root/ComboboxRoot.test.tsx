@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
   createRenderer,
+  hiddenInputTypeTests,
   isJSDOM,
   isScrollLocked,
   popupConformanceTests,
@@ -76,9 +77,8 @@ function SelectedIndexProbe() {
   );
 }
 function getHiddenControl() {
-  return screen
-    .getAllByRole<HTMLInputElement>('textbox', { hidden: true })
-    .find((element) => element.getAttribute('aria-hidden') === 'true')!;
+  // Outside of forms it's `type="hidden"`, which has no role.
+  return document.querySelector<HTMLInputElement>('input[aria-hidden="true"]')!;
 }
 function ActiveIndexProbe() {
   const store = useComboboxRootContext();
@@ -10072,6 +10072,17 @@ describe('<Combobox.Root />', () => {
       });
     });
   });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input data-testid="input" />
+      </Combobox.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('input'),
+  });
+
   describe('Form', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {

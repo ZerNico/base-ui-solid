@@ -13,6 +13,7 @@ import {
   screen,
   waitFor,
   createRenderer,
+  hiddenInputTypeTests,
   popupConformanceTests,
   popupListConformanceTests,
   renderToString,
@@ -3287,7 +3288,7 @@ describe('<Select.Root />', () => {
     });
 
     it('sets a hidden input id when name is not provided', async () => {
-      await render(() => (
+      const { container } = await render(() => (
         <Select.Root id="test-id">
           <Select.Trigger>
             <Select.Value />
@@ -3295,7 +3296,8 @@ describe('<Select.Root />', () => {
         </Select.Root>
       ));
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector('input');
       expect(hiddenInput).toHaveAttribute('id', 'test-id-hidden-input');
       expect(hiddenInput).not.toHaveAttribute('name');
     });
@@ -3313,6 +3315,18 @@ describe('<Select.Root />', () => {
       expect(hiddenInput).toHaveAttribute('name', 'country');
       expect(hiddenInput).not.toHaveAttribute('id');
     });
+  });
+
+  hiddenInputTypeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
+    getFocusTarget: () => screen.getByTestId('trigger'),
   });
 
   describe('with Field.Root parent', () => {

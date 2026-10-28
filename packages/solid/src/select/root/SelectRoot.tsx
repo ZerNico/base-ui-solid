@@ -46,6 +46,7 @@ import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import type { HTMLProps } from '../../internals/types';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';
+import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
 
 /**
@@ -88,6 +89,7 @@ export function SelectRoot<
     disabled: fieldDisabled,
     validation,
     validationMode,
+    setValidityData,
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id: () => props.id });
@@ -645,6 +647,13 @@ export function SelectRoot<
                 : undefined,
             form: props.form,
             name: hiddenInputName(),
+            type: getHiddenInputType(
+              setValidityData !== NOOP,
+              name(),
+              props.autoComplete,
+              required(),
+              props.inputRef,
+            ),
             autocomplete: props.autoComplete,
             value: serializedValue(),
             disabled: disabled(),

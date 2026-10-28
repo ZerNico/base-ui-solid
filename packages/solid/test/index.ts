@@ -29,6 +29,7 @@ export { describeConformance } from './describeConformance';
 export type { ConformanceOptions } from './describeConformance';
 export { detachedTriggersConformanceTests } from './detachedTriggersConformanceTests';
 export { dialogRootSharedTests } from './dialogRootSharedTests';
+export { hiddenInputTypeTests } from './hiddenInputTypeTests';
 export { popupConformanceTests } from './popupConformanceTests';
 export { popupFocusPropsTests } from './popupFocusPropsTests';
 export { popupListConformanceTests } from './popupListConformanceTests';
