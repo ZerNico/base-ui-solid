@@ -13,7 +13,7 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../utils/popups/tree/FloatingTree';
-import type { FloatingRootContext } from '../../utils/popups/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import { activeElement, contains } from '../../utils/popups/element';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -124,7 +124,7 @@ export function NavigationMenuRoot<Value = any>(
     };
   };
   const [floatingRootContext, setFloatingRootContextRaw] = createSignal<
-    FloatingRootContext | undefined
+    FloatingRootStore | undefined
   >(
     (previous) => {
       triggerContextsVersion();
@@ -140,7 +140,7 @@ export function NavigationMenuRoot<Value = any>(
     },
     { ownedWrite: true },
   );
-  const setFloatingRootContext = (context: FloatingRootContext | undefined) => {
+  const setFloatingRootContext = (context: FloatingRootStore | undefined) => {
     setFloatingRootContextRaw(() => context);
   };
   const [viewportInert, setViewportInert] = createSignal(false, { ownedWrite: true });

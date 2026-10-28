@@ -47,8 +47,6 @@ export function TooltipPositioner(componentProps: TooltipPositioner.Props): JSX.
   const mounted = store.useState('mounted');
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
-  // Port note: the root store's floating root context never changes.
-  const floatingRootContext = store.select('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
@@ -60,7 +58,7 @@ export function TooltipPositioner(componentProps: TooltipPositioner.Props): JSX.
     get positionMethod() {
       return componentProps.positionMethod ?? 'absolute';
     },
-    floatingRootContext,
+    floatingRootContext: store,
     get mounted() {
       return mounted();
     },

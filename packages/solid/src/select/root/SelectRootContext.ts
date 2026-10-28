@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'solid-js';
-import type { FloatingRootContext } from '../../utils/popups/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import type { SelectStore } from '../store';
 
 export const SelectRootContext = createContext<SelectStore | null>(null);
-export const SelectFloatingContext = createContext<FloatingRootContext | null>(null);
+export const SelectFloatingContext = createContext<FloatingRootStore | null>(null);
 
 export function useSelectRootContext() {
   const store = useContext(SelectRootContext) ?? undefined;

@@ -109,15 +109,12 @@ export function TooltipTrigger<Payload>(
   function useStoreParts(currentStore: TooltipHandleStore<Payload>) {
     const isTriggerActive = currentStore.useState('isTriggerActive', thisTriggerId);
     const isOpenedByThisTrigger = currentStore.useState('isOpenedByTrigger', thisTriggerId);
-    // Port note: a store's floating root context never changes.
-    const floatingRootContext = currentStore.select('floatingRootContext');
-
-    const delayGroup = useDelayGroup(floatingRootContext, {
+    const delayGroup = useDelayGroup(currentStore, {
       get open() {
         return isOpenedByThisTrigger();
       },
     });
-    const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
+    const hoverInteraction = useHoverInteractionSharedState(currentStore);
 
     currentStore.useSyncedValue('isInstantPhase', () => delayGroup.isInstantPhase);
 
@@ -126,7 +123,7 @@ export function TooltipTrigger<Payload>(
     const trackCursorAxis = currentStore.useState('trackCursorAxis');
     const disableHoverablePopup = currentStore.useState('disableHoverablePopup');
 
-    const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+    const hoverProps = useHoverReferenceInteraction(currentStore, {
       get enabled() {
         return !disabled();
       },
@@ -146,7 +143,6 @@ export function TooltipTrigger<Payload>(
       get isActiveTrigger() {
         return isTriggerActive();
       },
-      isClosing: () => currentStore.select('transitionStatus') === 'ending',
       shouldOpen() {
         // Port note: React refreshes the delayed handler's render snapshot. Solid's stable
         // handler checks current ownership so a pending hover cannot re-announce an external open.
@@ -157,7 +153,7 @@ export function TooltipTrigger<Payload>(
       },
     });
 
-    const focusProps = useFocus(floatingRootContext, {
+    const focusProps = useFocus(currentStore, {
       get enabled() {
         return !disabled();
       },

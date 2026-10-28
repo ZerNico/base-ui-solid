@@ -55,10 +55,7 @@ export function PopoverPopup(componentProps: PopoverPopup.Props) {
   const mounted = store.useState('mounted');
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
-  // Port note: the floating root context is created with the store and never replaced, so it's
-  // read once.
-  const floatingContext = store.select('floatingRootContext');
-  const floatingId = floatingContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
   const disabled = store.useState('disabled');
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
@@ -73,7 +70,7 @@ export function PopoverPopup(componentProps: PopoverPopup.Props) {
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     get enabled() {
       return openOnHover() && !disabled();
     },
@@ -104,7 +101,7 @@ export function PopoverPopup(componentProps: PopoverPopup.Props) {
 
   return (
     <FloatingFocusManager
-      context={floatingContext}
+      context={store}
       openInteractionType={openMethod()}
       modal={focusManagerModal()}
       disabled={!mounted() || openReason() === REASONS.triggerHover}

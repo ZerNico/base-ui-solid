@@ -62,7 +62,6 @@ export const DialogTrigger = function DialogTrigger(componentProps: DialogTrigge
 
   const generatedTriggerId = useBaseUiId();
   const thisTriggerId = () => componentProps.id ?? generatedTriggerId;
-  const floatingContext = useCurrentStoreState((s) => s.useState('floatingRootContext'));
   const isOpenedByThisTrigger = useCurrentStoreState((s) =>
     s.useState('isOpenedByTrigger', thisTriggerId),
   );
@@ -84,9 +83,8 @@ export const DialogTrigger = function DialogTrigger(componentProps: DialogTrigge
     native: () => componentProps.nativeButton ?? true,
   });
 
-  // Port note: `useClick` is bound to a floating root context, so it's recreated when the
-  // context changes.
-  const click = createMemo(() => useClick(floatingContext()));
+  // Port note: `useClick` is bound to a store, so it's recreated when the store changes.
+  const click = createMemo(() => useClick(currentStore()));
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => currentStore().select('open'),
     (interactionType) => {

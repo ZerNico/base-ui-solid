@@ -3,6 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
 import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
+import type { FloatingRootStore } from '../../src/utils/popups/floating-root/FloatingRootStore';
 import type {
   NarrowedElement,
   ReferenceType,
@@ -20,7 +21,8 @@ import type {
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
   const internalStore = useFloatingRootContext(options);
-  const store = options.rootContext || internalStore;
+  // The ported Floating UI tests only pass stores created by `useFloatingRootContext`.
+  const store = (options.rootContext as FloatingRootStore | undefined) || internalStore;
 
   const [localDomReference, setLocalDomReference] = createSignal<
     NarrowedElement<ReferenceType> | null | undefined

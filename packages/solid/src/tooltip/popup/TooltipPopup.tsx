@@ -29,8 +29,6 @@ export function TooltipPopup(componentProps: TooltipPopup.Props): JSX.Element {
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  // Port note: the root store's floating root context never changes.
-  const floatingContext = store.select('floatingRootContext');
   const disabled = store.useState('disabled');
   const closeDelay = store.useState('closeDelay');
 
@@ -44,7 +42,7 @@ export function TooltipPopup(componentProps: TooltipPopup.Props): JSX.Element {
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     get enabled() {
       return !disabled();
     },

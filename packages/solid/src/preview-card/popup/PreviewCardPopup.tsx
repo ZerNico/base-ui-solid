@@ -29,8 +29,6 @@ export function PreviewCardPopup(componentProps: PreviewCardPopup.Props): JSX.El
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  // Port note: the root store's floating root context never changes.
-  const floatingContext = store.select('floatingRootContext');
   const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
@@ -43,7 +41,7 @@ export function PreviewCardPopup(componentProps: PreviewCardPopup.Props): JSX.El
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, {
+  useHoverFloatingInteraction(store, {
     get closeDelay() {
       return closeDelay();
     },

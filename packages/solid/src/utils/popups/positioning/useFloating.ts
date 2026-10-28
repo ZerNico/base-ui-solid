@@ -4,10 +4,10 @@ import { isElement } from '@floating-ui/utils/dom';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useFloating as usePosition } from './dom';
 import type { VirtualElement } from './dom';
-import type { FloatingRootStore } from '../floating-root/FloatingRootStore';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
   FloatingContext,
+  FloatingRootContext,
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
@@ -26,7 +26,7 @@ import type {
  * store-dependent fields) through getters (see `UseFloatingReturn` in `../dom`).
  */
 export function useBaseUIFloating(
-  options: UseFloatingOptions & { rootContext: FloatingRootStore },
+  options: UseFloatingOptions & { rootContext: FloatingRootContext },
 ): UseFloatingReturn {
   // Port note: detached triggers can replace the node and tree after the popup mounts.
   const nodeId = () => options.nodeId;
@@ -229,7 +229,7 @@ export function useBaseUIFloating(
     refs,
     elements,
     get rootStore() {
-      return store() as unknown as FloatingRootStore;
+      return store();
     },
   } as UseFloatingReturn;
 }

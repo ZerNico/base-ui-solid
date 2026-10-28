@@ -26,15 +26,12 @@ export function DialogInteractions(props: {
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
-  // Port note: the floating root context is created with the store and never replaced, so it's
-  // read once.
-  const floatingRootContext = store.select('floatingRootContext');
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = createSignal(0, { ownedWrite: true });
   const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = createSignal(0, { ownedWrite: true });
   const isTopmost = () => ownNestedOpenDialogs() === 0;
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     outsidePressEvent() {
       if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
         return 'intentional';

@@ -2,7 +2,7 @@ import { createContext, useContext } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { FloatingRootContext } from '../../utils/popups/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
@@ -33,7 +33,7 @@ export interface NavigationMenuRootContext<Value = any> {
   setViewportTargetElement: (element: HTMLElement | null) => void;
   activationDirection: Accessor<'left' | 'right' | 'up' | 'down' | null>;
   setActivationDirection: (direction: 'left' | 'right' | 'up' | 'down' | null) => void;
-  floatingRootContext: Accessor<FloatingRootContext | undefined>;
+  floatingRootContext: Accessor<FloatingRootStore | undefined>;
   /**
    * Port note: registers a trigger's floating context. The root uses the active item's.
    * @returns A function that unregisters it.
@@ -91,5 +91,5 @@ export { useNavigationMenuRootContext, useNavigationMenuTreeContext };
 export interface TriggerFloatingRootContext {
   /** The trigger's item value. */
   value: Accessor<unknown>;
-  context: FloatingRootContext;
+  context: FloatingRootStore;
 }

@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { ComboboxStore } from '../store';
-import type { FloatingRootContext } from '../../utils/popups/types';
+import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 
 /**
  * Port note: the fields are getters backed by the root's memos.
@@ -26,7 +26,7 @@ export interface ComboboxDerivedItemsContext {
 }
 
 export const ComboboxRootContext = createContext<ComboboxStore | null>(null);
-export const ComboboxFloatingContext = createContext<FloatingRootContext | null>(null);
+export const ComboboxFloatingContext = createContext<FloatingRootStore | null>(null);
 export const ComboboxDerivedItemsContext = createContext<ComboboxDerivedItemsContext | null>(null);
 // Port note: context values hold accessors.
 export const ComboboxHasItemsContext = createContext<Accessor<boolean>>(() => false);

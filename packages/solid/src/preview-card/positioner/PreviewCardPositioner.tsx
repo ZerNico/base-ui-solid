@@ -49,8 +49,6 @@ export function PreviewCardPositioner(componentProps: PreviewCardPositioner.Prop
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  // Port note: the root store's floating root context never changes.
-  const floatingRootContext = store.select('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
@@ -63,7 +61,7 @@ export function PreviewCardPositioner(componentProps: PreviewCardPositioner.Prop
     get anchor() {
       return componentProps.anchor;
     },
-    floatingRootContext,
+    floatingRootContext: store,
     get positionMethod() {
       return componentProps.positionMethod ?? 'absolute';
     },

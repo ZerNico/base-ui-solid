@@ -110,7 +110,7 @@ export function useHover(
 
   function clearPointerEvents() {
     if (performedPointerEventsMutation) {
-      const body = ownerDocument(store.state.floatingElement).body;
+      const body = ownerDocument(store.select('floatingElement')).body;
       body.style.pointerEvents = '';
       performedPointerEventsMutation = false;
     }

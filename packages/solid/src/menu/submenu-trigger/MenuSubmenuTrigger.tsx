@@ -73,7 +73,6 @@ function MenuSubmenuTriggerPlain(
   const open = store.useState('open');
   const focusReturnedThroughGuardRef = { current: false };
   const positionerElement = store.useState('positionerElement');
-  const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
@@ -187,7 +186,7 @@ function MenuSubmenuTriggerPlain(
 
   const hoverEnabled = store.useState('hoverEnabled');
 
-  const hoverProps = useHoverReferenceInteraction(untrack(floatingRootContext), {
+  const hoverProps = useHoverReferenceInteraction(store, {
     get enabled() {
       return hoverEnabled() && openOnHover() && !disabled();
     },
@@ -205,13 +204,12 @@ function MenuSubmenuTriggerPlain(
     },
     triggerElementRef,
     externalTree: untrack(floatingTreeRoot),
-    isClosing: () => store.select('transitionStatus') === 'ending',
     // Chrome can drop the trigger's `mouseleave` during a fast pointer sweep,
     // leaving a stale submenu open (see #5152) — cancel from `mouseout` too.
     guardStaleOpen: true,
   });
 
-  const click = useClick(untrack(floatingRootContext), {
+  const click = useClick(store, {
     get enabled() {
       return !disabled();
     },

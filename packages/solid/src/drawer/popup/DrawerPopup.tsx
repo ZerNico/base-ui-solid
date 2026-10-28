@@ -120,7 +120,6 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
   const drawerContext = useDrawerRootContext();
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  const floatingRootContext = store.select('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -131,7 +130,7 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
   const popupId = createMemo(() => elementProps.id ?? floatingId());
   const swipe = useDrawerViewportContext();
   void useDialogPortalContext();
@@ -378,7 +377,7 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
   });
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      context={store}
       openInteractionType={openMethod()}
       disabled={!mounted()}
       closeOnFocusOut={!disablePointerDismissal()}

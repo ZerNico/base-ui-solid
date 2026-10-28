@@ -252,6 +252,34 @@ export function popupConformanceTests(config: PopupTestConfig) {
       });
     }
 
+    describe('prop: onOpenChangeComplete without animations', () => {
+      it('is called on open in the commit that mounts the popup', async () => {
+        // Port note: upstream counts React commits with `React.Profiler`. A Solid flush applies the
+        // DOM update and runs its effects in one task, and a mutation observer is notified after
+        // it, so the completion must have been reported by the time the popup is seen in the DOM.
+        let completedWhenMounted: boolean | null = null;
+        const onOpenChangeComplete = vi.fn();
+
+        const { rerender } = await render({ root: { open: false, onOpenChangeComplete } });
+        const observer = new MutationObserver(() => {
+          if (completedWhenMounted === null && getPopup() !== null) {
+            completedWhenMounted = onOpenChangeComplete.mock.calls.some(([open]) => open);
+          }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        try {
+          await rerender({ root: { open: true, onOpenChangeComplete } });
+          await waitFor(() => {
+            expect(onOpenChangeComplete).toHaveBeenCalledWith(true);
+          });
+        } finally {
+          observer.disconnect();
+        }
+
+        expect(completedWhenMounted).toBe(true);
+      });
+    });
+
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       afterEach(() => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = true;

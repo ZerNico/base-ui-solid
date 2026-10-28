@@ -6,7 +6,6 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { SolidStore } from '@base-ui-solid/utils/store';
 import {
   autoUpdate,
   flip,
@@ -18,7 +17,7 @@ import {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  FloatingRootContext,
+  PositioningRootContext,
   FloatingContext,
 } from '../utils/popups/types';
 import type {
@@ -141,7 +140,7 @@ type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
  * don't destructure them. `arrowRef`, `refs`, `context` and `update` are stable.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: FloatingRootContext },
+  params: UseAnchorPositioningParameters & { floatingRootContext: PositioningRootContext },
 ): UseAnchorPositioningReturnValue {
   return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
 }
@@ -504,21 +503,15 @@ export function useAnchorPositioningWithHook(
 
   // Ensure positioning doesn't run initially for `keepMounted` elements that
   // aren't initially open.
-  // Port note: upstream writes the `null`s from a layout effect. Here the positioner derives them
-  // into the store while it's unmounted, and otherwise leaves the elements to the Root's sync. The
+  // Port note: upstream calls `clearPositioning()` from a layout effect. Here the positioner
+  // derives the cleared elements into the store while it's unmounted (`useClearPositioning`). The
   // memo owns the registration, so it moves with the store.
   void createMemo(() => {
     const store = floatingRootContext();
     if (!store) {
       return;
     }
-    const unmounted = () => !mounted();
-    store.useSyncedValues({
-      referenceElement: () => (unmounted() ? null : SolidStore.KEEP),
-      floatingElement: () => (unmounted() ? null : SolidStore.KEEP),
-      domReferenceElement: () => (unmounted() ? null : SolidStore.KEEP),
-      positionReference: () => (unmounted() ? null : SolidStore.KEEP),
-    });
+    store.useClearPositioning(() => !mounted());
   });
 
   const autoUpdateOptions = createMemo<AutoUpdateOptions>(() => ({
@@ -884,7 +877,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: FloatingRootContext | undefined;
+  floatingRootContext?: PositioningRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
   nodeId?: string | undefined;

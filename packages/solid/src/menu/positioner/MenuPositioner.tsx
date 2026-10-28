@@ -57,7 +57,6 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
-  const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -71,7 +70,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = untrack(floatingRootContext).useState('domReferenceElement');
+  const domReference = store.useState('domReferenceElement');
 
   // Port note: upstream computes these during render.
   const positioning = createMemo(
@@ -122,9 +121,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
     get anchor() {
       return positioning().anchor;
     },
-    get floatingRootContext() {
-      return floatingRootContext();
-    },
+    floatingRootContext: store,
     get positionMethod() {
       return contextMenuContext ? 'fixed' : (componentProps.positionMethod ?? 'absolute');
     },

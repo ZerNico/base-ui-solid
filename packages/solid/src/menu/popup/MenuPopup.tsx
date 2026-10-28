@@ -62,7 +62,6 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
-  const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -142,7 +141,7 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
     () => [floatingTreeRoot()] as const,
   );
 
-  useHoverFloatingInteraction(untrack(floatingContext), {
+  useHoverFloatingInteraction(store, {
     get enabled() {
       return hoverEnabled() && !disabled() && !isContextMenu() && parent().type !== 'menubar';
     },
@@ -195,7 +194,7 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
 
   return (
     <FloatingFocusManager
-      context={untrack(floatingContext)}
+      context={store}
       openInteractionType={openMethod()}
       modal={isContextMenu()}
       disabled={!mounted()}

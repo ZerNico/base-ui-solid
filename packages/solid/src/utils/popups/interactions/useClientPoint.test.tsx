@@ -31,7 +31,6 @@ function createRootStore(referenceElement: HTMLElement) {
     floatingElement: document.createElement('div'),
     triggerElements: new PopupTriggerMap(),
     floatingId: undefined,
-    syncOnly: false,
     nested: false,
     onOpenChange: vi.fn(),
   });

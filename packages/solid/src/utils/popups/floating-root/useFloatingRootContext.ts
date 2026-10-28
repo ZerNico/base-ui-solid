@@ -58,7 +58,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         floatingElement: elements().floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
-        syncOnly: false,
         nested,
       }),
   );

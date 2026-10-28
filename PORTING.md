@@ -274,9 +274,14 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     keep what was written otherwise: `useOpenInteractionType`'s open method, `useFloating`'s
     `isPositioned`, list navigation's `focusItemOnOpen`, Tooltip's `instantType`, Navigation
     Menu's floating context (its triggers register their contexts with the root).
-  - `useFloatingRootContext` and `useSyncedFloatingRootContext` derive the floating root store's
-    `open`, ids and elements. `useAnchorPositioning` derives the elements' reset while a kept-mounted
-    positioner is unmounted, and passes the anchor to `useFloating` as `positionReference`.
+  - `useFloatingRootContext` derives the floating root store's `open`, ids and elements. A popup
+    store is its own interaction store (`FloatingRootContext`). Upstream's `BasePopupStore` applies
+    a change of the anchor (the mounted active trigger) in a `setState` override, but here the anchor
+    also changes through derived keys, so the Root derives it (`BasePopupStore.useAnchorState`): the
+    anchor is remembered as `domReferenceElement`, and a `positionReference` that followed the old
+    anchor follows the new one. `useAnchorPositioning` derives the elements' reset while a
+    kept-mounted positioner is unmounted (`useClearPositioning`, the derived `clearPositioning()`),
+    and passes the anchor to `useFloating` as `positionReference`.
   - The focus manager registers its state with its portal as an accessor, and resolves the
     element it manages focus on when it's used (after the DOM updated), since it's found in the
     DOM.
@@ -325,7 +330,7 @@ Floating UI:
   nodes (the same internal property Solid's event delegation uses).
 - Effect order: Solid runs a parent's effects before its children's. React runs child layout
   effects first. Popup code that relies on child-first ordering needs checking (see the Port notes in
-  `popupStoreUtils.test.tsx`).
+  `popupRoot.test.tsx` and Menu's "ignores a request made before the root has mounted").
 - Popup-related utils take accessors: `useMergedRefs(() => props.ref, …)`, `useValueAsRef(accessor)`,
   `usePreviousValue(accessor)`, `useScrollLock(enabled, referenceElement)`.
   `useForcedRerendering()` returns `rerender` plus `rerender.track()` for memos that must re-run.
@@ -395,8 +400,8 @@ compiles the same JSX differently for the server and the client, so:
   HMR's component wrapping is disabled so fixture components keep their identity.
 - The SSR Vite server is closed when Vitest shuts down (`closeBundle` in `ssrFixturesPlugin`),
   otherwise it keeps the browser-mode process alive.
-- `pnpm test:compare-upstream` treats a skip condition that only detects a React API
-  (e.g. `React.useId === undefined`) as no condition: the port runs those tests.
+- `pnpm test:compare-upstream` treats a skip condition that only detects a React API or version
+  (e.g. `React.useId === undefined` or `reactMajor < 19`) as no condition: the port runs those tests.
 
 ## Linting
 
@@ -474,8 +479,13 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   layout effects.
 - Popup Root children are render functions only when `typeof children === 'function'` and
   `children.length > 0`. Zero-argument functions are JSX factories. Render functions are called
-  once with `{ payload }`, where `payload` is an accessor (`PayloadChildRenderFunction`). Call
-  `usePopupHandleAttachment` in the root body so its lifecycle belongs to the root.
+  once with `{ payload }`, where `payload` is an accessor (`PayloadChildRenderFunction`).
+  `renderPopupRootChildren` applies that rule. Upstream also renders the handle attachment there.
+  Here the root calls `usePopupHandleAttachment` in its body instead, so its lifecycle belongs to
+  the root and its effect runs before those of the root's later siblings.
+- `usePopupRoot(props, createStore, options)` reads the root's props lazily (pass `props`, don't
+  destructure it) and returns `open`, `mounted`, `payload` and `transitionStatus` as accessors. Its
+  `disabled` option is an accessor, and `usePopupRootWithFloatingId` takes the floating id as one.
 
 - **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, the components
   report no warnings in the docs' demos (`storeDiagnostics.interactions.port.test.tsx` drives them

@@ -91,7 +91,6 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
   const thisTriggerId = () => (componentProps.id as string | undefined) ?? generatedId;
 
   const isTriggerActive = useStoreState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = useStoreState('floatingRootContext');
   const isOpenedByThisTrigger = useStoreState('isOpenedByTrigger', thisTriggerId);
   const controlsId = useStoreState('triggerControlsId', thisTriggerId);
 
@@ -231,10 +230,10 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
     untrack(store).select('lastOpenChangeReason'),
   );
 
-  // Port note: the interaction hooks take their floating root context once, so they're created
-  // again when the trigger moves to another store (upstream re-renders them with the new context).
+  // Port note: the interaction hooks take their store once, so they're created again when the
+  // trigger moves to another store (upstream re-renders them with the new store).
   const interactions = createMemo(() => {
-    const context = floatingRootContext();
+    const context = store();
     return untrack(() => ({
       hoverProps: useHoverReferenceInteraction(context, {
         get enabled() {
@@ -258,7 +257,6 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
         get isActiveTrigger() {
           return isTriggerActive();
         },
-        isClosing: () => store().select('transitionStatus') === 'ending',
       }),
       click: useClick(context, {
         get enabled() {

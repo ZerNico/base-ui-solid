@@ -2,20 +2,18 @@ import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint } from '../../utils/popups/interactions/useClientPoint';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
+  renderPopupRootChildren,
   usePopupHandleAttachment,
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups/popupStoreUtils';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+  usePopupRoot,
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { TooltipStore } from '../store/TooltipStore';
 import type { TooltipHandle } from '../store/TooltipHandle';
@@ -33,41 +31,20 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
   const disableHoverablePopup = () => props.disableHoverablePopup ?? false;
   const trackCursorAxis = () => props.trackCursorAxis ?? 'none';
 
-  const store = usePopupRootStore(
-    (floatingId, nested) =>
-      new TooltipStore<Payload>(
-        {
-          open: props.defaultOpen ?? false,
-          openProp: props.open,
-          activeTriggerId: props.defaultTriggerId ?? null,
-          triggerIdProp: props.triggerId,
-        },
-        floatingId,
-        nested,
-      ),
+  const { store, open, mounted, payload, transitionStatus } = usePopupRoot(
+    props,
+    (initialState, floatingId) => new TooltipStore<Payload>(initialState, floatingId),
+    { closeOnActiveTriggerUnmount: true, disabled },
   );
 
-  store.useControlledProp('openProp', () => props.open);
-  store.useControlledProp('triggerIdProp', () => props.triggerId);
-
-  store.useContextCallback('onOpenChange', () => props.onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
-
   const openState = store.useState('open');
-  const open = createMemo(() => !disabled() && openState());
-
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as () => Payload | undefined;
 
   store.useSyncedValues(() => ({
     trackCursorAxis: trackCursorAxis(),
     disableHoverablePopup: disableHoverablePopup(),
     disabled: disabled(),
   }));
-
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store, () => props.open);
 
   useIsoLayoutEffect(
     ([openStateValue, disabledValue]) => {
@@ -101,11 +78,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
     { hold: true },
   );
 
-  useImperativeHandle(() => props.actionsRef, {
-    unmount: forceUnmount,
-    close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-  });
-
   // Port note: detached triggers registered before this Root migrate in Solid's effect
   // order. Preserve their original registration order when assigning default-open ownership.
   useIsoLayoutEffect(
@@ -129,28 +101,21 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
     () => open() || mounted() || (!disabled() && trackCursorAxis() !== 'none'),
   );
 
-  // Port note: a render function child is called once with `{ payload }`, where `payload` is an
-  // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured. Like Solid's
-  // `<Show>`, only a function that declares a parameter is a render function: a single component
-  // child is also passed as a function.
-  const renderChildren = () => {
-    const children = props.children;
-    if (typeof children === 'function' && children.length > 0) {
-      return untrack(() => (children as PayloadChildRenderFunction<Payload>)({ payload }));
-    }
-    return children as JSX.Element;
-  };
-
   return (
     <TooltipRootContext value={store as TooltipRootContext}>
-      <Show when={shouldRenderInteractions()}>
-        <TooltipInteractions
-          store={store}
-          disabled={disabled()}
-          trackCursorAxis={trackCursorAxis()}
-        />
-      </Show>
-      {renderChildren()}
+      {renderPopupRootChildren({
+        interactions: (
+          <Show when={shouldRenderInteractions()}>
+            <TooltipInteractions
+              store={store}
+              disabled={disabled()}
+              trackCursorAxis={trackCursorAxis()}
+            />
+          </Show>
+        ),
+        children: props.children,
+        payload,
+      })}
     </TooltipRootContext>
   );
 }
@@ -261,16 +226,13 @@ function TooltipInteractions<Payload>(props: {
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
 }) {
   const store = untrack(() => props.store);
-  // Port note: the root store's floating root context never changes.
-  const floatingRootContext = store.select('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     get enabled() {
       return !props.disabled;
     },
     referencePress: () => store.select('closeOnClick'),
   });
-  const clientPoint = useClientPoint(floatingRootContext, {
+  const clientPoint = useClientPoint(store, {
     get enabled() {
       return !props.disabled && props.trackCursorAxis !== 'none';
     },

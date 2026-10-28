@@ -75,7 +75,6 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
   const generatedId = useBaseUiId();
   const thisTriggerId = () => componentProps.id ?? generatedId;
   const isTriggerActive = useStoreState('isTriggerActive', thisTriggerId);
-  const floatingContext = useStoreState('floatingRootContext');
   const isOpenedByThisTrigger = useStoreState('isOpenedByTrigger', thisTriggerId);
   const popupId = useStoreState('triggerPopupId', thisTriggerId);
 
@@ -97,10 +96,10 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
   const isTouchPressOpen = useStoreState('isTouchPressOpen', openOnHover);
   const hasFocusGuards = useStoreState('hasTriggerFocusGuards', thisTriggerId);
 
-  // Port note: the interaction hooks take their floating root context once, so they're created
-  // again when the trigger moves to another store (upstream re-renders them with the new context).
+  // Port note: the interaction hooks take their store once, so they're created again when the
+  // trigger moves to another store (upstream re-renders them with the new store).
   const interactions = createMemo(() => {
-    const context = floatingContext();
+    const context = store();
     return untrack(() => ({
       hoverProps: useHoverReferenceInteraction(context, {
         get enabled() {
@@ -121,7 +120,6 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
         get isActiveTrigger() {
           return isTriggerActive();
         },
-        isClosing: () => store().select('transitionStatus') === 'ending',
       }),
       click: useClick(context, {
         stickIfOpen: () => store().context.stickIfOpen,

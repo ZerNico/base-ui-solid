@@ -79,11 +79,9 @@ export function PreviewCardTrigger<Payload>(
   function useStoreParts(currentStore: PreviewCardHandleStore<Payload>) {
     const isTriggerActive = currentStore.useState('isTriggerActive', thisTriggerId);
     const isOpenedByThisTrigger = currentStore.useState('isOpenedByTrigger', thisTriggerId);
-    // Port note: a store's floating root context never changes.
-    const floatingRootContext = currentStore.select('floatingRootContext');
     const inlineRectCoordsRef = currentStore.context.inlineRectCoordsRef;
 
-    const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+    const hoverProps = useHoverReferenceInteraction(currentStore, {
       mouseOnly: true,
       move: false,
       handleClose: safePolygon(),
@@ -92,10 +90,9 @@ export function PreviewCardTrigger<Payload>(
       get isActiveTrigger() {
         return isTriggerActive();
       },
-      isClosing: () => currentStore.select('transitionStatus') === 'ending',
     });
 
-    const focusProps = useFocus(floatingRootContext, {
+    const focusProps = useFocus(currentStore, {
       get delay() {
         return delayWithDefault();
       },

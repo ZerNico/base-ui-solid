@@ -186,9 +186,8 @@ describe('<Dialog.Root />', () => {
         disablePointerDismissal: false,
       },
       undefined,
-      true,
     );
-    const parentStore = new DialogStore(undefined, undefined, false);
+    const parentStore = new DialogStore(undefined, undefined);
     let mountPassiveEffectFlushed = false;
     let teardownPassiveEffectFlushed = false;
     let mountedBeforePassiveEffect: boolean | null = null;
@@ -2235,6 +2234,48 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  describe.skipIf(isJSDOM)('close requests', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('keeps the dialog mounted when onOpenChange prevents unmounting after an await', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const { user } = await render(() => (
+        <div>
+          <style>
+            {`
+              @keyframes dialog-await-exit { to { opacity: 0; } }
+              .dialog-await-popup[data-ending-style] { animation: dialog-await-exit 200ms; }
+            `}
+          </style>
+          <Dialog.Root
+            defaultOpen
+            onOpenChange={async (open, eventDetails) => {
+              if (!open) {
+                await Promise.resolve();
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" class="dialog-await-popup">
+                Content
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
+      ));
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+
+      await user.keyboard('[Escape]');
+      await wait(400);
+
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-open');
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't
@@ -2257,20 +2298,19 @@ function DialogOpenChangeSpy(props: {
   onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;
 }) {
   const store = useDialogRootContext();
-  const floatingRootContext = store.useState('floatingRootContext');
 
   useEffect(
-    ([floatingRootContextValue, onOpenChange]) => {
+    ([storeValue, onOpenChange]) => {
       function handleOpenChange(details: { open: boolean; reason: string | null | undefined }) {
         onOpenChange(details);
       }
 
-      floatingRootContextValue.context.events.on('openchange', handleOpenChange);
+      storeValue.context.events.on('openchange', handleOpenChange);
       return () => {
-        floatingRootContextValue.context.events.off('openchange', handleOpenChange);
+        storeValue.context.events.off('openchange', handleOpenChange);
       };
     },
-    () => [floatingRootContext(), props.onOpenChange],
+    () => [store, props.onOpenChange] as const,
   );
 
   return null;

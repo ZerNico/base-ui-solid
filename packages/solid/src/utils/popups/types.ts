@@ -1,4 +1,5 @@
 // Port note: `@floating-ui/react-dom` is replaced by the Solid counterpart in `./positioning/dom`.
+import type { Accessor } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type {
   UseFloatingOptions as UsePositionOptions,
@@ -9,7 +10,8 @@ import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 import type { FloatingTreeStore } from './tree/FloatingTreeStore';
-import type { FloatingRootStore } from './floating-root/FloatingRootStore';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { PopupTriggerMap } from './popupTriggerMap';
 
 type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -46,7 +48,73 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export type FloatingRootContext = FloatingRootStore;
+/**
+ * Reads the interaction state of a popup by key.
+ */
+export interface FloatingRootContextReader {
+  (key: 'open'): boolean;
+  (key: 'transitionStatus'): TransitionStatus | undefined;
+  (key: 'domReferenceElement'): Element | null;
+  (key: 'referenceElement'): ReferenceType | null;
+  (key: 'floatingElement'): HTMLElement | null;
+  (key: 'floatingId'): string | undefined;
+}
+
+/**
+ * Subscribes to the interaction state of a popup by key.
+ *
+ * Port note: `useState` returns an accessor, so it has its own reader type.
+ */
+export interface FloatingRootContextAccessorReader {
+  (key: 'open'): Accessor<boolean>;
+  (key: 'transitionStatus'): Accessor<TransitionStatus | undefined>;
+  (key: 'domReferenceElement'): Accessor<Element | null>;
+  (key: 'referenceElement'): Accessor<ReferenceType | null>;
+  (key: 'floatingElement'): Accessor<HTMLElement | null>;
+  (key: 'floatingId'): Accessor<string | undefined>;
+}
+
+/**
+ * Non-reactive values shared by the interaction hooks of one popup.
+ */
+export interface FloatingRootContextValues {
+  readonly dataRef: RefObject<ContextData>;
+  readonly events: FloatingEvents;
+  nested: boolean;
+  readonly triggerElements: PopupTriggerMap;
+}
+
+/**
+ * The store that interaction hooks, the focus manager and positioning read and write.
+ * Popup stores implement it directly. Components without a popup store use `FloatingRootStore`.
+ */
+export interface FloatingRootContext {
+  select: FloatingRootContextReader;
+  useState: FloatingRootContextAccessorReader;
+  set(key: 'positionReference', value: ReferenceType | null): void;
+  set(key: 'domReferenceElement', value: Element | null): void;
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  readonly context: FloatingRootContextValues;
+}
+
+/**
+ * The store anchor positioning reads and clears. Popup stores and `FloatingRootStore` implement it;
+ * the narrower handle stores that triggers use don't need to.
+ */
+export interface PositioningRootContext extends FloatingRootContext {
+  /**
+   * Forgets the elements positioning reads, so it doesn't run for a `keepMounted` popup whose
+   * positioner is unmounted.
+   */
+  clearPositioning(): void;
+  /**
+   * Port note: the derived counterpart of `clearPositioning()`, for a positioner that clears the
+   * elements while `unmounted()` is true, instead of calling it from a layout effect. A write to a
+   * cleared element (e.g. from `useClientPoint`) holds until `unmounted()` changes, as it would
+   * after upstream's one-off clear. Call it once, under the positioner's owner.
+   */
+  useClearPositioning(unmounted: Accessor<boolean>): void;
+}
 
 /**
  * Port note: like `UseFloatingReturn`, the positioning data, `open` and `floatingId` are getters.

@@ -10,6 +10,7 @@ import {
   isJSDOM,
   resetBrowserPointer,
   screen,
+  wait,
   waitFor,
 } from '#test-utils';
 
@@ -156,4 +157,96 @@ describe('<Tooltip.Trigger />', () => {
       });
     },
   );
+
+  describe('once the tooltip has unmounted', () => {
+    it('stays closed when focus returns to the trigger after leaving the window', async () => {
+      const { user } = await render(() => (
+        <Tooltip.Root>
+          <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      ));
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.keyboard('[Tab]');
+      expect(trigger).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      // Leaving the window blurs the trigger, then the window, while the trigger stays the
+      // active element; coming back focuses the window, then the trigger.
+      fireEvent.blur(trigger);
+      fireEvent.blur(window);
+      fireEvent.focus(window);
+      fireEvent.focus(trigger);
+      await wait(50);
+
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+
+    it('does not request an open when its previously active trigger is hovered while the tooltip is open without a trigger', async () => {
+      const onOpenChange = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        return (
+          <>
+            <button type="button" onClick={() => setOpen(true)}>
+              Open externally
+            </button>
+            <Tooltip.Root
+              open={open()}
+              onOpenChange={(nextOpen, eventDetails) => {
+                onOpenChange(nextOpen, eventDetails);
+                setOpen(nextOpen);
+              }}
+            >
+              <Tooltip.Trigger delay={50}>Trigger</Tooltip.Trigger>
+              <Tooltip.Trigger delay={50}>Other trigger</Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="popup">Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      trigger.focus();
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      trigger.blur();
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Open externally' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      onOpenChange.mockClear();
+
+      await user.hover(trigger);
+      await wait(100);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+  });
 });

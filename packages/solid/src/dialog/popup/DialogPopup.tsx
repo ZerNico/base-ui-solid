@@ -37,9 +37,6 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
-  // Port note: the floating root context is created with the store and never replaced, so it's
-  // read once.
-  const floatingRootContext = store.select('floatingRootContext');
   const rootPopupProps = store.useState('popupProps');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
@@ -50,7 +47,7 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
-  const floatingId = floatingRootContext.useState('floatingId');
+  const floatingId = store.useState('floatingId');
 
   // Port note: called for its missing-portal check; the returned accessor is unused.
   void useDialogPortalContext();
@@ -118,7 +115,7 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      context={store}
       openInteractionType={openMethod()}
       disabled={!mounted()}
       closeOnFocusOut={!disablePointerDismissal()}

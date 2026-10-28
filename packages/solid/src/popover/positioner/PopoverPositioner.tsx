@@ -51,9 +51,6 @@ export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  // Port note: the floating root context is created with the store and never replaced, so it's
-  // read once.
-  const floatingRootContext = store.select('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const openReason = store.useState('openChangeReason');
@@ -69,7 +66,7 @@ export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
     get anchor() {
       return componentProps.anchor;
     },
-    floatingRootContext,
+    floatingRootContext: store,
     get positionMethod() {
       return componentProps.positionMethod;
     },
@@ -115,7 +112,7 @@ export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
     },
   });
 
-  const domReference = floatingRootContext.useState('domReferenceElement');
+  const domReference = store.useState('domReferenceElement');
 
   useTriggerSwitchTransition({
     store,

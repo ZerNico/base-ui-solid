@@ -27,7 +27,9 @@ const MAP = [
 ];
 
 function isReactAPIDetection(condition) {
-  return /^(?:!hasCaptureOwnerStack|(?:Safe)?React\.\w+\s*===?\s*undefined)$/.test(condition);
+  return /^(?:!hasCaptureOwnerStack|(?:Safe)?React\.\w+\s*===?\s*undefined|reactMajor\s*<\s*\d+)$/.test(
+    condition,
+  );
 }
 
 function norm(text) {

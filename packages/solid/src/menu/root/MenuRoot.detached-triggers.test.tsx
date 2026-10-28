@@ -15,6 +15,7 @@ import {
   wait,
 } from '#test-utils';
 import { Menu } from 'base-ui-solid/menu';
+import { StoreInspector } from '@base-ui-solid/utils/store';
 import { createRenderer, ignoreActWarnings } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 
@@ -618,5 +619,110 @@ describe('<MenuRoot />', () => {
         });
       },
     );
+  });
+
+  describe('controlled open and triggerId fed from the change details, while StoreInspector serializes the store', () => {
+    const handle = Menu.createHandle<string>();
+
+    function App() {
+      const [open, setOpen] = createSignal(false);
+      const [triggerId, setTriggerId] = createSignal<string | null>(null);
+
+      return (
+        <>
+          <StoreInspector handle={handle} />
+          <Menu.Root
+            handle={handle}
+            open={open()}
+            triggerId={triggerId()}
+            onOpenChange={(nextOpen, eventDetails) => {
+              setOpen(nextOpen);
+              setTriggerId(eventDetails.trigger?.id ?? null);
+            }}
+          >
+            {({ payload }) => (
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="popup">
+                    <Menu.Item>{payload()}</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            )}
+          </Menu.Root>
+          <Menu.Trigger handle={handle} payload="Library">
+            Library
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} payload="Playback" id="second-trigger">
+            Playback
+          </Menu.Trigger>
+          <Menu.Trigger handle={handle} payload="Sharing">
+            Sharing
+          </Menu.Trigger>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(true);
+              setTriggerId('second-trigger');
+            }}
+          >
+            Open externally
+          </button>
+          <button type="button" onClick={() => handle.open('second-trigger')}>
+            Open via handle
+          </button>
+        </>
+      );
+    }
+
+    async function expectOpenWith(item: string) {
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem')).toHaveTextContent(item);
+      });
+    }
+
+    async function expectClosed() {
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    }
+
+    it('opens from each trigger, an item, and both external buttons', async () => {
+      const { user } = await render(() => <App />);
+
+      for (const name of ['Library', 'Playback', 'Sharing']) {
+        const trigger = screen.getByRole('button', { name });
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(trigger);
+        // eslint-disable-next-line no-await-in-loop
+        await expectOpenWith(name);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+        // eslint-disable-next-line no-await-in-loop
+        await user.click(screen.getByRole('menuitem'));
+        // eslint-disable-next-line no-await-in-loop
+        await expectClosed();
+      }
+
+      await user.click(screen.getByRole('button', { name: 'Library' }));
+      await expectOpenWith('Library');
+      await user.click(screen.getByRole('button', { name: 'Sharing' }));
+      await expectOpenWith('Sharing');
+      await user.click(screen.getByRole('button', { name: 'Sharing' }));
+      await expectClosed();
+
+      await user.click(screen.getByRole('button', { name: 'Open externally' }));
+      await expectOpenWith('Playback');
+      await user.keyboard('[Escape]');
+      await expectClosed();
+
+      await user.click(screen.getByRole('button', { name: 'Open via handle' }));
+      await expectOpenWith('Playback');
+      await user.click(screen.getByRole('menuitem'));
+      await expectClosed();
+    });
   });
 });

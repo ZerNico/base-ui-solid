@@ -1,60 +1,30 @@
 import { createMemo, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import {
+  renderPopupRootChildren,
   usePopupHandleAttachment,
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-} from '../../utils/popups/popupStoreUtils';
+  usePopupRoot,
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
 import type { HTMLProps } from '../../internals/types';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>): JSX.Element {
-  const store = usePopupRootStore(
-    (floatingId, nested) =>
-      new PreviewCardStore<Payload>(
-        {
-          open: props.defaultOpen ?? false,
-          openProp: props.open,
-          activeTriggerId: props.defaultTriggerId ?? null,
-          triggerIdProp: props.triggerId,
-        },
-        floatingId,
-        nested,
-      ),
+  const { store, open, mounted, payload } = usePopupRoot(
+    props,
+    (initialState, floatingId) => new PreviewCardStore<Payload>(initialState, floatingId),
+    { closeOnActiveTriggerUnmount: true },
   );
 
-  store.useControlledProp('openProp', () => props.open);
-  store.useControlledProp('triggerIdProp', () => props.triggerId);
-
-  store.useContextCallback('onOpenChange', () => props.onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
-
-  const open = store.useState('open');
   const activeTriggerId = store.useState('activeTriggerId');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as () => Payload | undefined;
-
-  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
-  const { forceUnmount } = useOpenStateTransitions(
-    open,
-    store,
-    () => props.open,
-    () => {
-      store.context.inlineRectCoordsRef.current = undefined;
-    },
-  );
 
   // Port note: upstream clears the payload from a layout effect when the popup is open without an
   // active trigger. Here the store derives it: no payload then, and none until the next write.
@@ -63,11 +33,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     () => (open() && activeTriggerId() == null ? { value: undefined } : undefined),
     { hold: true },
   );
-
-  useImperativeHandle(() => props.actionsRef, {
-    unmount: forceUnmount,
-    close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-  });
 
   // Port note: detached triggers registered before this Root migrate in Solid's effect
   // order. Preserve their original registration order when assigning default-open ownership.
@@ -93,34 +58,24 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   // triggers.
   const shouldRenderInteractions = createMemo(() => open() || mounted() || props.handle != null);
 
-  // Port note: a render function child is called once with `{ payload }`, where `payload` is an
-  // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured. Like Solid's
-  // `<Show>`, only a function that declares a parameter is a render function: a single component
-  // child is also passed as a function.
-  const renderChildren = () => {
-    const children = props.children;
-    if (typeof children === 'function' && children.length > 0) {
-      return untrack(() => (children as PayloadChildRenderFunction<Payload>)({ payload }));
-    }
-    return children as JSX.Element;
-  };
-
   return (
     <PreviewCardRootContext value={store as PreviewCardRootContext}>
-      <Show when={shouldRenderInteractions()}>
-        <PreviewCardInteractions store={store} />
-      </Show>
-      {renderChildren()}
+      {renderPopupRootChildren({
+        interactions: (
+          <Show when={shouldRenderInteractions()}>
+            <PreviewCardInteractions store={store} />
+          </Show>
+        ),
+        children: props.children,
+        payload,
+      })}
     </PreviewCardRootContext>
   );
 }
 
 function PreviewCardInteractions<Payload>(props: { store: PreviewCardStore<Payload> }) {
   const store = untrack(() => props.store);
-  // Port note: the root store's floating root context never changes.
-  const floatingRootContext = store.select('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext);
+  const dismiss = useDismiss(store);
 
   // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
   // `dismiss.trigger` is the same object as `dismiss.reference`.

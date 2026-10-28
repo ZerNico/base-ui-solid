@@ -1,55 +1,33 @@
 import { Show, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
 import { FloatingTree } from '../../utils/popups/tree/FloatingTree';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
-import type { State as PopoverStoreState } from '../store/PopoverStore';
 import type { PopoverHandle } from '../store/PopoverHandle';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 import {
-  useImplicitActiveTrigger,
-  usePopupRootStore,
-  useOpenStateTransitions,
-  usePopupInteractionProps,
-  usePopupRootSync,
+  renderPopupRootChildren,
   usePopupHandleAttachment,
-} from '../../utils/popups/popupStoreUtils';
-import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
+  usePopupRoot,
+  usePopupRootSync,
+} from '../../utils/popups/popupRoot';
+import { usePopupInteractionProps } from '../../utils/popups/popupStoreUtils';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 
 function PopoverRootComponent<Payload>(componentProps: {
   props: PopoverRoot.Props<Payload>;
   store: PopoverStore<Payload>;
+  open: Accessor<boolean>;
+  mounted: Accessor<boolean>;
+  payload: Accessor<Payload | undefined>;
 }) {
-  const props = untrack(() => componentProps.props);
-
-  const store = untrack(() => componentProps.store);
-
-  store.useControlledProp('openProp', () => props.open);
-  store.useControlledProp('triggerIdProp', () => props.triggerId);
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload');
-
-  store.useContextCallback('onOpenChange', () => props.onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
+  const { props, store, open, mounted, payload } = untrack(() => ({ ...componentProps }));
 
   usePopupRootSync(store, open);
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(
-    open,
-    store,
-    () => props.open,
-    () => {
-      store.context.stickIfOpen = true;
-      store.set('openChangeReason', null);
-    },
-  );
 
   const modal = () => props.modal ?? false;
 
@@ -66,38 +44,22 @@ function PopoverRootComponent<Payload>(componentProps: {
     () => [open()],
   );
 
-  const actions: PopoverRoot.Actions = {
-    unmount: forceUnmount,
-    close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
-  };
-  useImperativeHandle(() => props.actionsRef, actions);
-
   // Detached triggers share this one Root, so mounting its interactions eagerly is cheap. The
   // trigger props they publish then stay stable, so opening and closing doesn't re-render inactive
   // triggers.
   const shouldRenderInteractions = () => open() || mounted() || props.handle != null;
 
-  // Port note: a render function child is called once with `{ payload }`, where `payload` is an
-  // accessor (see `PayloadChildRenderFunction`), so the argument can be destructured.
-  const payloadArg = { payload: payload as () => Payload | undefined };
-
-  // Port note: keep generic type assertions outside JSX hoisted closures.
-  const renderChildren = () => {
-    const children = props.children;
-    // Port note: a single component child can also be a function (e.g. the accessor a
-    // `<Show>` returns), so a function counts as a render function only when it declares a
-    // parameter, like Solid's `<Show>` does for its function children.
-    return typeof children === 'function' && children.length > 0
-      ? untrack(() => (children as PayloadChildRenderFunction<Payload>)(payloadArg))
-      : children;
-  };
-
   return (
     <PopoverRootContext value={store as PopoverRootContext<unknown>}>
-      <Show when={shouldRenderInteractions()}>
-        <PopoverInteractions store={store} modal={modal()} />
-      </Show>
-      {renderChildren()}
+      {renderPopupRootChildren({
+        interactions: (
+          <Show when={shouldRenderInteractions()}>
+            <PopoverInteractions store={store} modal={modal()} />
+          </Show>
+        ),
+        children: props.children,
+        payload,
+      })}
     </PopoverRootContext>
   );
 }
@@ -109,14 +71,22 @@ function PopoverRootComponent<Payload>(componentProps: {
  * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>) {
-  const store = usePopoverRootStore<Payload>(
-    untrack(() => ({
-      modal: props.modal ?? false,
-      open: props.defaultOpen ?? false,
-      openProp: props.open,
-      activeTriggerId: props.defaultTriggerId ?? null,
-      triggerIdProp: props.triggerId,
-    })),
+  // Port note: upstream runs this in the Root component inside the floating tree. Here it runs in
+  // the outer Root body, so that the handle attachment below comes before the effects of later
+  // siblings (see `usePopupHandleAttachment`).
+  const { store, open, mounted, payload } = usePopupRoot(
+    props,
+    (initialState, floatingId) =>
+      new PopoverStore<Payload>(
+        { ...initialState, modal: untrack(() => props.modal ?? false) },
+        floatingId,
+      ),
+  );
+
+  // Dispose the patient-click timeout held in the store's context on unmount.
+  useEffect(
+    () => store.context.stickIfOpenTimeout.disposeEffect(),
+    () => [store],
   );
 
   // Port note: detached triggers migrate through effects, which Solid may run in reverse
@@ -139,31 +109,28 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   if (usePopoverRootContext(true)) {
     // Port note: JSX type arguments are emitted as runtime values by the Solid compiler.
     // eslint-disable-next-line solid/components-return-once -- context presence never changes (mirrors upstream's early return)
-    return <PopoverRootComponent props={props} store={store} />;
+    return (
+      <PopoverRootComponent
+        props={props}
+        store={store}
+        open={open}
+        mounted={mounted}
+        payload={payload}
+      />
+    );
   }
 
   return (
     <FloatingTree>
-      <PopoverRootComponent props={props} store={store} />
+      <PopoverRootComponent
+        props={props}
+        store={store}
+        open={open}
+        mounted={mounted}
+        payload={payload}
+      />
     </FloatingTree>
   );
-}
-
-function usePopoverRootStore<Payload>(initialState: Partial<PopoverStoreState<Payload>>) {
-  // The store is owned by this Root instance and created exactly once. It is not tied to the handle:
-  // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
-  // Default values are only initial values; controlled values and root state are synced after creation.
-  const store = usePopupRootStore(
-    (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
-  );
-
-  // Popover-specific: dispose the patient-click timeout held in the store's context on unmount.
-  useEffect(
-    () => store.context.stickIfOpenTimeout.disposeEffect(),
-    () => [store],
-  );
-
-  return store;
 }
 
 export interface PopoverRootState {}
@@ -269,11 +236,7 @@ export namespace PopoverRoot {
 
 function PopoverInteractions(props: { store: PopoverStore<any>; modal: boolean | 'trap-focus' }) {
   const store = untrack(() => props.store);
-  // Port note: the floating root context is created with the store and never replaced, so it's
-  // read once.
-  const floatingRootContext = store.select('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     outsidePressEvent: {
       // Ensure `aria-hidden` on outside elements is removed immediately
       // on outside press when trapping focus.
