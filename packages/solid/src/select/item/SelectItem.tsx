@@ -247,6 +247,9 @@ export function SelectItem(componentProps: SelectItem.Props) {
       }
 
       allowMouseSelection = true;
+      // Drag selection has no mousedown on the item. Focus it before the synthetic click so
+      // arrow-key navigation continues from the selected item.
+      itemElement?.focus({ preventScroll: true });
       itemElement?.click();
       allowMouseSelection = false;
     },
