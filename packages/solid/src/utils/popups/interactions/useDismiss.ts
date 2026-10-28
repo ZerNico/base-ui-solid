@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { untrack } from 'solid-js';
+import { createMemo, untrack } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
@@ -26,6 +26,15 @@ import { isVirtualClick } from '../event';
 import { getNodeChildren } from '../tree/nodes';
 
 type PressType = 'intentional' | 'sloppy';
+
+// Floating elements number themselves when they open, during render, which reaches parents before
+// their children. An Escape that reaches the document (focus is on `body` after a backdrop press,
+// for example) bypasses the floating elements' own `onKeyDown` handlers, and `stopPropagation()`
+// can't stop the other document listeners. So each open floating element records its number for the
+// event in the capture phase, and the newest one that doesn't let Escape bubble handles it, along
+// with any newer ones that do.
+let openCount = 0;
+const escapeLayers = new WeakMap<Event, number>();
 
 function alwaysFalse() {
   return false;
@@ -132,6 +141,9 @@ export interface UseDismissProps {
   /**
    * Determines whether event listeners bubble upwards through a tree of
    * floating elements.
+   * `escapeKey` also determines whether an Escape that reaches the document, rather than a
+   * floating element, propagates to floating elements opened earlier, even when they share no
+   * `FloatingTree`.
    */
   bubbles?:
     boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
@@ -361,6 +373,19 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     () => [floatingElement(), enabled()] as const,
   );
 
+  // This popup's open number for an Escape that reaches the document (see `openCount`).
+  // Port note: upstream numbers it in a memo during render. The memo here first runs in the hook's
+  // body, then when `open` changes, before the listener effect below reads it. Both reach parents
+  // before their children (Solid runs a parent's effects first), so parents still number
+  // themselves first.
+  const layer = createMemo(() => {
+    if (!open()) {
+      return 0;
+    }
+    openCount += 1;
+    return openCount;
+  });
+
   useEffect(
     ([
       isOpen,
@@ -371,6 +396,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       ,
       escapeKeyBubbles,
       outsidePressBubbles,
+      currentLayer,
     ]) => {
       if (!isOpen || !isEnabled) {
         // Reset in the effect body, not the cleanup, which also runs when a dependency
@@ -783,7 +809,21 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       const unsubscribe = mergeCleanups(
         escapeKeyEnabled &&
           mergeCleanups(
-            addEventListener(doc, 'keydown', closeOnEscapeKeyDown),
+            addEventListener(
+              doc,
+              'keydown',
+              (event) => {
+                if (!escapeKeyBubbles) {
+                  escapeLayers.set(event, Math.max(escapeLayers.get(event) ?? 0, currentLayer));
+                }
+              },
+              true,
+            ),
+            addEventListener(doc, 'keydown', (event) => {
+              if (currentLayer >= (escapeLayers.get(event) ?? 0)) {
+                closeOnEscapeKeyDown(event);
+              }
+            }),
             addEventListener(doc, 'compositionstart', handleCompositionStart),
             addEventListener(doc, 'compositionend', handleCompositionEnd),
           ),
@@ -828,6 +868,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         isOutsidePressFunction(),
         bubbles().escapeKey,
         bubbles().outsidePress,
+        layer(),
       ] as const,
   );
 

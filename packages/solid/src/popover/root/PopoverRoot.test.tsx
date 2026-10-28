@@ -18,6 +18,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import { Popover } from '..';
 import { Menu } from '../../menu';
 import { Combobox } from '../../combobox';
+import { Dialog } from '../../dialog';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { REASONS } from '../../internals/reasons';
@@ -2551,6 +2552,48 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
       });
     });
+  });
+
+  it('keeps the popover open when Escape closes a nested dialog after a backdrop press', async () => {
+    const onPopoverOpenChange = vi.fn();
+    const { user } = await render(() => (
+      <Popover.Root defaultOpen onOpenChange={onPopoverOpenChange}>
+        <Popover.Trigger>Popover trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup data-testid="popover">
+              <Dialog.Root disablePointerDismissal>
+                <Dialog.Trigger>Open dialog</Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Backdrop data-testid="backdrop" />
+                  <Dialog.Popup data-testid="dialog">
+                    <input data-testid="input" />
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    ));
+
+    await user.click(screen.getByRole('button', { name: 'Open dialog' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('input')).toHaveFocus();
+    });
+
+    // `disablePointerDismissal` keeps the dialog open, but the press still moves focus to the body.
+    await user.click(screen.getByTestId('backdrop'));
+    expect(document.activeElement).toBe(document.body);
+    expect(screen.queryByTestId('dialog')).not.toBe(null);
+
+    await user.keyboard('[Escape]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dialog')).toBe(null);
+    });
+    expect(screen.queryByTestId('popover')).not.toBe(null);
+    expect(onPopoverOpenChange).not.toHaveBeenCalled();
   });
 
   describe('preventUnmountOnClose()', () => {

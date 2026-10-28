@@ -1,5 +1,5 @@
 import { vi, expect, beforeEach, describe, test } from 'vitest';
-import { createSignal, flush, omit, Show } from 'solid-js';
+import { createSignal, flush, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import {
   createRenderer,
@@ -1086,6 +1086,126 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+      });
+
+      describe('when Escape reaches the document', () => {
+        // Layers that share no FloatingTree, like a Dialog opened from a Popover.
+        function Layer(
+          props: UseDismissProps & {
+            testId: string;
+            defaultOpen?: boolean;
+            children?: JSX.Element;
+          },
+        ) {
+          const dismissProps = omit(props, 'testId', 'defaultOpen', 'children');
+          const [open, setOpen] = createSignal(untrack(() => props.defaultOpen) ?? false);
+          const { refs, context } = useFloating({
+            get open() {
+              return open();
+            },
+            onOpenChange: setOpen,
+          });
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
+            useClick(context.rootStore),
+            useDismiss(context.rootStore, dismissProps),
+          ]);
+
+          return (
+            <>
+              <button
+                data-testid={`${props.testId}-trigger`}
+                {...getReferenceProps({ ref: refs.setReference })}
+              />
+              <Show when={open()}>
+                <div data-testid={props.testId} {...getFloatingProps({ ref: refs.setFloating })}>
+                  {props.children}
+                </div>
+              </Show>
+            </>
+          );
+        }
+
+        async function openInnerAndBlur() {
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          await flushMicrotasks();
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          (document.activeElement as HTMLElement).blur();
+          await flushMicrotasks();
+          expect(document.activeElement).toBe(document.body);
+        }
+
+        test('closes only the most recently opened layer', async () => {
+          await render(() => (
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" />
+            </Layer>
+          ));
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('closes the layers below when the layers above bubble', async () => {
+          await render(() => (
+            <Layer testId="outer" defaultOpen>
+              <Layer testId="inner" bubbles={{ escapeKey: true }} />
+            </Layer>
+          ));
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
+
+        test('handles the Escape again once the layer above closed', async () => {
+          await render(() => (
+            <>
+              <Layer testId="outer" defaultOpen outsidePress={false} />
+              <Layer testId="inner" />
+            </>
+          ));
+
+          await openInnerAndBlur();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          await userEvent.click(screen.getByTestId('inner-trigger'));
+          await flushMicrotasks();
+          expect(screen.getByTestId('inner')).toBeInTheDocument();
+
+          (document.activeElement as HTMLElement).blur();
+          await flushMicrotasks();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+          expect(screen.getByTestId('outer')).toBeInTheDocument();
+
+          fireEvent.keyDown(document.body, { key: 'Escape' });
+          flush();
+
+          expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
+        });
       });
     });
   });
