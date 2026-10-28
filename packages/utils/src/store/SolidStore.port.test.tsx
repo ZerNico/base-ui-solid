@@ -16,6 +16,87 @@ const selectors = {
 // Port note: synced and controlled values are copied into the store by effects, like upstream's
 // layout effects, so they reach `state` when Solid flushes (see PORTING.md, "Stores and popups").
 describe('SolidStore (port)', () => {
+  describe('useResetState', () => {
+    function setup(options?: { everyRun?: boolean; hold?: boolean }) {
+      const store = new SolidStore<TestState>(initialState);
+      const [reset, setReset] = createSignal<{ value: number } | undefined>(undefined);
+      let lastReset!: () => { value: number } | undefined;
+      const dispose = createRoot((disposeRoot) => {
+        lastReset = store.useResetState('value', reset, options);
+        return disposeRoot;
+      });
+      flush();
+      return { store, setReset, lastReset: () => lastReset(), dispose };
+    }
+
+    it('reads the reset value until the next write', () => {
+      const { store, setReset, dispose } = setup();
+      store.set('value', 1);
+      expect(store.state.value).toBe(1);
+
+      setReset({ value: 0 });
+      flush();
+      expect(store.state.value).toBe(0);
+
+      store.set('value', 2);
+      expect(store.state.value).toBe(2);
+
+      // No reset keeps what the key reads.
+      setReset(undefined);
+      flush();
+      expect(store.state.value).toBe(2);
+      dispose();
+    });
+
+    it('resets to the same value again after a run without a reset', () => {
+      const { store, setReset, lastReset, dispose } = setup();
+      setReset({ value: 0 });
+      flush();
+      const first = lastReset();
+      store.set('value', 2);
+
+      // The same value again is no reset.
+      setReset({ value: 0 });
+      flush();
+      expect(store.state.value).toBe(2);
+      expect(lastReset()).toBe(first);
+
+      setReset(undefined);
+      flush();
+      setReset({ value: 0 });
+      flush();
+      expect(store.state.value).toBe(0);
+      expect(lastReset()).not.toBe(first);
+      dispose();
+    });
+
+    it('resets on every run with `everyRun`', () => {
+      const { store, setReset, dispose } = setup({ everyRun: true });
+      setReset({ value: 0 });
+      flush();
+      store.set('value', 2);
+      setReset({ value: 0 });
+      flush();
+      expect(store.state.value).toBe(0);
+      dispose();
+    });
+
+    it('ignores writes while resetting with `hold`', () => {
+      const { store, setReset, dispose } = setup({ hold: true });
+      setReset({ value: 0 });
+      flush();
+      store.set('value', 2);
+      expect(store.state.value).toBe(0);
+
+      setReset(undefined);
+      flush();
+      expect(store.state.value).toBe(0);
+      store.set('value', 3);
+      expect(store.state.value).toBe(3);
+      dispose();
+    });
+  });
+
   describe('synced values', () => {
     it('lets an imperative write take a synced key over until the synced value changes', () => {
       const store = new SolidStore<TestState>(initialState);

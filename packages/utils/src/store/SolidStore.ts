@@ -196,6 +196,62 @@ export class SolidStore<
     this.registerDerived(key, NOOP_SOURCE, false, derive as DerivedKey['derive']);
   }
 
+  /**
+   * Resets a key from reactive state, the way an effect that writes it on a change would, but
+   * derived, so readers see the reset in the same flush. When `reset` returns `{ value }`, the key
+   * reads that value until the next imperative write. `undefined` doesn't reset it: the key keeps
+   * reading what it read.
+   *
+   * A reset happens when `reset` returns a value different from its last one (`undefined` in
+   * between counts, so closing and reopening resets to the same value again). Options:
+   * - `everyRun`: every run of `reset` that returns a value is a reset, even to the same value.
+   * - `hold`: while `reset` returns a value, writes don't change the key.
+   *
+   * Returns the last reset (a new object for each one), e.g. to notify about it.
+   */
+  useResetState<Key extends keyof State>(
+    key: Key,
+    reset: () => { value: State[Key] } | undefined,
+    options: { everyRun?: boolean | undefined; hold?: boolean | undefined } = {},
+  ): Accessor<{ value: State[Key] } | undefined> {
+    // Each reset gets an id, so a reset to the same value is told apart from no reset.
+    const resets = createMemo<ResetEvent<State[Key]>>((previous) => {
+      const next = reset();
+      if (
+        next !== undefined &&
+        (options.everyRun ||
+          previous?.current === undefined ||
+          !Object.is(next.value, previous.current.value))
+      ) {
+        return { current: next, last: next, id: (previous?.id ?? 0) + 1 };
+      }
+      if (previous === undefined) {
+        return { current: next, last: undefined, id: 0 };
+      }
+      return next === undefined && previous.current === undefined
+        ? previous
+        : { current: next, last: previous.last, id: previous.id };
+    });
+
+    let appliedId = 0;
+    let writesAtReset = -1;
+    this.useDerivedState(key, (raw, _, writes) => {
+      const { current, last, id } = resets();
+      if (id !== appliedId) {
+        appliedId = id;
+        writesAtReset = writes;
+      }
+      if (options.hold && current !== undefined) {
+        // A write while held is dropped, not kept for later.
+        writesAtReset = writes;
+        return current.value;
+      }
+      return last !== undefined && writes === writesAtReset ? last.value : raw;
+    });
+
+    return createMemo(() => resets().last);
+  }
+
   /** Sources of the derived keys. The last registration of a key wins. */
   declare private derived: Map<keyof State, DerivedKey[]> | undefined;
 
@@ -527,6 +583,15 @@ export class SolidStore<
 }
 
 let nextStamp = 0;
+
+interface ResetEvent<Value> {
+  /** What `reset` returned on its last run. */
+  current: { value: Value } | undefined;
+  /** The last reset. */
+  last: { value: Value } | undefined;
+  /** Increases with each reset. */
+  id: number;
+}
 
 interface DerivedKey {
   source: Accessor<unknown>;
