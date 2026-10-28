@@ -58,6 +58,8 @@ export function AutocompleteRoot<ItemValue>(props: AutocompleteRoot.Props<ItemVa
       if (controlled || !inline) {
         // Port note: React's passive parent effect follows child layout effects. Solid runs
         // parent effects first, so clear the overlay after the child's highlight update.
+        // Upstream tracks the pending inline value to skip writing an unchanged '' (a no-op update
+        // keeps the React fiber dirty). A signal write of an unchanged value is already a no-op.
         let canceled = false;
         queueMicrotask(() => {
           if (!canceled) {

@@ -1617,6 +1617,46 @@ describe('<Autocomplete.Root />', () => {
       expect(input.value).toBe('ba');
     });
 
+    it('mode="both": a completion queued after a pointer highlight does not replace an external controlled update', async () => {
+      const items = ['apple', 'banana'];
+
+      function Test() {
+        const [value, setValue] = createSignal('');
+        return (
+          <div>
+            <button type="button" onClick={() => setValue('ba')}>
+              update value
+            </button>
+            <Autocomplete.Root mode="both" items={items} value={value()} onValueChange={setValue}>
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => <Autocomplete.Item value={item()}>{item()}</Autocomplete.Item>}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render((overrides) => <Test {...overrides()} />);
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.type(input, 'a');
+      await user.hover(screen.getByRole('option', { name: 'apple' }));
+      expect(screen.getByRole('option', { name: 'apple' })).toHaveAttribute('data-highlighted');
+      expect(input.value).toBe('a');
+
+      fireEvent.click(screen.getByText('update value'));
+      // Port note: allow the parent's deferred passive effect to follow child effects.
+      await flushMicrotasks();
+      expect(input.value).toBe('ba');
+    });
+
     it('mode="inline": static items with inline overlay', async () => {
       const { user } = await render((overrides) => (
         <Autocomplete.Root mode="inline" openOnInputClick {...overrides()}>
@@ -1935,6 +1975,69 @@ describe('<Autocomplete.Root />', () => {
       expect(screen.getByRole('combobox')).toHaveValue('');
       expect(screen.getByRole('option', { name: 'apple' })).not.toBe(null);
     });
+
+    it.each([
+      { mode: 'none' as const },
+      { mode: 'list' as const },
+      { mode: 'inline' as const },
+      { mode: 'both' as const },
+    ])(
+      'delivers a burst of controlled input without exceeding the update depth (mode="$mode")',
+      async ({ mode }) => {
+        const handleValueChange = vi.fn();
+
+        function Controlled() {
+          const [value, setValue] = createSignal('');
+          return (
+            <Autocomplete.Root
+              mode={mode}
+              value={value()}
+              onValueChange={(nextValue) => {
+                handleValueChange(nextValue);
+                setValue(nextValue);
+              }}
+            >
+              <Autocomplete.Input />
+            </Autocomplete.Root>
+          );
+        }
+
+        await render(() => <Controlled />);
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        const setNativeValue = Object.getOwnPropertyDescriptor(
+          HTMLInputElement.prototype,
+          'value',
+        )!.set!;
+        const errors: string[] = [];
+        const handleError = (event: ErrorEvent) => {
+          errors.push(String(event.error?.message ?? event.message));
+          event.preventDefault();
+        };
+        const expectedValues = Array.from({ length: 120 }, (_, index) => 'x'.repeat(index + 1));
+
+        window.addEventListener('error', handleError);
+        // Port note: upstream leaves act() here so React schedules each update like a real
+        // keystroke. Solid has no act environment: the events already apply like keystrokes.
+        try {
+          expectedValues.forEach((nextValue) => {
+            setNativeValue.call(input, nextValue);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+
+          await waitFor(() => {
+            expect(input).toHaveValue(expectedValues[expectedValues.length - 1]);
+          });
+        } finally {
+          window.removeEventListener('error', handleError);
+        }
+
+        expect(errors).toEqual([]);
+        expect(handleValueChange.mock.calls.map(([nextValue]) => nextValue)).toEqual(
+          expectedValues,
+        );
+      },
+    );
   });
 
   describe('prop: submitOnItemClick', () => {
