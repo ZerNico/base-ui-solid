@@ -59,7 +59,7 @@ export function SelectItem(componentProps: SelectItem.Props) {
   const readOnly = store.useState('readOnly');
   const disabled = () => selectDisabled() || disabledProp();
   const highlighted = store.useState('isActive', listItem.index);
-  const open = store.useState('open');
+  const activeWhileOpen = store.useState('isActiveWhileOpen', listItem.index);
   const selected = store.useState('isSelected', () => itemValue());
   const selectedByFocus = store.useState('isSelectedByFocus', listItem.index);
   const isItemEqualToValue = store.useState('isItemEqualToValue');
@@ -258,7 +258,7 @@ export function SelectItem(componentProps: SelectItem.Props) {
   const defaultProps = (): Record<string, any> => ({
     role: 'option',
     'aria-selected': selected(),
-    tabindex: open() && highlighted() ? 0 : -1,
+    tabindex: activeWhileOpen() ? 0 : -1,
     ...handlers,
   });
 
