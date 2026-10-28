@@ -191,6 +191,10 @@ describe('<Switch.Root />', () => {
       expect(fieldLabelled).not.toHaveAttribute('aria-labelledby');
       expect(fieldLabelled).toHaveAccessibleName('Bluetooth');
     });
+
+    // React-only: reads the `aria-label` of a React element `render` (Solid can't clone elements,
+    // so the port has no element `render`).
+    it.skip("prefers a render element's `aria-label` over an associated label", () => {});
   });
 
   describe('prop: onCheckedChange', () => {

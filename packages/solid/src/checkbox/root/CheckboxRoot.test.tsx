@@ -1819,6 +1819,10 @@ describe('<Checkbox.Root />', () => {
     expect(fieldLabelled).toHaveAccessibleName('notes.txt');
   });
 
+  // React-only: reads the `aria-label` of a React element `render` (Solid can't clone elements, so
+  // the port has no element `render`).
+  it.skip("prefers a render element's `aria-label` over an associated label", () => {});
+
   it.each(['', ' ', '\n\t '])('ignores a blank `aria-label` (%j)', async (ariaLabel) => {
     await render(() => (
       <>

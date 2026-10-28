@@ -148,6 +148,8 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
     () => inputElement,
     () => !nativeButton(),
     hiddenInputId,
+    // Port note: upstream reads a React element `render`'s own `aria-label` first
+    // (`resolveRenderedAriaLabel`). The port has no element `render`.
     () => componentProps['aria-label'] as string | undefined,
   );
 

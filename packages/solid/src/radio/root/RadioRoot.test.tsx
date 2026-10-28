@@ -145,6 +145,10 @@ describe('<Radio.Root />', () => {
     expect(radio).toHaveAccessibleName('Apple');
   });
 
+  // React-only: reads the `aria-label` of a React element `render` (Solid can't clone elements, so
+  // the port has no element `render`).
+  it.skip("prefers a render element's `aria-label` over an associated label", () => {});
+
   describe('prop: onClick', () => {
     it.each([false, true])(
       'propagates a single click event to ancestors per user click (nativeButton=%s)',

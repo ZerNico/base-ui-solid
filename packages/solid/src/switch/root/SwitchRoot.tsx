@@ -134,6 +134,8 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
     () => inputElement,
     () => !nativeButton(),
     hiddenInputId,
+    // Port note: upstream reads a React element `render`'s own `aria-label` first
+    // (`resolveRenderedAriaLabel`). The port has no element `render`.
     () => componentProps['aria-label'] || undefined,
   );
 

@@ -18,6 +18,8 @@ const REACT_ONLY_TEST_FILES = new Set([
   'utils/src/getReactElementRef.test.tsx',
   // React 17's `useId` fallback, which Solid's `createUniqueId` makes unnecessary.
   'utils/src/useId.react17.test.tsx',
+  // Reads the props of a React element `render`, which the port doesn't support.
+  'solid/src/internals/resolveRenderedAriaLabel.test.tsx',
 ]);
 
 const MAP = [
