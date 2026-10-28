@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { render, describeConformance, screen } from '#test-utils';
+import {
+  render,
+  describeConformance,
+  mockRuntimeLocale,
+  renderToString,
+  screen,
+} from '#test-utils';
 import { Progress } from '..';
+import { FormattedProgressRoot } from './ProgressRoot.fixtures';
 import type { ProgressRoot } from './ProgressRoot';
 
 function formatPercent(value: number) {
@@ -357,6 +364,28 @@ describe('<Progress.Root />', () => {
       ));
 
       expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(FormattedProgressRoot, {
+        value: 1234.5,
+        max: 2000,
+        format,
+      });
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('progressbar').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

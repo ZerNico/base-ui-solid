@@ -1,12 +1,13 @@
 import { createMemo, createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
-import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import { MeterRootContext } from './MeterRootContext';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { formatRangeValue } from '../../utils/formatRangeValue';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 
 /**
  * Groups all parts of the meter and provides the value for screen readers.
@@ -34,6 +35,9 @@ export function MeterRoot(componentProps: MeterRoot.Props) {
   const valueProp = () => componentProps.value;
 
   const [labelId, setLabelId] = createSignal<string | undefined>();
+  const locale = () => componentProps.locale;
+  const format = () => componentProps.format;
+  const formatLocale = useFormatLocale(locale);
 
   // `clamp` handles infinity, but NaN needs an explicit fallback before normalizing range outputs.
   const percentageValue = createMemo(() => {
@@ -47,9 +51,7 @@ export function MeterRoot(componentProps: MeterRoot.Props) {
   // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
   // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
   const formattedValue = createMemo(() =>
-    componentProps.format
-      ? formatNumber(clampedValue(), componentProps.locale, componentProps.format)
-      : formatNumber(percentageValue() / 100, componentProps.locale, { style: 'percent' }),
+    formatRangeValue(clampedValue(), percentageValue(), formatLocale(), format()),
   );
 
   const ariaValuetext = () => {
@@ -84,7 +86,9 @@ export function MeterRoot(componentProps: MeterRoot.Props) {
   });
 
   const contextValue: MeterRootContext = {
-    formattedValue,
+    clampedValue,
+    format,
+    locale,
     percentageValue,
     setLabelId,
     value: valueProp,
@@ -117,6 +121,7 @@ export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRootSta
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

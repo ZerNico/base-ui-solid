@@ -2,7 +2,12 @@ import { createContext, useContext } from 'solid-js';
 import type { Accessor, Setter } from 'solid-js';
 
 export type MeterRootContext = {
-  formattedValue: Accessor<string>;
+  /**
+   * The value clamped to the range.
+   */
+  clampedValue: Accessor<number>;
+  format: Accessor<Intl.NumberFormatOptions | undefined>;
+  locale: Accessor<Intl.LocalesArgument | undefined>;
   /**
    * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
    */

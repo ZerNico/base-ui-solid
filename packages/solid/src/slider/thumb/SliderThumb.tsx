@@ -11,6 +11,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -154,6 +155,8 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
     thumbRefs,
     values: sliderValues,
   } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
   const direction = useDirection();
 
@@ -363,12 +366,12 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
       'aria-valuetext':
         typeof componentProps.getAriaValueText === 'function'
           ? componentProps.getAriaValueText(
-              formatNumber(thumbValue(), locale(), format()),
+              formatNumber(thumbValue(), formatLocale(), format()),
               thumbValue(),
               index(),
             )
           : (componentProps['aria-valuetext'] ??
-            getDefaultAriaValueText(sliderValues(), index(), format(), locale())),
+            getDefaultAriaValueText(sliderValues(), index(), format(), formatLocale())),
       disabled: disabled(),
       form: form(),
       id: inputId(),

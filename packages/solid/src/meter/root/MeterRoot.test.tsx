@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { render, describeConformance, screen } from '#test-utils';
+import {
+  render,
+  describeConformance,
+  mockRuntimeLocale,
+  renderToString,
+  screen,
+} from '#test-utils';
 import { Meter } from '..';
+import { FormattedMeterRoot } from './MeterRoot.fixtures';
 
 describe('<Meter.Root />', () => {
   function formatPercent(value: number) {
@@ -296,6 +303,28 @@ describe('<Meter.Root />', () => {
       ));
 
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('formats with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(FormattedMeterRoot, {
+        value: 1234.5,
+        max: 2000,
+        format,
+      });
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('meter').getAttribute('aria-valuetext')).toBe(
+        (1234.5).toLocaleString('de-DE', format),
+      );
     });
   });
 });

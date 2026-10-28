@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { render, describeConformance, screen } from '#test-utils';
+import {
+  render,
+  describeConformance,
+  mockRuntimeLocale,
+  renderToString,
+  screen,
+} from '#test-utils';
 import { Meter } from '..';
+import { FormattedMeterValue } from './MeterValue.fixtures';
 
 describe('<Meter.Value />', () => {
   describeConformance(Meter.Value, {
@@ -82,6 +89,31 @@ describe('<Meter.Value />', () => {
         (0.6).toLocaleString(undefined, { style: 'percent' }),
       );
       expect(renderSpy.mock.lastCall?.[1]()).toEqual(60);
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it.each([
+      { name: 'directly inside Root', suspense: false },
+      { name: 'inside a Suspense boundary', suspense: true },
+    ])('hydrates $name without a mismatch, then uses the runtime locale', async ({ suspense }) => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(FormattedMeterValue, {
+        value: 1234.5,
+        max: 2000,
+        format,
+        suspense,
+      });
+      const value = screen.getByTestId('value');
+      expect(value.textContent).toBe((1234.5).toLocaleString('en-US', format));
+
+      await hydrate();
+      // A mismatch would replace the server markup with new nodes.
+      expect(screen.getByTestId('value')).toBe(value);
+      expect(value.textContent).toBe((1234.5).toLocaleString('de-DE', format));
     });
   });
 });

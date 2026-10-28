@@ -4,6 +4,7 @@ import type { JSX } from '@solidjs/web';
 import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
@@ -18,6 +19,8 @@ export function SliderValue(componentProps: SliderValue.Props): JSX.Element {
   const elementProps = omit(componentProps, 'aria-live', 'render', 'class', 'children', 'style');
 
   const { thumbMap, state, values, format, locale } = useSliderRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
 
   const outputFor = () =>
     Array.from(thumbMap().values(), ({ inputId }) => inputId)
@@ -25,7 +28,7 @@ export function SliderValue(componentProps: SliderValue.Props): JSX.Element {
       .trim() || undefined;
 
   const formattedValues = createMemo(() =>
-    values().map((v) => formatNumber(v, locale(), format())),
+    values().map((v) => formatNumber(v, formatLocale(), format())),
   );
 
   const defaultDisplayValue = () => formattedValues().join(' – ');

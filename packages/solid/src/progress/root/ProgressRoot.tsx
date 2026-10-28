@@ -1,11 +1,12 @@
 import { createMemo, createSignal, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { visuallyHidden } from '@base-ui-solid/utils/visuallyHidden';
-import { formatNumber } from '@base-ui-solid/utils/formatNumber';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
+import { formatRangeValue } from '../../utils/formatRangeValue';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -36,6 +37,9 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
   const value = () => componentProps.value;
 
   const [labelId, setLabelId] = createSignal<string | undefined>();
+  const locale = () => componentProps.locale;
+  const format = () => componentProps.format;
+  const formatLocale = useFormatLocale(locale);
 
   // `value === null` (or any non-finite value) keeps Progress indeterminate. Otherwise compute a
   // single clamped value and normalized percentage so completion status, `aria-valuenow`, the
@@ -60,9 +64,7 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
       status = clampedValue === currentMax ? 'complete' : 'progressing';
       // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
       // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
-      formattedValue = componentProps.format
-        ? formatNumber(clampedValue, componentProps.locale, componentProps.format)
-        : formatNumber(percentageValue / 100, componentProps.locale, { style: 'percent' });
+      formattedValue = formatRangeValue(clampedValue, percentageValue, formatLocale(), format());
       defaultAriaValueText = formattedValue;
     }
 
@@ -71,6 +73,7 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
 
   const status = () => derived().status;
   const formattedValue = () => derived().formattedValue;
+  const clampedValue = () => derived().clampedValue;
   const percentageValue = () => derived().percentageValue;
 
   const state = createMemo<ProgressRootState>(() => ({ status: status() }), {
@@ -103,7 +106,9 @@ export function ProgressRoot(componentProps: ProgressRoot.Props) {
   });
 
   const contextValue: ProgressRootContext = {
-    formattedValue,
+    clampedValue,
+    format,
+    locale,
     percentageValue,
     setLabelId,
     state,
@@ -146,6 +151,7 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
+   * When server rendering, `en-US` is used until hydration.
    */
   locale?: Intl.LocalesArgument | undefined;
   /**

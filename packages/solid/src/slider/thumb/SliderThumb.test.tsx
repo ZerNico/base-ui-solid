@@ -8,6 +8,7 @@ import {
   flushMicrotasks,
   isJSDOM,
   render,
+  mockRuntimeLocale,
   renderToString,
   screen,
   waitFor,
@@ -15,7 +16,7 @@ import {
 import { Slider } from '..';
 import { Field } from '../../field';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
-import { RangeThumbsSlider, SingleThumbSlider } from './SliderThumb.fixtures';
+import { FormattedSliderThumb, RangeThumbsSlider, SingleThumbSlider } from './SliderThumb.fixtures';
 
 const isWebKit = platform.engine.webkit;
 
@@ -100,6 +101,28 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>
       ));
       expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+
+    it('formats aria-valuetext with en-US until hydrated, then with the runtime locale', async () => {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(FormattedSliderThumb, {
+        defaultValue: 1000,
+        max: 2000,
+        format,
+      });
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('en-US', format),
+      );
+
+      await hydrate();
+      expect(screen.getByRole('slider')).toHaveAttribute(
+        'aria-valuetext',
+        (1000).toLocaleString('de-DE', format),
+      );
     });
   });
 

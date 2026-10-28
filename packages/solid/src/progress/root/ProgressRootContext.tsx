@@ -4,9 +4,11 @@ import type { ProgressRootState } from './ProgressRoot';
 
 export type ProgressRootContext = {
   /**
-   * Formatted value of the component.
+   * The value clamped to the range. `null` while the progress is indeterminate.
    */
-  formattedValue: Accessor<string>;
+  clampedValue: Accessor<number | null>;
+  format: Accessor<Intl.NumberFormatOptions | undefined>;
+  locale: Accessor<Intl.LocalesArgument | undefined>;
   /**
    * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
    * `null` while the progress is indeterminate.

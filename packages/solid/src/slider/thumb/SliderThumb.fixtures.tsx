@@ -39,3 +39,17 @@ export function RangeThumbsSlider(props: { thumbAlignment?: 'edge' | undefined }
     </Slider.Root>
   );
 }
+
+export function FormattedSliderThumb(props: {
+  defaultValue: number;
+  max: number;
+  format: Intl.NumberFormatOptions;
+}) {
+  return (
+    <Slider.Root defaultValue={props.defaultValue} max={props.max} format={props.format}>
+      <Slider.Control>
+        <Slider.Thumb />
+      </Slider.Control>
+    </Slider.Root>
+  );
+}

@@ -5,6 +5,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRootState } from '../root/MeterRoot';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { formatRangeValue } from '../../utils/formatRangeValue';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 
 /**
  * A text element displaying the current value.
@@ -15,7 +17,12 @@ import { useRenderElement } from '../../internals/useRenderElement';
 export function MeterValue(componentProps: MeterValue.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'children', 'style');
 
-  const { value, formattedValue } = useMeterRootContext();
+  const { clampedValue, format, locale, percentageValue, value } = useMeterRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
+  const formattedValue = createMemo(() =>
+    formatRangeValue(clampedValue(), percentageValue(), formatLocale(), format()),
+  );
 
   // Port note: upstream calls the `children` function on every render. Here it's called once (again
   // only if the function itself changes) with accessors, so its DOM updates in place.

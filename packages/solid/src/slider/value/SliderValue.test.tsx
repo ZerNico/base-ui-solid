@@ -1,7 +1,14 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { render, describeConformance, screen } from '#test-utils';
+import {
+  render,
+  describeConformance,
+  mockRuntimeLocale,
+  renderToString,
+  screen,
+} from '#test-utils';
 import { Slider } from '..';
+import { FormattedSliderValue } from './SliderValue.fixtures';
 
 describe('<Slider.Value />', () => {
   describeConformance(Slider.Value, {
@@ -105,5 +112,33 @@ describe('<Slider.Value />', () => {
       expect(renderSpy.mock.lastCall?.[0]()).toEqual([formatValue(40), formatValue(60)]);
       expect(renderSpy.mock.lastCall?.[1]()).toEqual([40, 60]);
     });
+  });
+
+  describe('server-side rendering', () => {
+    async function expectHydratesWithRuntimeLocale(suspense: boolean) {
+      // Options no other test here formats with; see `mockRuntimeLocale`.
+      const format = { maximumFractionDigits: 1 };
+      mockRuntimeLocale('de-DE');
+
+      const { hydrate } = await renderToString(FormattedSliderValue, {
+        defaultValue: 1000,
+        max: 2000,
+        format,
+        suspense,
+      });
+      const value = screen.getByTestId('output');
+      expect(value.textContent).toBe((1000).toLocaleString('en-US', format));
+
+      await hydrate();
+      // A mismatch would replace the server markup with new nodes.
+      expect(screen.getByTestId('output')).toBe(value);
+      expect(value.textContent).toBe((1000).toLocaleString('de-DE', format));
+    }
+
+    it('hydrates directly inside Root without a mismatch, then uses the runtime locale', () =>
+      expectHydratesWithRuntimeLocale(false));
+
+    it('hydrates inside a Suspense boundary without a mismatch, then uses the runtime locale', () =>
+      expectHydratesWithRuntimeLocale(true));
   });
 });

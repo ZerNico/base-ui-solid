@@ -3,6 +3,8 @@ import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { formatRangeValue } from '../../utils/formatRangeValue';
+import { useFormatLocale } from '../../utils/useFormatLocale';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import type { ProgressRootState } from '../root/ProgressRoot';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -15,7 +17,12 @@ import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 export function ProgressValue(componentProps: ProgressValue.Props) {
   const elementProps = omit(componentProps, 'class', 'render', 'children', 'style');
 
-  const { value, formattedValue, state } = useProgressRootContext();
+  const { clampedValue, format, locale, percentageValue, value, state } = useProgressRootContext();
+  // Resolved here rather than in Root, since this part can hydrate later, e.g. inside Suspense.
+  const formatLocale = useFormatLocale(locale);
+  const formattedValue = createMemo(() =>
+    formatRangeValue(clampedValue(), percentageValue(), formatLocale(), format()),
+  );
 
   // Follow `status` rather than re-deriving it: a non-finite `value` is also indeterminate, and
   // has no formatted text to show.

@@ -14,6 +14,7 @@ export { pasteText } from './clipboard';
 export { recordRender } from './recordRender';
 export { createFormDataSpy } from './formData';
 export { createRenderer } from './createRenderer';
+export { mockRuntimeLocale } from './mockRuntimeLocale';
 export type { Clock } from './createRenderer';
 export { enterWithMouse, firePointer, moveMouse, pressWithTouch } from './pointer';
 export { renderToString } from './renderToString';
