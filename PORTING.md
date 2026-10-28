@@ -497,8 +497,9 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
     that sorts by DOM order, also a measuring effect (`BaseUI.CompositeList.flush`).
   - Tabs: tab indices come from the DOM order. The uncontrolled root's fallback to the first
     enabled tab (which also notifies `onValueChange`) runs where `CompositeList` publishes the tab
-    map, so it isn't an effect of its own. A tab's highlight sync reads where focus is, so it is a
-    measuring effect (`BaseUI.TabsTab.highlightSync`). It doesn't re-run when the highlight moves
-    onto its tab, which includes its own write.
+    map, so it isn't an effect of its own. A tab's highlight sync reads where focus is and writes
+    the highlight it tracks, so it re-runs once after its own write (Solid's
+    EFFECT_WRITES_OWN_SOURCE, accepted). Skipping that run with a custom `equals` kept a stale
+    highlight index and missed a later sync.
   - `WIDE_SCOPE_DEPS` on a long `Combobox.List`: the list's insert effect reads every row's
     dynamic root (parts can swap their element through `render`).

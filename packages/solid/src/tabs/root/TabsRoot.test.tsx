@@ -2566,6 +2566,42 @@ describe('<Tabs.Root />', () => {
       expect(thirdTab.tabIndex).toBe(-1);
     });
 
+    // Port note: covers the highlight sync after keyboard navigation moved the highlight away from
+    // a tab and back, then focus left the list.
+    it('when focus is outside the tablist after keyboard navigation, highlight follows the new active tab', async () => {
+      const [value, setValue] = createSignal(1);
+      const { user } = await render(() => (
+        <div>
+          <Tabs.Root value={value()}>
+            <Tabs.List activateOnFocus={false}>
+              <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+          <button type="button">Outside</button>
+        </div>
+      ));
+
+      const [firstTab, secondTab] = screen.getAllByRole('tab');
+
+      secondTab.focus();
+      await flushMicrotasks();
+      await user.keyboard('{ArrowLeft}');
+      expect(firstTab).toHaveFocus();
+      await user.keyboard('{ArrowRight}');
+      expect(secondTab).toHaveFocus();
+
+      screen.getByRole('button', { name: 'Outside' }).focus();
+      await flushMicrotasks();
+
+      setValue(0);
+      await flushMicrotasks();
+      await flushMicrotasks();
+
+      expect(firstTab.tabIndex).toBe(0);
+      expect(secondTab.tabIndex).toBe(-1);
+    });
+
     it('when focus is inside the tablist, highlight stays put on external change and arrow keys continue from the focused tab', async () => {
       const [value, setValue] = createSignal(0);
       await render(() => (
