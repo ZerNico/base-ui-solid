@@ -6,7 +6,10 @@ import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { useOnFirstRender } from '@base-ui-solid/utils/useOnFirstRender';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -71,6 +74,7 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { findCollectionItem } from '../items/itemCollection';
 import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
 
@@ -1887,7 +1891,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     required: required() && !hasMultipleSelection(),
     readonly: readOnly(),
     value: serializedValue(),
-    style: (hiddenInputName() ? visuallyHiddenInput : visuallyHidden) as JSX.CSSProperties,
+    style: (hiddenInputName()
+      ? visuallyHiddenInput
+      : visuallyHiddenInputPinned) as JSX.CSSProperties,
+    onInvalid: handleHiddenInputInvalid,
     tabindex: -1,
     'aria-hidden': 'true' as const,
   });

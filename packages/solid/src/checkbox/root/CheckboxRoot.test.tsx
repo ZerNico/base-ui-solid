@@ -10,6 +10,7 @@ import {
   screen,
   waitFor,
   describeConformance,
+  hiddenInputSizeTests,
 } from '#test-utils';
 import { Checkbox } from '..';
 import { CheckboxGroup } from '../../checkbox-group';
@@ -31,6 +32,11 @@ describe('<Checkbox.Root />', () => {
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'span',
     button: true,
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Checkbox.Root {...props} />,
   });
 
   describe('ARIA attributes', () => {

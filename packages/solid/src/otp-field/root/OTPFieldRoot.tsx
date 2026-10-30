@@ -6,7 +6,10 @@ import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { warn } from '@base-ui-solid/utils/warn';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -40,6 +43,7 @@ import {
 } from '../utils/otp';
 import type { OTPValidationType } from '../utils/otp';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -532,7 +536,8 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
                 required: required(),
                 'aria-hidden': true,
                 tabindex: -1,
-                style: name() ? visuallyHiddenInput : visuallyHidden,
+                style: name() ? visuallyHiddenInput : visuallyHiddenInputPinned,
+                onInvalid: handleHiddenInputInvalid,
               },
             ],
           })}

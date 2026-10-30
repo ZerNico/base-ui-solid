@@ -4,7 +4,10 @@ import type { JSX } from '@solidjs/web';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { platform } from '@base-ui-solid/utils/platform';
 import { useIsHydrated } from '@base-ui-solid/utils/hydration';
@@ -49,6 +52,7 @@ import type {
   ReasonToEvent,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -555,7 +559,8 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
             required: required(),
             'aria-hidden': true,
             tabindex: -1,
-            style: name() ? visuallyHiddenInput : visuallyHidden,
+            style: name() ? visuallyHiddenInput : visuallyHiddenInputPinned,
+            onInvalid: handleHiddenInputInvalid,
           },
         ],
       })}

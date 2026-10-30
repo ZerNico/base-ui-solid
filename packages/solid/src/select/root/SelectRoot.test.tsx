@@ -23,6 +23,7 @@ import {
   wait,
   waitSingleFrame,
   refCallback,
+  hiddenInputSizeTests,
 } from '#test-utils';
 
 import { Select, SelectSeparatorDataAttributes } from 'base-ui-solid/select';
@@ -3607,6 +3608,17 @@ describe('<Select.Root />', () => {
       </Select.Root>
     ),
     getFocusTarget: () => screen.getByTestId('trigger'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Select.Root {...props}>
+        <Select.Trigger>
+          <Select.Value />
+        </Select.Trigger>
+      </Select.Root>
+    ),
   });
 
   describe('with Field.Root parent', () => {

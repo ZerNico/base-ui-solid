@@ -2,7 +2,10 @@ import { createMemo, flush, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -26,6 +29,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 /**
  * Represents the switch itself.
@@ -188,7 +192,8 @@ export function SwitchRoot(componentProps: SwitchRoot.Props): JSX.Element {
       id: hiddenInputId(),
       name: name(),
       required: required(),
-      style: name() ? visuallyHiddenInput : visuallyHidden,
+      style: name() ? visuallyHiddenInput : visuallyHiddenInputPinned,
+      onInvalid: handleHiddenInputInvalid,
       tabindex: -1,
       type: 'checkbox',
       'aria-hidden': true,

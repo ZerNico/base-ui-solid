@@ -1,7 +1,10 @@
 import { createMemo, flush, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -26,6 +29,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { serializeValue } from '../../internals/serializeValue';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { RadioRootContext } from './RadioRootContext';
 
 /**
@@ -223,7 +227,8 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
       id: hiddenInputId(),
       name: groupContext?.name(),
       tabindex: -1,
-      style: groupContext?.name() ? visuallyHiddenInput : visuallyHidden,
+      style: groupContext?.name() ? visuallyHiddenInput : visuallyHiddenInputPinned,
+      onInvalid: handleHiddenInputInvalid,
       'aria-hidden': true,
       ...(value !== undefined ? { value: serializeValue(value) } : EMPTY_OBJECT),
       disabled: disabled(),

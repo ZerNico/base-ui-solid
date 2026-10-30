@@ -9,6 +9,7 @@ import {
   waitFor,
   describeConformance,
   isJSDOM,
+  hiddenInputSizeTests,
 } from '#test-utils';
 import { Switch } from '..';
 import { Field } from '../../field';
@@ -19,6 +20,11 @@ describe('<Switch.Root />', () => {
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'span',
     button: true,
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <Switch.Root {...props} />,
   });
 
   describe('interactions', () => {

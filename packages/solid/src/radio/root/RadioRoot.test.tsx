@@ -1,6 +1,13 @@
 import { expect, describe, it } from 'vitest';
 import { createSignal, flush } from 'solid-js';
-import { fireEvent, render, screen, waitFor, describeConformance } from '#test-utils';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  describeConformance,
+  hiddenInputSizeTests,
+} from '#test-utils';
 import { Radio } from '..';
 import { RadioGroup } from '../../radio-group';
 import { Field } from '../../field';
@@ -10,6 +17,15 @@ describe('<Radio.Root />', () => {
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'span',
     button: true,
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <RadioGroup {...props}>
+        <Radio.Root value="a" />
+      </RadioGroup>
+    ),
   });
 
   it('sets checked and unchecked data attributes', async () => {

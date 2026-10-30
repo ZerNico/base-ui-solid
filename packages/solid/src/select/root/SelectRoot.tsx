@@ -1,6 +1,9 @@
 import { createMemo, createSignal, flush, For, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui-solid/utils/useMergedRefs';
 import { useOnFirstRender } from '@base-ui-solid/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui-solid/utils/usePreviousValue';
@@ -40,6 +43,7 @@ import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
 import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 
@@ -602,7 +606,8 @@ export function SelectRoot<
             disabled: disabled(),
             required: required() && !(multiple() && hasSelectedValue()),
             readonly: readOnly(),
-            style: name() ? visuallyHiddenInput : visuallyHidden,
+            style: name() ? visuallyHiddenInput : visuallyHiddenInputPinned,
+            onInvalid: handleHiddenInputInvalid,
             tabindex: -1,
             'aria-hidden': true,
           },

@@ -9,6 +9,7 @@ import {
   render,
   renderToString,
   screen,
+  hiddenInputSizeTests,
 } from '#test-utils';
 import { OTPField as OTPFieldBase } from '..';
 import { Field } from '../../field';
@@ -49,6 +50,11 @@ describe('<OTPField.Root />', () => {
       </OTPFieldBase.Root>
     );
   }
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => <OTPField {...props} />,
+  });
 
   function getValues() {
     return screen

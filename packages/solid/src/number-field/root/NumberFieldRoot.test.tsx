@@ -8,6 +8,7 @@ import {
   describeConformance,
   isJSDOM,
   pasteText,
+  hiddenInputSizeTests,
 } from '#test-utils';
 import { NumberField as NumberFieldBase } from '..';
 import { Field } from '../../field';
@@ -55,6 +56,15 @@ async function pointerDown(element: Element, init?: Record<string, unknown>) {
 describe('<NumberField />', () => {
   describeConformance(NumberFieldBase.Root, {
     refInstanceof: window.HTMLDivElement,
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <NumberFieldBase.Root {...props}>
+        <NumberFieldBase.Input />
+      </NumberFieldBase.Root>
+    ),
   });
 
   function NumberField(props: NumberFieldBase.Root.Props) {

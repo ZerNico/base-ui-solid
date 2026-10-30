@@ -12,6 +12,7 @@ import {
   popupConformanceTests,
   popupListConformanceTests,
   refCallback,
+  hiddenInputSizeTests,
 } from '#test-utils';
 import { createSignal, createMemo, flush, untrack, omit } from 'solid-js';
 
@@ -10342,6 +10343,15 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>
     ),
     getFocusTarget: () => screen.getByTestId('input'),
+  });
+
+  hiddenInputSizeTests({
+    render,
+    createComponent: (props) => (
+      <Combobox.Root {...props}>
+        <Combobox.Input />
+      </Combobox.Root>
+    ),
   });
 
   describe('Form', () => {

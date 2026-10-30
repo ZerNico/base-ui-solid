@@ -2,7 +2,10 @@ import { createMemo, flush, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect, useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui-solid/utils/visuallyHidden';
+import {
+  visuallyHiddenInput,
+  visuallyHiddenInputPinned,
+} from '@base-ui-solid/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui-solid/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui-solid/utils/getDefaultFormSubmitter';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
@@ -34,6 +37,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
+import { handleHiddenInputInvalid } from '../../internals/handleHiddenInputInvalid';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -515,7 +519,8 @@ export function CheckboxRoot(componentProps: CheckboxRoot.Props): JSX.Element {
         // When using a native button, the `id` is applied to the button instead.
         id={nativeButton() ? undefined : controlId()}
         required={required()}
-        style={name() ? visuallyHiddenInput : visuallyHidden}
+        style={name() ? visuallyHiddenInput : visuallyHiddenInputPinned}
+        onInvalid={handleHiddenInputInvalid}
         tabindex={-1}
         aria-hidden="true"
         aria-describedby={inputAriaProps()['aria-describedby']}
