@@ -1748,9 +1748,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   // Port note: the context value's fields are getters.
   const itemsContextValue: ComboboxDerivedItemsContext = {
-    get query() {
-      return query();
-    },
     get hasItems() {
       return hasItems();
     },

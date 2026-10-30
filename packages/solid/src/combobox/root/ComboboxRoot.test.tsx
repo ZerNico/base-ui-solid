@@ -7597,6 +7597,33 @@ describe('<Combobox.Root />', () => {
         'true',
       );
     });
+    // Async search keeps showing the previous results while the user types.
+    // Port note: the List render function is called once per row, with the item as an accessor.
+    it('does not re-render the list while typing when the external result is unchanged', async () => {
+      const items = ['apple', 'banana', 'cherry'];
+      const renderItem = vi.fn((item: Accessor<string>) => (
+        <Combobox.Item value={item()}>{item()}</Combobox.Item>
+      ));
+      const { user } = await render(() => (
+        <Combobox.Root items={items} filteredItems={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>{renderItem}</Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      ));
+      expect(renderItem).toHaveBeenCalled();
+      renderItem.mockClear();
+      const input = screen.getByTestId('input');
+      await user.type(input, 'b');
+      await waitFor(() => expect(input).toHaveValue('b'));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+      expect(renderItem).not.toHaveBeenCalled();
+    });
   });
   describe('prop: openOnInputClick', () => {
     it('keeps the popup open on a second input click by default', async () => {

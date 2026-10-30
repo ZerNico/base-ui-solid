@@ -7,7 +7,6 @@ import type { FloatingRootStore } from '../../utils/popups/floating-root/Floatin
  * Port note: the fields are getters backed by the root's memos.
  */
 export interface ComboboxDerivedItemsContext {
-  query: string;
   hasItems: boolean;
   filteredItems: any[];
   /**
