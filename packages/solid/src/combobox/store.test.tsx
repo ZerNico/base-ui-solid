@@ -1,8 +1,10 @@
-import { renderToString, screen, createRenderer } from '#test-utils';
-import { untrack } from 'solid-js';
+import { renderToString, fireEvent, screen, waitFor, createRenderer } from '#test-utils';
+import { flush, untrack } from 'solid-js';
+import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { Combobox } from 'base-ui-solid/combobox';
 import { SSRFixture1 } from './store.fixtures';
 import { REASONS } from '../internals/reasons';
 import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
@@ -162,7 +164,7 @@ describe('combobox store synchronization', () => {
               dispatched = true;
               // Port note: Solid installs delegated DOM handlers after refs; invoke the
               // same command here to retain the first-commit context timing assertion.
-              store.context.setOpen(
+              store.setOpen(
                 true,
                 createChangeEventDetails(
                   REASONS.listNavigation,
@@ -230,5 +232,61 @@ describe('combobox store synchronization', () => {
     expect(screen.getByTestId('input')).toHaveAttribute('role', 'combobox');
     expect(namedControls('search')).toHaveLength(1);
     expect(namedControls('search')[0]).toBe(screen.getByTestId('input'));
+  });
+  describe('interaction anchor', () => {
+    it('follows the input, and returns to it after a trigger press or a change of open state', async () => {
+      let store!: ComboboxStore;
+
+      function Probe() {
+        store = useComboboxRootContext();
+        return null;
+      }
+
+      const { user } = await render(() => (
+        <Combobox.Root items={['apple', 'banana']}>
+          <Probe />
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      ));
+
+      const input = screen.getByTestId('input');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(store.select('anchorElement')).toBe(input);
+
+      // A trigger press opens the popup, and the anchor stays on the input.
+      fireEvent.mouseDown(trigger);
+      flush();
+      await screen.findByRole('listbox');
+      await waitFor(() => {
+        expect(store.select('anchorElement')).toBe(input);
+      });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(store.select('anchorElement')).toBe(input);
+
+      // Positioning clears the anchor while a closed popup stays mounted; reopening restores it.
+      store.clearPositioning();
+      flush();
+      expect(store.select('anchorElement')).toBe(null);
+      await user.click(input);
+      await screen.findByRole('listbox');
+      expect(store.select('anchorElement')).toBe(input);
+    });
   });
 });

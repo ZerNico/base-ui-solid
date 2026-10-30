@@ -380,9 +380,14 @@ export abstract class BasePopupStore<
    * Port note: derives what upstream's `setState` override applies when the anchor changes. The
    * anchor is remembered as the anchor element, and an anchor override that followed the old
    * anchor follows the new one. A write to either key wins until the anchor changes, as it would
-   * upstream. The Root calls it once, under its owner (see `usePopupRootStore`).
+   * upstream. The Root calls it once, under its owner (see `usePopupRootStore`). It does nothing
+   * when the store keeps its anchor itself, which upstream's `setState` checks with
+   * `anchorsToActiveTrigger()`.
    */
   useAnchorState() {
+    if (!this.anchorsToActiveTrigger()) {
+      return;
+    }
     // eslint-disable-next-line consistent-this
     const store = this;
     const anchor = () => activeTriggerElementSelector(store.state);
@@ -410,6 +415,14 @@ export abstract class BasePopupStore<
       }
       return derived.value as State['anchorOverride'];
     });
+  }
+
+  /**
+   * Whether the popup anchors to the trigger that opened it. A store that keeps its anchor in
+   * `anchorElement` itself turns this off.
+   */
+  protected anchorsToActiveTrigger(): boolean {
+    return true;
   }
 
   /**

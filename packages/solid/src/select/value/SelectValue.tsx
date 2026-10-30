@@ -23,7 +23,7 @@ export function SelectValue<Value = any>(componentProps: SelectValue.Props<Value
 
   const store = useSelectRootContext();
 
-  const value = store.useState('value');
+  const value = store.useState('selectedValue');
   const items = store.useState('items');
   const itemToStringLabel = store.useState('itemToStringLabel');
   const hasSelectedValue = store.useState('hasSelectedValue');

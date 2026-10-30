@@ -6,7 +6,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
-  useComboboxFloatingContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -25,7 +24,6 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'children');
 
   const store = useComboboxRootContext();
-  const floatingRootStore = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const derivedItems = useComboboxDerivedItemsContext();
 
@@ -82,7 +80,7 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
     { equals: fastObjectShallowCompare },
   );
 
-  const defaultPopupId = floatingRootStore.useState('defaultPopupId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const renderElement = () =>
     useRenderElement('div', componentProps, {

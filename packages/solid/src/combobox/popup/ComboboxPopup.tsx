@@ -6,7 +6,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -36,7 +36,6 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -56,9 +55,9 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
   useIsoLayoutEffect(
     ([popupIdValue]) => {
       // Prefer the rendered DOM id, which a `render` prop element or function may override.
-      store.set('popupId', store.context.popupRef.current?.id || popupIdValue);
+      store.set('popupElementId', store.context.popupRef.current?.id || popupIdValue);
       return () => {
-        store.set('popupId', undefined);
+        store.set('popupElementId', undefined);
       };
     },
     () => [popupId(), store] as const,
@@ -69,7 +68,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
     ref: () => store.context.popupRef.current,
     onComplete() {
       if (untrack(open)) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -93,6 +92,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
         (element: HTMLDivElement | null) => {
           store.context.popupRef.current = element;
         },
+        store.useStateSetter('popupElement'),
       ],
       props: () => [
         popupProps(),
@@ -142,7 +142,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
 
   return (
     <FloatingFocusManager
-      store={floatingRootStore}
+      store={store.interactions}
       disabled={!mounted()}
       modal={focusManagerModal()}
       openInteractionType={openMethod()}

@@ -1,4 +1,4 @@
-import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { expect, vi, describe, beforeEach, it, onTestFinished } from 'vitest';
 import { createSignal, flush, merge, omit, Show, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
@@ -39,6 +39,130 @@ describe('<Popover.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  describe('closing before the popup attaches', () => {
+    it.skipIf(isJSDOM)('waits for the closing animation once the popup attaches', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(true);
+        useIsoLayoutEffect(
+          () => {
+            setOpen(false);
+          },
+          () => [],
+        );
+        return (
+          <>
+            <style>
+              {`@keyframes popover-test-exit { from { opacity: 1; } to { opacity: 0; } }
+                .popover-test-popup[data-ending-style] { animation: popover-test-exit 300ms; }`}
+            </style>
+            <Popover.Root
+              open={open()}
+              onOpenChange={(nextOpen) => setOpen(nextOpen)}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup class="popover-test-popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </>
+        );
+      }
+
+      await render(() => <App />);
+
+      const popup = await screen.findByRole('dialog', { hidden: true });
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(true);
+        useIsoLayoutEffect(
+          () => {
+            setOpen(false);
+          },
+          () => [],
+        );
+        return (
+          <Popover.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      await render(() => <App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        useIsoLayoutEffect(
+          ([openValue]) => {
+            if (openValue) {
+              setOpen(false);
+            }
+          },
+          () => [open()],
+        );
+        return (
+          <Popover.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('dialog', { hidden: true })).toBe(null);
+    });
+  });
 
   describe('hover intent across opens', () => {
     clock.withFakeTimers();
@@ -1862,6 +1986,42 @@ describe('<Popover.Root />', () => {
             }}
           />
         ));
+
+        actionsRef.current!.close();
+        actionsRef.current!.unmount();
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(1);
+      });
+
+      it('unmounts when `close` and `unmount` are called in one batch while controlled', async () => {
+        // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
+        const actionsRef: { current: Popover.Root.Actions | null } = { current: null };
+        const onOpenChangeComplete = vi.fn();
+
+        function App() {
+          const [open, setOpen] = createSignal(true);
+          return (
+            <TestPopover
+              rootProps={{
+                get open() {
+                  return open();
+                },
+                actionsRef: refCallback(actionsRef),
+                onOpenChangeComplete,
+                onOpenChange: (nextOpen, details) => {
+                  if (!nextOpen) {
+                    details.preventUnmountOnClose();
+                  }
+                  setOpen(nextOpen);
+                },
+              }}
+            />
+          );
+        }
+
+        await render(() => <App />);
 
         actionsRef.current!.close();
         actionsRef.current!.unmount();

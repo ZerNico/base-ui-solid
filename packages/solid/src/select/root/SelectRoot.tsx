@@ -8,30 +8,22 @@ import { isElementDisabled } from '@base-ui-solid/utils/isElementDisabled';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
-import { SolidStore } from '@base-ui-solid/utils/store';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
-import { useImperativeHandle } from '../../internals/useImperativeHandle';
-import { SelectFloatingContext, SelectRootContext } from './SelectRootContext';
+import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
-import type { SelectStoreContext, State as StoreState } from '../store';
+import { SelectStore, selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  attachPreventUnmountOnClose,
-  FOCUSABLE_POPUP_PROPS,
-} from '../../utils/popups/popupStoreUtils';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import type { Group } from '../../internals/resolveValueLabel';
@@ -48,6 +40,8 @@ import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 import { NOOP } from '../../internals/noop';
 import { getHiddenInputType } from '../../internals/getHiddenInputType';
 import { useFieldDirtySource } from '../../internals/field-root-context/useFieldDirtySource';
+import { useSingleAnchorPopupRoot } from '../../utils/popups/popupRoot';
+import { createInitialPopupStoreState, createPopupStoreContext } from '../../utils/popups/store';
 
 /**
  * Groups all parts of the select.
@@ -65,7 +59,6 @@ export function SelectRoot<
   Value = ItemValue,
 >(props: SelectRoot.Props<Value, Multiple, ItemValue>): JSX.Element {
   const defaultValue = untrack(() => props.defaultValue) ?? null;
-  const defaultOpen = untrack(() => props.defaultOpen) ?? false;
   const disabledProp = () => props.disabled ?? false;
   const readOnly = () => props.readOnly ?? false;
   const required = () => props.required ?? false;
@@ -104,13 +97,6 @@ export function SelectRoot<
     state: 'value',
   });
 
-  const [open, setOpenUnwrapped] = useControlled<boolean>({
-    controlled: () => props.open,
-    default: defaultOpen,
-    name: 'Select',
-    state: 'open',
-  });
-
   const listRef: RefObject<Array<HTMLElement | null>> = { current: [] };
   const labelsRef: RefObject<Array<string | null>> = { current: [] };
   const popupRef: RefObject<HTMLDivElement | null> = { current: null };
@@ -131,16 +117,63 @@ export function SelectRoot<
   const alignItemWithTriggerActiveRef: RefObject<boolean> = { current: false };
   const initialValueRef: RefObject<any> = { current: untrack(value) };
 
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+  // Calls `onOpenChange` for every open change that isn't ignored, then applies the select's own
+  // handling of an accepted change before the store commits it.
+  const handleOpenChange = (nextOpen: boolean, eventDetails: SelectRoot.OpenChangeEventDetails) => {
+    untrack(() => props.onOpenChange)?.(nextOpen, eventDetails);
 
-  const store = untrack(
-    () =>
-      new SolidStore<StoreState, SelectStoreContext, typeof selectors>(
+    if (eventDetails.isCanceled) {
+      return;
+    }
+
+    if (
+      !nextOpen &&
+      (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+    ) {
+      setTouched(true);
+      setFocused(false);
+
+      if (untrack(validationMode) === 'onBlur') {
+        validation.commit(untrack(value));
+      }
+    }
+  };
+
+  // Port note: support positioner-only compositions without a Popup animation target. The
+  // transitions wait on the positioner when there is no popup. Only read from effects, once the
+  // store exists.
+  const transitionRef: RefObject<HTMLElement | null> = {
+    get current() {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return popupRef.current ?? store.state.positionerElement;
+    },
+  };
+
+  const { store, open } = useSingleAnchorPopupRoot(
+    {
+      get open() {
+        return props.open;
+      },
+      get defaultOpen() {
+        return props.defaultOpen;
+      },
+      onOpenChange: handleOpenChange,
+      get onOpenChangeComplete() {
+        return props.onOpenChangeComplete;
+      },
+      get actionsRef() {
+        return props.actionsRef;
+      },
+    },
+    (initialState, defaultPopupId) =>
+      new SelectStore(
         {
+          ...createInitialPopupStoreState(defaultPopupId),
+          ...initialState,
           id: generatedId(),
           labelId: undefined,
           modal: modal(),
-          multiple: multiple(),
+          selectionMode: multiple() ? 'multiple' : 'single',
           disabled: disabled(),
           readOnly: readOnly(),
           required: required(),
@@ -148,22 +181,14 @@ export function SelectRoot<
           itemToStringLabel: itemToStringLabel(),
           itemToStringValue: itemToStringValue(),
           isItemEqualToValue: isItemEqualToValue(),
-          value: value(),
-          open: open(),
-          // Seeded with the initial values of `useUnmountAfterClose`, which is called after the
-          // store because its unmount cleanup writes to it. `useSyncedValues` keeps them in sync.
-          mounted: open(),
-          transitionStatus: undefined,
+          selectedValue: value(),
           items: props.items,
-          forceMount: false,
+          forceMounted: false,
           openMethod: null,
           activeIndex: null,
           selectedIndex: null,
-          popupProps: EMPTY_OBJECT,
-          triggerProps: EMPTY_OBJECT,
           itemProps: EMPTY_OBJECT,
           triggerElement: null,
-          positionerElement: null,
           listElement: null,
           popupSide: null,
           scrollUpArrowVisible: false,
@@ -171,10 +196,9 @@ export function SelectRoot<
           hasScrollArrows: false,
         },
         {
+          ...createPopupStoreContext(),
           setValue: NOOP,
-          setOpen: NOOP,
           handleScrollArrowVisibility: NOOP,
-          onOpenChangeComplete: NOOP,
           onItemsChange: NOOP,
           listRef,
           popupRef,
@@ -193,40 +217,14 @@ export function SelectRoot<
         },
         selectors,
       ),
+    transitionRef,
   );
 
-  const [preventUnmountOnClose, setPreventUnmountOnClose] = createSignal(false, {
-    ownedWrite: true,
-  });
-  const {
-    mounted,
-    transitionStatus,
-    forceUnmount: handleUnmount,
-  } = useUnmountAfterClose({
-    open,
-    // Port note: support positioner-only compositions without a Popup animation target.
-    ref: {
-      get current() {
-        return popupRef.current ?? store.state.positionerElement;
-      },
-    },
-    preventUnmountOnClose,
-    setPreventUnmountOnClose,
-    onUnmount() {
-      store.update({
-        activeIndex: null,
-        openMethod: null,
-        scrollUpArrowVisible: false,
-        scrollDownArrowVisible: false,
-      });
-      untrack(() => props.onOpenChangeComplete)?.(false);
-    },
-  });
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
   const triggerElement = store.useState('triggerElement');
-  const positionerElement = store.useState('positionerElement');
 
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = () => openMethod() ?? previousOpenMethod();
@@ -316,43 +314,6 @@ export function SelectRoot<
     validation.change(currentValue);
   });
 
-  const setOpen = (nextOpen: boolean, eventDetails: SelectRoot.ChangeEventDetails) => {
-    const openEventDetails = eventDetails as SelectRoot.OpenChangeEventDetails;
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(openEventDetails);
-    untrack(() => props.onOpenChange)?.(nextOpen, openEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    if (!nextOpen) {
-      setPreventUnmountOnClose(shouldPreventUnmountOnClose());
-    }
-    setOpenUnwrapped(nextOpen);
-
-    if (
-      !nextOpen &&
-      (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
-    ) {
-      setTouched(true);
-      setFocused(false);
-
-      if (untrack(validationMode) === 'onBlur') {
-        validation.commit(untrack(value));
-      }
-    }
-  };
-
-  const actions: SelectRootActions = {
-    unmount: handleUnmount,
-    close: () => {
-      if (store.state.open) {
-        setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-      }
-    },
-  };
-  useImperativeHandle(() => props.actionsRef, actions);
-
   const setValue = (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
     untrack(() => props.onValueChange)?.(nextValue, eventDetails);
 
@@ -373,37 +334,24 @@ export function SelectRoot<
     store.set('scrollDownArrowVisible', shouldShowDown);
   };
 
-  const floatingRootStore = useFloatingRootStore({
-    get open() {
-      return open();
-    },
-    onOpenChange: setOpen,
-    get elements() {
-      return {
-        anchor: triggerElement(),
-        positionerElement: positionerElement(),
-      };
-    },
-  });
-
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingRootStore, {
+  const click = useClick(store, {
     get enabled() {
       return !disabled();
     },
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingRootStore);
+  const dismiss = useDismiss(store);
 
   // Bumped when the item list publishes its items (in DOM order, after they rendered), so list
   // navigation can highlight an item once they're there.
   const [itemsVersion, setItemsVersion] = createSignal(0);
   store.useContextCallback('onItemsChange', () => () => setItemsVersion((version) => version + 1));
 
-  const listNavigation = useListNavigation(floatingRootStore, {
+  const listNavigation = useListNavigation(store, {
     get enabled() {
       return !disabled();
     },
@@ -442,7 +390,7 @@ export function SelectRoot<
     return open() && openHighlight != null ? { value: openHighlight } : undefined;
   });
 
-  const typeahead = useTypeahead(floatingRootStore, {
+  const typeahead = useTypeahead(store, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     get enabled() {
@@ -498,16 +446,14 @@ export function SelectRoot<
   );
 
   store.useContextCallback('setValue', () => setValue);
-  store.useContextCallback('setOpen', () => setOpen);
   store.useContextCallback('handleScrollArrowVisibility', () => handleScrollArrowVisibility);
-  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
 
   // The prop bags must be in the store before the parts render. `useSyncedValues` writes in a
   // layout effect, after all descendants have rendered.
   useOnFirstRender(() => {
     store.update({
       popupProps: popupProps(),
-      triggerProps: mergedTriggerProps(),
+      activeTriggerProps: mergedTriggerProps(),
       itemProps: itemProps(),
     });
   });
@@ -517,17 +463,14 @@ export function SelectRoot<
   store.useSyncedValues({
     id: generatedId,
     modal,
-    multiple,
+    selectionMode: () => (multiple() ? 'multiple' : 'single'),
     disabled,
     readOnly,
     required,
     highlightItemOnHover,
-    value,
-    open,
-    mounted,
-    transitionStatus,
+    selectedValue: value,
     popupProps,
-    triggerProps: mergedTriggerProps,
+    activeTriggerProps: mergedTriggerProps,
     itemProps,
     items: () => props.items,
     itemToStringLabel,
@@ -596,7 +539,7 @@ export function SelectRoot<
           }
         }
 
-        store.set('forceMount', true);
+        store.set('forceMounted', true);
         queueMicrotask(() => {
           handleChange();
           // Port note: React restores controlled inputs after every edit, including
@@ -635,7 +578,7 @@ export function SelectRoot<
 
   return (
     <SelectRootContext value={store}>
-      <SelectFloatingContext value={floatingRootStore}>{props.children}</SelectFloatingContext>
+      {props.children}
       {useRenderElement('input', EMPTY_OBJECT, {
         ref,
         props: () => [

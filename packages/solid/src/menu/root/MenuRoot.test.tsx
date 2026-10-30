@@ -58,6 +58,86 @@ describe('<Menu.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
   const { render } = createRenderer();
+
+  describe('closing before the popup attaches', () => {
+    it('unmounts the popup when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(true);
+        useIsoLayoutEffect(
+          () => {
+            setOpen(false);
+          },
+          () => [],
+        );
+        return (
+          <Menu.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      await render(() => <App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
+    });
+
+    it('unmounts the popup when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        useIsoLayoutEffect(
+          ([openValue]) => {
+            if (openValue) {
+              setOpen(false);
+            }
+          },
+          () => [open()],
+        );
+        return (
+          <Menu.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
+    });
+  });
+
   it('returns focus on Escape after a controlled root ignores a Shift+Tab close', async () => {
     function TestMenu() {
       const [open, setOpen] = createSignal(untrack(() => false));

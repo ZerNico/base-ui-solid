@@ -62,7 +62,7 @@ describe('select store synchronization', () => {
           ref={(element) => {
             if (element && !invoked) {
               invoked = true;
-              store.context.setOpen(true, createChangeEventDetails(REASONS.none));
+              store.setOpen(true, createChangeEventDetails(REASONS.none));
             }
           }}
         />

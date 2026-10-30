@@ -6,11 +6,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
-import {
-  useComboboxFloatingContext,
-  useComboboxInputValueContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
@@ -62,8 +58,8 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
   const required = store.useState('required');
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');
-  const storedPopupId = store.useState('popupId');
-  const triggerProps = store.useState('triggerProps');
+  const storedPopupId = store.useState('popupElementId');
+  const triggerProps = store.useState('triggerProps', true);
   const inputInsidePopup = store.useState('inputInsidePopup');
   const rootId = store.useState('id');
   const comboboxLabelId = store.useState('labelId');
@@ -73,7 +69,6 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
 
-  const floatingRootStore = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
@@ -111,7 +106,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     currentPointerTypeRef = event.pointerType;
   }
 
-  const triggerTypeahead = useTypeahead(floatingRootStore, {
+  const triggerTypeahead = useTypeahead(store.interactions, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     get enabled() {
@@ -132,11 +127,14 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     },
   });
 
-  const triggerClick = useClick(floatingRootStore, {
+  const triggerClick = useClick(store.interactions, {
     get enabled() {
       return !comboboxDisabled();
     },
     event: 'mousedown',
+    // A Combobox never opens on hover or focus, so a press always toggles it, even when a key
+    // press, such as typing or an arrow key, opened it.
+    stickIfOpen: false,
   });
 
   const { buttonRef, getButtonProps } = useButton({
@@ -219,7 +217,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
           const isInputInsidePopup = untrack(inputInsidePopup);
 
           if (!isInputInsidePopup) {
-            floatingRootStore.set('anchorElement', event.currentTarget as Element);
+            store.interactions.set('anchorElement', event.currentTarget as Element);
           }
 
           // Ensure items are registered for initial selection highlight.
@@ -261,7 +259,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
               return;
             }
 
-            store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+            store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (isInputInsidePopup) {
@@ -271,7 +269,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
         onKeyDown(event: KeyboardEvent) {
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            store.context.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event));
+            store.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event));
             store.context.inputRef.current?.focus();
           }
         },

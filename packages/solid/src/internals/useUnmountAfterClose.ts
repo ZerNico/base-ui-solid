@@ -1,6 +1,6 @@
-import { createMemo, flush, untrack } from 'solid-js';
+import { createMemo, createSignal, flush, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useTransitionStatus } from './useTransitionStatus';
 import { useOpenChangeComplete } from './useOpenChangeComplete';
@@ -27,6 +27,12 @@ export interface UseUnmountAfterCloseParameters {
    * whenever `open` becomes `true`.
    */
   setPreventUnmountOnClose: (preventUnmountOnClose: boolean) => void;
+  /**
+   * Subscribes to updates that can attach the element behind `ref`, and returns the unsubscribe
+   * function. A popup that closes before its element attaches waits for it, then for its closing
+   * animations.
+   */
+  subscribeToAttach?: ((listener: () => void) => () => void) | undefined;
   /**
    * Runs once per unmount, whether it completed automatically or through `forceUnmount`.
    */
@@ -106,9 +112,10 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
       return;
     }
     if (untrack(open)) {
-      // Port note: upstream defers the decision to the next commit (a close may be batched with
-      // this call: `close(); unmount()`). Solid batches until the microtask flush, so decide
-      // after it: unmount if the popup closed, otherwise drop the call.
+      // Port note: upstream decides in the commit that renders a counted unmount request (a close
+      // may be batched with this call: `close(); unmount()`, and React 18 can commit a store
+      // update before the batch's controlled `open` prop lands). Solid batches until the
+      // microtask flush, so decide after it: unmount if the popup closed, otherwise drop the call.
       queueMicrotask(() => {
         flush();
         if (!untrack(open) && mountedRef) {
@@ -120,10 +127,35 @@ export function useUnmountAfterClose(parameters: UseUnmountAfterCloseParameters)
     unmount();
   };
 
+  const waitsForClose = createMemo(() => mounted() && !open() && !preventUnmountingOnClose());
+
+  // The portal renders the popup a few commits after it mounts. A close within that window starts
+  // waiting before the element exists, so the wait restarts once it attaches.
+  // Port note: the listener runs from the write in the popup's ref callback, an owned scope, so
+  // the counter is an owned-write signal.
+  const [attachCount, setAttachCount] = createSignal(0, { ownedWrite: true });
+  useEffect(
+    ([waits]) => {
+      const subscribeToAttach = parameters.subscribeToAttach;
+      if (!waits || ref.current != null || !subscribeToAttach) {
+        return undefined;
+      }
+      const unsubscribe = subscribeToAttach(() => {
+        if (ref.current != null) {
+          unsubscribe();
+          setAttachCount((count) => count + 1);
+        }
+      });
+      return unsubscribe;
+    },
+    () => [waitsForClose()],
+  );
+
   useOpenChangeComplete({
-    enabled: () => mounted() && !open() && !preventUnmountingOnClose(),
+    enabled: waitsForClose,
     open,
     ref: () => ref.current,
+    restartKey: attachCount,
     onComplete() {
       if (!untrack(open)) {
         forceUnmount();

@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
@@ -55,7 +55,6 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
   const alignItemWithTrigger = () => componentProps.alignItemWithTrigger ?? true;
 
   const store = useSelectRootContext();
-  const floatingRootStore = useSelectFloatingContext();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -112,7 +111,7 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
     get anchor() {
       return componentProps.anchor;
     },
-    interactionStore: floatingRootStore,
+    interactionStore: store,
     get positionMethod() {
       return componentProps.positionMethod;
     },
@@ -218,10 +217,10 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
     // from the store's context, because the store syncs them after item reconciliation can run.
     // Here they're derived from the props, so the store's state is already current.
     const eventDetails = createChangeEventDetails(REASONS.none);
-    const value = store.state.value;
+    const value = store.state.selectedValue;
     const isItemEqualToValue = store.state.isItemEqualToValue;
 
-    if (prevSize !== 0 && !store.state.multiple && value != null) {
+    if (prevSize !== 0 && !store.select('multiple') && value != null) {
       const selectedValueIndex = findItemIndex(
         store.context.valuesRef.current,
         value,
@@ -246,7 +245,7 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
       }
     }
 
-    if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+    if (prevSize !== 0 && store.select('multiple') && Array.isArray(value)) {
       const nextValue = value.filter(
         (selectedItemValue) =>
           findItemIndex(store.context.valuesRef.current, selectedItemValue, isItemEqualToValue) !==
@@ -262,7 +261,7 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
       }
     }
 
-    if (store.state.open && untrack(alignItemWithTriggerActive)) {
+    if (store.select('open') && untrack(alignItemWithTriggerActive)) {
       store.update({
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,

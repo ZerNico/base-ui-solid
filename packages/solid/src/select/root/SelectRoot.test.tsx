@@ -31,13 +31,14 @@ import { Portal } from '@solidjs/web';
 
 import { expect, vi, describe, beforeEach, it, afterEach } from 'vitest';
 
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
+import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 
 import { Popover } from 'base-ui-solid/popover';
 
 import { REASONS } from '../../internals/reasons';
 
 import { SelectWithLabel } from './SelectRoot.fixtures';
+import { useSelectRootContext } from './SelectRootContext';
 
 // Port note: `Combobox.List`/`Combobox.Collection` (and `Autocomplete.*`) render functions receive
 // the item and its index as accessors, and `*.Value` render functions receive accessors.
@@ -61,6 +62,95 @@ describe('<Select.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
   const { render } = createRenderer();
+
+  describe('closing before the popup attaches', () => {
+    it('finishes closing when a layout effect closes it on mount', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(true);
+        useIsoLayoutEffect(
+          () => {
+            setOpen(false);
+          },
+          () => [],
+        );
+        return (
+          <Select.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      await render(() => <App />);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      // A closed select keeps its list mounted and hidden, as after any other close.
+      // Port note: the close completes before the focused trigger's timeout mounts the list (React
+      // completes it a few commits later, once the popup attaches), so this waits for it.
+      await waitFor(() => {
+        expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
+          'data-ending-style',
+        );
+      });
+    });
+
+    it('finishes closing when a layout effect closes it right after a press opens it', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        useIsoLayoutEffect(
+          ([openValue]) => {
+            if (openValue) {
+              setOpen(false);
+            }
+          },
+          () => [open()],
+        );
+        return (
+          <Select.Root
+            open={open()}
+            onOpenChange={(nextOpen) => setOpen(nextOpen)}
+            onOpenChangeComplete={onOpenChangeComplete}
+          >
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenLastCalledWith(false);
+      });
+      // The press mounts the list while closed so its items can register; it isn't left closing.
+      expect(screen.getByRole('listbox', { hidden: true })).not.toHaveAttribute(
+        'data-ending-style',
+      );
+    });
+  });
 
   it('exposes the orientation attribute rendered by Separator', async () => {
     await render(() => <Select.Separator orientation="vertical" />);
@@ -7443,6 +7533,53 @@ describe('<Select.Root />', () => {
   });
 
   describe('closing', () => {
+    it('does not notify the interactions of a close that onOpenChange cancels', async () => {
+      const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
+        if (!open) {
+          eventDetails.cancel();
+        }
+      });
+      const handleInteractionOpenChange = vi.fn();
+
+      function InteractionOpenChangeListener() {
+        const store = useSelectRootContext();
+        useEffect(
+          () => {
+            store.context.events.on('openchange', handleInteractionOpenChange);
+            return () => {
+              store.context.events.off('openchange', handleInteractionOpenChange);
+            };
+          },
+          () => [store],
+        );
+        return null;
+      }
+
+      const { user } = await render(() => (
+        <Select.Root defaultOpen onOpenChange={onOpenChange}>
+          <InteractionOpenChangeListener />
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ));
+
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+
+      await user.keyboard('{Escape}');
+
+      expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+      expect(screen.getByRole('listbox')).not.toBe(null);
+      expect(handleInteractionOpenChange).not.toHaveBeenCalled();
+    });
+
     it.skipIf(isJSDOM)(
       'keeps the highlight on the item while the popup animates out',
       async ({ onTestFinished }) => {

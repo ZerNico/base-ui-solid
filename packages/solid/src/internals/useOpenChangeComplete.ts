@@ -24,7 +24,7 @@ export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameter
         abortController.abort();
       };
     },
-    () => [enabled(), open()],
+    () => [enabled(), open(), parameters.restartKey?.()],
   );
 }
 
@@ -48,6 +48,11 @@ export interface UseOpenChangeCompleteParameters {
    * @default false
    */
   batch?: boolean | undefined;
+  /**
+   * Restarts the wait when it changes, such as when the element attaches after the wait started.
+   * Port note: an accessor.
+   */
+  restartKey?: Accessor<unknown> | undefined;
   /**
    * Function to call when the animation completes (or there is no animation).
    */

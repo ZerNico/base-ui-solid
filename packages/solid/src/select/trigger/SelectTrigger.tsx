@@ -69,8 +69,8 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const value = store.useState('value');
-  const triggerProps = store.useState('triggerProps');
+  const value = store.useState('selectedValue');
+  const triggerProps = store.useState('triggerProps', true);
   const positionerElement = store.useState('positionerElement');
   const listElement = store.useState('listElement');
   const popupSideValue = store.useState('popupSide');
@@ -158,15 +158,15 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
           setFocused(true);
 
           // The popup element shouldn't obscure the focused trigger.
-          if (store.state.open && store.context.alignItemWithTriggerActiveRef.current) {
-            store.context.setOpen(false, createChangeEventDetails(REASONS.none, event));
+          if (untrack(open) && store.context.alignItemWithTriggerActiveRef.current) {
+            store.setOpen(false, createChangeEventDetails(REASONS.none, event));
           }
 
-          // Saves a re-render on initial click: `forceMount === true` mounts
+          // Saves a re-render on initial click: `forceMounted === true` mounts
           // the items before `open === true`. We could sync those cycles better
           // without a timeout, but this is enough for now.
           timeoutFocus.start(0, () => {
-            store.set('forceMount', true);
+            store.set('forceMounted', true);
           });
         },
         // Port note: React's `onBlur` bubbles, so it's `onFocusOut` here.
@@ -180,11 +180,11 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
           setFocused(false);
 
           if (untrack(validationMode) === 'onBlur') {
-            validation.commit(store.state.value);
+            validation.commit(store.state.selectedValue);
           }
         },
         onMouseDown(event: MouseEvent) {
-          if (store.state.open) {
+          if (untrack(open)) {
             return;
           }
 
@@ -210,7 +210,7 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
               return;
             }
 
-            store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+            store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           // Firefox can fire this upon mousedown

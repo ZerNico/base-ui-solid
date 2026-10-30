@@ -14,7 +14,7 @@ import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusMana
 import { platform as floatingPlatform } from '../../utils/popups/positioning/dom';
 import type { ClientRectObject } from '../../utils/popups/positioning/dom';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -46,7 +46,6 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootStore = useSelectFloatingContext();
   // Port note: the positioner context fields are getters, read reactively below.
   const positioner = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -174,7 +173,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
     ref: () => store.context.popupRef.current,
     onComplete() {
       if (untrack(open)) {
-        store.context.onOpenChangeComplete(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -458,7 +457,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
       const win = ownerWindow(currentPositionerElement);
 
       function handleResize(event: UIEvent) {
-        store.context.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
       }
 
       return addEventListener(win, 'resize', handleResize);
@@ -508,6 +507,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
         (node: HTMLDivElement | null) => {
           store.context.popupRef.current = node;
         },
+        store.useStateSetter('popupElement'),
       ],
       state,
       stateAttributesMapping: popupTransitionStateMapping,
@@ -523,7 +523,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
     <>
       <Show when={!csp.disableStyleElements}>{styleDisableScrollbar.getElement(csp.nonce)}</Show>
       <FloatingFocusManager
-        store={floatingRootStore}
+        store={store}
         modal={false}
         disabled={!mounted()}
         openInteractionType={openMethod()}

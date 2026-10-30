@@ -13,7 +13,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 export function SelectPortal(portalProps: SelectPortal.Props) {
   const store = useSelectRootContext();
   const mounted = store.useState('mounted');
-  const forceMount = store.useState('forceMount');
+  const forceMount = store.useState('forceMounted');
 
   const shouldRender = () => mounted() || forceMount();
 

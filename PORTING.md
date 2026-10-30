@@ -259,8 +259,9 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - `useResetState(key, reset, options)` stands in for an effect that writes a key when something
     changes: while `reset()` returns `{ value }`, a change resets the key to that value, which it
     reads until the next write. The popups' `open` and `openMethod`, the Tooltip and PreviewCard
-    `payload`, Menu's `hoverEnabled` and `keyboardOpen`, and the open highlight and selected index
-    of Menu, Select and Combobox use it. `hold` drops writes while the reset applies, `everyRun`
+    `payload`, Menu's `hoverEnabled` and `keyboardOpen`, the Select and Combobox `anchorElement`
+    (`ValuePopupStore.useAnchorState`), and the open highlight and selected index of Menu, Select
+    and Combobox use it. `hold` drops writes while the reset applies, `everyRun`
     resets on every run (Combobox's selected index syncs), and `onReset` notifies from an effect.
   - `subscribe` and `observe` listeners are notified (once per change of a synced group) from an
     effect, since they're outside Solid.
@@ -283,7 +284,11 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     applies a change of the anchor (the mounted active trigger) in a `setState` override, but here
     the anchor also changes through derived keys, so the Root derives it
     (`BasePopupStore.useAnchorState`): the anchor is remembered as `anchorElement`, and an
-    `anchorOverride` that followed the old anchor follows the new one. `useAnchorPositioning`
+    `anchorOverride` that followed the old anchor follows the new one. `ValuePopupStore` (Select,
+    Combobox) keeps its own anchor instead (`anchorsToActiveTrigger()` is `false`). Upstream
+    restores it in a `setState` override whenever the anchor, the open state or the positioner
+    element changes. Here it's an `everyRun` reset of `anchorElement` on those changes, so a
+    trigger press or `clearPositioning()` holds until the next one. `useAnchorPositioning`
     derives the elements' reset while a kept-mounted positioner is unmounted
     (`useClearPositioning`, the derived `clearPositioning()`), and passes the Positioner's anchor to
     `useFloating` as `positionerAnchor`.
@@ -494,7 +499,26 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
   the root and its effect runs before those of the root's later siblings.
 - `usePopupRoot(props, createStore, options)` reads the root's props lazily (pass `props`, don't
   destructure it) and returns `open`, `mounted`, `payload` and `transitionStatus` as accessors. Its
-  `disabled` option is an accessor, and `usePopupRootWithFloatingId` takes the floating id as one.
+  `disabled` option is an accessor, and `usePopupRootWithPopupId` takes the default popup id as
+  one.
+- `useSingleAnchorPopupRoot(props, createStore, popupRef)` (Select, Combobox) reads the props
+  lazily too, and returns `open` and `transitionStatus` as accessors. Its `usePopupRootOpenState`
+  keeps upstream's `props.open ?? openState` for the transitions, which equals the store's `open`
+  here, since the store derives the controlled prop with no lag.
+- Select passes `popupRef` as a getter that falls back to the positioner element, so a Positioner
+  without a Popup still waits for its closing animations. Combobox's `animatedPopupRef` is a getter
+  over the memo that resolves the animated element (the closest dialog of an inline list). Upstream
+  points a ref's target at it from a layout effect. Combobox's `interactions` view also forwards
+  `useClearPositioning`, which the port's `PositioningInteractionStore` requires.
+- `useUnmountAfterClose` waits for a popup element that attaches after the close started. The
+  listener runs from the write in the popup's ref callback, an owned scope, so its counter is an
+  `ownedWrite` signal. A `forceUnmount()` while open still decides after a microtask flush, where
+  upstream counts the unmount requests and decides in the commit that renders one (React 18 can
+  commit a store update before the batch's controlled `open` lands). Solid batches until the
+  flush, so the popup's state is final by then.
+- Tests that record what a Root's children render function receives on every render record each
+  payload that its children render instead, since the function is called once with a `payload`
+  accessor (`keeps the payload while a controlled reopen moves to another trigger`).
 
 - **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, the components
   report no warnings in the docs' demos (`storeDiagnostics.interactions.port.test.tsx` drives them

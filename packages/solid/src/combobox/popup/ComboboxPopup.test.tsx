@@ -1,8 +1,8 @@
 import { createSignal, flush } from 'solid-js';
 
-import { expect, describe, it } from 'vitest';
+import { expect, describe, it, vi } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
-import { createRenderer, describeConformance, fireEvent, screen, waitFor } from '#test-utils';
+import { act, createRenderer, describeConformance, fireEvent, screen, waitFor } from '#test-utils';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -108,6 +108,52 @@ describe('<Combobox.Popup />', () => {
     await screen.findByTestId('input');
     expect(trigger).toHaveFocus();
   });
+  it('passes the close type of an item press to a finalFocus function', async () => {
+    const finalFocus = vi.fn(() => false);
+
+    const { user } = await render(() => (
+      <Combobox.Root>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup finalFocus={finalFocus}>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ));
+
+    const input = screen.getByTestId('input');
+
+    await user.click(input);
+    // user-event's synthetic clicks carry no pointer type, so the mouse press is dispatched
+    // directly.
+    const option = await screen.findByRole('option', { name: 'a' });
+    fireEvent.pointerDown(option, { pointerType: 'mouse' });
+    flush();
+    fireEvent.click(option, { detail: 1 });
+    flush();
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+    expect(finalFocus).toHaveBeenLastCalledWith('mouse');
+
+    await act(async () => {
+      input.focus();
+    });
+    await user.keyboard('{ArrowDown}');
+    await screen.findByRole('listbox');
+    await user.keyboard('{ArrowDown}{Enter}');
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+    expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+  });
+
   it('returns focus to an explicitly provided element when the popup closes', async () => {
     function Test() {
       // Port note: the prop takes the element, from a signal set by a ref callback.

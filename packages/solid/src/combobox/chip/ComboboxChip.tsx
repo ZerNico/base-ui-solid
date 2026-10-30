@@ -75,7 +75,7 @@ export function ComboboxChip(componentProps: ComboboxChip.Props): JSX.Element {
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.context.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event));
+      store.setOpen(true, createChangeEventDetails(REASONS.listNavigation, event));
       // The input may mount when opening.
       // Port note: counterpart of `ReactDOM.flushSync`.
       flush();

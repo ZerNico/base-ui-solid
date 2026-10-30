@@ -79,7 +79,7 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
   const selectionMode = store.useState('selectionMode');
   const autoHighlightMode = store.useState('autoHighlight');
   const inputProps = store.useState('inputProps');
-  const triggerProps = store.useState('triggerProps');
+  const triggerProps = store.useState('triggerProps', true);
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const selectedValue = store.useState('selectedValue');
@@ -327,10 +327,7 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
                 return;
               }
 
-              store.context.setOpen(
-                true,
-                createChangeEventDetails(REASONS.inputChange, nativeEvent),
-              );
+              store.setOpen(true, createChangeEventDetails(REASONS.inputChange, nativeEvent));
               // When autoHighlight is enabled, keep the highlight (will be set to 0 in root).
               if (!untrack(autoHighlightEnabled)) {
                 clearHighlight(nativeEvent);
@@ -352,10 +349,7 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
                 !store.state.openOnInputClick &&
                 !store.state.inputInsidePopup
               ) {
-                store.context.setOpen(
-                  false,
-                  createChangeEventDetails(REASONS.inputClear, nativeEvent),
-                );
+                store.setOpen(false, createChangeEventDetails(REASONS.inputClear, nativeEvent));
               }
 
               const trimmed = nextVal.trim();
@@ -387,7 +381,7 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
               }
 
               if (!store.state.openOnInputClick) {
-                store.context.setOpen(false, clearDetails);
+                store.setOpen(false, clearDetails);
               }
             }
 
@@ -516,7 +510,7 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
                 }
 
                 // Allow form submission when no item is highlighted.
-                store.context.setOpen(false, createChangeEventDetails(REASONS.none, event));
+                store.setOpen(false, createChangeEventDetails(REASONS.none, event));
                 return;
               }
 

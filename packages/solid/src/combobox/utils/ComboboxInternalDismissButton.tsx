@@ -24,7 +24,7 @@ export function ComboboxInternalDismissButton(props: {
   });
 
   function handleDismiss(event: DismissEvent) {
-    store.context.setOpen(
+    store.setOpen(
       false,
       createChangeEventDetails(REASONS.closePress, event, event.currentTarget as HTMLElement),
     );

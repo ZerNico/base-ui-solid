@@ -33,6 +33,6 @@ export function handleInputPress(
   store.context.inputRef.current?.focus();
 
   if (store.state.openOnInputClick) {
-    store.context.setOpen(true, createChangeEventDetails(REASONS.inputPress, event));
+    store.setOpen(true, createChangeEventDetails(REASONS.inputPress, event));
   }
 }

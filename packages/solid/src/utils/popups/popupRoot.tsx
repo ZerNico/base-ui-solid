@@ -1,6 +1,7 @@
 import { createMemo, untrack } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
+import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { SolidStore } from '@base-ui-solid/utils/store';
 import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui-solid/utils/useId';
@@ -135,23 +136,99 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     defaultPopupId,
   );
 
-  store.useControlledProp('openProp', () => props.open);
+  const transitionOpen = usePopupRootOpenState(store, props, disabled);
   store.useControlledProp('triggerIdProp', () => props.triggerId);
-
-  store.useContextCallback('onOpenChange', () => props.onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
-
+  // Root logic reads the open state from the store, in step with the active trigger and the other
+  // values it syncs there. Only the transitions read the controlled prop as soon as it changes.
   const openState = store.useState('open');
   const open = createMemo(() => !disabled() && openState());
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Accessor<Store['state']['payload']>;
 
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount });
+  const transitionStatus = usePopupRootTransitions(
+    store,
+    transitionOpen,
+    props,
+    animateInitialOpen,
+  );
+
+  return { store, open, mounted, payload, transitionStatus };
+}
+
+/**
+ * `usePopupRoot` for a popup that has a single anchor and no triggers to track, such as a Select
+ * or a Combobox: it leaves out the trigger props and the active trigger.
+ *
+ * Port note: `props` is read lazily, and the returned `open` and `transitionStatus` are accessors.
+ *
+ * @param popupRef The element whose closing animations are awaited before the popup unmounts.
+ *   Defaults to the store's `popupRef`.
+ */
+export function useSingleAnchorPopupRoot<Store extends PopupRootStore>(
+  props: Omit<PopupRootProps<Store>, 'triggerId' | 'defaultTriggerId'>,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
+  popupRef?: RefObject<HTMLElement | null>,
+) {
+  const defaultPopupId = useId();
+  const store = usePopupRootStore(
+    (initialPopupId) =>
+      createStore(
+        untrack(() => ({
+          open: props.defaultOpen ?? false,
+          openProp: props.open,
+          activeTriggerId: null,
+          triggerIdProp: undefined,
+        })),
+        initialPopupId,
+      ),
+    () => defaultPopupId,
+  );
+
+  const open = usePopupRootOpenState(store, props, () => false);
+  const transitionStatus = usePopupRootTransitions(store, open, props, false, popupRef);
+
+  return { store, open, transitionStatus };
+}
+
+/**
+ * Syncs the controlled `open` prop and the open change callbacks, and returns whether the popup
+ * renders as open.
+ */
+function usePopupRootOpenState<Store extends PopupRootStore>(
+  store: Store,
+  props: Pick<PopupRootProps<Store>, 'open' | 'onOpenChange' | 'onOpenChangeComplete'>,
+  disabled: Accessor<boolean>,
+) {
+  store.useControlledProp('openProp', () => props.open);
+
+  store.useContextCallback('onOpenChange', () => props.onOpenChange);
+  store.useContextCallback('onOpenChangeComplete', () => props.onOpenChangeComplete);
+
+  const openState = store.useState('open');
+  // The store receives a controlled `open` prop in a layout effect, a commit after the Root renders
+  // with it, so the transitions read the prop itself.
+  // Port note: the store derives the controlled prop with no lag, so this equals the store's
+  // `open`. It's kept for parity.
+  return createMemo(() => !disabled() && (props.open ?? openState()));
+}
+
+/**
+ * Runs the open and close transitions and exposes the `actionsRef` actions.
+ */
+function usePopupRootTransitions<Store extends PopupRootStore>(
+  store: Store,
+  open: Accessor<boolean>,
+  props: Pick<PopupRootProps<Store>, 'open' | 'actionsRef'>,
+  animateInitialOpen: boolean,
+  popupRef?: RefObject<HTMLElement | null>,
+) {
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
     () => props.open,
     animateInitialOpen,
+    popupRef,
   );
 
   useImperativeHandle(() => props.actionsRef, {
@@ -159,7 +236,7 @@ export function usePopupRootWithPopupId<Store extends PopupRootStore>(
     close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
   });
 
-  return { store, open, mounted, payload, transitionStatus };
+  return transitionStatus;
 }
 
 /**
@@ -442,15 +519,18 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
  *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
  *   only mounts in response to something the user did, such as a submenu inside a menu popup.
+ * @param popupRef The element whose closing animations are awaited before unmounting.
  *
- * @returns A function to forcibly unmount the popup. It is a no-op once the popup is already
- *   unmounted, so calling it after the automatic unmount doesn't repeat the completion callback.
+ * @returns The transition status, and a function to forcibly unmount the popup. That function is a
+ *   no-op once the popup is already unmounted, so calling it after the automatic unmount doesn't
+ *   repeat the completion callback.
  */
 function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: Accessor<boolean>,
   store: PopupRootStore,
   openProp: Accessor<boolean | undefined>,
   animateInitialOpen?: boolean,
+  popupRef: RefObject<HTMLElement | null> = store.context.popupRef,
 ) {
   // In controlled mode, `state.open` holds the last open-change request instead of the open state,
   // and a close through the prop doesn't reset it. Clear it when the prop closes the popup, so
@@ -463,7 +543,9 @@ function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 
   const { mounted, transitionStatus, forceUnmount } = useUnmountAfterClose({
     open,
-    ref: store.context.popupRef,
+    ref: popupRef,
+    // The popup part writes its element to the store as it attaches.
+    subscribeToAttach: store.subscribe,
     preventUnmountOnClose: store.useState('preventUnmountingOnClose'),
     setPreventUnmountOnClose: (preventUnmountOnClose) =>
       store.set('preventUnmountingOnClose', preventUnmountOnClose),

@@ -82,7 +82,7 @@ export function SelectItem(componentProps: SelectItem.Props) {
 
   useIsoLayoutEffect(
     ([currentIndex, isMultiple, comparer, currentItemValue]) => {
-      const selectedValue = store.state.value;
+      const selectedValue = store.state.selectedValue;
 
       const currentSelectedIndex = store.state.selectedIndex;
       let nextIndex = currentSelectedIndex;
@@ -155,7 +155,7 @@ export function SelectItem(componentProps: SelectItem.Props) {
       return;
     }
 
-    const selectedValue = store.state.value;
+    const selectedValue = store.state.selectedValue;
     const currentItemValue = untrack(itemValue);
     if (untrack(multiple)) {
       const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
@@ -165,7 +165,7 @@ export function SelectItem(componentProps: SelectItem.Props) {
       store.context.setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
     } else {
       store.context.setValue(currentItemValue, createChangeEventDetails(REASONS.itemPress, event));
-      store.context.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
+      store.setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
     }
   }
 

@@ -1,7 +1,6 @@
 import { createContext, useContext } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import type { ComboboxStore } from '../store';
-import type { FloatingRootStore } from '../../utils/popups/floating-root/FloatingRootStore';
 
 /**
  * Port note: the fields are getters backed by the root's memos.
@@ -25,7 +24,6 @@ export interface ComboboxDerivedItemsContext {
 }
 
 export const ComboboxRootContext = createContext<ComboboxStore | null>(null);
-export const ComboboxFloatingContext = createContext<FloatingRootStore | null>(null);
 export const ComboboxDerivedItemsContext = createContext<ComboboxDerivedItemsContext | null>(null);
 // Port note: context values hold accessors.
 export const ComboboxHasItemsContext = createContext<Accessor<boolean>>(() => false);
@@ -40,16 +38,6 @@ export function useComboboxRootContext() {
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',
-    );
-  }
-  return context;
-}
-
-export function useComboboxFloatingContext() {
-  const context = useContext(ComboboxFloatingContext);
-  if (!context) {
-    throw new Error(
-      'Base UI: ComboboxFloatingContext is missing. Combobox parts must be placed within <Combobox.Root>.',
     );
   }
   return context;
