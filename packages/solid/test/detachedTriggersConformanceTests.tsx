@@ -27,7 +27,8 @@ import { REASONS } from '../src/internals/reasons';
  * - `fireEvent` doesn't flush Solid, so the hover helpers flush after dispatching.
  * - `setProps` and `React.useState` wrappers are signal writes. The fixture's props are read
  *   lazily, so a new `handle` is passed to the mounted parts. A `triggerCount` change adds or removes
- *   triggers and keeps the others, like React reconciling them. `nesting` is fixed for a fixture.
+ *   triggers and keeps the others, like React reconciling them. A `nesting` change remounts the
+ *   triggers, like React remounting a subtree whose element types changed.
  */
 export function detachedTriggersConformanceTests(config: DetachedTriggersTestConfig) {
   const {
@@ -57,15 +58,15 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
     // The mode, the viewport and the positioner props are fixed for a fixture.
     const detached = untrack(() => props.mode) === 'detached';
     const withViewport = untrack(() => props.withViewport) ?? false;
-    // Port note: so is the nesting, so a `setProps` call keeps the trigger elements, like React
-    // reconciling them. The triggers are keyed by their number, so a `triggerCount` change keeps the
-    // remaining ones.
-    const nesting = untrack(() => props.nesting) ?? 0;
+    // Port note: a `nesting` change rebuilds the wrappers and the triggers in them, like React
+    // remounting a subtree whose element types changed. The triggers are keyed by their number, so a
+    // `triggerCount` change keeps the remaining ones.
+    const nesting = createMemo(() => props.nesting ?? 0);
     const triggerNumbers = createMemo(() =>
       Array.from({ length: props.triggerCount ?? 2 }, (_, index) => index + 1),
     );
 
-    const renderTriggers = () => {
+    const wrapTriggers = (levels: number) => {
       let triggers: JSX.Element = (
         <For each={triggerNumbers()}>
           {(number) => (
@@ -83,12 +84,19 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
         </For>
       );
 
-      for (let level = 0; level < nesting; level += 1) {
+      for (let level = 0; level < levels; level += 1) {
         triggers = <div>{triggers}</div>;
       }
 
       return triggers;
     };
+
+    // A memo, so resolving the children again keeps the trigger elements.
+    const renderTriggers = () =>
+      createMemo(() => {
+        const levels = nesting();
+        return untrack(() => wrapTriggers(levels));
+      });
 
     // Port note: Solid creates JSX eagerly, so the parts are built in functions called from their
     // parent's children (React elements are rendered under their parent lazily).
