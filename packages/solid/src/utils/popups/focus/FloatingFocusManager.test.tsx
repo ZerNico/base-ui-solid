@@ -1083,6 +1083,25 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('one')).toHaveFocus();
       });
 
+      test('wraps focus within the same frame as the Tab', async () => {
+        await render(() => <App modal />);
+
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        screen.getByTestId('three').focus();
+        flush();
+        expect(screen.getByTestId('three')).toHaveFocus();
+
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+
+        await userEvent.tab();
+        expect(screen.getByTestId('one')).toHaveFocus();
+
+        await userEvent.tab({ shift: true });
+        expect(screen.getByTestId('three')).toHaveFocus();
+      });
+
       test('when false', async () => {
         await render(() => <App modal={false} />);
 
