@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
+import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { render, isJSDOM, screen, waitFor } from '#test-utils';
 import { useAnchorPositioning, useFloatingRootStore } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
@@ -196,6 +197,71 @@ function TestLateArrow(props: { switchAnchor?: boolean; anchorLeft?: number }) {
   );
 }
 
+function TestCappedGrowth() {
+  // Port note: `anchor` takes the element, from a signal set by a ref callback.
+  const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
+  const [grown, setGrown] = createSignal(false);
+
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    get anchor() {
+      return anchorElement();
+    },
+    mounted: true,
+    positionMethod: 'fixed',
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    // Update manually: a ResizeObserver-driven flip can log a timing-dependent loop error.
+    disableAnchorTracking: true,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    interactionStore: rootStore,
+  });
+
+  const { update } = positioning;
+  useEffect(
+    ([grownValue]) => {
+      if (grownValue) {
+        update();
+      }
+    },
+    () => [grown()],
+  );
+
+  return (
+    <>
+      <div
+        ref={setAnchorElement}
+        style={{ position: 'fixed', top: '60vh', left: '100px', width: '20px', height: '20px' }}
+      >
+        anchor
+      </div>
+      <div
+        ref={positioning.refs.setFloating}
+        data-testid="floating"
+        data-side={positioning.side}
+        style={{
+          ...positioning.positionerStyles,
+          width: '100px',
+          'max-height': 'var(--available-height)',
+          'overflow-y': 'auto',
+        }}
+      >
+        <div style={{ height: grown() ? '200vh' : '20px' }} />
+      </div>
+      <button type="button" onClick={() => setGrown(true)}>
+        Grow
+      </button>
+    </>
+  );
+}
+
 describe('useAnchorPositioning', () => {
   beforeEach(() => {
     shiftSpy.mockClear();
@@ -352,6 +418,25 @@ describe('useAnchorPositioning', () => {
       expect(screen.queryByTestId('arrow')).toBe(null);
       await waitFor(() => {
         expect(floating.getBoundingClientRect().left).toBeCloseTo(5, 0);
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'flips a capped popup to the larger side when it grows while open',
+    async () => {
+      const { user } = await render(() => <TestCappedGrowth />);
+      const floating = screen.getByTestId('floating');
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-side', 'bottom');
+      });
+
+      // The content now fits neither side, and there is more space above the anchor.
+      await user.click(screen.getByRole('button', { name: 'Grow' }));
+
+      await waitFor(() => {
+        expect(floating).toHaveAttribute('data-side', 'top');
       });
     },
   );
