@@ -33,7 +33,7 @@ export function PopoverArrow(componentProps: PopoverArrow.Props) {
   const element = useRenderElement('div', componentProps, {
     state,
     ref: (element: HTMLElement | null) => {
-      positioner.arrowRef.current = element;
+      positioner.arrowRef(element);
     },
     props: () => [{ style: positioner.arrowStyles, 'aria-hidden': true }, elementProps],
     stateAttributesMapping: popupStateMapping,

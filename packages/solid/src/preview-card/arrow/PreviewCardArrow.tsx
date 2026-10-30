@@ -35,7 +35,7 @@ export function PreviewCardArrow(componentProps: PreviewCardArrow.Props): JSX.El
   return useRenderElement('div', componentProps, {
     state,
     ref: (element: HTMLDivElement | null) => {
-      positioner.arrowRef.current = element;
+      positioner.arrowRef(element);
     },
     props: () => [{ style: positioner.arrowStyles, 'aria-hidden': true }, elementProps],
     stateAttributesMapping: popupStateMapping,

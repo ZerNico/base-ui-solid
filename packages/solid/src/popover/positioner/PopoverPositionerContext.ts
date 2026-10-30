@@ -1,6 +1,5 @@
 import { createContext, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { PopupPositioningContext } from '../../utils/popups/types';
 
@@ -11,7 +10,7 @@ import type { PopupPositioningContext } from '../../utils/popups/types';
 export interface PopoverPositionerContext {
   readonly side: Side;
   readonly align: Align;
-  arrowRef: RefObject<Element | null>;
+  arrowRef: (element: Element | null) => void;
   readonly arrowUncentered: boolean;
   readonly arrowStyles: JSX.CSSProperties;
   context: PopupPositioningContext;

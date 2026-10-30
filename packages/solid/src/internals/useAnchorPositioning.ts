@@ -220,10 +220,7 @@ export function useAnchorPositioning(
     placementAlign() === 'center' ? side() : (`${side()}-${placementAlign()}` as Placement),
   );
 
-  // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
-  // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
-  // presence.
-  const arrowRef: RefObject<Element | null> = { current: null };
+  const arrowElementRef: RefObject<Element | null> = { current: null };
 
   // Port note: upstream rebuilds the middleware on every render and Floating UI compares it deeply.
   // This memo plays the role of the render: the values it reads are captured by the middleware
@@ -357,10 +354,10 @@ export function useAnchorPositioning(
               currentSticky || currentShiftCrossAxis
                 ? undefined
                 : limitShift((limitData) => {
-                    if (!arrowRef.current) {
+                    if (!arrowElementRef.current) {
                       return {};
                     }
-                    const { width, height } = arrowRef.current.getBoundingClientRect();
+                    const { width, height } = arrowElementRef.current.getBoundingClientRect();
                     const sideAxis = getSideAxis(getSide(limitData.placement));
                     const arrowSize = sideAxis === 'y' ? width : height;
                     const offsetAmount =
@@ -421,9 +418,10 @@ export function useAnchorPositioning(
         (state) => ({
           // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
           // we'll create a fake element.
-          element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
+          element:
+            arrowElementRef.current || ownerDocument(state.elements.floating).createElement('div'),
           // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
-          padding: arrowRef.current ? currentArrowPadding : 0,
+          padding: arrowElementRef.current ? currentArrowPadding : 0,
         }),
         [currentArrowPadding],
       ),
@@ -442,7 +440,7 @@ export function useAnchorPositioning(
           const renderedSide = getSide(renderedPlacement);
           const renderedAlign = getAlignment(renderedPlacement);
           const isVertical = getSideAxis(renderedSide) === 'y';
-          const arrowEl = arrowRef.current;
+          const arrowEl = arrowElementRef.current;
 
           const sideOffsetValue =
             typeof currentSideOffset === 'function'
@@ -559,6 +557,16 @@ export function useAnchorPositioning(
     },
   });
   const { refs, elements, update, context } = floating;
+
+  // An arrow that mounts or unmounts after the popup is positioned doesn't resize the positioner, so
+  // reposition explicitly. Deferred so an anchor that changed in the same commit is registered first.
+  // Port note: `update` is stable and reads the latest middleware, so it's queued directly.
+  const arrowRef = (element: Element | null) => {
+    arrowElementRef.current = element;
+    if (untrack(() => floating.isPositioned)) {
+      queueMicrotask(update);
+    }
+  };
 
   // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
   // This ensures the popup is inside the viewport initially before it gets positioned.
@@ -904,7 +912,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: JSX.CSSProperties;
   arrowStyles: JSX.CSSProperties;
-  arrowRef: RefObject<Element | null>;
+  arrowRef: (element: Element | null) => void;
   arrowUncentered: boolean;
   side: Side;
   align: Align;

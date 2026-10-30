@@ -35,7 +35,7 @@ export function NavigationMenuArrow(componentProps: NavigationMenuArrow.Props) {
   return useRenderElement('div', componentProps, {
     state,
     ref: (element: HTMLDivElement | null) => {
-      arrowRef.current = element;
+      arrowRef(element);
     },
     props: () => [
       { style: positioning.arrowStyles, 'aria-hidden': true },

@@ -35,7 +35,7 @@ export function ComboboxArrow(componentProps: ComboboxArrow.Props): JSX.Element 
   return useRenderElement('div', componentProps, {
     ref: [
       (element: HTMLDivElement | null) => {
-        positioner.arrowRef.current = element;
+        positioner.arrowRef(element);
       },
     ],
     stateAttributesMapping: popupStateMapping,

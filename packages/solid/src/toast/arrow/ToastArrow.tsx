@@ -29,7 +29,7 @@ export function ToastArrow(componentProps: ToastArrow.Props): JSX.Element {
   return useRenderElement('div', componentProps, {
     state,
     ref: (element: HTMLDivElement | null) => {
-      positioner.arrowRef.current = element;
+      positioner.arrowRef(element);
     },
     props: () => [{ style: positioner.arrowStyles, 'aria-hidden': true }, elementProps],
   });

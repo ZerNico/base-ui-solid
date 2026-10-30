@@ -32,7 +32,7 @@ export function MenuArrow(componentProps: MenuArrow.Props) {
 
   return useRenderElement('div', componentProps, {
     ref: (element: HTMLDivElement | null) => {
-      positioner.arrowRef.current = element;
+      positioner.arrowRef(element);
     },
     stateAttributesMapping: popupStateMapping,
     state,
