@@ -2,8 +2,10 @@ import { createSignal } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { UserEvent } from '@testing-library/user-event';
 import { expect, vi, describe, it, afterEach, beforeEach } from 'vitest';
+import { ownerDocument } from '@base-ui-solid/utils/owner';
+import { activeElement } from '@base-ui-solid/utils/shadowDom';
 import { isJSDOM } from '@base-ui-solid/utils/testUtils';
-import { flushMicrotasks, screen, waitFor } from './utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from './utils';
 import type { createRenderer } from './createRenderer';
 import { enterWithMouse } from './pointer';
 import { REASONS } from '../src/internals/reasons';
@@ -102,6 +104,52 @@ export function popupConformanceTests(config: PopupTestConfig) {
   };
 
   describe('Popup conformance', () => {
+    describe('IME dismissal', () => {
+      it('dismisses after a composition is dropped without compositionend', async () => {
+        const handleOpenChange = vi.fn();
+        const { user } = await render({
+          root: { defaultOpen: true, onOpenChange: handleOpenChange },
+        });
+        const popup = getPopup()!;
+        // Port note: Floating UI resolves positioning asynchronously after Solid mounts the popup.
+        await waitFor(() => {
+          expect(popup).toBeVisible();
+        });
+
+        fireEvent.compositionStart(popup);
+        await user.keyboard('[Escape]');
+
+        await waitFor(expectPopupClosed);
+        expect(handleOpenChange).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: REASONS.escapeKey }),
+        );
+      });
+
+      it.each([
+        { name: 'isComposing', isComposing: true, keyCode: 27 },
+        { name: 'keyCode 229', isComposing: false, keyCode: 229 },
+      ])('preserves the popup for an IME Escape identified by $name', async (event) => {
+        const handleOpenChange = vi.fn();
+        await render({ root: { defaultOpen: true, onOpenChange: handleOpenChange } });
+        const popup = getPopup()!;
+        // Port note: Floating UI resolves positioning asynchronously after Solid mounts the popup.
+        await waitFor(() => {
+          expect(popup).toBeVisible();
+        });
+
+        fireEvent.keyDown(activeElement(ownerDocument(popup))!, {
+          key: 'Escape',
+          isComposing: event.isComposing,
+          keyCode: event.keyCode,
+        });
+        await flushMicrotasks();
+
+        expect(popup).toBeVisible();
+        expect(handleOpenChange).not.toHaveBeenCalled();
+      });
+    });
+
     describe('controlled mode', () => {
       it('opens the popup with the `open` prop', async () => {
         const { rerender } = await render({ root: { open: false } });

@@ -192,7 +192,7 @@ export function useDismiss(
   // A click whose press began before the floating element opened is the tail of that
   // gesture (e.g. the drag-release that opened it), not a new outside press.
   let sawPressWhileOpen = false;
-  let isComposing = false;
+  let compositionEndPending = false;
   let currentPointerType: PointerEvent['pointerType'] = '';
 
   let touchState: {
@@ -205,7 +205,7 @@ export function useDismiss(
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
-  // Outlives effect re-runs so a pending reset can't leave `isComposing` stuck.
+  // Outlives effect re-runs so a pending reset can't leave `compositionEndPending` stuck.
   const compositionTimeout = useTimeout();
 
   function clearInsideReactTree() {
@@ -243,10 +243,13 @@ export function useDismiss(
       return;
     }
 
+    // Key code 229 indicates that an IME is processing the key event.
+    const isImeKey = event.keyCode === 229;
+
     // Wait until IME is settled. Pressing `Escape` while composing should
     // close the compose menu, but not the floating element. The flag covers Safari, which fires
-    // `compositionend` before `keydown`. `isComposing` covers compositions that began while closed.
-    if (isComposing || event.isComposing) {
+    // `compositionend` before `keydown`. The native event identifies an active composition.
+    if (compositionEndPending || event.isComposing || isImeKey) {
       return;
     }
 
@@ -407,7 +410,7 @@ export function useDismiss(
         // changes mid-gesture.
         if (!isOpen) {
           sawPressWhileOpen = false;
-          isComposing = false;
+          compositionEndPending = false;
           currentPointerType = '';
           touchState = null;
         }
@@ -420,23 +423,18 @@ export function useDismiss(
       const preventedPressSuppressionTimeout = new Timeout();
       const doc = ownerDocument(floating);
 
-      function handleCompositionStart() {
-        compositionTimeout.clear();
-        isComposing = true;
-      }
-
       function handleCompositionEnd() {
         // Safari fires `compositionend` before `keydown`, so we need to wait
-        // until the next tick to set `isComposing` to `false`. Set it here too, since closing
-        // resets it while a composition can continue into the next open session.
+        // until the next tick before dismissing. Open this bounded window on compositionend
+        // even when the composition began while the popup was closed.
         // https://bugs.webkit.org/show_bug.cgi?id=165004
-        isComposing = true;
+        compositionEndPending = true;
         compositionTimeout.start(
           // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
           // Only apply to WebKit for the test to remain 0ms.
           platform.engine.webkit ? 5 : 0,
           () => {
-            isComposing = false;
+            compositionEndPending = false;
           },
         );
       }
@@ -828,7 +826,6 @@ export function useDismiss(
                 closeOnEscapeKeyDown(event);
               }
             }),
-            addEventListener(doc, 'compositionstart', handleCompositionStart),
             addEventListener(doc, 'compositionend', handleCompositionEnd),
           ),
         isOutsidePressEnabled &&
