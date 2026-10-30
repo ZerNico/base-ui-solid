@@ -60,7 +60,7 @@ export function AccordionTrigger(componentProps: AccordionTrigger.Props) {
   );
 
   return useRenderElement('button', componentProps, {
-    state,
+    state: () => ({ ...state(), disabled: disabled() }),
     ref: buttonRef,
     props: () => [
       {

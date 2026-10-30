@@ -105,11 +105,11 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type     | Description                                  |
-| :-------------- | :------- | :------------------------------------------- |
-| data-panel-open | -        | Present when the accordion panel is open.    |
-| data-disabled   | -        | Present when the accordion item is disabled. |
-| data-index      | `number` | Indicates the index of the accordion item.   |
+| Attribute       | Type     | Description                                                 |
+| :-------------- | :------- | :---------------------------------------------------------- |
+| data-panel-open | -        | Present when the accordion panel is open.                   |
+| data-disabled   | -        | Present when the trigger or its accordion item is disabled. |
+| data-index      | `number` | Indicates the index of the accordion item.                  |
 
 ### Trigger.State
 

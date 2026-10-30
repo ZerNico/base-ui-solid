@@ -116,6 +116,11 @@
         "name": "data-panel-open",
         "type": "-",
         "description": "Present when the collapsible panel is open."
+      },
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the trigger or the collapsible is disabled."
       }
     ],
     "cssVariables": [],

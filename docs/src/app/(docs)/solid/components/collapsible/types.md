@@ -84,9 +84,10 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                 |
-| :-------------- | :--- | :------------------------------------------ |
-| data-panel-open | -    | Present when the collapsible panel is open. |
+| Attribute       | Type | Description                                              |
+| :-------------- | :--- | :------------------------------------------------------- |
+| data-panel-open | -    | Present when the collapsible panel is open.              |
+| data-disabled   | -    | Present when the trigger or the collapsible is disabled. |
 
 ### Trigger.State
 

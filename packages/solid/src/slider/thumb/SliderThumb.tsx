@@ -596,7 +596,7 @@ export function SliderThumb(componentProps: SliderThumb.Props): JSX.Element {
   };
 
   return useRenderElement('div', componentProps, {
-    state,
+    state: () => ({ ...state(), disabled: disabled() }),
     ref: [
       listItemRef,
       (element: HTMLElement | null) => {

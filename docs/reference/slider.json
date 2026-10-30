@@ -507,7 +507,7 @@
       {
         "name": "data-disabled",
         "type": "-",
-        "description": "Present when the slider is disabled."
+        "description": "Present when the thumb or the slider is disabled."
       },
       {
         "name": "data-valid",

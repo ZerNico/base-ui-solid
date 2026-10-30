@@ -144,7 +144,7 @@
       {
         "name": "data-disabled",
         "type": "-",
-        "description": "Present when the accordion item is disabled."
+        "description": "Present when the trigger or its accordion item is disabled."
       },
       {
         "name": "data-index",

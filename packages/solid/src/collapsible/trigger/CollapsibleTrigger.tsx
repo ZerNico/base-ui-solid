@@ -30,14 +30,15 @@ export function CollapsibleTrigger(componentProps: CollapsibleTrigger.Props) {
 
   const elementProps = omit(componentProps, 'class', 'disabled', 'render', 'nativeButton', 'style');
 
+  const disabled = () => (componentProps.disabled ?? false) || contextDisabled();
+
   const { getButtonProps, buttonRef } = useButton({
-    disabled: () =>
-      componentProps.disabled === undefined ? contextDisabled() : componentProps.disabled !== false,
+    disabled,
     native: () => componentProps.nativeButton ?? true,
   });
 
   return useRenderElement('button', componentProps, {
-    state,
+    state: () => ({ ...state(), disabled: disabled() }),
     ref: buttonRef,
     props: () => [
       {
