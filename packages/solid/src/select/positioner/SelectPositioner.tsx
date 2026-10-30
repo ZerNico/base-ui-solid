@@ -214,11 +214,14 @@ export function SelectPositioner(componentProps: SelectPositioner.Props) {
       return;
     }
 
+    // Port note: upstream reads the value and selection mode from a context and the comparator
+    // from the store's context, because the store syncs them after item reconciliation can run.
+    // Here they're derived from the props, so the store's state is already current.
     const eventDetails = createChangeEventDetails(REASONS.none);
     const value = store.state.value;
     const isItemEqualToValue = store.state.isItemEqualToValue;
 
-    if (prevSize !== 0 && !store.state.multiple && value !== null) {
+    if (prevSize !== 0 && !store.state.multiple && value != null) {
       const selectedValueIndex = findItemIndex(
         store.context.valuesRef.current,
         value,
