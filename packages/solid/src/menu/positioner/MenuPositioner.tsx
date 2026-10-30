@@ -158,9 +158,12 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
           if (details.parentNodeId === floatingNodeIdValue) {
             store.set('hoverEnabled', false);
           }
+          // A submenu that is already closed has nothing to close, and a dropped close would cancel
+          // a hover open it has pending. This mirrors the drop rule in `setOpen`.
           if (
             details.nodeId !== floatingNodeIdValue &&
-            details.parentNodeId === store.select('floatingParentNodeId')
+            details.parentNodeId === store.select('floatingParentNodeId') &&
+            (store.state.open || store.state.openProp)
           ) {
             store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
           }

@@ -85,8 +85,7 @@ export const valuePopupSelectors = {
 
 /**
  * The store of a popup that picks a value from a list of items. It has a single anchor (see
- * `getAnchorElement`) and no trigger registry. Each close decides on its own whether the popup
- * stays mounted.
+ * `getAnchorElement`) and no trigger registry.
  *
  * Port note: upstream restores `anchorElement` in a `setState` override. Here it's a reset the
  * Root derives (see `useAnchorState`).
@@ -97,8 +96,6 @@ export abstract class ValuePopupStore<
   Selectors extends Record<string, (state: Readonly<State>, ...args: any[]) => any>,
   ChangeEventDetails extends PopupOpenChangeEventDetails,
 > extends BasePopupStore<State, Context, Selectors, ChangeEventDetails> {
-  private readonly unmountPrevented = new WeakMap<ChangeEventDetails, () => boolean>();
-
   /**
    * Returns the element the popup belongs to, which the interaction hooks see as its anchor.
    */
@@ -129,20 +126,5 @@ export abstract class ValuePopupStore<
 
   protected override anchorsToActiveTrigger() {
     return false;
-  }
-
-  protected override attachPreventUnmountOnClose(eventDetails: ChangeEventDetails) {
-    const wasUnmountPrevented = super.attachPreventUnmountOnClose(eventDetails);
-    this.unmountPrevented.set(eventDetails, wasUnmountPrevented);
-    return wasUnmountPrevented;
-  }
-
-  protected override completeOpenChange(nextOpen: boolean, eventDetails: ChangeEventDetails) {
-    if (!nextOpen) {
-      this.set(
-        'preventUnmountingOnClose',
-        (this.unmountPrevented.get(eventDetails)?.() ?? false) as State['preventUnmountingOnClose'],
-      );
-    }
   }
 }

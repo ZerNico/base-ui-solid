@@ -313,6 +313,8 @@ function usePopupRootStore<Store extends PopupRootStore>(
   store.context.nested = nested;
   // Port note: upstream applies the anchor state in the store's `setState` (see `BasePopupStore`).
   store.useAnchorState();
+  // Port note: upstream starts open sessions in the store's `setState` (see `BasePopupStore`).
+  store.useOpenSession();
 
   return store;
 }

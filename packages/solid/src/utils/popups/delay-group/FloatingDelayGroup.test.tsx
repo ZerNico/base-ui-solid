@@ -38,7 +38,8 @@ function Tooltip(props: Props) {
   });
   const { refs, context } = floating;
 
-  const delayGroup = useDelayGroup(context.rootStore, {
+  const closeForSibling = () => setOpen(false);
+  const delayGroup = useDelayGroup(Object.assign(context.rootStore, { closeForSibling }), {
     get open() {
       return open();
     },

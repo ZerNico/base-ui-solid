@@ -1,4 +1,4 @@
-import { createSignal, For, Show, untrack } from 'solid-js';
+import { createMemo, createSignal, For, Show, untrack } from 'solid-js';
 import type { Accessor, Component } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
@@ -7,6 +7,7 @@ import { isJSDOM } from '@base-ui-solid/utils/testUtils';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from './utils';
 import type { createRenderer } from './createRenderer';
+import { REASONS } from '../src/internals/reasons';
 
 /**
  * Behavior shared by every popup that supports multiple triggers and detached triggers
@@ -25,8 +26,8 @@ import type { createRenderer } from './createRenderer';
  * Port notes:
  * - `fireEvent` doesn't flush Solid, so the hover helpers flush after dispatching.
  * - `setProps` and `React.useState` wrappers are signal writes. The fixture's props are read
- *   lazily, so changing `nesting` or `triggerCount` recreates the triggers (React remounts them when
- *   the wrapper structure changes) while a new `handle` is passed to the mounted parts.
+ *   lazily, so a new `handle` is passed to the mounted parts. A `triggerCount` change adds or removes
+ *   triggers and keeps the others, like React reconciling them. `nesting` is fixed for a fixture.
  */
 export function detachedTriggersConformanceTests(config: DetachedTriggersTestConfig) {
   const {
@@ -56,27 +57,31 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
     // The mode, the viewport and the positioner props are fixed for a fixture.
     const detached = untrack(() => props.mode) === 'detached';
     const withViewport = untrack(() => props.withViewport) ?? false;
-    // Port note: so are the trigger count and nesting, so a `setProps` call keeps the trigger
-    // elements, like React reconciling them.
-    const triggerCount = untrack(() => props.triggerCount) ?? 2;
+    // Port note: so is the nesting, so a `setProps` call keeps the trigger elements, like React
+    // reconciling them. The triggers are keyed by their number, so a `triggerCount` change keeps the
+    // remaining ones.
     const nesting = untrack(() => props.nesting) ?? 0;
+    const triggerNumbers = createMemo(() =>
+      Array.from({ length: props.triggerCount ?? 2 }, (_, index) => index + 1),
+    );
 
     const renderTriggers = () => {
-      let triggers: JSX.Element = Array.from({ length: triggerCount }, (_, index) => {
-        const number = index + 1;
-        return (
-          <Trigger
-            {...triggerProps}
-            {...props.triggerProps}
-            handle={detached ? props.handle : undefined}
-            id={`trigger-${number}`}
-            data-testid={`trigger-${number}`}
-            payload={number}
-          >
-            {`Trigger ${number}`}
-          </Trigger>
-        );
-      });
+      let triggers: JSX.Element = (
+        <For each={triggerNumbers()}>
+          {(number) => (
+            <Trigger
+              {...triggerProps}
+              {...props.triggerProps}
+              handle={detached ? props.handle : undefined}
+              id={`trigger-${number}`}
+              data-testid={`trigger-${number}`}
+              payload={number}
+            >
+              {`Trigger ${number}`}
+            </Trigger>
+          )}
+        </For>
+      );
 
       for (let level = 0; level < nesting; level += 1) {
         triggers = <div>{triggers}</div>;
@@ -298,6 +303,48 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
             expectActiveTrigger(2);
           });
 
+          it('reports the trigger the popup was opened from for an Escape close', async () => {
+            const onOpenChange = vi.fn();
+            const { user } = await renderFixture({
+              mode,
+              handle: getHandle(),
+              rootProps: { onOpenChange },
+            });
+
+            await openWith(primaryInteraction, user, getTrigger(2));
+            await waitForPopupOpen();
+            expectActiveTrigger(2);
+            await user.keyboard('[Escape]');
+            await waitForPopupClosed();
+
+            expect(onOpenChange).toHaveBeenLastCalledWith(
+              false,
+              expect.objectContaining({ reason: REASONS.escapeKey, trigger: getTrigger(2) }),
+            );
+          });
+
+          it('reports no trigger for a close once the trigger the popup was opened from has unmounted', async () => {
+            const onOpenChange = vi.fn();
+            const handle = getHandle();
+            const { user, setProps } = await renderFixture({
+              mode,
+              handle,
+              rootProps: { onOpenChange },
+            });
+
+            await openWith(primaryInteraction, user, getTrigger(2));
+            await waitForPopupOpen();
+            await setProps({ triggerCount: 1 });
+            // Some popups close as their active trigger unmounts; the others close on Escape.
+            await user.keyboard('[Escape]');
+            await waitForPopupClosed();
+
+            expect(onOpenChange).toHaveBeenLastCalledWith(
+              false,
+              expect.objectContaining({ trigger: undefined }),
+            );
+          });
+
           it('reuses the popup DOM nodes when switching triggers', async () => {
             const { user } = await renderFixture({ mode, handle: getHandle() });
 
@@ -420,6 +467,65 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
               await waitForPopupClosed();
             }
             expectActiveTrigger(null);
+          });
+
+          it('keeps the trigger a controlled `triggerId` moved the popup to while it closes', async () => {
+            const handle = getHandle();
+            let moveToTrigger2 = () => {};
+
+            function Controlled() {
+              const [open, setOpen] = createSignal(false);
+              const [triggerId, setTriggerId] = createSignal<string | null>(null);
+              moveToTrigger2 = () => setTriggerId('trigger-2');
+
+              return (
+                <div style={{ margin: '50px' }}>
+                  <Fixture
+                    mode={mode}
+                    handle={handle}
+                    rootProps={{
+                      get open() {
+                        return open();
+                      },
+                      get triggerId() {
+                        return triggerId();
+                      },
+                      onOpenChange: (
+                        nextOpen: boolean,
+                        details: { preventUnmountOnClose: () => void },
+                      ) => {
+                        if (!nextOpen) {
+                          // Keeps the closed popup mounted, so its content and position can be checked.
+                          details.preventUnmountOnClose();
+                          setTriggerId(null);
+                        }
+                        setOpen(nextOpen);
+                      },
+                    }}
+                    positionerProps={{ side: 'bottom', align: 'start' }}
+                  />
+                </div>
+              );
+            }
+
+            const { user } = await render(() => <Controlled />);
+
+            await openWith(primaryInteraction, user, getTrigger(1));
+            await waitForContent('1');
+            await act(async () => {
+              moveToTrigger2();
+            });
+            await waitForContent('2');
+            expectActiveTrigger(2);
+
+            await user.keyboard('[Escape]');
+            await waitFor(() => {
+              expect(getTrigger(2)).not.toHaveAttribute('data-popup-open');
+            });
+            await flushMicrotasks();
+
+            expect(screen.getByTestId('content').textContent).toBe('2');
+            await expectPositionerAlignedWith(getTrigger(2));
           });
 
           if (Viewport) {

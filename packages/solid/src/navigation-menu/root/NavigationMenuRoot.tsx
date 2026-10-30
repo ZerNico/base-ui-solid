@@ -31,7 +31,6 @@ import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { attachPreventUnmountOnClose } from '../../utils/popups/popupStoreUtils';
 import * as NavigationMenuPositionerCssVars from '../positioner/NavigationMenuPositionerCssVars';
 import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
@@ -255,7 +254,11 @@ export function NavigationMenuRoot<Value = any>(
     }
 
     const changeEventDetails = eventDetails as NavigationMenuRoot.ChangeEventDetails;
-    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(changeEventDetails);
+    // Navigation Menu only takes the request from `onValueChange` itself, not after an `await`.
+    let unmountPrevented = false;
+    changeEventDetails.preventUnmountOnClose = () => {
+      unmountPrevented = true;
+    };
 
     if (nextValue !== currentValue) {
       componentProps.onValueChange?.(nextValue, changeEventDetails);
@@ -269,7 +272,7 @@ export function NavigationMenuRoot<Value = any>(
       // A redundant close (for example the trigger's blur after an imperative close) skips
       // `onValueChange`, so it can't opt out again and must not discard the recorded opt-out.
       if (currentValue != null) {
-        setPreventUnmountOnClose(shouldPreventUnmountOnClose());
+        setPreventUnmountOnClose(unmountPrevented);
       }
       setActivationDirection(null);
       setFloatingRootStore(undefined);

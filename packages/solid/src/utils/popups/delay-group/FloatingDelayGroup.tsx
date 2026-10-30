@@ -6,9 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
 import type { PopupInteractionStore, Delay } from '../types';
-import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../../internals/reasons';
 
 /**
  * Port note: `timeoutMs` is a getter so the context value can stay the same object.
@@ -21,7 +18,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: RefObject<string | null | undefined>;
   currentContextRef: RefObject<{
-    onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
+    closeForSibling: () => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -143,8 +140,13 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  store: PopupInteractionStore,
-  options: UseDelayGroupOptions = { open: false },
+  store: PopupInteractionStore & {
+    /**
+     * Closes the popup because another popup in the group opened.
+     */
+    closeForSibling(): void;
+  },
+  options: UseDelayGroupOptions,
 ): UseDelayGroupReturn {
   const open = () => options.open;
 
@@ -220,7 +222,7 @@ export function useDelayGroup(
       // A new tooltip is opening, so cancel any pending timeout that would reset
       // the group's delay back to the initial value.
       timeout.clear();
-      currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
+      currentContextRef.current = { closeForSibling: store.closeForSibling, setIsInstantPhase };
       currentIdRef.current = floatingIdValue;
       delayRef.current = {
         open: 0,
@@ -230,7 +232,7 @@ export function useDelayGroup(
       if (prevId !== null && prevId !== floatingIdValue) {
         setIsInstantPhase(true);
         prevContext?.setIsInstantPhase(true);
-        prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
+        prevContext?.closeForSibling();
       } else {
         setIsInstantPhase(false);
         prevContext?.setIsInstantPhase(false);

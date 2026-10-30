@@ -292,6 +292,13 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     derives the elements' reset while a kept-mounted positioner is unmounted
     (`useClearPositioning`, the derived `clearPositioning()`), and passes the Positioner's anchor to
     `useFloating` as `positionerAnchor`.
+  - Upstream's `BasePopupStore.setState` also starts an open session when `open` goes from false
+    to true, so a late `preventUnmountOnClose()` applies only until the popup opens again. Here
+    `setState` sees the writes, and the Root's `useOpenSession` effect sees the controlled `open`
+    prop, which is derived and never passes through `setState`. Both share one flag for whether
+    the popup was open, so an open is counted once. The effect runs before the descendants'
+    effects, so a close a descendant commits in the flush that opens the popup belongs to the new
+    session (React's child-first effects would put it in the old one).
   - The focus manager registers its state with its portal as an accessor, and resolves the
     element it manages focus on when it's used (after the DOM updated), since it's found in the
     DOM.

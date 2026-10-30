@@ -681,17 +681,6 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
     });
-    it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
-      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
-      const actionsRef = { current: null as Combobox.Root.Actions | null };
-      const onOpenChange = vi.fn();
-      await render((overrides) => (
-        <Popup actionsRef={refCallback(actionsRef)} onOpenChange={onOpenChange} {...overrides()} />
-      ));
-      await act(() => actionsRef.current!.close());
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
-    });
     it('completes closing once when `unmount` is called twice in one batch', async () => {
       // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef = { current: null as Combobox.Root.Actions | null };

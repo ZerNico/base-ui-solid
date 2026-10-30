@@ -472,19 +472,6 @@ describe('<Select.Root />', () => {
       expect(onOpenChangeComplete.mock.calls.filter(([open]) => !open)).toHaveLength(2);
     });
 
-    it('does not call `onOpenChange` when the `close` action is called while closed', async () => {
-      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
-      const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
-      const onOpenChange = vi.fn();
-      await render(() => (
-        <Popup actionsRef={refCallback(actionsRef)} onOpenChange={onOpenChange} />
-      ));
-
-      await actPart1(() => actionsRef.current!.close());
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
-    });
-
     it('completes closing once when `unmount` is called twice in one batch', async () => {
       // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
       const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
@@ -7547,6 +7534,101 @@ describe('<Select.Root />', () => {
   });
 
   describe('closing', () => {
+    it('reports a close after the parent declined an open without canceling it', async () => {
+      const handleOpenChange = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
+      const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        return (
+          <Select.Root
+            actionsRef={refCallback(actionsRef)}
+            open={open()}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (!nextOpen) {
+                setOpen(false);
+              }
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenLastCalledWith(true, REASONS.triggerPress);
+      });
+      expect(screen.queryByRole('listbox')).toBe(null);
+
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+
+      // The store can't tell a declined open from one the parent applies later, so the close is
+      // reported.
+      expect(handleOpenChange).toHaveBeenLastCalledWith(false, REASONS.imperativeAction);
+    });
+
+    it('does not report a close after the parent canceled an open', async () => {
+      const handleOpenChange = vi.fn();
+      // Port note: `actionsRef` is a callback, `refCallback` stores the actions here.
+      const actionsRef: RefObject<Select.Root.Actions | null> = { current: null };
+
+      function App() {
+        const [open, setOpen] = createSignal(false);
+        return (
+          <Select.Root
+            actionsRef={refCallback(actionsRef)}
+            open={open()}
+            onOpenChange={(nextOpen, eventDetails) => {
+              handleOpenChange(nextOpen, eventDetails.reason);
+              if (nextOpen) {
+                eventDetails.cancel();
+              } else {
+                setOpen(false);
+              }
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(() => <App />);
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(handleOpenChange).toHaveBeenLastCalledWith(true, REASONS.triggerPress);
+      });
+
+      await act(async () => {
+        actionsRef.current!.close();
+      });
+
+      expect(handleOpenChange.mock.calls).toEqual([[true, REASONS.triggerPress]]);
+    });
+
     it('does not notify the interactions of a close that onOpenChange cancels', async () => {
       const onOpenChange = vi.fn((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => {
         if (!open) {
