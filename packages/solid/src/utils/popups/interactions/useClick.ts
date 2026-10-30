@@ -1,6 +1,6 @@
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { getTarget, isTypeableElement } from '../element';
 import { isMouseLikePointerType, isVirtualPointerEvent } from '../event';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -57,7 +57,7 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(store: FloatingRootContext, props: UseClickProps = {}): ElementProps {
+export function useClick(store: PopupInteractionStore, props: UseClickProps = {}): ElementProps {
   const enabled = () => props.enabled ?? true;
   const eventOption = () => props.event ?? 'click';
   const toggle = () => props.toggle ?? true;
@@ -66,7 +66,7 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
   const touchOpenDelay = () => props.touchOpenDelay ?? 0;
   const reason = () => props.reason ?? REASONS.triggerPress;
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   let pointerType: 'mouse' | 'pen' | 'touch' | 'virtual' | undefined;
   const frame = useAnimationFrame();
@@ -95,8 +95,8 @@ export function useClick(store: FloatingRootContext, props: UseClickProps = {}):
     currentTarget: EventTarget | null,
     isClickLikeOpenEvent: (eventType: string | undefined) => boolean,
   ) {
-    const openEvent = dataRef.current.openEvent;
-    const hasClickedOnInactiveTrigger = store.select('domReferenceElement') !== currentTarget;
+    const openEvent = storeContext.openEvent;
+    const hasClickedOnInactiveTrigger = store.select('anchorElement') !== currentTarget;
 
     if (open && hasClickedOnInactiveTrigger) {
       // Moving between triggers should always open the newly active one.

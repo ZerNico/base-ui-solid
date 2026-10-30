@@ -15,9 +15,9 @@ import type {
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popup against the trigger.
@@ -48,7 +48,7 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
   );
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
   const modal = store.useState('modal');
@@ -71,7 +71,7 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
     get anchor() {
       return resolvedAnchor();
     },
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     get positionMethod() {
       return componentProps.positionMethod;
     },
@@ -94,7 +94,7 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
       return componentProps.arrowPadding;
     },
     get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
+      return componentProps.collisionBoundary;
     },
     get collisionPadding() {
       return componentProps.collisionPadding;
@@ -103,7 +103,7 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
       return componentProps.sticky;
     },
     get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
+      return componentProps.disableAnchorTracking;
     },
     get keepMounted() {
       return keepMounted();

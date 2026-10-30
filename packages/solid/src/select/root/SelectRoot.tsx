@@ -13,7 +13,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../utils/popups/interactions/useTypeahead';
 import { useImperativeHandle } from '../../internals/useImperativeHandle';
@@ -41,7 +41,7 @@ import {
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import type { HTMLProps } from '../../internals/types';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
@@ -373,15 +373,15 @@ export function SelectRoot<
     store.set('scrollDownArrowVisible', shouldShowDown);
   };
 
-  const floatingContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     get open() {
       return open();
     },
     onOpenChange: setOpen,
     get elements() {
       return {
-        reference: triggerElement(),
-        floating: positionerElement(),
+        anchor: triggerElement(),
+        positionerElement: positionerElement(),
       };
     },
   });
@@ -389,21 +389,21 @@ export function SelectRoot<
   // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
   // user can see the available options and which one is selected. Committing a value is blocked
   // separately in `SelectItem` and in the hidden input's autofill handler.
-  const click = useClick(floatingContext, {
+  const click = useClick(floatingRootStore, {
     get enabled() {
       return !disabled();
     },
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext);
+  const dismiss = useDismiss(floatingRootStore);
 
   // Bumped when the item list publishes its items (in DOM order, after they rendered), so list
   // navigation can highlight an item once they're there.
   const [itemsVersion, setItemsVersion] = createSignal(0);
   store.useContextCallback('onItemsChange', () => () => setItemsVersion((version) => version + 1));
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigation(floatingRootStore, {
     get enabled() {
       return !disabled();
     },
@@ -442,7 +442,7 @@ export function SelectRoot<
     return open() && openHighlight != null ? { value: openHighlight } : undefined;
   });
 
-  const typeahead = useTypeahead(floatingContext, {
+  const typeahead = useTypeahead(floatingRootStore, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
     // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
     get enabled() {
@@ -635,7 +635,7 @@ export function SelectRoot<
 
   return (
     <SelectRootContext value={store}>
-      <SelectFloatingContext value={floatingContext}>{props.children}</SelectFloatingContext>
+      <SelectFloatingContext value={floatingRootStore}>{props.children}</SelectFloatingContext>
       {useRenderElement('input', EMPTY_OBJECT, {
         ref,
         props: () => [

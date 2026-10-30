@@ -16,7 +16,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
 import type { DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
@@ -130,8 +130,8 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
-  const floatingId = store.useState('floatingId');
-  const popupId = createMemo(() => elementProps.id ?? floatingId());
+  const defaultPopupId = store.useState('defaultPopupId');
+  const popupId = createMemo(() => elementProps.id ?? defaultPopupId());
   const swipe = useDrawerViewportContext();
   void useDialogPortalContext();
   const snapPointData = useDrawerSnapPoints();
@@ -377,7 +377,7 @@ export const DrawerPopup = function DrawerPopup(componentProps: DrawerPopup.Prop
   });
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod()}
       disabled={!mounted()}
       closeOnFocusOut={!disablePointerDismissal()}

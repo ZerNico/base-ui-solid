@@ -2,7 +2,7 @@ import { createContext, useContext } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import type { FloatingContext } from '../../utils/popups/types';
+import type { PopupPositioningContext } from '../../utils/popups/types';
 
 /**
  * Port note: `side`, `align`, `arrowUncentered` and `arrowStyles` are getters (the value is the
@@ -14,7 +14,7 @@ export interface PopoverPositionerContext {
   arrowRef: RefObject<Element | null>;
   readonly arrowUncentered: boolean;
   readonly arrowStyles: JSX.CSSProperties;
-  context: FloatingContext;
+  context: PopupPositioningContext;
 }
 
 export const PopoverPositionerContext = createContext<PopoverPositionerContext | null>(null);

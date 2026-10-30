@@ -17,6 +17,7 @@ import { Menu } from 'base-ui-solid/menu';
 import { portCallback, portForwardRef, createRenderer } from '../../../test/menuPortHelpers';
 import { act } from '../../../test/utils';
 import { describeMenuConformance } from '../../../test/menuConformance';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 
 type Ref<T> = (element: T) => void;
 let ContextMenu: any;
@@ -47,6 +48,8 @@ const Trigger = portForwardRef(function Trigger(props: Menu.Trigger.Props, ref: 
 describe('<Menu.Positioner />', () => {
   beforeEach(resetBrowserPointer);
   const { render } = createRenderer();
+  // Port note: renders a component directly, where the other tests use `menuPortHelpers`.
+  const { render: renderBase } = createBaseRenderer();
   beforeEach(() => {
     useAnchorPositioningSpy.mockClear();
   });
@@ -99,6 +102,99 @@ describe('<Menu.Positioner />', () => {
     // `true` (side only), which is what it shipped with.
     expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe('placement');
   });
+  describe('collision avoidance', () => {
+    beforeEach(async () => {
+      const contextMenuPath = '../../context-menu/index';
+      const menubarPath = '../../menubar/index';
+      ({ ContextMenu } = await import(/* @vite-ignore */ contextMenuPath));
+      ({ Menubar } = await import(/* @vite-ignore */ menubarPath));
+    });
+
+    function SubmenuApp(props: {
+      collisionAvoidance?: Menu.Positioner.Props['collisionAvoidance'];
+    }) {
+      return (
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot open>
+                  <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner data-testid="submenu-positioner" {...props}>
+                      <Menu.Popup />
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    function lastCallFor(positioner: HTMLElement) {
+      const calls = useAnchorPositioningSpy.mock.calls.filter(
+        ([params]) => params.interactionStore.select('positionerElement') === positioner,
+      );
+      return calls[calls.length - 1]?.[0];
+    }
+
+    it('uses the dropdown default for a context menu', async () => {
+      await renderBase(() => (
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>Area</ContextMenu.Trigger>
+          <ContextMenu.Portal keepMounted>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>
+      ));
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the dropdown default for a menubar menu', async () => {
+      await renderBase(() => (
+        <Menubar>
+          <Menu.Root open>
+            <Menu.Trigger>File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>
+      ));
+
+      expect(lastCallFor(screen.getByTestId('positioner'))?.collisionAvoidance).toEqual(
+        DROPDOWN_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the popup default for a submenu', async () => {
+      await renderBase(() => <SubmenuApp />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toEqual(
+        POPUP_COLLISION_AVOIDANCE,
+      );
+    });
+
+    it('uses the collisionAvoidance prop over the default', async () => {
+      const collisionAvoidance = { side: 'none', align: 'none' } as const;
+      await renderBase(() => <SubmenuApp collisionAvoidance={collisionAvoidance} />);
+
+      expect(lastCallFor(screen.getByTestId('submenu-positioner'))?.collisionAvoidance).toBe(
+        collisionAvoidance,
+      );
+    });
+  });
+
   it('leaves lazy flipping off for a plain menu', async () => {
     await render(
       (testProps: any) => <Menu.Root {...testProps} />,

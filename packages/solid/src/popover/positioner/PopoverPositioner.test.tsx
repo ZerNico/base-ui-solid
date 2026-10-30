@@ -71,6 +71,7 @@ describe('<Popover.Positioner />', () => {
   positionerConformanceTests({
     render,
     viewport: true,
+    defaultCollisionAvoidance: 'popup',
     createComponent: (props) => (
       <Popover.Root {...props.root}>
         <Trigger {...props.trigger}>Trigger</Trigger>

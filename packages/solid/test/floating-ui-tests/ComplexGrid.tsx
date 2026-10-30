@@ -78,7 +78,7 @@ export function Main(props: Props) {
           Reference
         </button>
         <Show when={open()}>
-          <FloatingFocusManager context={context.rootStore}>
+          <FloatingFocusManager store={context.rootStore}>
             <div
               ref={refs.setFloating}
               data-testid="floating"

@@ -3,7 +3,7 @@ import type { JSX } from '@solidjs/web';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';

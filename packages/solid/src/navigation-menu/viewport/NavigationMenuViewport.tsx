@@ -8,17 +8,17 @@ import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import {
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
 } from '../../utils/popups/focus/tabbable';
 import { contains } from '../../utils/popups/element';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRootStore';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+const EMPTY_ROOT_STORE = getEmptyRootStore();
 
 /**
  * Port note: returns a ref callback that assigns `refObject`, and resets it when the current owner
@@ -72,7 +72,7 @@ function Guards(props: { children?: JSX.Element | undefined }) {
     afterOutsideRef,
     positionerElement,
     viewportElement,
-    floatingRootContext,
+    floatingRootStore,
   } = useNavigationMenuRootContext();
   const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
 
@@ -83,7 +83,7 @@ function Guards(props: { children?: JSX.Element | undefined }) {
   // after Solid assigns it, moving content beyond the inside focus guards.
   return (
     <>
-      <Show when={floatingRootContext() || hasPositioner}>
+      <Show when={floatingRootStore() || hasPositioner}>
         {(_) => (
           <FocusGuard
             ref={useGuardRef(beforeInsideRef)}
@@ -99,7 +99,7 @@ function Guards(props: { children?: JSX.Element | undefined }) {
         )}
       </Show>
       {props.children}
-      <Show when={floatingRootContext() || hasPositioner}>
+      <Show when={floatingRootStore() || hasPositioner}>
         {(_) => (
           <FocusGuard
             ref={useGuardRef(afterInsideRef)}
@@ -133,7 +133,7 @@ export function NavigationMenuViewport(componentProps: NavigationMenuViewport.Pr
   const {
     setViewportElement,
     setViewportTargetElement,
-    floatingRootContext,
+    floatingRootStore,
     prevTriggerElementRef,
     viewportInert,
     setViewportInert,
@@ -143,7 +143,7 @@ export function NavigationMenuViewport(componentProps: NavigationMenuViewport.Pr
   const hasPositioner = Boolean(positioning);
   // Port note: the active trigger's store replaces the root context, so the subscription follows it.
   const domReferenceState = createMemo(() =>
-    (floatingRootContext() || EMPTY_ROOT_CONTEXT).useState('domReferenceElement'),
+    (floatingRootStore() || EMPTY_ROOT_STORE).useState('anchorElement'),
   );
   const domReference = () => domReferenceState()();
 

@@ -12,7 +12,7 @@ import { ownerDocument, ownerWindow } from '@base-ui-solid/utils/owner';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { onCleanupWithWrites } from '@base-ui-solid/utils/cleanup';
 import type { FocusManagerState } from '../portal/FloatingPortal';
-import { FocusGuard } from '../../FocusGuard';
+import { FocusGuard } from './FocusGuard';
 import {
   activeElement,
   closest,
@@ -34,7 +34,7 @@ import {
 import type { FocusableElement } from './tabbable';
 import { getNodeAncestors, getNodeChildren } from '../tree/nodes';
 import { isElementVisible } from '../../../internals/composite/listIndex';
-import type { FloatingRootContext } from '../types';
+import type { PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
 import { createAttribute } from '../createAttribute';
@@ -158,15 +158,15 @@ function handleTabIndex(floatingFocusElement: HTMLElement) {
 }
 
 /**
- * Port note: read like Solid props (`props.x`), so the props may change over time. `context` and
+ * Port note: read like Solid props (`props.x`), so the props may change over time. `store` and
  * `externalTree` are read once.
  */
 export interface FloatingFocusManagerProps {
   children: JSX.Element;
   /**
-   * The floating context returned from `useFloatingRootContext`.
+   * The popup's interaction store.
    */
-  context: FloatingRootContext;
+  store: PopupInteractionStore;
   /**
    * The interaction type used to open the floating element.
    */
@@ -279,7 +279,7 @@ export interface FloatingFocusManagerProps {
  * @internal
  */
 export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Element {
-  const store = untrack(() => props.context);
+  const store = untrack(() => props.store);
   const disabled = () => props.disabled ?? false;
   const initialFocus = () => (props.initialFocus === undefined ? true : props.initialFocus);
   const returnFocus = () => (props.returnFocus === undefined ? true : props.returnFocus);
@@ -292,12 +292,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
   const previousFocusableElement = () => props.previousFocusableElement;
 
   const open = store.useState('open');
-  const domReference = store.useState('domReferenceElement');
-  const floating = store.useState('floatingElement');
+  const domReference = store.useState('anchorElement');
+  const floating = store.useState('positionerElement');
 
-  const { events, dataRef } = store.context;
+  const storeContext = store.context;
+  const { events } = storeContext;
 
-  const getNodeId = () => dataRef.current.floatingContext?.nodeId;
+  const getNodeId = () => storeContext.positioning?.nodeId;
 
   const ignoreInitialFocus = () => initialFocus() === false;
   // A typeable combobox reference (e.g. input/textarea) with `initialFocus={false}`
@@ -597,8 +598,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
           }
 
           // https://github.com/floating-ui/floating-ui/issues/3060
-          if (dataRef.current.insideReactTree) {
-            dataRef.current.insideReactTree = false;
+          if (storeContext.insideReactTree) {
+            storeContext.insideReactTree = false;
             return;
           }
 
@@ -628,22 +629,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
         if (pointerDownOutside) {
           return;
         }
-        dataRef.current.insideReactTree = true;
+        storeContext.insideReactTree = true;
         blurTimeout.start(0, () => {
-          dataRef.current.insideReactTree = false;
+          storeContext.insideReactTree = false;
         });
       }
 
-      const domReferenceElement = isHTMLElement(domReferenceValue) ? domReferenceValue : null;
-      if (!floatingValue && !domReferenceElement) {
+      const anchorElement = isHTMLElement(domReferenceValue) ? domReferenceValue : null;
+      if (!floatingValue && !anchorElement) {
         return undefined;
       }
 
       return mergeCleanups(
-        domReferenceElement &&
-          addEventListener(domReferenceElement, 'focusout', handleFocusOutside),
-        domReferenceElement &&
-          addEventListener(domReferenceElement, 'pointerdown', handlePointerDown),
+        anchorElement && addEventListener(anchorElement, 'focusout', handleFocusOutside),
+        anchorElement && addEventListener(anchorElement, 'pointerdown', handlePointerDown),
         floatingValue && addEventListener(floatingValue, 'focusin', handleFocusIn),
         floatingValue && addEventListener(floatingValue, 'focusout', handleFocusOutside),
         floatingValue &&
@@ -797,7 +796,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
 
         // Screen readers re-sync focus to their cursor right after a synthesized press. A focus
         // that lands a frame later reads as a stray move and gets pulled back to the reference.
-        const openEvent = dataRef.current.openEvent;
+        const openEvent = storeContext.openEvent;
         const openedByVirtualPress =
           openEvent?.type === 'mousedown' && isVirtualClick(openEvent as MouseEvent);
 

@@ -56,13 +56,18 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
     // The mode, the viewport and the positioner props are fixed for a fixture.
     const detached = untrack(() => props.mode) === 'detached';
     const withViewport = untrack(() => props.withViewport) ?? false;
+    // Port note: so are the trigger count and nesting, so a `setProps` call keeps the trigger
+    // elements, like React reconciling them.
+    const triggerCount = untrack(() => props.triggerCount) ?? 2;
+    const nesting = untrack(() => props.nesting) ?? 0;
 
     const renderTriggers = () => {
-      let triggers: JSX.Element = Array.from({ length: props.triggerCount ?? 2 }, (_, index) => {
+      let triggers: JSX.Element = Array.from({ length: triggerCount }, (_, index) => {
         const number = index + 1;
         return (
           <Trigger
             {...triggerProps}
+            {...props.triggerProps}
             handle={detached ? props.handle : undefined}
             id={`trigger-${number}`}
             data-testid={`trigger-${number}`}
@@ -73,7 +78,7 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
         );
       });
 
-      for (let level = 0; level < (props.nesting ?? 0); level += 1) {
+      for (let level = 0; level < nesting; level += 1) {
         triggers = <div>{triggers}</div>;
       }
 
@@ -547,6 +552,37 @@ export function detachedTriggersConformanceTests(config: DetachedTriggersTestCon
           }
         });
 
+        it.skipIf(!openInteractions.includes('hover'))(
+          'drops a hover open pending when the root mounts and opens on the next hover',
+          async () => {
+            const delay = 50;
+            const { setProps } = await renderFixture({
+              mode: 'detached',
+              handle: createHandle(),
+              rootMounted: false,
+              triggerProps: { delay },
+            });
+            const trigger = getTrigger(1);
+
+            fireEvent.mouseEnter(trigger);
+            fireEvent.mouseMove(trigger);
+            await setProps({ rootMounted: true });
+
+            await act(async () => {
+              await new Promise((resolve) => {
+                setTimeout(resolve, delay * 2);
+              });
+            });
+            expect(screen.queryByTestId('popup')).toBe(null);
+
+            fireEvent.mouseLeave(trigger);
+            fireEvent.mouseEnter(trigger);
+            fireEvent.mouseMove(trigger);
+            await waitForContent('1');
+            expectActiveTrigger(1);
+          },
+        );
+
         it('registers a detached trigger declared after the root', async () => {
           const { user } = await renderFixture({
             mode: 'detached',
@@ -787,4 +823,8 @@ interface FixtureProps {
   nesting?: number;
   positionerProps?: Record<string, unknown>;
   withViewport?: boolean;
+  /**
+   * Props applied to every trigger, over the config's `triggerProps`.
+   */
+  triggerProps?: Record<string, unknown>;
 }

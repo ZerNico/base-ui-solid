@@ -6,8 +6,8 @@ import { useFloating as usePosition } from './dom';
 import type { VirtualElement } from './dom';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type {
-  FloatingContext,
-  FloatingRootContext,
+  PopupPositioningContext,
+  PopupInteractionStore,
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
@@ -20,45 +20,45 @@ import type {
  * @see https://floating-ui.com/docs/useFloating
  *
  * Port note: `options` is read lazily (pass getters for reactive options).
- * `nodeId`, `externalTree`, and `rootContext` are read reactively: like upstream re-rendering with
+ * `nodeId`, `externalTree`, and `rootStore` are read reactively: like upstream re-rendering with
  * another store, a new store is subscribed to (Navigation Menu's positioner switches to the active
  * trigger's store). The returned object and its `context` expose the positioning data (and the
  * store-dependent fields) through getters (see `UseFloatingReturn` in `../dom`).
  */
 export function useBaseUIFloating(
-  options: UseFloatingOptions & { rootContext: FloatingRootContext },
+  options: UseFloatingOptions & { rootStore: PopupInteractionStore },
 ): UseFloatingReturn {
   // Port note: detached triggers can replace the node and tree after the popup mounts.
   const nodeId = () => options.nodeId;
 
-  const store = createMemo(() => options.rootContext);
+  const store = createMemo(() => options.rootStore);
   // The subscriptions are owned by the memo, so they're disposed when the store changes.
   const storeState = createMemo(
     () => {
       const currentStore = store();
       return {
-        referenceElement: currentStore.useState('referenceElement'),
-        floatingElement: currentStore.useState('floatingElement'),
-        domReferenceElement: currentStore.useState('domReferenceElement'),
+        anchor: currentStore.useState('anchor'),
+        positionerElement: currentStore.useState('positionerElement'),
+        anchorElement: currentStore.useState('anchorElement'),
         open: currentStore.useState('open'),
-        floatingId: currentStore.useState('floatingId'),
+        defaultPopupId: currentStore.useState('defaultPopupId'),
       };
     },
     { equals: fastObjectShallowCompare },
   );
 
-  const referenceElement = () => storeState().referenceElement();
-  const floatingElement = () => storeState().floatingElement();
-  const domReferenceElement = () => storeState().domReferenceElement();
+  const anchor = () => storeState().anchor();
+  const positionerElement = () => storeState().positionerElement();
+  const anchorElement = () => storeState().anchorElement();
   const open = () => storeState().open();
-  const floatingId = () => storeState().floatingId();
+  const defaultPopupId = () => storeState().defaultPopupId();
 
-  // Port note: `options.positionReference` derives the position reference (`undefined` leaves it
+  // Port note: `options.positionerAnchor` derives the Positioner's anchor (`undefined` leaves it
   // as it is), instead of an effect calling `refs.setPositionReference`. A call still sets it,
   // until the option changes.
-  const [positionReference, setPositionReferenceRaw] = createSignal<ReferenceType | null>(
+  const [positionerAnchor, setPositionerAnchor] = createSignal<ReferenceType | null>(
     (previous) => {
-      const node = options.positionReference;
+      const node = options.positionerAnchor;
       if (node === undefined) {
         return previous ?? null;
       }
@@ -96,19 +96,19 @@ export function useBaseUIFloating(
     },
     elements: {
       get reference() {
-        return positionReference() || referenceElement();
+        return positionerAnchor() || anchor();
       },
       get floating() {
-        return floatingElement();
+        return positionerElement();
       },
     },
   });
 
   const setPositionReference = (node: ReferenceType | null) => {
     const computedPositionReference = toPositionReference(node, null);
-    // Store the positionReference in state if the DOM reference is specified externally via the
-    // `elements.reference` option. This ensures that it won't be overridden on future renders.
-    setPositionReferenceRaw(() => computedPositionReference);
+    // Keep the Positioner's anchor in state when the store also has an anchor, so the store's
+    // doesn't replace it on future renders.
+    setPositionerAnchor(() => computedPositionReference);
     position.refs.setReference(computedPositionReference);
   };
 
@@ -126,11 +126,11 @@ export function useBaseUIFloating(
       return position.elements.floating;
     },
     get domReference() {
-      return domReferenceElement() as NarrowedElement<ReferenceType> | null;
+      return anchorElement() as NarrowedElement<ReferenceType> | null;
     },
   };
 
-  const context: FloatingContext = {
+  const context: PopupPositioningContext = {
     get x() {
       return position.x;
     },
@@ -153,20 +153,11 @@ export function useBaseUIFloating(
       return position.floatingStyles;
     },
     update: position.update,
-    get dataRef() {
-      return store().context.dataRef;
-    },
     get open() {
       return open();
     },
-    get onOpenChange() {
-      return store().setOpen;
-    },
-    get events() {
-      return store().context.events;
-    },
-    get floatingId() {
-      return floatingId();
+    get defaultPopupId() {
+      return defaultPopupId();
     },
     refs,
     elements,
@@ -184,15 +175,15 @@ export function useBaseUIFloating(
         domReferenceRef.current = domReference as NarrowedElement<ReferenceType> | null;
       }
     },
-    () => [domReferenceElement()],
+    () => [anchorElement()],
   );
 
   // Port note: upstream re-assigns the (new) context object after every render. The context is
   // a single object here, so it's assigned once per store.
-  untrack(store).context.dataRef.current.floatingContext = context;
+  untrack(store).context.positioning = context;
   useIsoLayoutEffect(
     ([treeValue, currentStore, nodeIdValue]) => {
-      currentStore.context.dataRef.current.floatingContext = context;
+      currentStore.context.positioning = context;
 
       const node = treeValue?.nodesRef.current.find((n) => n.id === nodeIdValue);
       if (node) {

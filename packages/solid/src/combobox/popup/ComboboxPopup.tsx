@@ -7,7 +7,7 @@ import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusMana
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -43,7 +43,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
 
   const mounted = store.useState('mounted');
   const open = store.useState('open');
@@ -149,7 +149,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
 
   return (
     <FloatingFocusManager
-      context={floatingRootContext}
+      store={floatingRootStore}
       disabled={!mounted()}
       modal={focusManagerModal()}
       openInteractionType={openMethod()}

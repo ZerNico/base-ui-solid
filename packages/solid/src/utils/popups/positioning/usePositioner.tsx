@@ -1,11 +1,11 @@
 import type { Accessor } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { popupStateMapping } from './popupStateMapping';
-import { useRenderElement } from '../internals/useRenderElement';
-import type { UseRenderElementComponentProps } from '../internals/useRenderElement';
-import { getDisabledMountTransitionStyles } from '../internals/getDisabledMountTransitionStyles';
-import type { TransitionStatus } from '../internals/useTransitionStatus';
-import type { HTMLProps } from '../internals/types';
+import { popupStateMapping } from '../popupStateMapping';
+import { useRenderElement } from '../../../internals/useRenderElement';
+import type { UseRenderElementComponentProps } from '../../../internals/useRenderElement';
+import { getDisabledMountTransitionStyles } from '../../../internals/getDisabledMountTransitionStyles';
+import type { TransitionStatus } from '../../../internals/useTransitionStatus';
+import type { HTMLProps } from '../../../internals/types';
 
 interface UsePositionerOptions {
   styles: JSX.CSSProperties;

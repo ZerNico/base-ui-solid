@@ -10,14 +10,10 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useFloatingTree } from '../../utils/popups/tree/FloatingTree';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
-import {
-  applySafePolygonPointerEventsMutation,
-  clearSafePolygonPointerEventsMutation,
-  useHoverInteractionSharedState,
-} from '../../utils/popups/interactions/useHoverInteractionSharedState';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
+import { getHoverIntent } from '../../utils/popups/interactions/hoverIntent';
 import { closest, contains } from '../../utils/popups/element';
 import {
   getTabbableNearElement,
@@ -36,8 +32,8 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -74,7 +70,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     open,
     positionerElement,
     setActivationDirection,
-    registerTriggerContext,
+    registerTriggerStore,
     popupElement,
     viewportElement,
     transitionStatus,
@@ -118,9 +114,9 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
   const isActiveItem = createMemo(() => open() && value() === itemValue());
   const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = () => (positionerElement() != null || value() == null) && !disabled();
-  const hoverFloatingElement = () => positionerElement() || viewportElement();
+  const hoverPopupElement = () => positionerElement() || viewportElement();
   const hoverInteractionsEnabled = () =>
-    (hoverFloatingElement() != null || value() == null) && !disabled();
+    (hoverPopupElement() != null || value() == null) && !disabled();
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
@@ -485,54 +481,48 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     }
   }
 
-  const context = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     get open() {
       return open();
     },
     onOpenChange: handleOpenChange,
     elements: {
-      get reference() {
+      get anchor() {
         return triggerElement();
       },
-      get floating() {
-        return hoverFloatingElement();
+      get positionerElement() {
+        return hoverPopupElement();
       },
     },
   });
 
-  const hoverInteractionState = useHoverInteractionSharedState(context);
+  const hoverIntent = getHoverIntent(floatingRootStore);
   const shouldBlockSafePolygonPointerEvents = () => pointerType() !== 'touch';
 
-  // Port note: upstream clears the safe-polygon pointer-events block in this effect's cleanup on
-  // every `open` change, and React runs all cleanups before the new setups, so the floating hover
-  // interaction re-applies the block after it on open. Solid runs each effect's cleanup and setup
-  // in turn, so the result would depend on the effect order. Clear it when closing and on unmount
-  // instead: on open, applying the block clears a stale one first.
+  // Port note: upstream restores the outside pointer events in this effect's cleanup on every
+  // `open` change, and React runs all cleanups before the new setups, so the popup hover
+  // interaction blocks them again after it on open. Solid runs each effect's cleanup and setup in
+  // turn, so the result would depend on the effect order. Restore them when closing (`reset()`)
+  // and on unmount instead: on open, blocking them restores a stale block first.
   useEffect(
     ([isOpen]) => {
       if (!isOpen) {
-        context.context.dataRef.current.openEvent = undefined;
-        hoverInteractionState.pointerType = undefined;
-        hoverInteractionState.interactedInside = false;
-        hoverInteractionState.restTimeoutPending = false;
-        hoverInteractionState.openChangeTimeout.clear();
-        hoverInteractionState.restTimeout.clear();
-        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+        floatingRootStore.context.openEvent = undefined;
+        hoverIntent.reset();
+        hoverIntent.cancelPendingOpen();
       }
     },
     () => [open()],
   );
-  onCleanup(() => {
-    clearSafePolygonPointerEventsMutation(hoverInteractionState);
-  });
+  onCleanup(hoverIntent.restoreOutsidePointerEvents);
 
   const getInlineHandleCloseContext = () => {
-    const hoverFloating = untrack(hoverFloatingElement);
-    if (!nested || untrack(positionerElement) || !triggerElementRef.current || !hoverFloating) {
+    const hoverPopup = untrack(hoverPopupElement);
+    if (!nested || untrack(positionerElement) || !triggerElementRef.current || !hoverPopup) {
       return null;
     }
 
-    return getHandleCloseContext(triggerElementRef.current, hoverFloating, nodeId);
+    return getHandleCloseContext(triggerElementRef.current, hoverPopup, nodeId);
   };
 
   function getScope() {
@@ -552,7 +542,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     }),
   );
 
-  const hoverProps = useHoverReferenceInteraction(context, {
+  const hoverProps = useHoverTriggerInteraction(floatingRootStore, {
     get enabled() {
       return hoverInteractionsEnabled();
     },
@@ -573,7 +563,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
   // Port note: handleActivation flushes before the merged click interaction runs. React
   // keeps the pre-activation toggle option for that event; preserve it in Solid too.
   let clickToggleOverride: boolean | undefined;
-  const click = useClick(context, {
+  const click = useClick(floatingRootStore, {
     get enabled() {
       return interactionsEnabled();
     },
@@ -586,8 +576,8 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
   });
   const referenceProps = () => mergePropsSnapshot(click.reference, hoverProps());
 
-  // Port note: the root derives its floating context from the active item's registration.
-  onCleanup(registerTriggerContext({ value: itemValue, context }));
+  // Port note: the root derives its root store from the active item's registration.
+  onCleanup(registerTriggerStore({ value: itemValue, store: floatingRootStore }));
 
   useIsoLayoutEffect(
     ([isActive, trigger]) => {
@@ -605,7 +595,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
       const trigger = untrack(triggerElement);
       const currentValue = untrack(value);
-      const hoverFloating = untrack(hoverFloatingElement);
+      const hoverPopup = untrack(hoverPopupElement);
 
       if (untrack(mounted) && prevTriggerRect && trigger) {
         const nextTriggerRect = trigger.getBoundingClientRect();
@@ -629,7 +619,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click' && currentValue != null) {
-        context.context.dataRef.current.openEvent = undefined;
+        floatingRootStore.context.openEvent = undefined;
       }
 
       if (untrack(pointerType) === 'touch' && event.type !== 'click') {
@@ -652,15 +642,15 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
         event.type === 'mouseenter' &&
         untrack(shouldBlockSafePolygonPointerEvents) &&
         (!nested || !untrack(positionerElement)) &&
-        hoverFloating
+        hoverPopup
       ) {
         const applyPointerEventsMutation = () => {
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+          hoverIntent.blockOutsidePointerEvents({
             scopeElement,
-            referenceElement: currentTarget,
-            floatingElement: hoverFloating,
+            triggerElement: currentTarget,
+            positionerElement: hoverPopup,
           });
         };
 
@@ -723,7 +713,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
 
   function handleTriggerPointerDown(event: PointerEvent) {
     handleSetPointerType(event);
-    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    hoverIntent.restoreOutsidePointerEvents();
   }
 
   // Port note: React's `onFocus`/`onBlur` become `onFocusIn`/`onFocusOut`.
@@ -744,7 +734,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     },
     onMouseLeave() {
       if (untrack(value) == null) {
-        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+        hoverIntent.restoreOutsidePointerEvents();
       }
     },
     onKeyDown(event: KeyboardEvent) {
@@ -790,7 +780,7 @@ export function NavigationMenuTrigger(componentProps: NavigationMenuTrigger.Prop
     native: nativeButton,
   });
 
-  const referenceElement = hoverFloatingElement;
+  const referenceElement = hoverPopupElement;
 
   return (
     <>
@@ -915,11 +905,11 @@ export namespace NavigationMenuTrigger {
 }
 
 function getPlacementFromElements(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  positionerElement: HTMLElement,
 ): HandleCloseContextBase['placement'] {
-  const referenceRect = domReferenceElement.getBoundingClientRect();
-  const floatingRect = floatingElement.getBoundingClientRect();
+  const referenceRect = anchorElement.getBoundingClientRect();
+  const floatingRect = positionerElement.getBoundingClientRect();
   const referenceCenterX = referenceRect.left + referenceRect.width / 2;
   const referenceCenterY = referenceRect.top + referenceRect.height / 2;
   const floatingCenterX = floatingRect.left + floatingRect.width / 2;
@@ -935,15 +925,15 @@ function getPlacementFromElements(
 }
 
 function getHandleCloseContext(
-  domReferenceElement: Element,
-  floatingElement: HTMLElement,
+  anchorElement: Element,
+  positionerElement: HTMLElement,
   nodeId: string | undefined,
 ): HandleCloseContextBase {
   return {
-    placement: getPlacementFromElements(domReferenceElement, floatingElement),
+    placement: getPlacementFromElements(anchorElement, positionerElement),
     elements: {
-      domReference: domReferenceElement,
-      floating: floatingElement,
+      domReference: anchorElement,
+      floating: positionerElement,
     },
     nodeId,
   };

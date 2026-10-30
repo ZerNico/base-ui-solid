@@ -10,7 +10,6 @@ import {
   enableFocusInside,
   isOutsideEvent,
 } from '../../utils/popups/focus/tabbable';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
@@ -22,13 +21,12 @@ import type {
   Side,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import { useNavigationMenuAnchorPositioning } from '../utils/useNavigationMenuAnchorPositioning';
+import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { usePositioner } from '../../utils/usePositioner';
-
-const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
+import { adaptiveOrigin } from '../../utils/popups/positioning/adaptiveOriginMiddleware';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -42,7 +40,7 @@ export function NavigationMenuPositioner(componentProps: NavigationMenuPositione
     mounted,
     positionerElement,
     setPositionerElement,
-    floatingRootContext,
+    floatingRootStore,
     nested,
     transitionStatus,
   } = useNavigationMenuRootContext();
@@ -107,18 +105,24 @@ export function NavigationMenuPositioner(componentProps: NavigationMenuPositione
     () => [positionerElement()],
   );
 
-  // Port note: the active trigger's store replaces the root context, so the subscription follows it.
-  const domReferenceState = createMemo(() =>
-    (floatingRootContext() || EMPTY_ROOT_CONTEXT).useState('domReferenceElement'),
-  );
+  // The active trigger supplies the root store after the positioner has already rendered.
+  const fallbackRootStore = useFloatingRootStore({
+    get open() {
+      return keepMounted() ? mounted() : undefined;
+    },
+  });
+  const interactionStore = () => floatingRootStore() || fallbackRootStore;
+
+  // Port note: the active trigger's store replaces the fallback, so the subscription follows it.
+  const domReferenceState = createMemo(() => interactionStore().useState('anchorElement'));
   const domReference = () => domReferenceState()();
 
-  const positioning = useNavigationMenuAnchorPositioning({
+  const positioning = useAnchorPositioning({
     get anchor() {
       return componentProps.anchor ?? domReference();
     },
     get positionMethod() {
-      return componentProps.positionMethod ?? 'absolute';
+      return componentProps.positionMethod;
     },
     get mounted() {
       return mounted();
@@ -127,34 +131,34 @@ export function NavigationMenuPositioner(componentProps: NavigationMenuPositione
       return componentProps.side ?? 'bottom';
     },
     get sideOffset() {
-      return componentProps.sideOffset ?? 0;
+      return componentProps.sideOffset;
     },
     get align() {
       return componentProps.align ?? 'center';
     },
     get alignOffset() {
-      return componentProps.alignOffset ?? 0;
+      return componentProps.alignOffset;
     },
     get arrowPadding() {
-      return componentProps.arrowPadding ?? 5;
+      return componentProps.arrowPadding;
     },
     get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
+      return componentProps.collisionBoundary;
     },
     get collisionPadding() {
-      return componentProps.collisionPadding ?? 5;
+      return componentProps.collisionPadding;
     },
     get sticky() {
-      return componentProps.sticky ?? false;
+      return componentProps.sticky;
     },
     get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
+      return componentProps.disableAnchorTracking;
     },
     get keepMounted() {
       return keepMounted();
     },
-    get floatingRootContext() {
-      return floatingRootContext();
+    get interactionStore() {
+      return interactionStore();
     },
     get collisionAvoidance() {
       return (

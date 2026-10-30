@@ -8,7 +8,9 @@ import { useTestInteractions } from '#test-utils';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import type { ElementProps } from '../../src/utils/popups/types';
 import { autoUpdate, flip, offset, shift } from '../../src/utils/popups/positioning/dom';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
@@ -26,7 +28,6 @@ import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useListNavigation } from '../../src/utils/popups/interactions/useListNavigation';
 import { useTypeahead } from '../../src/utils/popups/interactions/useTypeahead';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import { gridNavigation } from '../../src/utils/popups/interactions/gridNavigation';
 import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './MenuOrientation.module.css';
@@ -128,22 +129,23 @@ export function MenuComponent(componentProps: MenuProps & ButtonProps) {
     whileElementsMounted: autoUpdate,
   });
   const { refs, context } = floating;
-  const fallbackContext = getEmptyRootContext();
-  const hoverContext = () => (isNested && allowHover() ? context : fallbackContext);
+  const fallbackStore = getEmptyRootStore();
+  const hoverStore = () => (isNested && allowHover() ? context.rootStore : fallbackStore);
 
-  // Port note: hooks run once in Solid, so the hover hook is recreated when its context changes.
-  const hoverForContext = createMemo(() =>
-    useHover(hoverContext(), {
+  // Port note: hooks run once in Solid, so the hover hooks are recreated when their store changes.
+  const hoverForStore = createMemo(() => {
+    const store = hoverStore();
+    const reference = useHoverTriggerInteraction(store, {
       delay: { open: 75 },
       handleClose: safePolygon({ blockPointerEvents: true }),
-    }),
-  );
+      triggerElementRef: store === fallbackStore ? undefined : refs.domReference,
+    });
+    useHoverPopupInteraction(store);
+    return reference;
+  });
   const hover: ElementProps = {
     get reference() {
-      return hoverForContext().reference;
-    },
-    get floating() {
-      return hoverForContext().floating;
+      return hoverForStore()();
     },
   };
   const click = useClick(context.rootStore, {
@@ -288,7 +290,7 @@ export function MenuComponent(componentProps: MenuProps & ButtonProps) {
         aria-haspopup="menu"
         // Port note: Solid removes `false` attributes, React renders them.
         aria-expanded={isOpen() ? 'true' : 'false'}
-        aria-controls={isOpen() ? context.floatingId : undefined}
+        aria-controls={isOpen() ? context.defaultPopupId : undefined}
         data-open={isOpen() ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabindex={!isNested ? props.tabindex : parent.activeIndex === item.index() ? 0 : -1}
@@ -331,14 +333,14 @@ export function MenuComponent(componentProps: MenuProps & ButtonProps) {
           <Show when={keepMounted() || isOpen()}>
             <FloatingPortal>
               <FloatingFocusManager
-                context={context.rootStore}
+                store={context.rootStore}
                 modal={false}
                 initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div
                   ref={refs.setFloating}
-                  id={context.floatingId}
+                  id={context.defaultPopupId}
                   role="menu"
                   aria-labelledby={triggerId}
                   class={[

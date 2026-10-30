@@ -2,7 +2,7 @@ import { createMemo, omit } from 'solid-js';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { REASONS } from '../../internals/reasons';

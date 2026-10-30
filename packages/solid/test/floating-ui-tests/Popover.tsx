@@ -1,7 +1,9 @@
 import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useTestInteractions } from '#test-utils';
-import { getEmptyRootContext } from '../../src/utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../src/utils/popups/floating-root/getEmptyRootStore';
+import { useHoverPopupInteraction } from '../../src/utils/popups/interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../../src/utils/popups/interactions/useHoverTriggerInteraction';
 import type { Placement } from '../../src/utils/popups/positioning/dom';
 import { autoUpdate, flip, offset, shift } from '../../src/utils/popups/positioning/dom';
 import { FloatingFocusManager } from '../../src/utils/popups/focus/FloatingFocusManager';
@@ -16,7 +18,6 @@ import { safePolygon } from '../../src/utils/popups/interactions/safePolygon';
 import { useClick } from '../../src/utils/popups/interactions/useClick';
 import { useDismiss } from '../../src/utils/popups/interactions/useDismiss';
 import { useFloating } from './useFloating';
-import { useHover } from './useHover';
 import styles from './Popover.module.css';
 
 /** @internal */
@@ -139,13 +140,23 @@ function PopoverComponent(props: Props) {
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
   const triggerId = `${id}-trigger`;
-  const fallbackContext = getEmptyRootContext();
+  const fallbackStore = getEmptyRootStore();
+  // Port note: the hover store is chosen once (upstream switches it on every render).
+  const hover = untrack(() => props.hover);
+  const hoverStore = hover ? context.rootStore : fallbackStore;
 
-  // Port note: the hover context is chosen once (upstream switches it on every render).
+  const hoverReferenceProps = useHoverTriggerInteraction(hoverStore, {
+    handleClose: safePolygon({ blockPointerEvents: true }),
+    triggerElementRef: hover ? refs.domReference : undefined,
+  });
+  useHoverPopupInteraction(hoverStore);
+
   const { getReferenceProps, getFloatingProps } = useTestInteractions([
-    useHover(untrack(() => props.hover) ? context : fallbackContext, {
-      handleClose: safePolygon({ blockPointerEvents: true }),
-    }),
+    {
+      get reference() {
+        return hoverReferenceProps();
+      },
+    },
     useClick(context.rootStore),
     useDismiss(context.rootStore, {
       get bubbles() {
@@ -162,18 +173,18 @@ function PopoverComponent(props: Props) {
           id: triggerId,
           'aria-haspopup': 'dialog',
           'aria-expanded': open() ? 'true' : 'false',
-          'aria-controls': open() ? context.floatingId : undefined,
+          'aria-controls': open() ? context.defaultPopupId : undefined,
           'data-open': open() ? '' : undefined,
         }),
       )}
       <FloatingPortal>
         <Show when={open()}>
-          <FloatingFocusManager context={context.rootStore} modal={props.modal ?? true}>
+          <FloatingFocusManager store={context.rootStore} modal={props.modal ?? true}>
             <div
               class={styles.Floating}
               ref={refs.setFloating}
               style={floating.floatingStyles}
-              id={context.floatingId}
+              id={context.defaultPopupId}
               role="dialog"
               aria-labelledby={labelId}
               aria-describedby={descriptionId}

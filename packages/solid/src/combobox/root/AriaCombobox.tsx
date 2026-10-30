@@ -15,7 +15,7 @@ import { useImperativeHandle } from '../../internals/useImperativeHandle';
 import type { ElementProps } from '../../utils/popups/types';
 import { getOverflowAncestors } from '../../utils/popups/positioning/dom';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { useListNavigation } from '../../utils/popups/interactions/useListNavigation';
 import { useClick } from '../../utils/popups/interactions/useClick';
 import { gridNavigation } from '../../utils/popups/interactions/gridNavigation';
@@ -51,7 +51,7 @@ import { createCollatorItemFilter } from './utils';
 import type { FilterItemToString } from './utils';
 import { getFilter } from '../../internals/filter';
 import { useUnmountAfterClose } from '../../internals/useUnmountAfterClose';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
 import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -1460,15 +1460,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
   useValueChanged(inputValue, handleInputValueChanged);
 
-  const floatingRootContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     get open() {
       return inline() ? true : open();
     },
     onOpenChange: setOpen,
     get elements() {
       return {
-        reference: inputInsidePopup() ? triggerElement() : inputElement(),
-        floating: positionerElement(),
+        anchor: inputInsidePopup() ? triggerElement() : inputElement(),
+        positionerElement: positionerElement(),
       };
     },
   });
@@ -1516,7 +1516,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
   // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
   // typeahead, the clear/remove parts, and the hidden input's autofill handler.
-  const click = useClick(floatingRootContext, {
+  const click = useClick(floatingRootStore, {
     get enabled() {
       return !disabled() && openOnInputClick();
     },
@@ -1530,7 +1530,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     reason: REASONS.inputPress,
   });
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(floatingRootStore, {
     get enabled() {
       return !disabled() && !inline();
     },
@@ -1556,7 +1556,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   });
 
-  const listNavigation = useListNavigation(floatingRootContext, {
+  const listNavigation = useListNavigation(floatingRootStore, {
     get enabled() {
       return !disabled();
     },
@@ -1925,7 +1925,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   return (
     <ComboboxRootContext value={store}>
-      <ComboboxFloatingContext value={floatingRootContext}>
+      <ComboboxFloatingContext value={floatingRootStore}>
         <ComboboxHasItemsContext value={hasItems}>
           <ComboboxDerivedItemsContext value={itemsContextValue}>
             <ComboboxInputValueContext value={inputValue}>

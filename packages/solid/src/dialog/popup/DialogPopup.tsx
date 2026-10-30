@@ -47,7 +47,7 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   // Port note: called for its missing-portal check; the returned accessor is unused.
   void useDialogPortalContext();
@@ -91,7 +91,7 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
     props: () => [
       rootPopupProps(),
       {
-        id: floatingId(),
+        id: defaultPopupId(),
         'aria-labelledby': titleElementId(),
         'aria-describedby': descriptionElementId(),
         role: role(),
@@ -115,7 +115,7 @@ export function DialogPopup(componentProps: DialogPopup.Props) {
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod()}
       disabled={!mounted()}
       closeOnFocusOut={!disablePointerDismissal()}

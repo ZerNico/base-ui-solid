@@ -1,20 +1,16 @@
-import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
 /**
@@ -24,88 +20,19 @@ import { createInlineMiddleware } from '../../utils/popups/inlineRect';
  * Documentation: [Base UI Preview Card](https://base-ui-solid.pages.dev/solid/components/preview-card)
  */
 export function PreviewCardPositioner(componentProps: PreviewCardPositioner.Props): JSX.Element {
-  const elementProps = omit(
-    componentProps,
-    'render',
-    'class',
-    'anchor',
-    'positionMethod',
-    'side',
-    'align',
-    'sideOffset',
-    'alignOffset',
-    'collisionBoundary',
-    'collisionPadding',
-    'arrowPadding',
-    'sticky',
-    'disableAnchorTracking',
-    'collisionAvoidance',
-    'style',
-  );
-
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
-  // Port note: upstream creates the middleware on every render; it reads the ref when it runs.
-  const inline = createInlineMiddleware(inlineRectCoordsRef);
-
-  const positioning = useAnchorPositioning({
-    get anchor() {
-      return componentProps.anchor;
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
+    keepMounted,
+    positioning: {
+      nodeId,
+      // Port note: upstream creates the middleware on every render; it reads the ref when it runs.
+      inline: createInlineMiddleware(inlineRectCoordsRef),
     },
-    floatingRootContext: store,
-    get positionMethod() {
-      return componentProps.positionMethod ?? 'absolute';
-    },
-    get mounted() {
-      return mounted();
-    },
-    get side() {
-      return componentProps.side ?? 'bottom';
-    },
-    get sideOffset() {
-      return componentProps.sideOffset ?? 0;
-    },
-    get align() {
-      return componentProps.align ?? 'center';
-    },
-    get alignOffset() {
-      return componentProps.alignOffset ?? 0;
-    },
-    get arrowPadding() {
-      return componentProps.arrowPadding ?? 5;
-    },
-    get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
-    },
-    get collisionPadding() {
-      return componentProps.collisionPadding ?? 5;
-    },
-    get sticky() {
-      return componentProps.sticky ?? false;
-    },
-    get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
-    },
-    get keepMounted() {
-      return keepMounted();
-    },
-    nodeId,
-    get collisionAvoidance() {
-      return componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
-    },
-    get adaptiveOrigin() {
-      return adaptiveOrigin();
-    },
-    inline,
   });
   const updatePosition = positioning.update;
 
@@ -118,39 +45,9 @@ export function PreviewCardPositioner(componentProps: PreviewCardPositioner.Prop
     () => [open(), mounted(), updatePosition],
   );
 
-  const state = createMemo<PreviewCardPositionerState>(
-    () => ({
-      open: open(),
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant: instantType(),
-    }),
-    { equals: fastObjectShallowCompare },
-  );
-
-  const setPositionerElement = store.useStateSetter('positionerElement');
-
   return (
     <PreviewCardPositionerContext value={positioning}>
-      <FloatingNode id={nodeId}>
-        {usePositioner(componentProps, state, {
-          get styles() {
-            return positioning.positionerStyles;
-          },
-          get transitionStatus() {
-            return transitionStatus();
-          },
-          props: elementProps as HTMLProps<HTMLDivElement>,
-          refs: [setPositionerElement],
-          get hidden() {
-            return !mounted();
-          },
-          get inert() {
-            return !open();
-          },
-        })}
-      </FloatingNode>
+      <FloatingNode id={nodeId}>{element()}</FloatingNode>
     </PreviewCardPositionerContext>
   );
 }

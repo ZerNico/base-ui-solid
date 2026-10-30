@@ -73,7 +73,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
   const selectedIndex = store.useState('selectedIndex');
   const hasSelectedValue = store.useState('hasSelectedValue');
 
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
 
   const focusTimeout = useTimeout();
@@ -111,7 +111,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     currentPointerTypeRef = event.pointerType;
   }
 
-  const triggerTypeahead = useTypeahead(floatingRootContext, {
+  const triggerTypeahead = useTypeahead(floatingRootStore, {
     // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
     // gated on `readOnly`.
     get enabled() {
@@ -132,7 +132,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     },
   });
 
-  const triggerClick = useClick(floatingRootContext, {
+  const triggerClick = useClick(floatingRootStore, {
     get enabled() {
       return !comboboxDisabled();
     },
@@ -221,7 +221,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
           const isInputInsidePopup = untrack(inputInsidePopup);
 
           if (!isInputInsidePopup) {
-            floatingRootContext.set('domReferenceElement', event.currentTarget as Element);
+            floatingRootStore.set('anchorElement', event.currentTarget as Element);
           }
 
           // Ensure items are registered for initial selection highlight.

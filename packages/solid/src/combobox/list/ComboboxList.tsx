@@ -25,7 +25,7 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
   const elementProps = omit(componentProps, 'render', 'class', 'style', 'children');
 
   const store = useComboboxRootContext();
-  const floatingRootContext = useComboboxFloatingContext();
+  const floatingRootStore = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const derivedItems = useComboboxDerivedItemsContext();
 
@@ -82,7 +82,7 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
     { equals: fastObjectShallowCompare },
   );
 
-  const floatingId = floatingRootContext.useState('floatingId');
+  const defaultPopupId = floatingRootStore.useState('defaultPopupId');
 
   const renderElement = () =>
     useRenderElement('div', componentProps, {
@@ -96,7 +96,7 @@ export function ComboboxList<Item = any>(componentProps: ComboboxList.Props<Item
         childrenSource,
         {
           tabindex: -1,
-          id: floatingId(),
+          id: defaultPopupId(),
           role: grid() ? 'grid' : 'listbox',
           'aria-multiselectable': multiple() ? 'true' : undefined,
           // On a grid the attribute describes cell editability, not selection, so it's left to the

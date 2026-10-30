@@ -15,11 +15,11 @@ import {
   useFloatingParentNodeId,
 } from '../../utils/popups/tree/FloatingTree';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import { contains } from '../../utils/popups/element';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
@@ -33,13 +33,13 @@ import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards'
 import { useInsertedTriggerFocusGuards } from '../../utils/popups/useInsertedTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
+import { useMixedToggleClickHandler } from './useMixedToggleClickHandler';
 import type { MenuHandle } from '../store/MenuHandle';
 import type { MenuHandleStore } from '../store/MenuStore';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import type { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { mergePropsSnapshot } from '../../merge-props/mergeProps';
 
 /**
@@ -235,7 +235,7 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
   const interactions = createMemo(() => {
     const context = store();
     return untrack(() => ({
-      hoverProps: useHoverReferenceInteraction(context, {
+      hoverProps: useHoverTriggerInteraction(context, {
         get enabled() {
           return (
             openOnHover() &&

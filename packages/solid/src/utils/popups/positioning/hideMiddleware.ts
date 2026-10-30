@@ -1,4 +1,4 @@
-import type { Middleware } from './popups/positioning/dom';
+import type { Middleware } from './dom';
 
 export const hide: Middleware = {
   name: 'hide',

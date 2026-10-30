@@ -1,5 +1,5 @@
 import { ownerDocument } from '@base-ui-solid/utils/owner';
-import type { BaseUIEvent } from '../internals/types';
+import type { BaseUIEvent } from '../../internals/types';
 
 /**
  * Returns `click` and `mousedown` handlers that fix the behavior of triggers of popups that are toggled by different events.

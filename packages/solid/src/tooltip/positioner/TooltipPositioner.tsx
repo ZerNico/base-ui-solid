@@ -1,18 +1,14 @@
-import { createMemo, omit } from 'solid-js';
 import type { JSX } from '@solidjs/web';
-import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
 
 /**
  * Positions the tooltip against the trigger.
@@ -21,118 +17,26 @@ import { usePositioner } from '../../utils/usePositioner';
  * Documentation: [Base UI Tooltip](https://base-ui-solid.pages.dev/solid/components/tooltip)
  */
 export function TooltipPositioner(componentProps: TooltipPositioner.Props): JSX.Element {
-  const elementProps = omit(
-    componentProps,
-    'render',
-    'class',
-    'anchor',
-    'positionMethod',
-    'side',
-    'align',
-    'sideOffset',
-    'alignOffset',
-    'collisionBoundary',
-    'collisionPadding',
-    'arrowPadding',
-    'sticky',
-    'disableAnchorTracking',
-    'collisionAvoidance',
-    'style',
-  );
-
   const store = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
   const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
 
-  const positioning = useAnchorPositioning({
-    get anchor() {
-      return componentProps.anchor;
+  const { element, positioning } = usePopupPositioner(store, componentProps, {
+    keepMounted,
+    positioning: {
+      get side() {
+        return componentProps.side ?? 'top';
+      },
     },
-    get positionMethod() {
-      return componentProps.positionMethod ?? 'absolute';
-    },
-    floatingRootContext: store,
-    get mounted() {
-      return mounted();
-    },
-    get side() {
-      return componentProps.side ?? 'top';
-    },
-    get sideOffset() {
-      return componentProps.sideOffset ?? 0;
-    },
-    get align() {
-      return componentProps.align ?? 'center';
-    },
-    get alignOffset() {
-      return componentProps.alignOffset ?? 0;
-    },
-    get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
-    },
-    get collisionPadding() {
-      return componentProps.collisionPadding ?? 5;
-    },
-    get sticky() {
-      return componentProps.sticky ?? false;
-    },
-    get arrowPadding() {
-      return componentProps.arrowPadding ?? 5;
-    },
-    get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
-    },
-    get keepMounted() {
-      return keepMounted();
-    },
-    get collisionAvoidance() {
-      return componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
-    },
-    get adaptiveOrigin() {
-      return adaptiveOrigin();
-    },
+    state: () => ({ instant: trackCursorAxis() !== 'none' ? 'tracking-cursor' : instantType() }),
+    inert: () => !open() || trackCursorAxis() === 'both' || disableHoverablePopup(),
   });
 
-  const state = createMemo<TooltipPositionerState>(
-    () => ({
-      open: open(),
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant: trackCursorAxis() !== 'none' ? 'tracking-cursor' : instantType(),
-    }),
-    { equals: fastObjectShallowCompare },
-  );
-
-  const setPositionerElement = store.useStateSetter('positionerElement');
-
-  return (
-    <TooltipPositionerContext value={positioning}>
-      {usePositioner(componentProps, state, {
-        get styles() {
-          return positioning.positionerStyles;
-        },
-        get transitionStatus() {
-          return transitionStatus();
-        },
-        props: elementProps as HTMLProps<HTMLDivElement>,
-        refs: [setPositionerElement],
-        get hidden() {
-          return !mounted();
-        },
-        get inert() {
-          return !open() || trackCursorAxis() === 'both' || disableHoverablePopup();
-        },
-      })}
-    </TooltipPositionerContext>
-  );
+  return <TooltipPositionerContext value={positioning}>{element()}</TooltipPositionerContext>;
 }
 
 export interface TooltipPositionerState {

@@ -2,7 +2,7 @@ import { createMemo, createSignal } from 'solid-js';
 import { isElement } from '@floating-ui/utils/dom';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useBaseUIFloating } from '../../src/utils/popups/positioning/useFloating';
-import { useFloatingRootContext } from '../../src/utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../src/utils/popups/floating-root/useFloatingRootStore';
 import type { FloatingRootStore } from '../../src/utils/popups/floating-root/FloatingRootStore';
 import type {
   NarrowedElement,
@@ -17,12 +17,27 @@ import type {
  * only the ported Floating UI tests use this.
  *
  * Port note: `options` is read lazily (pass getters for reactive options, e.g. `open`), and
- * `rootContext` is read once. The returned object is reactive (see `useBaseUIFloating`).
+ * `rootStore` is read once. The returned object is reactive (see `useBaseUIFloating`).
  */
 export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn {
-  const internalStore = useFloatingRootContext(options);
-  // The ported Floating UI tests only pass stores created by `useFloatingRootContext`.
-  const store = (options.rootContext as FloatingRootStore | undefined) || internalStore;
+  const internalStore = useFloatingRootStore({
+    get open() {
+      return options.open;
+    },
+    get onOpenChange() {
+      return options.onOpenChange;
+    },
+    elements: {
+      get anchor() {
+        return options.elements?.reference as Element | null | undefined;
+      },
+      get positionerElement() {
+        return options.elements?.floating;
+      },
+    },
+  });
+  // The ported Floating UI tests only pass stores created by `useFloatingRootStore`.
+  const store = (options.rootStore as FloatingRootStore | undefined) || internalStore;
 
   const [localDomReference, setLocalDomReference] = createSignal<
     NarrowedElement<ReferenceType> | null | undefined
@@ -38,14 +53,13 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
 
   // Port note: the local elements override the store's values only once set, so they're synced while
   // defined (a derived key can't read its own current value as its source).
-  store.useSyncedValue('referenceElement', () => localDomReference() ?? null);
   store.useConditionalSyncedValue(
-    'domReferenceElement',
+    'anchorElement',
     () => localDomReference() !== undefined,
     localDomReferenceElement,
   );
   store.useConditionalSyncedValue(
-    'floatingElement',
+    'positionerElement',
     () => localFloatingElement() !== undefined,
     () => localFloatingElement() ?? null,
   );
@@ -53,12 +67,12 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const floating = useBaseUIFloating(
     new Proxy(options, {
       get(target, key, receiver) {
-        if (key === 'rootContext') {
+        if (key === 'rootStore') {
           return store;
         }
         return Reflect.get(target, key, receiver);
       },
-    }) as UseFloatingOptions & { rootContext: typeof store },
+    }) as UseFloatingOptions & { rootStore: typeof store },
   );
   const baseRefs = floating.refs;
 
@@ -74,7 +88,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
       isElement(baseRefs.reference.current) ||
       baseRefs.reference.current === null ||
       // Don't allow setting virtual elements using the old technique back to
-      // `null` to support `positionReference` + an unstable `reference`
+      // `null` to support `anchorOverride` + an unstable `reference`
       // callback ref.
       (node !== null && !isElement(node))
     ) {

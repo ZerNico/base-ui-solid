@@ -5,12 +5,12 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 
 /**
@@ -41,7 +41,7 @@ export function PreviewCardPopup(componentProps: PreviewCardPopup.Props): JSX.El
     },
   });
 
-  useHoverFloatingInteraction(store, {
+  useHoverPopupInteraction(store, {
     get closeDelay() {
       return closeDelay();
     },

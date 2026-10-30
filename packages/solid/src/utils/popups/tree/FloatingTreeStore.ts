@@ -1,5 +1,5 @@
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { FloatingNodeType, FloatingEvents } from '../types';
+import type { FloatingNodeType, PopupEvents } from '../types';
 import { createEventEmitter } from '../createEventEmitter';
 
 /**
@@ -9,7 +9,7 @@ import { createEventEmitter } from '../createEventEmitter';
 export class FloatingTreeStore {
   public readonly nodesRef: RefObject<Array<FloatingNodeType>> = { current: [] };
 
-  public readonly events: FloatingEvents = createEventEmitter();
+  public readonly events: PopupEvents = createEventEmitter();
 
   public addNode(node: FloatingNodeType) {
     this.nodesRef.current.push(node);

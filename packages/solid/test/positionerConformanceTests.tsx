@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createEffect, createSignal, flush } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { expect, it, describe } from 'vitest';
 import { DirectionProvider } from 'base-ui-solid/direction-provider';
@@ -12,6 +12,7 @@ import type {
   OffsetFunction,
   Side,
 } from '../src/internals/useAnchorPositioning';
+import type { HTMLProps } from '../src/internals/types';
 
 // The anchor sits at the viewport origin and the popup is centered below it, so the positioner
 // starts at x = (anchorWidth - popupWidth) / 2 and y = anchorHeight.
@@ -95,7 +96,14 @@ async function waitForPositioner() {
  * `useAnchorPositioning`. All cases need real layout, so they run in the browser only.
  */
 export function positionerConformanceTests(config: PositionerTestConfig) {
-  const { render, createComponent, viewport: hasViewport = false } = config;
+  const {
+    render,
+    createComponent,
+    viewport: hasViewport = false,
+    defaultSide = 'bottom',
+    defaultCollisionAvoidance = 'dropdown',
+    stableState = true,
+  } = config;
 
   // Port note: the options are read lazily (pass getters for `open` and `viewport` to change
   // them), and so are the props passed to `createComponent`.
@@ -112,7 +120,11 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
     };
     const trigger = { style: triggerStyle };
     const positioner: PositionerTestProps = { 'data-testid': 'positioner', ...options.positioner };
-    const popup = { style: options.popup?.style ?? popupStyle };
+    const popup = {
+      get style() {
+        return options.popup?.style ?? popupStyle;
+      },
+    };
 
     return createComponent({
       root,
@@ -227,6 +239,98 @@ export function positionerConformanceTests(config: PositionerTestConfig) {
       });
     });
 
+    it('places the popup on the default side when it fits', async () => {
+      await render(() => (
+        <div style={{ position: 'fixed', top: '200px', left: '200px' }}>{prepareComponent({})}</div>
+      ));
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', defaultSide);
+    });
+
+    describe('prop: collisionAvoidance', () => {
+      // The popup fits neither above nor below the anchor, but fits beside it, so only a fallback to
+      // the perpendicular axis moves it to the side.
+      function prepareTallPopup(collisionAvoidance?: CollisionAvoidance) {
+        return (
+          <div style={{ position: 'fixed', top: '50%', left: '16px' }}>
+            {prepareComponent({
+              positioner: { side: 'bottom', collisionAvoidance },
+              popup: { style: { width: `${popupWidth}px`, height: '75vh' } },
+            })}
+          </div>
+        );
+      }
+
+      const collisionDefaults = {
+        popup: { collisionAvoidance: { fallbackAxisSide: 'end' }, side: /^right$/ },
+        dropdown: { collisionAvoidance: { fallbackAxisSide: 'none' }, side: /^(top|bottom)$/ },
+      } as const;
+
+      it(`uses the ${defaultCollisionAvoidance} default when the prop is not set`, async () => {
+        await render(() => prepareTallPopup());
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        expect(positioner.getAttribute('data-side')).toMatch(
+          collisionDefaults[defaultCollisionAvoidance].side,
+        );
+      });
+
+      it('uses the prop over the default', async () => {
+        const other =
+          collisionDefaults[defaultCollisionAvoidance === 'popup' ? 'dropdown' : 'popup'];
+        await render(() => prepareTallPopup(other.collisionAvoidance));
+
+        const positioner = screen.getByTestId('positioner');
+        await waitForPositioned(positioner);
+        expect(positioner.getAttribute('data-side')).toMatch(other.side);
+      });
+    });
+
+    // Port note: `render` runs once and its `state` is reactive, so a new state object isn't
+    // observable as a re-render. An effect that reads every state key counts the state's updates
+    // instead, and a change of something the state doesn't hold must not update it.
+    it.skipIf(!stableState)(
+      'passes the same state object while nothing it holds changes',
+      async () => {
+        let stateUpdates = 0;
+        const [color, setColor] = createSignal('red');
+
+        function App() {
+          return prepareComponent({
+            positioner: {
+              render: (props, state) => {
+                const stateRecord = state as Record<string, unknown>;
+                createEffect(
+                  () => Object.keys(stateRecord).map((key) => stateRecord[key]),
+                  () => {
+                    stateUpdates += 1;
+                  },
+                );
+                return <div {...props} />;
+              },
+            },
+            popup: {
+              get style() {
+                return { ...popupStyle, color: color() };
+              },
+            },
+          });
+        }
+
+        await render(() => <App />);
+        await waitForPositioned(screen.getByTestId('positioner'));
+        await flushMicrotasks();
+        const updatesBefore = stateUpdates;
+
+        setColor('blue');
+        flush();
+        await flushMicrotasks();
+
+        expect(stateUpdates).toBe(updatesBefore);
+      },
+    );
+
     it('uses transform positioning without Viewport', async () => {
       await render(() => prepareComponent({}));
 
@@ -301,7 +405,8 @@ export interface PositionerTestProps {
   sideOffset?: number | OffsetFunction;
   alignOffset?: number | OffsetFunction;
   collisionPadding?: number;
-  collisionAvoidance?: CollisionAvoidance;
+  collisionAvoidance?: CollisionAvoidance | undefined;
+  render?: (props: HTMLProps, state: unknown) => JSX.Element;
 }
 
 /**
@@ -348,4 +453,20 @@ export interface PositionerTestConfig {
    * @default false
    */
   viewport?: boolean;
+  /**
+   * The side the Positioner places the popup on when `side` isn't set.
+   * @default 'bottom'
+   */
+  defaultSide?: Side;
+  /**
+   * The `collisionAvoidance` default the Positioner uses: `'popup'` falls back to the
+   * perpendicular axis when neither side fits, `'dropdown'` doesn't.
+   * @default 'dropdown'
+   */
+  defaultCollisionAvoidance?: 'popup' | 'dropdown';
+  /**
+   * Whether the Positioner passes the same state object to `render` while nothing in it changes.
+   * @default true
+   */
+  stableState?: boolean;
 }

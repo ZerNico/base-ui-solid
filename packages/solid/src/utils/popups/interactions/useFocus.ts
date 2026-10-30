@@ -5,7 +5,7 @@ import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { createAttribute } from '../createAttribute';
 import {
   activeElement,
@@ -44,11 +44,12 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}): ElementProps {
+export function useFocus(store: PopupInteractionStore, props: UseFocusProps = {}): ElementProps {
   const enabled = () => props.enabled ?? true;
   const delay = () => props.delay;
 
-  const { events, dataRef } = store.context;
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   let blockFocus = false;
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
@@ -59,7 +60,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
   useEffect(
     ([isEnabled]) => {
-      const domReference = store.select('domReferenceElement');
+      const domReference = store.select('anchorElement');
 
       if (!isEnabled) {
         return undefined;
@@ -71,7 +72,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
       // floating element was not open, the focus should be blocked when they
       // return to the tab/window.
       function onBlur() {
-        const currentDomReference = store.select('domReferenceElement');
+        const currentDomReference = store.select('anchorElement');
         if (
           !store.select('open') &&
           isHTMLElement(currentDomReference) &&
@@ -107,7 +108,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
       function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
         if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
-          const referenceElement = store.select('domReferenceElement');
+          const referenceElement = store.select('anchorElement');
           if (isElement(referenceElement)) {
             blockedReference = referenceElement;
             blockFocus = true;
@@ -203,7 +204,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
 
       // Wait for the window blur listener to fire.
       timeout.start(0, () => {
-        const domReference = store.select('domReferenceElement');
+        const domReference = store.select('anchorElement');
         const activeEl = activeElement(ownerDocument(domReference));
 
         // Focus left the page, keep it open.
@@ -219,7 +220,7 @@ export function useFocus(store: FloatingRootContext, props: UseFocusProps = {}):
         // and not the element that actually has received focus if it is located
         // inside a shadow root.
         if (
-          contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
+          contains(storeContext.positioning?.refs.floating.current, activeEl) ||
           contains(domReference, activeEl) ||
           movedToFocusGuard
         ) {

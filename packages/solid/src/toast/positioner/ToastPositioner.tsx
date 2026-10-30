@@ -12,11 +12,11 @@ import type {
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
-import { useFloatingRootContext } from '../../utils/popups/floating-root/useFloatingRootContext';
+import { useFloatingRootStore } from '../../utils/popups/floating-root/useFloatingRootStore';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { usePositioner } from '../../utils/usePositioner';
+import { usePositioner } from '../../utils/popups/positioning/usePositioner';
 import * as ToastRootCssVars from '../root/ToastRootCssVars';
 
 /**
@@ -70,14 +70,14 @@ export function ToastPositioner(componentProps: ToastPositioner.Props): JSX.Elem
     return isElement(value) ? value : null;
   };
 
-  const floatingRootContext = useFloatingRootContext({
+  const floatingRootStore = useFloatingRootStore({
     open: true,
     onOpenChange: NOOP,
     elements: {
-      get floating() {
+      get positionerElement() {
         return positionerElement();
       },
-      get reference() {
+      get anchor() {
         return anchor();
       },
     },
@@ -88,42 +88,36 @@ export function ToastPositioner(componentProps: ToastPositioner.Props): JSX.Elem
       return anchor();
     },
     get positionMethod() {
-      return componentProps.positionMethod ?? positionerProps().positionMethod ?? 'absolute';
+      return componentProps.positionMethod ?? positionerProps().positionMethod;
     },
-    floatingRootContext,
+    interactionStore: floatingRootStore,
     mounted: true,
     get side() {
       return componentProps.side ?? positionerProps().side ?? 'top';
     },
     get sideOffset() {
-      return componentProps.sideOffset ?? positionerProps().sideOffset ?? 0;
+      return componentProps.sideOffset ?? positionerProps().sideOffset;
     },
     get align() {
       return componentProps.align ?? positionerProps().align ?? 'center';
     },
     get alignOffset() {
-      return componentProps.alignOffset ?? positionerProps().alignOffset ?? 0;
+      return componentProps.alignOffset ?? positionerProps().alignOffset;
     },
     get collisionBoundary() {
-      return (
-        componentProps.collisionBoundary ??
-        positionerProps().collisionBoundary ??
-        'clipping-ancestors'
-      );
+      return componentProps.collisionBoundary ?? positionerProps().collisionBoundary;
     },
     get collisionPadding() {
-      return componentProps.collisionPadding ?? positionerProps().collisionPadding ?? 5;
+      return componentProps.collisionPadding ?? positionerProps().collisionPadding;
     },
     get sticky() {
-      return componentProps.sticky ?? positionerProps().sticky ?? false;
+      return componentProps.sticky ?? positionerProps().sticky;
     },
     get arrowPadding() {
-      return componentProps.arrowPadding ?? positionerProps().arrowPadding ?? 5;
+      return componentProps.arrowPadding ?? positionerProps().arrowPadding;
     },
     get disableAnchorTracking() {
-      return (
-        componentProps.disableAnchorTracking ?? positionerProps().disableAnchorTracking ?? false
-      );
+      return componentProps.disableAnchorTracking ?? positionerProps().disableAnchorTracking;
     },
     keepMounted: true,
     get collisionAvoidance() {

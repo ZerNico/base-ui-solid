@@ -3,10 +3,10 @@ import { createSignal, Show } from 'solid-js';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fireEvent, flushMicrotasks, render, screen, isJSDOM } from '#test-utils';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import { useHoverPopupInteraction } from './useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from './useHoverTriggerInteraction';
 
-describe.skipIf(!isJSDOM)('useHoverFloatingInteraction', () => {
+describe.skipIf(!isJSDOM)('useHoverPopupInteraction', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -24,13 +24,13 @@ describe.skipIf(!isJSDOM)('useHoverFloatingInteraction', () => {
       },
       onOpenChange: setOpen,
     });
-    const referenceProps = useHoverReferenceInteraction(context.rootStore, {
+    const referenceProps = useHoverTriggerInteraction(context.rootStore, {
       triggerElementRef,
       get delay() {
         return { close: props.closeDelay };
       },
     });
-    useHoverFloatingInteraction(context.rootStore, {
+    useHoverPopupInteraction(context.rootStore, {
       get closeDelay() {
         return props.closeDelay;
       },

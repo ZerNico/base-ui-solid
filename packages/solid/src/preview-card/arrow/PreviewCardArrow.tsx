@@ -4,7 +4,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../internals/useAnchorPositioning';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 

@@ -1,8 +1,7 @@
 import { createSignal } from 'solid-js';
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { render, isJSDOM, screen, waitFor } from '#test-utils';
-import { useFloating } from '../../test/floating-ui-tests/useFloating';
-import { useAnchorPositioningWithHook } from './useAnchorPositioning';
+import { useAnchorPositioning, useFloatingRootStore } from './useAnchorPositioning';
 import type { UseAnchorPositioningParameters } from './useAnchorPositioning';
 
 const shiftSpy = vi.hoisted(() => vi.fn());
@@ -25,30 +24,29 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   // Port note: `anchor` takes the element, from a signal set by a ref callback.
   const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement | null>(null);
 
-  const positioning = useAnchorPositioningWithHook(
-    {
-      get anchor() {
-        return anchorElement();
-      },
-      mounted: true,
-      positionMethod: 'absolute',
-      side: 'bottom',
-      align: 'center',
-      sideOffset: 0,
-      alignOffset: 0,
-      collisionBoundary: 'clipping-ancestors',
-      collisionPadding: 5,
-      sticky: false,
-      arrowPadding: 5,
-      disableAnchorTracking: false,
-      keepMounted: false,
-      collisionAvoidance: { fallbackAxisSide: 'none' },
-      get shift() {
-        return props.shift;
-      },
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    get anchor() {
+      return anchorElement();
     },
-    useFloating,
-  );
+    mounted: true,
+    positionMethod: 'absolute',
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    disableAnchorTracking: false,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    get shift() {
+      return props.shift;
+    },
+    interactionStore: rootStore,
+  });
 
   return (
     <>
@@ -68,34 +66,33 @@ function TestLazyFlip(props: {
   const [shrunk, setShrunk] = createSignal(false);
   const height = () => (shrunk() ? 10 : 100);
 
-  const positioning = useAnchorPositioningWithHook(
-    {
-      get anchor() {
-        return anchorElement();
-      },
-      mounted: true,
-      positionMethod: 'fixed',
-      get side() {
-        return props.side ?? 'right';
-      },
-      get align() {
-        return props.align ?? 'start';
-      },
-      sideOffset: 0,
-      alignOffset: 0,
-      collisionBoundary: 'clipping-ancestors',
-      collisionPadding: 5,
-      sticky: false,
-      arrowPadding: 5,
-      disableAnchorTracking: false,
-      keepMounted: false,
-      collisionAvoidance: { fallbackAxisSide: 'none' },
-      get lazyFlip() {
-        return props.lazyFlip ?? true;
-      },
+  const rootStore = useFloatingRootStore({});
+  const positioning = useAnchorPositioning({
+    get anchor() {
+      return anchorElement();
     },
-    useFloating,
-  );
+    mounted: true,
+    positionMethod: 'fixed',
+    get side() {
+      return props.side ?? 'right';
+    },
+    get align() {
+      return props.align ?? 'start';
+    },
+    sideOffset: 0,
+    alignOffset: 0,
+    collisionBoundary: 'clipping-ancestors',
+    collisionPadding: 5,
+    sticky: false,
+    arrowPadding: 5,
+    disableAnchorTracking: false,
+    keepMounted: false,
+    collisionAvoidance: { fallbackAxisSide: 'none' },
+    get lazyFlip() {
+      return props.lazyFlip ?? true;
+    },
+    interactionStore: rootStore,
+  });
 
   return (
     <>

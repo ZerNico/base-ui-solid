@@ -1,9 +1,8 @@
 import { createMemo, createSignal } from 'solid-js';
-import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { getWindow } from '@floating-ui/utils/dom';
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionContext, PopupInteractionStore } from '../types';
 import { contains, getTarget } from '../element';
 import { isMouseLikePointerType } from '../event';
 
@@ -11,7 +10,7 @@ function createVirtualElement(
   domElement: Element | null | undefined,
   data: {
     axis: 'x' | 'y' | 'both';
-    dataRef: RefObject<ContextData>;
+    storeContext: Pick<PopupInteractionContext, 'openEvent'>;
     pointerType: string | undefined;
     x: number | null;
     y: number | null;
@@ -34,7 +33,7 @@ function createVirtualElement(
       const isXAxis = data.axis === 'x' || data.axis === 'both';
       const isYAxis = data.axis === 'y' || data.axis === 'both';
       const canTrackCursorOnAutoUpdate =
-        ['mouseenter', 'mousemove'].includes(data.dataRef.current.openEvent?.type || '') &&
+        ['mouseenter', 'mousemove'].includes(data.storeContext.openEvent?.type || '') &&
         data.pointerType !== 'touch';
 
       const width = data.axis === 'y' ? domRect.width : 0;
@@ -104,17 +103,17 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  store: FloatingRootContext,
+  store: PopupInteractionStore,
   props: UseClientPointProps = {},
 ): ElementProps {
   const enabled = () => props.enabled ?? true;
   const axis = () => props.axis ?? 'both';
 
   const open = store.useState('open');
-  const floating = store.useState('floatingElement');
-  const domReference = store.useState('domReferenceElement');
+  const floating = store.useState('positionerElement');
+  const domReference = store.useState('anchorElement');
 
-  const dataRef = store.context.dataRef;
+  const storeContext = store.context;
 
   let initial = false;
   let cleanupListenerRef: null | (() => void) = null;
@@ -123,7 +122,7 @@ export function useClientPoint(
   const [reactive, setReactive] = createSignal<never[]>([]);
 
   function resetReference(reference: Element | null) {
-    store.set('positionReference', reference);
+    store.set('anchorOverride', reference);
   }
 
   function setReference(
@@ -138,17 +137,17 @@ export function useClientPoint(
     // Prevent setting if the open event was not a mouse-like one
     // (e.g. focus to open, then hover over the reference element).
     // Only apply if the event exists.
-    if (dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent)) {
+    if (storeContext.openEvent && !isMouseBasedEvent(storeContext.openEvent)) {
       return;
     }
 
     store.set(
-      'positionReference',
+      'anchorOverride',
       createVirtualElement(referenceElement ?? domReference(), {
         x: newX,
         y: newY,
         axis: axis(),
-        dataRef,
+        storeContext,
         pointerType: pointerType(),
       }),
     );
@@ -200,7 +199,7 @@ export function useClientPoint(
         }
       }
 
-      if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
+      if (!storeContext.openEvent || isMouseBasedEvent(storeContext.openEvent)) {
         cleanupListenerRef = addEventListener(win, 'mousemove', handleMouseMove);
       } else {
         resetReference(domReferenceValue);
@@ -214,7 +213,7 @@ export function useClientPoint(
   // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
   useEffect(
     () => () => {
-      store.set('positionReference', null);
+      store.set('anchorOverride', null);
     },
     () => [store],
   );

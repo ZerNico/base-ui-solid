@@ -143,12 +143,12 @@ export function Main() {
       return {
         'aria-haspopup': 'menu' as const,
         'aria-expanded': open() ? ('true' as const) : ('false' as const),
-        'aria-controls': open() ? context.floatingId : undefined,
+        'aria-controls': open() ? context.defaultPopupId : undefined,
       };
     },
     get floating() {
       return {
-        id: context.floatingId,
+        id: context.defaultPopupId,
         role: 'menu' as const,
       };
     },
@@ -251,7 +251,7 @@ export function Main() {
           </Show>
           <FloatingPortal>
             <Show when={open()}>
-              <FloatingFocusManager context={context.rootStore} modal={false}>
+              <FloatingFocusManager store={context.rootStore} modal={false}>
                 <div
                   ref={refs.setFloating}
                   class={styles.Floating}

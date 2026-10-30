@@ -20,7 +20,7 @@ import type { HTMLProps } from '../../internals/types';
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>): JSX.Element {
   const { store, open, mounted, payload } = usePopupRoot(
     props,
-    (initialState, floatingId) => new PreviewCardStore<Payload>(initialState, floatingId),
+    (initialState, defaultPopupId) => new PreviewCardStore<Payload>(initialState, defaultPopupId),
     { closeOnActiveTriggerUnmount: true },
   );
 

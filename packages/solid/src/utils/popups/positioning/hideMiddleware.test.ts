@@ -1,13 +1,13 @@
 import { expect, vi, describe, it } from 'vitest';
-import { hide as nativeHide } from './popups/positioning/dom';
-import type { MiddlewareState, Rect, SideObject } from './popups/positioning/dom';
+import { hide as nativeHide } from './dom';
+import type { MiddlewareState, Rect, SideObject } from './dom';
 import { hide } from './hideMiddleware';
 
 const floatingRect: Rect = { x: 0, y: 0, width: 5, height: 5 };
 
 function createState(reference: Rect, overflow: SideObject): MiddlewareState {
   const referenceElement = document.createElement('button');
-  const floatingElement = document.createElement('div');
+  const positionerElement = document.createElement('div');
 
   return {
     x: 0,
@@ -18,7 +18,7 @@ function createState(reference: Rect, overflow: SideObject): MiddlewareState {
     middlewareData: {},
     elements: {
       reference: referenceElement,
-      floating: floatingElement,
+      floating: positionerElement,
     },
     rects: {
       reference,

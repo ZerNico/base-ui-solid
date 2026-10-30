@@ -1,4 +1,4 @@
-import { createMemo, omit, Show, untrack } from 'solid-js';
+import { createMemo, Show, untrack } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -7,15 +7,14 @@ import { FloatingNode } from '../../utils/popups/tree/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Align,
   Side,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
@@ -23,8 +22,8 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { MenuOpenEventDetails } from '../utils/types';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
  * Positions the menu popup against the trigger.
@@ -33,75 +32,54 @@ import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLo
  * Documentation: [Base UI Menu](https://base-ui-solid.pages.dev/solid/components/menu)
  */
 export function MenuPositioner(componentProps: MenuPositioner.Props) {
-  const elementProps = omit(
-    componentProps,
-    'anchor',
-    'positionMethod',
-    'class',
-    'render',
-    'side',
-    'align',
-    'sideOffset',
-    'alignOffset',
-    'collisionBoundary',
-    'collisionPadding',
-    'arrowPadding',
-    'sticky',
-    'disableAnchorTracking',
-    'collisionAvoidance',
-    'style',
-  );
-
   const { store, virtualFocus, onItemsChange } = useMenuRootContext();
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
 
   const parent = store.useState('parent');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const mounted = store.useState('mounted');
-  const open = store.useState('open');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
-  const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
-  const instantType = store.useState('instantType');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
-  const domReference = store.useState('domReferenceElement');
+  const domReference = store.useState('anchorElement');
 
   // Port note: upstream computes these during render.
-  const positioning = createMemo(
+  const positioningValues = createMemo(
     () => {
       const parentValue = parent();
+      const side = componentProps.side;
       let anchor = componentProps.anchor;
-      let sideOffset = componentProps.sideOffset ?? 0;
-      let alignOffset = componentProps.alignOffset ?? 0;
+      let sideOffset = componentProps.sideOffset;
+      let alignOffset = componentProps.alignOffset;
       let align = componentProps.align;
-      let collisionAvoidance = componentProps.collisionAvoidance ?? DROPDOWN_COLLISION_AVOIDANCE;
       if (parentValue.type === 'context-menu') {
-        anchor = componentProps.anchor ?? parentValue.context?.anchor;
+        anchor = anchor ?? parentValue.context?.anchor;
         align = align ?? 'start';
-        if (!componentProps.side && align !== 'center') {
+        if (!side && align !== 'center') {
           alignOffset = componentProps.alignOffset ?? 2;
           sideOffset = componentProps.sideOffset ?? -5;
         }
       }
 
-      let computedSide = componentProps.side;
+      let computedSide = side;
       let computedAlign = align;
       if (parentValue.type === 'menu') {
         computedSide = computedSide ?? 'inline-end';
         computedAlign = computedAlign ?? 'start';
-        collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
       } else if (parentValue.type === 'menubar') {
         computedSide =
           computedSide ??
           (parentValue.context.orientation === 'vertical' ? 'inline-end' : 'bottom');
         computedAlign = computedAlign ?? 'start';
       }
+
+      const defaultCollisionAvoidance =
+        parentValue.type === 'menu' ? POPUP_COLLISION_AVOIDANCE : DROPDOWN_COLLISION_AVOIDANCE;
+      const collisionAvoidance = componentProps.collisionAvoidance ?? defaultCollisionAvoidance;
 
       return {
         anchor,
@@ -117,69 +95,56 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
 
   const contextMenu = () => parent().type === 'context-menu';
 
-  const positioner = useAnchorPositioning({
-    get anchor() {
-      return positioning().anchor;
+  const {
+    element,
+    positioning: positioner,
+    open,
+    mounted,
+  } = usePopupPositioner(store, componentProps, {
+    keepMounted,
+    positioning: {
+      get anchor() {
+        return positioningValues().anchor;
+      },
+      get collisionAvoidance() {
+        return positioningValues().collisionAvoidance;
+      },
+      get positionMethod() {
+        return contextMenuContext ? 'fixed' : componentProps.positionMethod;
+      },
+      get side() {
+        return positioningValues().side;
+      },
+      get sideOffset() {
+        return positioningValues().sideOffset;
+      },
+      get align() {
+        return positioningValues().align;
+      },
+      get alignOffset() {
+        return positioningValues().alignOffset;
+      },
+      get arrowPadding() {
+        return contextMenu() ? 0 : componentProps.arrowPadding;
+      },
+      get nodeId() {
+        return floatingNodeId();
+      },
+      get shift() {
+        const collisionAvoidance = positioningValues().collisionAvoidance;
+        return contextMenu()
+          ? {
+              crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+              rootBoundary: 'layoutViewport' as const,
+            }
+          : undefined;
+      },
+      get externalTree() {
+        return floatingTreeRoot();
+      },
+      lazyFlip: virtualFocus ? 'placement' : false,
     },
-    floatingRootContext: store,
-    get positionMethod() {
-      return contextMenuContext ? 'fixed' : (componentProps.positionMethod ?? 'absolute');
-    },
-    get mounted() {
-      return mounted();
-    },
-    get side() {
-      return positioning().side;
-    },
-    get sideOffset() {
-      return positioning().sideOffset;
-    },
-    get align() {
-      return positioning().align;
-    },
-    get alignOffset() {
-      return positioning().alignOffset;
-    },
-    get arrowPadding() {
-      return contextMenu() ? 0 : (componentProps.arrowPadding ?? 5);
-    },
-    get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
-    },
-    get collisionPadding() {
-      return componentProps.collisionPadding ?? 5;
-    },
-    get sticky() {
-      return componentProps.sticky ?? false;
-    },
-    get nodeId() {
-      return floatingNodeId();
-    },
-    get keepMounted() {
-      return keepMounted();
-    },
-    get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
-    },
-    get collisionAvoidance() {
-      return positioning().collisionAvoidance;
-    },
-    get shift() {
-      const collisionAvoidance = positioning().collisionAvoidance;
-      return contextMenu()
-        ? {
-            crossAxis: !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
-            rootBoundary: 'layoutViewport' as const,
-          }
-        : undefined;
-    },
-    get externalTree() {
-      return floatingTreeRoot();
-    },
-    get adaptiveOrigin() {
-      return adaptiveOrigin();
-    },
-    lazyFlip: virtualFocus ? 'placement' : false,
+    state: () => ({ nested: parent().type === 'menu' }),
   });
 
   useEffect(
@@ -305,18 +270,6 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
     open,
   });
 
-  const state = createMemo<MenuPositionerState>(
-    () => ({
-      open: open(),
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      nested: parent().type === 'menu',
-      instant: instantType(),
-    }),
-    { equals: fastObjectShallowCompare },
-  );
-
   const menubarModal = () => {
     const parentValue = parent();
     return parentValue.type === 'menubar' && parentValue.context.modal;
@@ -376,22 +329,7 @@ export function MenuPositioner(componentProps: MenuPositioner.Props) {
           onMapChange={onItemsChange}
         >
           {/* Port note: rendered here so the children are created under the providers. */}
-          {usePositioner(componentProps, state, {
-            get styles() {
-              return positioner.positionerStyles;
-            },
-            get transitionStatus() {
-              return transitionStatus();
-            },
-            props: elementProps as HTMLProps<HTMLDivElement>,
-            refs: [store.useStateSetter('positionerElement')],
-            get hidden() {
-              return !mounted();
-            },
-            get inert() {
-              return !open();
-            },
-          })}
+          {element()}
         </CompositeList>
       </FloatingNode>
     </MenuPositionerContext>

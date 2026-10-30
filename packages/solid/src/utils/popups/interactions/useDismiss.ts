@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { createMemo, untrack } from 'solid-js';
 import { addEventListener } from '@base-ui-solid/utils/addEventListener';
 import { mergeCleanups } from '@base-ui-solid/utils/mergeCleanups';
@@ -16,7 +15,7 @@ import {
 import { platform } from '@base-ui-solid/utils/platform';
 import { useFloatingTree } from '../tree/FloatingTree';
 import type { FloatingTreeStore } from '../tree/FloatingTreeStore';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { FloatingUIOpenChangeDetails } from '../../../internals/types';
 import { REASONS } from '../../../internals/reasons';
@@ -76,6 +75,7 @@ function isEventTargetWithinComponentTree(event: Event, element: Element | null)
       return true;
     }
     visited.add(node);
+    // eslint-disable-next-line no-underscore-dangle
     pending.push(node._$host, node.parentNode, isShadowRoot(node) ? node.host : null);
   }
   return false;
@@ -158,7 +158,10 @@ export interface UseDismissProps {
  * the user presses the `escape` key or outside of the floating element.
  * @see https://floating-ui.com/docs/useDismiss
  */
-export function useDismiss(store: FloatingRootContext, props: UseDismissProps = {}): ElementProps {
+export function useDismiss(
+  store: PopupInteractionStore,
+  props: UseDismissProps = {},
+): ElementProps {
   const enabled = () => props.enabled ?? true;
   const escapeKey = () => props.escapeKey ?? true;
   const outsidePressProp = () => props.outsidePress ?? true;
@@ -166,8 +169,9 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   const referencePress = () => (props.referencePress ?? alwaysFalse)();
 
   const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const { dataRef, events } = store.context;
+  const positionerElement = store.useState('positionerElement');
+  const storeContext = store.context;
+  const { events } = storeContext;
 
   const tree = useFloatingTree(untrack(() => props.externalTree));
   // Port note: options are read lazily, so the function form of `outsidePress` always calls the
@@ -206,22 +210,22 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
   function clearInsideReactTree() {
     clearInsideReactTreeTimeout.clear();
-    dataRef.current.insideReactTree = false;
+    storeContext.insideReactTree = false;
   }
 
-  function hasBlockingChild(bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') {
-    const nodeId = dataRef.current.floatingContext?.nodeId;
+  function hasBlockingChild(bubbleKey: 'escapeKeyBubbles' | 'outsidePressBubbles') {
+    const nodeId = storeContext.positioning?.nodeId;
     const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
 
     return children.some(
-      (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+      (child) => child.context?.open && !child.context.rootStore.context[bubbleKey],
     );
   }
 
   function isEventWithinOwnElements(event: Event) {
     return (
-      isEventTargetWithin(event, store.select('floatingElement')) ||
-      isEventTargetWithin(event, store.select('domReferenceElement'))
+      isEventTargetWithin(event, store.select('positionerElement')) ||
+      isEventTargetWithin(event, store.select('anchorElement'))
     );
   }
 
@@ -248,7 +252,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
     const escapeKeyBubbles = bubbles().escapeKey;
 
-    if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+    if (!escapeKeyBubbles && hasBlockingChild('escapeKeyBubbles')) {
       return;
     }
 
@@ -266,7 +270,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
   }
 
   function markInsideReactTree() {
-    dataRef.current.insideReactTree = true;
+    storeContext.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   }
 
@@ -279,7 +283,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
 
     // Only treat presses that start within the floating DOM subtree as inside.
     // This avoids suppressing parent dismissal when interacting with nested portals.
-    if (!contains(store.select('floatingElement'), target)) {
+    if (!contains(store.select('positionerElement'), target)) {
       return;
     }
 
@@ -370,7 +374,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         ),
       );
     },
-    () => [floatingElement(), enabled()] as const,
+    () => [positionerElement(), enabled()] as const,
   );
 
   // This popup's open number for an Escape that reaches the document (see `openCount`).
@@ -410,8 +414,8 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         return clearInsideReactTree;
       }
 
-      dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
-      dataRef.current.__outsidePressBubbles = outsidePressBubbles;
+      storeContext.escapeKeyBubbles = escapeKeyBubbles;
+      storeContext.outsidePressBubbles = outsidePressBubbles;
 
       const preventedPressSuppressionTimeout = new Timeout();
       const doc = ownerDocument(floating);
@@ -477,7 +481,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       }
 
       function isEventWithinFloatingTree(event: Event) {
-        const nodeId = dataRef.current.floatingContext?.nodeId;
+        const nodeId = storeContext.positioning?.nodeId;
         const targetIsInsideChildren =
           tree &&
           getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
@@ -499,7 +503,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
           return;
         }
 
-        if (dataRef.current.insideReactTree) {
+        if (storeContext.insideReactTree) {
           clearInsideReactTree();
           return;
         }
@@ -510,7 +514,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
         const markers = Array.from(
           (isShadowRoot(targetRoot)
             ? targetRoot
-            : ownerDocument(store.select('floatingElement'))
+            : ownerDocument(store.select('positionerElement'))
           ).querySelectorAll(inertSelector),
         );
 
@@ -542,7 +546,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
           isElement(target) &&
           !isRootElement(target) &&
           // Clicked on a direct ancestor (e.g. FloatingOverlay).
-          !contains(target, store.select('floatingElement')) &&
+          !contains(target, store.select('positionerElement')) &&
           // If the target root element contains none of the markers, then the
           // element was injected after the floating element rendered.
           markers.every((marker) => !contains(targetRootAncestor, marker))
@@ -614,7 +618,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
           return;
         }
 
-        if (hasBlockingChild('__outsidePressBubbles')) {
+        if (hasBlockingChild('outsidePressBubbles')) {
           return;
         }
 
@@ -861,7 +865,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
       [
         open(),
         enabled(),
-        floatingElement(),
+        positionerElement(),
         escapeKey(),
         outsidePressEnabled(),
         // Upstream's `outsidePress` dependency (a stable callback, or the boolean above).
@@ -888,7 +892,7 @@ export function useDismiss(store: FloatingRootContext, props: UseDismissProps = 
     if (
       isShadowRoot(root) &&
       root.mode === 'closed' &&
-      root !== store.select('floatingElement')?.getRootNode()
+      root !== store.select('positionerElement')?.getRootNode()
     ) {
       markInsideReactTree();
     }

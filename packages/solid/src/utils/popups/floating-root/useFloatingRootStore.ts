@@ -1,63 +1,69 @@
 import { untrack } from 'solid-js';
-import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-solid/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { SolidStore } from '@base-ui-solid/utils/store';
-import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { PopupTriggerMap } from '../popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../tree/FloatingTree';
 import { FloatingRootStore } from './FloatingRootStore';
-import type { ReferenceType } from '../types';
 
 /**
+ * What `useFloatingRootStore` syncs into its store.
+ *
  * Port note: read lazily like Solid props (`options.open`), so pass a props-like object with
  * getters for reactive options.
  */
-export interface UseFloatingRootContextOptions {
+export interface UseFloatingRootStoreOptions {
+  /**
+   * Whether the popup is open. Positioning clears the anchor while the popup isn't mounted, and
+   * syncs it in again only when `open` or `elements.anchor` changes, so `open` must follow
+   * `mounted`.
+   * @default false
+   */
   open?: boolean | undefined;
+  /**
+   * Called when an interaction hook requests an open change.
+   */
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  /**
+   * The elements to sync into the store. A key left `undefined` keeps the store's current value.
+   */
   elements?:
     | {
-        reference?: ReferenceType | null | undefined;
-        floating?: HTMLElement | null | undefined;
+        /**
+         * The DOM element the popup is anchored to. To position against a virtual element, pass it
+         * as `useAnchorPositioning`'s `anchor` instead.
+         */
+        anchor?: Element | null | undefined;
+        /**
+         * The popup's positioner element, or the popup itself when it has no positioner.
+         */
+        positionerElement?: HTMLElement | null | undefined;
       }
     | undefined;
 }
 
-export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
+/**
+ * Creates a `FloatingRootStore` for components that manage their open state without a popup
+ * store. The open state, anchor and positioner element are synced into it from a layout effect
+ * whenever they change; `onOpenChange` and the nesting flag are updated during render.
+ */
+export function useFloatingRootStore(options: UseFloatingRootStoreOptions): FloatingRootStore {
   const open = () => options.open ?? false;
   const elements = () => options.elements ?? {};
 
-  const floatingId = useId();
+  const defaultPopupId = useId();
   const nested = useFloatingParentNodeId() != null;
-
-  if (IS_DEV) {
-    useIsoLayoutEffect(
-      ([optionDomReference]) => {
-        if (optionDomReference && !isElement(optionDomReference)) {
-          console.error(
-            'Cannot pass a virtual element to the `elements.reference` option,',
-            'as it must be a real DOM element. Use `context.setPositionReference()`',
-            'instead.',
-          );
-        }
-      },
-      () => [elements().reference],
-    );
-  }
 
   const store = untrack(
     () =>
       new FloatingRootStore({
         open: open(),
-        transitionStatus: undefined,
         // Port note: reads the latest `onOpenChange` (see the context getter below).
         onOpenChange: undefined,
-        referenceElement: elements().reference ?? null,
-        floatingElement: elements().floating ?? null,
+        anchorElement: elements().anchor ?? null,
+        positionerElement: elements().positionerElement ?? null,
         triggerElements: new PopupTriggerMap(),
-        floatingId,
+        defaultPopupId,
         nested,
       }),
   );
@@ -66,14 +72,12 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   // `SolidStore.useSyncedValues`): an element option that is `undefined` leaves the element as it
   // is, and an imperative write (e.g. a ref setter) holds until one of these values changes.
   store.useSyncedValues(() => {
-    const { reference, floating } = elements();
-    const hasReference = reference !== undefined;
+    const { anchor, positionerElement } = elements();
     return {
       open: open(),
-      floatingId,
-      referenceElement: hasReference ? reference : SolidStore.KEEP,
-      domReferenceElement: hasReference ? domReference(reference) : SolidStore.KEEP,
-      floatingElement: floating === undefined ? SolidStore.KEEP : floating,
+      defaultPopupId,
+      anchorElement: anchor === undefined ? SolidStore.KEEP : anchor,
+      positionerElement: positionerElement === undefined ? SolidStore.KEEP : positionerElement,
     };
   });
 
@@ -96,8 +100,4 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   store.context.nested = nested;
 
   return store;
-}
-
-function domReference(reference: ReferenceType | null) {
-  return isElement(reference) ? (reference as Element) : null;
 }

@@ -9,7 +9,7 @@ import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayout
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { areArraysEqual } from '@base-ui-solid/utils/areArraysEqual';
 import { activeElement, contains, getTarget } from '../../utils/popups/element';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../internals/useRenderElement';

@@ -33,7 +33,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>): JSX.Ele
 
   const { store, open, mounted, payload, transitionStatus } = usePopupRoot(
     props,
-    (initialState, floatingId) => new TooltipStore<Payload>(initialState, floatingId),
+    (initialState, defaultPopupId) => new TooltipStore<Payload>(initialState, defaultPopupId),
     { closeOnActiveTriggerUnmount: true, disabled },
   );
 

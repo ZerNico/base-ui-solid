@@ -23,7 +23,7 @@ import {
 } from './NavigationMenuRootContext';
 import type {
   NavigationMenuPopupAutoSizeResetState,
-  TriggerFloatingRootContext,
+  TriggerFloatingRootStore,
 } from './NavigationMenuRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
@@ -107,32 +107,30 @@ export function NavigationMenuRoot<Value = any>(
   const [activationDirection, setActivationDirection] = createSignal<
     'left' | 'right' | 'up' | 'down' | null
   >(null, { ownedWrite: true });
-  // Port note: upstream's active trigger hands its floating context to the root from a layout
-  // effect. Here the triggers register their contexts, and a writable memo derives the active
-  // item's context when the active item changes. Otherwise it keeps the last one (through the exit
+  // Port note: upstream's active trigger hands its root store to the root from a layout
+  // effect. Here the triggers register their stores, and a writable memo derives the active
+  // item's store when the active item changes. Otherwise it keeps the last one (through the exit
   // animation), until a close or the unmount clears it.
-  const triggerContexts = new Set<TriggerFloatingRootContext>();
-  const [triggerContextsVersion, setTriggerContextsVersion] = createSignal(0, {
+  const triggerStores = new Set<TriggerFloatingRootStore>();
+  const [triggerStoresVersion, setTriggerStoresVersion] = createSignal(0, {
     ownedWrite: true,
   });
-  const registerTriggerContext = (entry: TriggerFloatingRootContext) => {
-    triggerContexts.add(entry);
-    setTriggerContextsVersion((version) => version + 1);
+  const registerTriggerStore = (entry: TriggerFloatingRootStore) => {
+    triggerStores.add(entry);
+    setTriggerStoresVersion((version) => version + 1);
     return () => {
-      triggerContexts.delete(entry);
-      setTriggerContextsVersion((version) => version + 1);
+      triggerStores.delete(entry);
+      setTriggerStoresVersion((version) => version + 1);
     };
   };
-  const [floatingRootContext, setFloatingRootContextRaw] = createSignal<
-    FloatingRootStore | undefined
-  >(
+  const [floatingRootStore, setFloatingRootStoreRaw] = createSignal<FloatingRootStore | undefined>(
     (previous) => {
-      triggerContextsVersion();
+      triggerStoresVersion();
       const activeValue = value();
       if (activeValue != null) {
-        for (const entry of triggerContexts) {
+        for (const entry of triggerStores) {
           if (entry.value() === activeValue) {
-            return entry.context;
+            return entry.store;
           }
         }
       }
@@ -140,8 +138,8 @@ export function NavigationMenuRoot<Value = any>(
     },
     { ownedWrite: true },
   );
-  const setFloatingRootContext = (context: FloatingRootStore | undefined) => {
-    setFloatingRootContextRaw(() => context);
+  const setFloatingRootStore = (store: FloatingRootStore | undefined) => {
+    setFloatingRootStoreRaw(() => store);
   };
   const [viewportInert, setViewportInert] = createSignal(false, { ownedWrite: true });
 
@@ -196,7 +194,7 @@ export function NavigationMenuRoot<Value = any>(
 
       componentProps.onOpenChangeComplete?.(false);
       setActivationDirection(null);
-      setFloatingRootContext(undefined);
+      setFloatingRootStore(undefined);
 
       currentContentRef.current = null;
       closeReason = undefined;
@@ -274,7 +272,7 @@ export function NavigationMenuRoot<Value = any>(
         setPreventUnmountOnClose(shouldPreventUnmountOnClose());
       }
       setActivationDirection(null);
-      setFloatingRootContext(undefined);
+      setFloatingRootStore(undefined);
     }
 
     // Port note: boxed so that a function value isn't mistaken for an updater.
@@ -314,8 +312,8 @@ export function NavigationMenuRoot<Value = any>(
     setViewportTargetElement,
     activationDirection: contextActivationDirection,
     setActivationDirection,
-    floatingRootContext,
-    registerTriggerContext,
+    floatingRootStore,
+    registerTriggerStore,
     currentContentRef,
     nested,
     rootRef,

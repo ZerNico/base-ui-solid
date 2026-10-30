@@ -2,7 +2,7 @@ import { omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPortalContext } from './PreviewCardPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**

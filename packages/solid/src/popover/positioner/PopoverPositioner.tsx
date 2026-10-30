@@ -1,23 +1,20 @@
-import { createMemo, omit, Show } from 'solid-js';
+import { Show } from 'solid-js';
 import { inertValue } from '@base-ui-solid/utils/inertValue';
-import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingNode, useFloatingNodeId } from '../../utils/popups/tree/FloatingTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { useAnchorPositioning } from '../../internals/useAnchorPositioning';
 import type {
   Side,
   Align,
   UseAnchorPositioningSharedParameters,
 } from '../../internals/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
-import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { InternalBackdrop } from '../../utils/popups/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
-import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
-import { usePositioner } from '../../utils/usePositioner';
-import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
+import { usePopupPositioner } from '../../utils/popups/popupPositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/popups/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popover against the trigger.
@@ -26,93 +23,21 @@ import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLo
  * Documentation: [Base UI Popover](https://base-ui-solid.pages.dev/solid/components/popover)
  */
 export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
-  // `useAnchorPositioning` applies the same defaults to the undefined values; the names
-  // remain omitted to exclude the props from `elementProps`.
-  const elementProps = omit(
-    componentProps,
-    'render',
-    'class',
-    'style',
-    'anchor',
-    'positionMethod',
-    'side',
-    'align',
-    'sideOffset',
-    'alignOffset',
-    'collisionBoundary',
-    'collisionPadding',
-    'arrowPadding',
-    'sticky',
-    'disableAnchorTracking',
-    'collisionAvoidance',
-  );
-
   const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const mounted = store.useState('mounted');
-  const open = store.useState('open');
+  const { element, positioning, open, mounted } = usePopupPositioner(store, componentProps, {
+    keepMounted,
+    positioning: { nodeId },
+  });
+
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
-  const instantType = store.useState('instantType');
-  const transitionStatus = store.useState('transitionStatus');
-  const adaptiveOrigin = store.useState('adaptiveOrigin');
-
-  const positioning = useAnchorPositioning({
-    get anchor() {
-      return componentProps.anchor;
-    },
-    floatingRootContext: store,
-    get positionMethod() {
-      return componentProps.positionMethod;
-    },
-    get mounted() {
-      return mounted();
-    },
-    get side() {
-      return componentProps.side;
-    },
-    get sideOffset() {
-      return componentProps.sideOffset;
-    },
-    get align() {
-      return componentProps.align;
-    },
-    get alignOffset() {
-      return componentProps.alignOffset;
-    },
-    get arrowPadding() {
-      return componentProps.arrowPadding;
-    },
-    get collisionBoundary() {
-      return componentProps.collisionBoundary ?? 'clipping-ancestors';
-    },
-    get collisionPadding() {
-      return componentProps.collisionPadding;
-    },
-    get sticky() {
-      return componentProps.sticky;
-    },
-    get disableAnchorTracking() {
-      return componentProps.disableAnchorTracking ?? false;
-    },
-    get keepMounted() {
-      return keepMounted();
-    },
-    nodeId,
-    get collisionAvoidance() {
-      return componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
-    },
-    get adaptiveOrigin() {
-      return adaptiveOrigin();
-    },
-  });
-
-  const domReference = store.useState('domReferenceElement');
+  const domReference = store.useState('anchorElement');
 
   useTriggerSwitchTransition({
     store,
@@ -130,43 +55,12 @@ export function PopoverPositioner(componentProps: PopoverPositioner.Props) {
     triggerElement,
   );
 
-  const setPositionerElement = store.useStateSetter('positionerElement');
-
-  const state = createMemo<PopoverPositionerState>(
-    () => ({
-      open: open(),
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant: instantType(),
-    }),
-    { equals: fastObjectShallowCompare },
-  );
-
   return (
     <PopoverPositionerContext value={positioning}>
       <Show when={mounted() && trueModalNonHover()}>
         <InternalBackdrop inert={inertValue(!open())} cutout={triggerElement()} />
       </Show>
-      <FloatingNode id={nodeId}>
-        {usePositioner(componentProps, state, {
-          get styles() {
-            return positioning.positionerStyles;
-          },
-          get transitionStatus() {
-            return transitionStatus();
-          },
-          // Port note: `elementProps`' handlers take `BaseUIEvent`s.
-          props: elementProps as HTMLProps<HTMLDivElement>,
-          refs: setPositionerElement,
-          get hidden() {
-            return !mounted();
-          },
-          get inert() {
-            return !open();
-          },
-        })}
-      </FloatingNode>
+      <FloatingNode id={nodeId}>{element()}</FloatingNode>
     </PopoverPositionerContext>
   );
 }

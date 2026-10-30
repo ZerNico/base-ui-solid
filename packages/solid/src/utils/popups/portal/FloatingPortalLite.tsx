@@ -1,8 +1,8 @@
 import { omit, Show } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import type { BaseUIComponentProps } from '../internals/types';
-import { useFloatingPortalNode } from './popups/portal/FloatingPortal';
+import type { BaseUIComponentProps } from '../../../internals/types';
+import { useFloatingPortalNode } from './FloatingPortal';
 
 type PortalContainer = HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null;
 

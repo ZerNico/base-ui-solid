@@ -2,7 +2,7 @@ import { omit, Show } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
-import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { FloatingPortalLite } from '../../utils/popups/portal/FloatingPortalLite';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 /**

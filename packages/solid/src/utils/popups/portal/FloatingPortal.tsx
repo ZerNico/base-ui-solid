@@ -18,7 +18,7 @@ import { useId } from '@base-ui-solid/utils/useId';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
-import { FocusGuard } from '../../FocusGuard';
+import { FocusGuard } from '../focus/FocusGuard';
 import {
   enableFocusInside,
   disableFocusInside,

@@ -3,7 +3,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 
 /**

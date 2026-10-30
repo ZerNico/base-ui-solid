@@ -15,7 +15,7 @@ import { platform as floatingPlatform } from '../../utils/popups/positioning/dom
 import type { ClientRectObject } from '../../utils/popups/positioning/dom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -53,7 +53,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
   const multiple = store.useState('multiple');
   const readOnly = store.useState('readOnly');
   const highlightItemOnHover = store.useState('highlightItemOnHover');
-  const floatingRootContext = useSelectFloatingContext();
+  const floatingRootStore = useSelectFloatingContext();
   // Port note: the positioner context fields are getters, read reactively below.
   const positioner = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -530,7 +530,7 @@ export function SelectPopup(componentProps: SelectPopup.Props) {
     <>
       <Show when={!csp.disableStyleElements}>{styleDisableScrollbar.getElement(csp.nonce)}</Show>
       <FloatingFocusManager
-        context={floatingRootContext}
+        store={floatingRootStore}
         modal={false}
         disabled={!mounted()}
         openInteractionType={openMethod()}

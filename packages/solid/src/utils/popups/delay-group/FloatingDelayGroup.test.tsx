@@ -13,7 +13,9 @@ import {
 
 import { FloatingDelayGroup, useDelayGroup } from './FloatingDelayGroup';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
-import { useHover } from '../../../../test/floating-ui-tests/useHover';
+import { useHoverPopupInteraction } from '../interactions/useHoverPopupInteraction';
+import { useHoverTriggerInteraction } from '../interactions/useHoverTriggerInteraction';
+import { getDelay } from '../interactions/useHoverShared';
 import type { HTMLProps } from '../../../internals/types';
 
 /**
@@ -42,8 +44,20 @@ function Tooltip(props: Props) {
     },
   });
   const { delayRef } = delayGroup;
-  const hover = useHover(context, { delay: () => delayRef.current });
-  const { getReferenceProps } = useTestInteractions([hover]);
+  const hoverReferenceProps = useHoverTriggerInteraction(context.rootStore, {
+    delay: () => delayRef.current,
+    triggerElementRef: refs.domReference,
+  });
+  useHoverPopupInteraction(context.rootStore, {
+    closeDelay: () => getDelay(delayRef.current, 'close') ?? 0,
+  });
+  const { getReferenceProps } = useTestInteractions([
+    {
+      get reference() {
+        return hoverReferenceProps();
+      },
+    },
+  ]);
 
   // Port note: Solid components don't re-render. Instead, this counts how many times the
   // consumer's reactive state (`open` and `isInstantPhase`) changed, including the initial run.

@@ -269,7 +269,7 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
     return stale results, and none exist.
   - Selectors that read the DOM (`popupElement.id`, `listElement.id`) aren't tracked by Solid.
     They used to re-run on every store write, now they must read the state key whose change
-    updates the DOM value (`popupIdSelector` always reads `floatingId`).
+    updates the DOM value (`popupIdSelector` always reads `defaultPopupId`).
   - A derived key must not read its own key as its source (that's a dependency cycle). Express
     "keep the current value" with `useConditionalSyncedValue`.
 - Other state that upstream syncs from layout effects is derived too, so that the components don't
@@ -277,15 +277,16 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - Writable memos (`createSignal(fn)`) apply upstream's reset rules when their sources change and
     keep what was written otherwise: `useOpenInteractionType`'s open method, `useFloating`'s
     `isPositioned`, list navigation's `focusItemOnOpen`, Tooltip's `instantType`, Navigation
-    Menu's floating context (its triggers register their contexts with the root).
-  - `useFloatingRootContext` derives the floating root store's `open`, ids and elements. A popup
-    store is its own interaction store (`FloatingRootContext`). Upstream's `BasePopupStore` applies
-    a change of the anchor (the mounted active trigger) in a `setState` override, but here the anchor
-    also changes through derived keys, so the Root derives it (`BasePopupStore.useAnchorState`): the
-    anchor is remembered as `domReferenceElement`, and a `positionReference` that followed the old
-    anchor follows the new one. `useAnchorPositioning` derives the elements' reset while a
-    kept-mounted positioner is unmounted (`useClearPositioning`, the derived `clearPositioning()`),
-    and passes the anchor to `useFloating` as `positionReference`.
+    Menu's root store (its triggers register their stores with the root).
+  - `useFloatingRootStore` derives the floating root store's `open`, ids and elements. A popup
+    store is its own interaction store (`PopupInteractionStore`). Upstream's `BasePopupStore`
+    applies a change of the anchor (the mounted active trigger) in a `setState` override, but here
+    the anchor also changes through derived keys, so the Root derives it
+    (`BasePopupStore.useAnchorState`): the anchor is remembered as `anchorElement`, and an
+    `anchorOverride` that followed the old anchor follows the new one. `useAnchorPositioning`
+    derives the elements' reset while a kept-mounted positioner is unmounted
+    (`useClearPositioning`, the derived `clearPositioning()`), and passes the Positioner's anchor to
+    `useFloating` as `positionerAnchor`.
   - The focus manager registers its state with its portal as an accessor, and resolves the
     element it manages focus on when it's used (after the DOM updated), since it's found in the
     DOM.
@@ -325,9 +326,13 @@ Floating UI:
   inside `useRenderElement`'s `props` accessor (or `mergeProps` called in a reactive scope).
 - React's `onFocus`/`onBlur` in these props become `onFocusIn`/`onFocusOut` (React's versions bubble).
   React's `onMouseDown`/`onPointerDown`/… keep their names.
-- Mutable refs shared through stores (`dataRef`, `popupRef`) are `RefObject`s from
+- Mutable refs shared through stores (`popupRef`) are `RefObject`s from
   `@base-ui-solid/utils/refObject`.
-- `useHoverReferenceInteraction` returns an accessor of its props (upstream: `HTMLProps | undefined`).
+- `useHoverTriggerInteraction` returns an accessor of its props (upstream: `HTMLProps | undefined`).
+  A popup's hover state lives in its `HoverIntent` (`getHoverIntent`). The hooks pass it objects
+  whose `current` is a getter for upstream's `Latest<T>` refs.
+- `usePopupPositioner` returns `element` as a function the part calls inside its providers
+  (upstream returns the element), since Solid creates it under the owner that calls it.
 - `FloatingPortal` renders through `@solidjs/web`'s `Portal`, keeping upstream's API. Solid portals
   don't bubble events through the component tree like React portals: `useDismiss` decides whether
   an event comes from inside the floating tree by following Solid's `_$host` links on portaled
@@ -346,7 +351,7 @@ Tests for popups:
 - Native keyboard events aren't normalized: React maps `Esc` to `Escape`, Solid doesn't.
 - `toBeInaccessible` (from `@mui/internal-test-utils`) is registered in `test/setupVitest.ts`.
 - Production-only code paths can be tested with `vi.doMock('@base-ui-solid/utils/isDev', () => ({ IS_DEV: false }))`.
-- Floating UI's test helpers live in `packages/solid/test/floating-ui-tests` (`useFloating`, `useHover`, …).
+- Floating UI's test helpers live in `packages/solid/test/floating-ui-tests` (`useFloating`, …).
   Reactive `useFloating` options are passed as getters (`get open() { return open(); }`).
 
 ## Tests

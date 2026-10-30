@@ -19,7 +19,7 @@ import type { MenubarContext } from '../../menubar/MenubarContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useOpenInteractionType } from '../../utils/popups/interactions/useOpenInteractionType';
 import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type {
   BaseUIChangeEventDetails,
@@ -37,7 +37,7 @@ import type { PayloadChildRenderFunction } from '../../utils/popups/popupRoot';
 import {
   renderPopupRootChildren,
   usePopupHandleAttachment,
-  usePopupRootWithFloatingId,
+  usePopupRootWithPopupId,
 } from '../../utils/popups/popupRoot';
 import {
   FOCUSABLE_POPUP_PROPS,
@@ -105,13 +105,13 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   })();
 
   const rootId = useBaseUiId();
-  const defaultFloatingId = useBaseUiId();
+  const generatedPopupId = useBaseUiId();
 
-  const [renderedFloatingId, setRenderedFloatingId] = createSignal<string | undefined>(undefined);
+  const [renderedPopupId, setRenderedPopupId] = createSignal<string | undefined>(undefined);
 
   // A registered `''` means the popup rendered with an explicitly empty id, so nothing may point
   // at the generated fallback.
-  const floatingId = () => (renderedFloatingId() ?? defaultFloatingId) || undefined;
+  const defaultPopupId = () => (renderedPopupId() ?? generatedPopupId) || undefined;
 
   const floatingParentNodeIdFromContext = useFloatingParentNodeIdAccessor();
 
@@ -133,9 +133,9 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   // suppresses the enter transition on both popups or neither.
   const seededInstantType = animateInitialOpen ? parentMenuStore?.state.instantType : undefined;
 
-  const { store, open, payload, transitionStatus } = usePopupRootWithFloatingId(
+  const { store, open, payload, transitionStatus } = usePopupRootWithPopupId(
     props,
-    (initialState, initialFloatingId) => {
+    (initialState, initialPopupId) => {
       const menuStore = new MenuStore<Payload>(
         {
           ...initialState,
@@ -146,13 +146,13 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
           rootId,
           instantType: seededInstantType,
         },
-        initialFloatingId,
+        initialPopupId,
       );
       // A stable ref object, so descendants can read it from the first render.
       menuStore.context.virtualFocusRef = virtualFocusRef;
       return menuStore;
     },
-    floatingId,
+    defaultPopupId,
     { animateInitialOpen },
   );
 
@@ -276,7 +276,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
   useEffect(
     ([openValue, parentType]) => {
       if (!openValue) {
-        store.context.openEvent = undefined;
+        store.context.lastOpenChangeEvent = undefined;
       }
 
       if (parentType !== 'context-menu') {
@@ -371,7 +371,7 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     outsidePress() {
       if (
         untrack(parent).type !== 'context-menu' ||
-        store.context.openEvent?.type === 'contextmenu'
+        store.context.lastOpenChangeEvent?.type === 'contextmenu'
       ) {
         return true;
       }
@@ -662,8 +662,8 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get allowEscape() {
       return allowEscape();
     },
-    defaultFloatingId,
-    setRenderedFloatingId: (id) => setRenderedFloatingId(() => id),
+    generatedPopupId,
+    setRenderedPopupId: (id) => setRenderedPopupId(() => id),
     virtualFocus,
     get parentVirtualFocus() {
       return parentVirtualFocus();

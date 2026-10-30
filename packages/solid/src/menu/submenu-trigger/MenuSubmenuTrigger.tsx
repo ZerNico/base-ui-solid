@@ -12,11 +12,11 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { useMenuFilterItem, stabilizeFilterChildren } from '../filter-root/MenuFilterContext';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -186,7 +186,7 @@ function MenuSubmenuTriggerPlain(
 
   const hoverEnabled = store.useState('hoverEnabled');
 
-  const hoverProps = useHoverReferenceInteraction(store, {
+  const hoverProps = useHoverTriggerInteraction(store, {
     get enabled() {
       return hoverEnabled() && openOnHover() && !disabled();
     },

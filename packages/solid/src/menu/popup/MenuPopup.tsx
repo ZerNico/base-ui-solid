@@ -4,7 +4,7 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusManager';
-import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import type { FloatingFocusManagerProps } from '../../utils/popups/focus/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -13,7 +13,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -47,7 +47,7 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
     'initialFocus',
   );
 
-  const { store, defaultFloatingId, setRenderedFloatingId, virtualFocus } = useMenuRootContext();
+  const { store, generatedPopupId, setRenderedPopupId, virtualFocus } = useMenuRootContext();
   const rootContext = useMenuRootContext();
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const positionerContext = useMenuPositionerContext();
@@ -73,8 +73,8 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
 
   const [id, registerIdRef] = useRenderedId(
     componentProps,
-    () => defaultFloatingId,
-    setRenderedFloatingId,
+    () => generatedPopupId,
+    setRenderedPopupId,
   );
 
   const ariaLabelledBy = () => {
@@ -141,7 +141,7 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
     () => [floatingTreeRoot()] as const,
   );
 
-  useHoverFloatingInteraction(store, {
+  useHoverPopupInteraction(store, {
     get enabled() {
       return hoverEnabled() && !disabled() && !isContextMenu() && parent().type !== 'menubar';
     },
@@ -194,7 +194,7 @@ export function MenuPopupPlain(componentProps: MenuPopupPlainProps) {
 
   return (
     <FloatingFocusManager
-      context={store}
+      store={store}
       openInteractionType={openMethod()}
       modal={isContextMenu()}
       disabled={!mounted()}

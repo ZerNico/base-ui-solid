@@ -6,8 +6,8 @@ import type { InteractionType } from '@base-ui-solid/utils/useEnhancedClickHandl
 import type { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../utils/popups/tree/FloatingTreeStore';
 import type { HTMLProps } from '../../internals/types';
-import { NullStore } from '../../utils/NullStore';
-import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { NullStore } from '../../utils/popups/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/popups/positioning/adaptiveOriginConstants';
 import { REASONS } from '../../internals/reasons';
 import type {
   PopupStoreContext,
@@ -78,8 +78,11 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: RefObject<HTMLElement | null>;
   readonly beforeTriggerFocusGuardRef: RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: RefObject<HTMLElement | null>;
-  /** The event that last opened or closed the menu. Cleared once the menu is closed. */
-  openEvent: Event | undefined;
+  /**
+   * The event of the menu's last open change, unlike `openEvent`, which keeps the event of a
+   * click open when a hover open follows. Cleared once the menu is closed.
+   */
+  lastOpenChangeEvent: Event | undefined;
   /**
    * Whether a touch click may close the menu. Some mobile browsers fire `focus` and then a delayed
    * `click` for one tap, so a focus-open briefly ignores touch clicks.
@@ -194,8 +197,8 @@ export class MenuStore<Payload> extends BasePopupStore<
   Selectors,
   MenuRoot.ChangeEventDetails
 > {
-  constructor(initialState?: Partial<State<Payload>>, floatingId?: string | undefined) {
-    const state = createInitialState<Payload>(floatingId, initialState);
+  constructor(initialState?: Partial<State<Payload>>, defaultPopupId?: string | undefined) {
+    const state = createInitialState<Payload>(defaultPopupId, initialState);
 
     super(state, createInitialContext(), selectors);
 
@@ -303,7 +306,7 @@ export class MenuStore<Payload> extends BasePopupStore<
       this.context.allowTouchToCloseTimeout.clear();
     }
 
-    this.context.openEvent = eventDetails.event;
+    this.context.lastOpenChangeEvent = eventDetails.event;
 
     let instantType: State<Payload>['instantType'];
     if (
@@ -394,7 +397,7 @@ function createInitialContext(): Context {
     triggerFocusTargetRef: { current: null },
     beforeTriggerFocusGuardRef: { current: null },
     beforeContentFocusGuardRef: { current: null },
-    openEvent: undefined,
+    lastOpenChangeEvent: undefined,
     allowTouchToClose: true,
     allowTouchToCloseTimeout: new Timeout(),
     getCommittedOpenState: undefined,
@@ -402,11 +405,11 @@ function createInitialContext(): Context {
 }
 
 function createInitialState<Payload>(
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
   initialState?: Partial<State<Payload>>,
 ): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(floatingId),
+    ...createInitialPopupStoreState<Payload>(defaultPopupId),
     disabled: false,
     modal: true,
     openMethod: null,

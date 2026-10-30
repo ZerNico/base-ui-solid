@@ -4,7 +4,7 @@ import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallow
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { popupStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 

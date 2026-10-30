@@ -17,8 +17,8 @@ import {
 import type {
   UseFloatingOptions,
   UseFloatingReturn,
-  PositioningRootContext,
-  FloatingContext,
+  PositioningInteractionStore,
+  PopupPositioningContext,
 } from '../utils/popups/types';
 import type {
   Placement,
@@ -33,9 +33,14 @@ import type { FloatingTreeStore } from '../utils/popups/tree/FloatingTreeStore';
 import { useBaseUIFloating } from '../utils/popups/positioning/useFloating';
 import { useDirection } from './direction-context/DirectionContext';
 import { arrow } from '../utils/popups/positioning/arrow';
-import { hide } from '../utils/hideMiddleware';
-import { DEFAULT_SIDES } from '../utils/adaptiveOriginConstants';
-import * as CommonPositionerCssVars from '../utils/CommonPositionerCssVars';
+import { hide } from '../utils/popups/positioning/hideMiddleware';
+import { DEFAULT_SIDES } from '../utils/popups/positioning/adaptiveOriginConstants';
+import * as CommonPositionerCssVars from '../utils/popups/positioning/CommonPositionerCssVars';
+
+export { useFloatingRootStore } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { UseFloatingRootStoreOptions } from '../utils/popups/floating-root/useFloatingRootStore';
+export type { FloatingRootStore } from '../utils/popups/floating-root/FloatingRootStore';
+export type { PositioningInteractionStore } from '../utils/popups/types';
 
 const AVAILABLE_WIDTH_VAR = CommonPositionerCssVars.availableWidth;
 const AVAILABLE_HEIGHT_VAR = CommonPositionerCssVars.availableHeight;
@@ -126,28 +131,20 @@ interface SideShiftMode {
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
 
-type UseFloatingHook = (options: UseFloatingOptions) => UseFloatingReturn;
-
 /**
  * Provides standardized anchor positioning behavior for floating elements. Wraps Floating UI's
  * `useFloating` hook.
  *
  * Port note: `params` is read lazily like Solid props (pass an object with getters for reactive
- * values); `floatingRootContext`, `nodeId` and `externalTree` are read once by `useFloatingHook`.
+ * values); `nodeId` and `externalTree` are read once by `useBaseUIFloating`, and
+ * `interactionStore` is read reactively there (Navigation Menu's positioner switches stores).
  * The returned object keeps upstream's shape, but its reactive values (`positionerStyles`,
  * `arrowStyles`, `arrowUncentered`, `side`, `align`, `physicalSide`, `anchorHidden` and
  * `isPositioned`) are getters, like `useFloating`'s return value: read them in a reactive scope and
  * don't destructure them. `arrowRef`, `refs`, `context` and `update` are stable.
  */
 export function useAnchorPositioning(
-  params: UseAnchorPositioningParameters & { floatingRootContext: PositioningRootContext },
-): UseAnchorPositioningReturnValue {
-  return useAnchorPositioningWithHook(params, useBaseUIFloating as UseFloatingHook);
-}
-
-export function useAnchorPositioningWithHook(
   params: UseAnchorPositioningParameters,
-  useFloatingHook: UseFloatingHook,
 ): UseAnchorPositioningReturnValue {
   // Public parameters
   const anchor = () => params.anchor;
@@ -156,7 +153,7 @@ export function useAnchorPositioningWithHook(
   const sideOffset = () => params.sideOffset ?? 0;
   const align = () => params.align ?? 'center';
   const alignOffset = () => params.alignOffset ?? 0;
-  const collisionBoundary = () => params.collisionBoundary;
+  const collisionBoundary = () => params.collisionBoundary ?? 'clipping-ancestors';
   const collisionPaddingParam = () => params.collisionPadding ?? 5;
   const sticky = () => params.sticky ?? false;
   const arrowPadding = () => params.arrowPadding ?? 5;
@@ -164,7 +161,7 @@ export function useAnchorPositioningWithHook(
   const inlineMiddleware = () => params.inline;
   // Private parameters
   const keepMounted = () => params.keepMounted ?? false;
-  const floatingRootContext = () => params.floatingRootContext;
+  const interactionStore = () => params.interactionStore;
   const mounted = () => params.mounted;
   const collisionAvoidance = () => params.collisionAvoidance;
   const shift = () => params.shift;
@@ -507,11 +504,7 @@ export function useAnchorPositioningWithHook(
   // derives the cleared elements into the store while it's unmounted (`useClearPositioning`). The
   // memo owns the registration, so it moves with the store.
   void createMemo(() => {
-    const store = floatingRootContext();
-    if (!store) {
-      return;
-    }
-    store.useClearPositioning(() => !mounted());
+    interactionStore().useClearPositioning(() => !mounted());
   });
 
   const autoUpdateOptions = createMemo<AutoUpdateOptions>(() => ({
@@ -523,12 +516,12 @@ export function useAnchorPositioningWithHook(
   const whileElementsMounted: UseFloatingOptions['whileElementsMounted'] = (...args) =>
     autoUpdate(...args, untrack(autoUpdateOptions));
 
-  // Port note: the options are read lazily through getters (`rootContext`, `nodeId` and
+  // Port note: the options are read lazily through getters (`rootStore`, `nodeId` and
   // `externalTree` are read once). The return value's reactive fields are getters, so they're read
   // from `floating` where upstream destructures them.
-  const floating = useFloatingHook({
-    get rootContext() {
-      return floatingRootContext();
+  const floating = useBaseUIFloating({
+    get rootStore() {
+      return interactionStore();
     },
     get open() {
       return keepMounted() ? mounted() : undefined;
@@ -553,7 +546,7 @@ export function useAnchorPositioningWithHook(
     },
     // Port note: upstream sets the anchor from a layout effect while mounted. It's derived here,
     // and kept while unmounted. A function anchor is called when the anchor dependency changes.
-    get positionReference() {
+    get positionerAnchor() {
       if (!mounted()) {
         return undefined;
       }
@@ -877,9 +870,12 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  floatingRootContext?: PositioningRootContext | undefined;
+  /**
+   * The interaction store the popup is positioned with. Components without a popup store create
+   * one with `useFloatingRootStore`.
+   */
+  interactionStore: PositioningInteractionStore;
   mounted: boolean;
-  disableAnchorTracking: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
@@ -903,7 +899,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
 }
 
 /**
- * Port note: the reactive fields are getters (see `useAnchorPositioningWithHook`).
+ * Port note: the reactive fields are getters (see `useAnchorPositioning`).
  */
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: JSX.CSSProperties;
@@ -915,7 +911,7 @@ export interface UseAnchorPositioningReturnValue {
   physicalSide: PhysicalSide;
   anchorHidden: boolean;
   refs: UseFloatingReturn['refs'];
-  context: FloatingContext;
+  context: PopupPositioningContext;
   isPositioned: boolean;
   update: () => void;
 }

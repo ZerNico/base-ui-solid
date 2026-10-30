@@ -5,7 +5,7 @@ import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { EMPTY_ARRAY } from '@base-ui-solid/utils/empty';
 import { isElementVisible, isListIndexDisabled } from '../../../internals/composite/listIndex';
 import type { DisabledIndices } from '../../../internals/composite/listIndex';
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, PopupInteractionStore } from '../types';
 import { contains } from '../element';
 import { stopEvent } from '../event';
 
@@ -72,7 +72,7 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
+export function useTypeahead(store: PopupInteractionStore, props: UseTypeaheadProps): ElementProps {
   // Port note: the options are read lazily (see `UseTypeaheadProps`).
   const listRef = () => props.listRef;
   const elementsRef = () => props.elementsRef;
@@ -213,8 +213,8 @@ export function useTypeahead(store: FloatingRootContext, props: UseTypeaheadProp
   // Port note: React's `onBlur` bubbles, so it's `onFocusOut` here.
   const onFocusOut = (event: FocusEvent) => {
     const next = event.relatedTarget as Element | null;
-    const currentDomReferenceElement = store.select('domReferenceElement');
-    const currentFloatingElement = store.select('floatingElement');
+    const currentDomReferenceElement = store.select('anchorElement');
+    const currentFloatingElement = store.select('positionerElement');
     const withinComposite =
       contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 

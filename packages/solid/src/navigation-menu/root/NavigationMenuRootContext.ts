@@ -33,12 +33,12 @@ export interface NavigationMenuRootContext<Value = any> {
   setViewportTargetElement: (element: HTMLElement | null) => void;
   activationDirection: Accessor<'left' | 'right' | 'up' | 'down' | null>;
   setActivationDirection: (direction: 'left' | 'right' | 'up' | 'down' | null) => void;
-  floatingRootContext: Accessor<FloatingRootStore | undefined>;
+  floatingRootStore: Accessor<FloatingRootStore | undefined>;
   /**
    * Port note: registers a trigger's floating context. The root uses the active item's.
    * @returns A function that unregisters it.
    */
-  registerTriggerContext: (entry: TriggerFloatingRootContext) => () => void;
+  registerTriggerStore: (entry: TriggerFloatingRootStore) => () => void;
   currentContentRef: RefObject<HTMLDivElement | null>;
   nested: boolean;
   rootRef: RefObject<HTMLDivElement | null>;
@@ -88,8 +88,8 @@ function useNavigationMenuTreeContext() {
 
 export { useNavigationMenuRootContext, useNavigationMenuTreeContext };
 
-export interface TriggerFloatingRootContext {
+export interface TriggerFloatingRootStore {
   /** The trigger's item value. */
   value: Accessor<unknown>;
-  context: FloatingRootStore;
+  store: FloatingRootStore;
 }

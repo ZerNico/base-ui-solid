@@ -5,7 +5,7 @@ import { useTimeout, Timeout } from '@base-ui-solid/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../interactions/useHoverShared';
-import type { FloatingRootContext, Delay } from '../types';
+import type { PopupInteractionStore, Delay } from '../types';
 import type { BaseUIChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../../internals/reasons';
@@ -143,12 +143,12 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  store: FloatingRootContext,
+  store: PopupInteractionStore,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
   const open = () => options.open;
 
-  const floatingId = store.useState('floatingId');
+  const defaultPopupId = store.useState('defaultPopupId');
 
   const groupContext = useContext(FloatingDelayGroupContext);
   const { currentIdRef, delayRef, initialDelayRef, currentContextRef, hasProvider, timeout } =
@@ -205,7 +205,7 @@ export function useDelayGroup(
 
       return undefined;
     },
-    () => [open(), floatingId(), groupContext.timeoutMs] as const,
+    () => [open(), defaultPopupId(), groupContext.timeoutMs] as const,
   );
 
   useIsoLayoutEffect(
@@ -236,7 +236,7 @@ export function useDelayGroup(
         prevContext?.setIsInstantPhase(false);
       }
     },
-    () => [open(), floatingId()] as const,
+    () => [open(), defaultPopupId()] as const,
   );
 
   useIsoLayoutEffect(
@@ -255,7 +255,7 @@ export function useDelayGroup(
         }
       };
     },
-    () => [floatingId()],
+    () => [defaultPopupId()],
   );
 
   return {

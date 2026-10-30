@@ -32,6 +32,7 @@ describe('<Select.Positioner />', () => {
 
   positionerConformanceTests({
     render,
+    stableState: false,
     createComponent: (props) => (
       <Select.Root {...props.root}>
         <Trigger {...props.trigger}>Trigger</Trigger>

@@ -102,7 +102,7 @@ describe('<Tooltip.Root />', () => {
   describe('trigger unmount during the open delay', () => {
     clock.withFakeTimers();
 
-    function App(props: { showTrigger: boolean }) {
+    function ContainedApp(props: { showTrigger: boolean }) {
       return (
         <Tooltip.Root>
           <Show when={props.showTrigger}>
@@ -117,7 +117,28 @@ describe('<Tooltip.Root />', () => {
       );
     }
 
-    it('does not open once the hovered trigger has unmounted', async () => {
+    function DetachedApp(props: { showTrigger: boolean }) {
+      const handle = Tooltip.createHandle();
+      return (
+        <>
+          <Show when={props.showTrigger}>
+            <Tooltip.Trigger handle={handle}>Toggle</Tooltip.Trigger>
+          </Show>
+          <Tooltip.Root handle={handle}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </>
+      );
+    }
+
+    it.each([
+      { name: 'contained trigger', App: ContainedApp },
+      { name: 'detached trigger', App: DetachedApp },
+    ])('does not open once the hovered $name has unmounted', async ({ App }) => {
       // Port note: upstream's `setProps` is a signal.
       const [showTrigger, setShowTrigger] = createSignal(true);
       await render(() => <App showTrigger={showTrigger()} />);
@@ -3071,7 +3092,7 @@ describe('nested tooltips', () => {
     fireEvent.mouseEnter(innerTrigger);
     fireEvent.mouseOver(innerTrigger);
     // Repeated mouseMoves keep the safePolygon / mouseover path active, which
-    // calls `setOpen(true)` via `useHoverReferenceInteraction`'s onMouseMove
+    // calls `setOpen(true)` via `useHoverTriggerInteraction`'s onMouseMove
     // handler — that path is now gated by `checkShouldOpen()`.
     fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
     fireEvent.mouseMove(innerTrigger, { clientX: 51, clientY: 10 });

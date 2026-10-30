@@ -1,7 +1,12 @@
 import { expect, describe, it } from 'vitest';
 import { Errored, untrack } from 'solid-js';
 import { Tooltip } from 'base-ui-solid/tooltip';
-import { createRenderer, describeConformance, positionerConformanceTests } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  positionerConformanceTests,
+  screen,
+} from '#test-utils';
 
 // Port note: `render={<div />}` (a React element) becomes the `div` tag name; the ref is forwarded
 // through the props.
@@ -19,6 +24,21 @@ describe('<Tooltip.Positioner />', () => {
         <Tooltip.Portal>{node()}</Tooltip.Portal>
       </Tooltip.Root>
     ),
+  });
+
+  describe('prop: side', () => {
+    it('uses the side prop over the default', async () => {
+      await render(() => (
+        <Tooltip.Root open>
+          <Trigger>Trigger</Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner" side="bottom" />
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      ));
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'bottom');
+    });
   });
 
   it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
@@ -66,6 +86,8 @@ describe('<Tooltip.Positioner />', () => {
   positionerConformanceTests({
     render,
     viewport: true,
+    defaultSide: 'top',
+    defaultCollisionAvoidance: 'popup',
     createComponent: (props) => (
       <Tooltip.Root {...props.root}>
         <Trigger {...props.trigger}>Trigger</Trigger>

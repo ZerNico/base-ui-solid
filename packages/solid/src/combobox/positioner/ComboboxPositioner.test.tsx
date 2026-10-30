@@ -82,6 +82,7 @@ describe('<Combobox.Positioner />', () => {
 
   positionerConformanceTests({
     render,
+    stableState: false,
     createComponent: (props) => (
       <Combobox.Root {...props.root}>
         <Combobox.Input {...props.trigger} />

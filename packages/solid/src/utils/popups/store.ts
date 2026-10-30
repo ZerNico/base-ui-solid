@@ -5,7 +5,7 @@ import { SolidStore } from '@base-ui-solid/utils/store';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { createEventEmitter } from './createEventEmitter';
 import { dispatchOpenChange } from './floating-root/dispatchOpenChange';
-import type { ContextData, FloatingEvents, ReferenceType } from './types';
+import type { PopupEvents, PopupInteractionContext, ReferenceType } from './types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
 import type { HTMLProps } from '../../internals/types';
@@ -36,8 +36,10 @@ export type PopupStoreState<Payload> = {
    * The current enter/exit transition status of the popup.
    */
   transitionStatus: TransitionStatus;
-
-  floatingId: string | undefined;
+  /**
+   * The popup's id unless its element sets one.
+   */
+  defaultPopupId: string | undefined;
   /**
    * Number of trigger elements currently registered for this popup.
    */
@@ -66,7 +68,7 @@ export type PopupStoreState<Payload> = {
    * once the popup unmounts, so the interaction hooks still recognize the trigger that the popup
    * last belonged to.
    */
-  domReferenceElement: Element | null;
+  anchorElement: Element | null;
   /**
    * Whether the popup is open because of a request that deliberately carried no trigger, such as a
    * handle's `open(null)` or `openWithPayload()`. While set, a lone registered trigger is not
@@ -94,7 +96,7 @@ export type PopupStoreState<Payload> = {
    * A virtual anchor that overrides the active trigger, such as the cursor position of a tooltip
    * that follows it.
    */
-  positionReference: ReferenceType | null;
+  anchorOverride: ReferenceType | null;
 
   /**
    * Props to spread onto the active trigger element.
@@ -111,33 +113,33 @@ export type PopupStoreState<Payload> = {
 };
 
 export function createInitialPopupStoreState<Payload>(
-  floatingId?: string | undefined,
+  defaultPopupId?: string | undefined,
 ): PopupStoreState<Payload> {
   return {
     open: false,
     openProp: undefined,
     mounted: false,
     transitionStatus: undefined,
-    floatingId,
+    defaultPopupId,
     triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
     activeTriggerElement: null,
-    domReferenceElement: null,
+    anchorElement: null,
     openedWithoutTrigger: false,
     openChangeReason: null,
     triggerIdProp: undefined,
     popupElement: null,
     positionerElement: null,
-    positionReference: null,
+    anchorOverride: null,
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
   };
 }
 
-export type PopupStoreContext<ChangeEventDetails> = {
+export type PopupStoreContext<ChangeEventDetails> = PopupInteractionContext & {
   /**
    * Map of registered trigger elements.
    */
@@ -155,13 +157,9 @@ export type PopupStoreContext<ChangeEventDetails> = {
    */
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   /**
-   * Data the interaction hooks share, such as the event that opened the popup.
-   */
-  readonly dataRef: RefObject<ContextData>;
-  /**
    * Internal events for the interaction hooks, such as `openchange`.
    */
-  readonly events: FloatingEvents;
+  readonly events: PopupEvents;
   /**
    * Whether the popup has a parent in the floating tree.
    */
@@ -177,7 +175,6 @@ export function createPopupStoreContext() {
     triggerElements: new PopupTriggerMap(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
-    dataRef: { current: {} } as RefObject<ContextData>,
     events: createEventEmitter(),
     nested: false,
   };
@@ -193,10 +190,11 @@ const activeTriggerElementSelector = (state: S) =>
   state.mounted ? state.activeTriggerElement : null;
 
 const popupIdSelector = (state: S) => {
-  // Port note: always read `floatingId`. The popup element's DOM `id` isn't reactive, and a change of
-  // the rendered id reaches the store as a `floatingId` change, which re-runs this selector.
-  const floatingId = state.floatingId;
-  const popupId = state.popupElement?.id ?? floatingId;
+  // Port note: always read `defaultPopupId`. The popup element's DOM `id` isn't reactive, and a
+  // change of the rendered id reaches the store as a `defaultPopupId` change, which re-runs this
+  // selector.
+  const defaultPopupId = state.defaultPopupId;
+  const popupId = state.popupElement?.id ?? defaultPopupId;
   return popupId || undefined;
 };
 
@@ -259,16 +257,16 @@ export const popupStoreSelectors = {
   popupProps: (state: S) => state.popupProps,
 
   popupElement: (state: S) => state.popupElement,
-  positionerElement: (state: S) => state.positionerElement,
-
-  // Reads of the interaction hooks' store (`FloatingRootContext`).
-  floatingId: (state: S) => state.floatingId,
-  domReferenceElement: (state: S) => state.domReferenceElement,
-  referenceElement: (state: S) => state.positionReference ?? activeTriggerElementSelector(state),
   // A `keepMounted` positioner is reported while the popup is closed, but not while an opening
-  // popup is still hidden: the hooks would otherwise try to focus or measure it before it shows.
-  floatingElement: (state: S) =>
+  // popup is still hidden: the interaction hooks would otherwise try to focus or measure it before
+  // it shows.
+  positionerElement: (state: S) =>
     openSelector(state) && !state.mounted ? null : state.positionerElement,
+
+  // Reads of the interaction hooks' store (`PopupInteractionStore`).
+  defaultPopupId: (state: S) => state.defaultPopupId,
+  anchorElement: (state: S) => state.anchorElement,
+  anchor: (state: S) => state.anchorOverride ?? activeTriggerElementSelector(state),
 };
 
 export type PopupStoreSelectors = typeof popupStoreSelectors;
@@ -380,7 +378,7 @@ export abstract class BasePopupStore<
 > extends SolidStore<Readonly<State>, Context, Selectors> {
   /**
    * Port note: derives what upstream's `setState` override applies when the anchor changes. The
-   * anchor is remembered as the DOM reference, and a position reference that followed the old
+   * anchor is remembered as the anchor element, and an anchor override that followed the old
    * anchor follows the new one. A write to either key wins until the anchor changes, as it would
    * upstream. The Root calls it once, under its owner (see `usePopupRootStore`).
    */
@@ -390,14 +388,14 @@ export abstract class BasePopupStore<
     const anchor = () => activeTriggerElementSelector(store.state);
 
     store.useSyncedValues({
-      domReferenceElement: () => anchor() ?? SolidStore.KEEP,
+      anchorElement: () => anchor() ?? SolidStore.KEEP,
     } as AnchorSyncedValues<State>);
 
-    // The value the position reference reads, and what it was last derived from. A write changes
+    // The value the anchor override reads, and what it was last derived from. A write changes
     // the raw value (or only the write count, when it writes the same raw value again).
     let derived:
       { value: unknown; raw: unknown; writes: number; anchor: Element | null } | undefined;
-    store.useDerivedState('positionReference', (raw, _rawState, writes) => {
+    store.useDerivedState('anchorOverride', (raw, _rawState, writes) => {
       const nextAnchor = anchor();
       if (derived === undefined || writes !== derived.writes || !Object.is(raw, derived.raw)) {
         derived = { value: raw, raw, writes, anchor: nextAnchor };
@@ -410,7 +408,7 @@ export abstract class BasePopupStore<
           anchor: nextAnchor,
         };
       }
-      return derived.value as State['positionReference'];
+      return derived.value as State['anchorOverride'];
     });
   }
 
@@ -419,20 +417,20 @@ export abstract class BasePopupStore<
    * from the popup's own state, so they stay.
    */
   clearPositioning() {
-    this.update({ domReferenceElement: null, positionReference: null } as Pick<
+    this.update({ anchorElement: null, anchorOverride: null } as Pick<
       State,
-      'domReferenceElement' | 'positionReference'
+      'anchorElement' | 'anchorOverride'
     >);
   }
 
   /**
-   * Port note: the derived counterpart of `clearPositioning()` (see `PositioningRootContext`).
+   * Port note: the derived counterpart of `clearPositioning()` (see `PositioningInteractionStore`).
    */
   useClearPositioning(unmounted: Accessor<boolean>) {
     const cleared = () => (unmounted() ? null : SolidStore.KEEP);
     this.useSyncedValues({
-      domReferenceElement: cleared,
-      positionReference: cleared,
+      anchorElement: cleared,
+      anchorOverride: cleared,
     } as AnchorSyncedValues<State>);
   }
 

@@ -88,7 +88,7 @@ type PopupRootStore = BasePopupStore<any, any, any, any>;
  *
  * @param props The props every popup Root shares.
  * @param createStore Builds the store exactly once, from the state the props describe and the
- *   floating id. The store belongs to the
+ *   default popup id. The store belongs to the
  *   Root, not to its handle: the handle attaches to it, so swapping the handle re-attaches rather
  *   than recreating state. The props only seed it; controlled props are synced after creation.
  * @param options What differs between popup Roots.
@@ -96,23 +96,23 @@ type PopupRootStore = BasePopupStore<any, any, any, any>;
  */
 export function usePopupRoot<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
   options: UsePopupRootOptions = {},
 ) {
-  const floatingId = useId();
-  return usePopupRootWithFloatingId(props, createStore, () => floatingId, options);
+  const defaultPopupId = useId();
+  return usePopupRootWithPopupId(props, createStore, () => defaultPopupId, options);
 }
 
 /**
- * `usePopupRoot` for a Root that supplies its own floating id instead of a generated one.
+ * `usePopupRoot` for a Root that supplies its own default popup id instead of a generated one.
  *
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
- *   Port note: an accessor, since Menu's floating id follows the id its popup renders.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
+ *   Port note: an accessor, since Menu's default popup id follows the id its popup renders.
  */
-export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
+export function usePopupRootWithPopupId<Store extends PopupRootStore>(
   props: PopupRootProps<Store>,
-  createStore: (initialState: PopupRootInitialState, floatingId: string | undefined) => Store,
-  floatingId: Accessor<string | undefined>,
+  createStore: (initialState: PopupRootInitialState, defaultPopupId: string | undefined) => Store,
+  defaultPopupId: Accessor<string | undefined>,
   options: UsePopupRootOptions = {},
 ) {
   const {
@@ -122,7 +122,7 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
   } = options;
 
   const store = usePopupRootStore(
-    (initialFloatingId) =>
+    (initialPopupId) =>
       createStore(
         untrack(() => ({
           open: props.defaultOpen ?? false,
@@ -130,9 +130,9 @@ export function usePopupRootWithFloatingId<Store extends PopupRootStore>(
           activeTriggerId: props.defaultTriggerId ?? null,
           triggerIdProp: props.triggerId,
         })),
-        initialFloatingId,
+        initialPopupId,
       ),
-    floatingId,
+    defaultPopupId,
   );
 
   store.useControlledProp('openProp', () => props.open);
@@ -217,22 +217,22 @@ interface PopupRootStoreHandle<Store> {
 
 /**
  * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
- * controlled props and root state synced separately after creation. Keeps the floating id and
+ * controlled props and root state synced separately after creation. Keeps the default popup id and
  * whether the popup is nested current, and returns the store.
  *
- * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
+ * @param createStore Factory that builds the store. Called exactly once, receiving the default popup id
  * resolved on the first render.
- * @param floatingId The floating id, or `undefined` to leave the popup without one.
+ * @param defaultPopupId The default popup id, or `undefined` to leave the popup without one.
  */
 function usePopupRootStore<Store extends PopupRootStore>(
-  createStore: (floatingId: string | undefined) => Store,
-  floatingId: Accessor<string | undefined>,
+  createStore: (defaultPopupId: string | undefined) => Store,
+  defaultPopupId: Accessor<string | undefined>,
 ): Store {
   const nested = useFloatingParentNodeId() != null;
 
-  const store = untrack(() => createStore(floatingId()));
+  const store = untrack(() => createStore(defaultPopupId()));
 
-  store.useSyncedValue('floatingId', floatingId);
+  store.useSyncedValue('defaultPopupId', defaultPopupId);
   store.context.nested = nested;
   // Port note: upstream applies the anchor state in the store's `setState` (see `BasePopupStore`).
   store.useAnchorState();

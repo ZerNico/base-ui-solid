@@ -26,11 +26,10 @@ function expectRect({ x, y, width, height }: DOMRectInit) {
 function createRootStore(referenceElement: HTMLElement) {
   return new FloatingRootStore({
     open: false,
-    transitionStatus: undefined,
-    referenceElement,
-    floatingElement: document.createElement('div'),
+    anchorElement: referenceElement,
+    positionerElement: document.createElement('div'),
     triggerElements: new PopupTriggerMap(),
-    floatingId: undefined,
+    defaultPopupId: undefined,
     nested: false,
     onOpenChange: vi.fn(),
   });
@@ -320,7 +319,7 @@ test('clears virtual references on unmount without retaining a stale DOM referen
     getBoundingClientRect: () => reference.getBoundingClientRect(),
   };
 
-  store.set('positionReference', virtualReference);
+  store.set('anchorOverride', virtualReference);
 
   const [enabled, setEnabled] = createSignal(true);
   const { unmount } = await render(() => (
@@ -331,12 +330,12 @@ test('clears virtual references on unmount without retaining a stale DOM referen
   flush();
   await flushMicrotasks();
 
-  expect(store.state.positionReference).toBe(reference);
+  expect(store.state.anchorOverride).toBe(reference);
 
-  store.set('positionReference', virtualReference);
+  store.set('anchorOverride', virtualReference);
   unmount();
 
-  expect(store.state.positionReference).toBe(null);
+  expect(store.state.anchorOverride).toBe(null);
 });
 
 test('axis x', async () => {

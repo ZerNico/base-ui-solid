@@ -2,7 +2,7 @@ import { createMemo, omit, untrack } from 'solid-js';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
-import { useHoverFloatingInteraction } from '../../utils/popups/interactions/useHoverFloatingInteraction';
+import { useHoverPopupInteraction } from '../../utils/popups/interactions/useHoverPopupInteraction';
 import type { ElementProps } from '../../utils/popups/types';
 import { closest, getTarget } from '../../utils/popups/element';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -13,7 +13,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyRootContext } from '../../utils/popups/floating-root/getEmptyRootContext';
+import { getEmptyRootStore } from '../../utils/popups/floating-root/getEmptyRootStore';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
@@ -30,7 +30,7 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
   const {
     orientation,
     open,
-    floatingRootContext,
+    floatingRootStore,
     positionerElement,
     value,
     closeDelay,
@@ -38,8 +38,8 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
     nested,
   } = useNavigationMenuRootContext();
 
-  const fallbackContext = getEmptyRootContext();
-  const context = createMemo(() => floatingRootContext() || fallbackContext);
+  const fallbackStore = getEmptyRootStore();
+  const store = createMemo(() => floatingRootStore() || fallbackStore);
   const interactionsEnabled = () => positionerElement() != null || value() == null;
   const hoverInteractionsEnabled = () =>
     positionerElement() != null || viewportElement() != null || value() == null;
@@ -48,11 +48,11 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
   // the active trigger's store, so here they're set up again (owned by the memo) whenever the
   // store changes.
   const dismiss = createMemo(() => {
-    const currentContext = context();
+    const currentStore = store();
     return untrack(() => {
-      useHoverFloatingInteraction(currentContext, {
+      useHoverPopupInteraction(currentStore, {
         get enabled() {
-          return Boolean(floatingRootContext()) && hoverInteractionsEnabled();
+          return Boolean(floatingRootStore()) && hoverInteractionsEnabled();
         },
         get closeDelay() {
           return closeDelay();
@@ -60,7 +60,7 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
         nodeId,
       });
 
-      return useDismiss(currentContext, {
+      return useDismiss(currentStore, {
         get enabled() {
           return interactionsEnabled();
         },
@@ -78,7 +78,7 @@ export function NavigationMenuList(componentProps: NavigationMenuList.Props) {
   });
 
   const dismissProps = (): ElementProps | undefined =>
-    floatingRootContext() ? dismiss() : undefined;
+    floatingRootStore() ? dismiss() : undefined;
 
   const state = createMemo<NavigationMenuListState>(
     () => ({

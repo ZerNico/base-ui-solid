@@ -76,10 +76,10 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
   // siblings (see `usePopupHandleAttachment`).
   const { store, open, mounted, payload } = usePopupRoot(
     props,
-    (initialState, floatingId) =>
+    (initialState, defaultPopupId) =>
       new PopoverStore<Payload>(
         { ...initialState, modal: untrack(() => props.modal ?? false) },
-        floatingId,
+        defaultPopupId,
       ),
   );
 

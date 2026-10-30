@@ -4,7 +4,7 @@ import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { triggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { PreviewCardHandle } from '../store/PreviewCardHandle';
@@ -15,7 +15,7 @@ import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useFocus } from '../../utils/popups/interactions/useFocus';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 
 /**
  * A link that opens the preview card.
@@ -38,17 +38,17 @@ export function PreviewCardTrigger<Payload>(
     'style',
   );
 
-  const rootContext = usePreviewCardRootContext(true);
+  const rootStore = usePreviewCardRootContext(true);
   // Port note: `usePopupHandleStore` reads its handle once, so it's recreated (with its
   // subscription) when the `handle` prop changes, like upstream re-subscribing to the new handle.
   const handleStoreAccessor = createMemo(() => usePopupHandleStore(componentProps.handle));
   const handleStore = () => handleStoreAccessor()();
-  if (!untrack(handleStore) && !rootContext) {
+  if (!untrack(handleStore) && !rootStore) {
     throw new Error(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
     );
   }
-  const store = createMemo(() => (handleStore() ?? rootContext) as PreviewCardHandleStore<Payload>);
+  const store = createMemo(() => (handleStore() ?? rootStore) as PreviewCardHandleStore<Payload>);
 
   const generatedId = useBaseUiId();
   const thisTriggerId = createMemo(() => (componentProps.id as string | undefined) ?? generatedId);
@@ -81,7 +81,7 @@ export function PreviewCardTrigger<Payload>(
     const isOpenedByThisTrigger = currentStore.useState('isOpenedByTrigger', thisTriggerId);
     const inlineRectCoordsRef = currentStore.context.inlineRectCoordsRef;
 
-    const hoverProps = useHoverReferenceInteraction(currentStore, {
+    const hoverProps = useHoverTriggerInteraction(currentStore, {
       mouseOnly: true,
       move: false,
       handleClose: safePolygon(),

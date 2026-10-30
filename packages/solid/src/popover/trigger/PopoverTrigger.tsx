@@ -8,23 +8,23 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
-} from '../../utils/popupStateMapping';
+} from '../../utils/popups/popupStateMapping';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon } from '../../utils/popups/interactions/safePolygon';
 import { useClick } from '../../utils/popups/interactions/useClick';
-import { useHoverReferenceInteraction } from '../../utils/popups/interactions/useHoverReferenceInteraction';
+import { useHoverTriggerInteraction } from '../../utils/popups/interactions/useHoverTriggerInteraction';
 import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import type { PopoverHandleStore } from '../store/PopoverStore';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { FocusGuard } from '../../utils/FocusGuard';
+import { FocusGuard } from '../../utils/popups/focus/FocusGuard';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useInsertedTriggerFocusGuards } from '../../utils/popups/useInsertedTriggerFocusGuards';
-import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
+import { useOpenMethodTriggerProps } from '../../utils/popups/interactions/useOpenInteractionType';
 
 /**
  * A button that opens the popover.
@@ -101,7 +101,7 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
   const interactions = createMemo(() => {
     const context = store();
     return untrack(() => ({
-      hoverProps: useHoverReferenceInteraction(context, {
+      hoverProps: useHoverTriggerInteraction(context, {
         get enabled() {
           return !disabled() && openOnHover() && !isTouchPressOpen();
         },

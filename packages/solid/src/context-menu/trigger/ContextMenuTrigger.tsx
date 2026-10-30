@@ -12,7 +12,7 @@ import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { pressableTriggerOpenStateMapping } from '../../utils/popups/popupStateMapping';
 import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 // Port note: mutable containers replace React refs.

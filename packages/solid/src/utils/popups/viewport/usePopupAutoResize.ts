@@ -3,12 +3,12 @@ import type { JSX } from '@solidjs/web';
 import { useAnimationFrame } from '@base-ui-solid/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { NOOP, EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
-import { useAnimationsFinished } from '../internals/useAnimationsFinished';
-import { getCssDimensions } from './getCssDimensions';
-import type { Dimensions } from './popups/positioning/dom';
-import type { Side } from '../internals/useAnchorPositioning';
+import { useAnimationsFinished } from '../../../internals/useAnimationsFinished';
+import { getCssDimensions } from '../../getCssDimensions';
+import type { Dimensions } from '../positioning/dom';
+import type { Side } from '../../../internals/useAnchorPositioning';
 import * as CommonPopupCssVars from './CommonPopupCssVars';
-import * as CommonPositionerCssVars from './CommonPositionerCssVars';
+import * as CommonPositionerCssVars from '../positioning/CommonPositionerCssVars';
 
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
