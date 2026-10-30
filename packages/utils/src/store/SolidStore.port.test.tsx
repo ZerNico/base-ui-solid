@@ -1,5 +1,5 @@
 import { expect, describe, it, vi } from 'vitest';
-import { createRoot, createSignal, flush, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createRoot, createSignal, flush, onCleanup } from 'solid-js';
 import { render } from '@solidjs/testing-library';
 import { SolidStore } from './SolidStore';
 
@@ -322,6 +322,34 @@ describe('SolidStore (port)', () => {
       setLabel('c');
       flush();
       expect(read()).toEqual([3, 'c', 'y']);
+    });
+
+    it('reads a source that creates a computation from an effect callback', () => {
+      // Like an inline `open={a() && b()}` prop, which creates a memo on each read.
+      const [value, setValue] = createSignal(1);
+      const [trigger, setTrigger] = createSignal(0);
+      const store = new SolidStore<TestState>(initialState);
+      const read: Array<[number, string]> = [];
+
+      const dispose = createRoot((disposeRoot) => {
+        store.useSyncedValue('value', () => createMemo(value)());
+        store.useDerivedState('label', (raw) => createMemo(() => `${raw}${value()}`)());
+        createEffect(trigger, () => {
+          read.push([store.state.value, store.state.label]);
+        });
+        return disposeRoot;
+      });
+      flush();
+      expect(read).toEqual([[1, '1']]);
+
+      setValue(2);
+      setTrigger(1);
+      flush();
+      expect(read).toEqual([
+        [1, '1'],
+        [2, '2'],
+      ]);
+      dispose();
     });
   });
 });

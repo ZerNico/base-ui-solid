@@ -1,5 +1,15 @@
-import { createEffect, createMemo, createSignal, getObserver, onCleanup, untrack } from 'solid-js';
-import type { Accessor, Signal } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createRoot,
+  createSignal,
+  getObserver,
+  getOwner,
+  onCleanup,
+  runWithOwner,
+  untrack,
+} from 'solid-js';
+import type { Accessor, Owner, Signal } from 'solid-js';
 import { Store } from './Store';
 import { useStore } from './useStore';
 import type { MaybeAccessorArgs } from './useStore';
@@ -404,7 +414,16 @@ export class SolidStore<
 
     // The value before the registration: subscribers are notified if the registration changes it.
     const before = untrack(() => store.state[key]);
-    const entry: DerivedKey = { source, derive, overrideSource, stamp: 0 };
+    const runOwned = createOwnedRunner();
+    const entry: DerivedKey = {
+      source: () => runOwned(source),
+      derive:
+        derive === undefined
+          ? undefined
+          : (rawValue, rawState, writes) => runOwned(() => derive(rawValue, rawState, writes)),
+      overrideSource,
+      stamp: 0,
+    };
     let entries = derived.get(key);
     if (entries === undefined) {
       entries = [];
@@ -632,6 +651,48 @@ interface DerivedKey {
   /** The source's value (or the derived value) at the last read, and the one before it. */
   observed?: unknown;
   previousObserved?: unknown;
+}
+
+/**
+ * A source or derivation is evaluated where the store is read, which may be an effect callback.
+ * There's no owner there, so a computation created by the read would throw
+ * (`PRIMITIVE_IN_EFFECT_CALLBACK`), e.g. the memo the compiler creates on each read of an inline
+ * `open={a() && b()}` prop. Such a read then runs under a temporary owner, disposed after it.
+ * Without an owner nothing is tracked, so the read loses nothing.
+ */
+function createOwnedRunner(): <T>(fn: () => T) => T {
+  if (getOwner() === null) {
+    return (fn) => fn();
+  }
+  // A transparent child, so it takes no hydration id. A disposed owner's children are disposed
+  // before its own cleanups run, and the registration is read in between: after this owner is
+  // disposed, the reads run as they are.
+  let parent: Owner | null = createRoot(
+    () => {
+      onCleanup(() => {
+        parent = null;
+      });
+      return getOwner();
+    },
+    { transparent: true },
+  );
+  return (fn) => {
+    if (parent === null || getOwner() !== null) {
+      return fn();
+    }
+    return runWithOwner(parent, () =>
+      createRoot(
+        (dispose) => {
+          try {
+            return fn();
+          } finally {
+            dispose();
+          }
+        },
+        { transparent: true },
+      ),
+    );
+  };
 }
 
 function readEntry(entry: DerivedKey, rawState: any, key: PropertyKey) {

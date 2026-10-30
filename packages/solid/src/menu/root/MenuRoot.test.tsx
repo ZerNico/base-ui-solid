@@ -3002,9 +3002,7 @@ describe('<Menu.Root />', () => {
     it('closes the submenu on Escape from the body when the root cancels its dismissal', async () => {
       function Test(props: { open: boolean }) {
         const [submenuClosed, setSubmenuClosed] = createSignal(false);
-        // Port note: a function, because Solid compiles an inline `&&` prop into a memo created
-        // when the prop is read, and the submenu trigger first reads it in an effect callback.
-        const submenuOpen = () => props.open && !submenuClosed();
+
         return (
           <Menu.Root
             open={props.open}
@@ -3019,7 +3017,7 @@ describe('<Menu.Root />', () => {
               <Menu.Positioner>
                 <Menu.Popup data-testid="menu">
                   <Menu.SubmenuRoot
-                    open={submenuOpen()}
+                    open={props.open && !submenuClosed()}
                     onOpenChange={(nextOpen) => setSubmenuClosed(!nextOpen)}
                   >
                     <Menu.SubmenuTrigger data-testid="submenu-trigger">More</Menu.SubmenuTrigger>

@@ -229,6 +229,10 @@ Upstream's popups share state through `@base-ui/utils/store` (`Store`/`SolidStor
   - Only `useStore` selectors track the derived keys they read, so a reader depends on just those
     keys. Plain `store.state` reads stay untracked, like upstream's plain object, also inside
     computations (a component body called from a JSX getter must not subscribe its parent).
+  - A source (or a `useDerivedState` derivation) runs wherever the store is read, also in an
+    effect callback. That has no owner, and a computation created there throws, e.g. the memo
+    Solid compiles into each read of an inline `open={a() && b()}` prop. Such a read runs under
+    a temporary owner below the component that registered the key.
   - An imperative write (`set`, `update`) to a synced key wins until the source changes, like
     upstream's effect that only re-syncs on a change. Keys synced together by `useSyncedValues`
     share their group: a write holds until any of them changes, like upstream's single effect.
