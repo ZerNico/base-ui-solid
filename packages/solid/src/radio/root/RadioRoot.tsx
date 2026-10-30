@@ -159,6 +159,9 @@ export function RadioRoot<Value>(componentProps: RadioRoot.Props<Value>): JSX.El
     'aria-labelledby': ariaLabelledBy(),
     [ACTIVE_COMPOSITE_ITEM as string]: checked() ? '' : undefined,
     id: nativeButton() ? inputId() : id,
+    // Only a fully disabled group leaves the tab order. A single disabled radio
+    // keeps the composite tab index.
+    ...(groupContext?.disabled() && { tabindex: -1 }),
     onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Enter') {
         // Radio only activates with Space. Preventing the keydown's default
