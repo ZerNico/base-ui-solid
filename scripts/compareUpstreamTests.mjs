@@ -53,9 +53,15 @@ function collect(file) {
   );
   const out = {};
   function calleeInfo(expr) {
-    // it / it.skip / it.skipIf(c) / describe.skipIf(c) / it.each(rows)
+    // it / it.skip / it.skipIf(c) / describe.skipIf(c) / it.each(rows) / it.skipIf(c).each(rows)
     if (ts.isCallExpression(expr) && ts.isPropertyAccessExpression(expr.expression)) {
       const pa = expr.expression;
+      if (pa.name.text === 'each' && ts.isCallExpression(pa.expression)) {
+        const inner = calleeInfo(pa.expression);
+        if (inner && /^(?:skipIf|runIf)\(/.test(inner.mod)) {
+          return inner;
+        }
+      }
       if (['skipIf', 'runIf', 'each'].includes(pa.name.text) && ts.isIdentifier(pa.expression)) {
         return {
           base: pa.expression.text,

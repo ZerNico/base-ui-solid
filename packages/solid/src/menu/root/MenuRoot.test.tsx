@@ -3279,6 +3279,45 @@ describe('<Menu.Root />', () => {
       expect(submenuTrigger).not.toHaveFocus();
     });
   });
+  describe('prop: onOpenChangeComplete', () => {
+    // Port note: `container` takes the element itself, from a signal set by a ref callback.
+    it('completes initial opening once when a later update replaces the container ref', async () => {
+      const completed = vi.fn();
+      function TestMenu() {
+        const [container, setContainer] = createSignal<HTMLDivElement | null>(null);
+        const [step, setStep] = createSignal(0);
+        useIsoLayoutEffect(
+          ([stepValue]) => {
+            if (stepValue < 2) {
+              setStep(stepValue + 1);
+            }
+          },
+          () => [step()],
+        );
+        const containerId = () => (step() < 2 ? 'first' : 'second');
+        return (
+          <>
+            <Menu.Root defaultOpen onOpenChangeComplete={completed}>
+              <Menu.Trigger>Toggle</Menu.Trigger>
+              <Menu.Portal container={container()}>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Show when={containerId()} keyed>
+              {(id) => <div ref={setContainer} data-testid={id} />}
+            </Show>
+          </>
+        );
+      }
+      await render(() => <TestMenu />);
+      expect(screen.getByTestId('second')).toContainElement(screen.getByRole('menu'));
+      expect(completed).toHaveBeenCalledExactlyOnceWith(true);
+    });
+  });
   describe('prop: disabled', () => {
     it('marks items as disabled when controlled open', async () => {
       await render(

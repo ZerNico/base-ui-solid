@@ -6,7 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { describe, expect, it, vi } from 'vitest';
 import { screen, waitFor, isJSDOM } from '#test-utils';
 import { Menu } from 'base-ui-solid/menu';
-import { PortFragment, portForwardRef, createRenderer } from '../../../test/menuPortHelpers';
+import { portForwardRef, createRenderer } from '../../../test/menuPortHelpers';
 
 type Ref<T> = (element: T) => void;
 type PopupState = Pick<Menu.Popup.State, 'open' | 'transitionStatus'>;
@@ -28,18 +28,23 @@ const TrackedPopup = portForwardRef(function TrackedPopup(
 });
 describe.skipIf(isJSDOM)('Menu popup transition state', () => {
   const { render } = createRenderer();
-  it.each([
-    { controlled: false, keepMounted: false, defaultOpen: false },
-    { controlled: false, keepMounted: false, defaultOpen: true },
-    { controlled: false, keepMounted: true, defaultOpen: false },
-    { controlled: false, keepMounted: true, defaultOpen: true },
-    { controlled: true, keepMounted: false, defaultOpen: false },
-    { controlled: true, keepMounted: false, defaultOpen: true },
-    { controlled: true, keepMounted: true, defaultOpen: false },
-    { controlled: true, keepMounted: true, defaultOpen: true },
-  ])(
-    'starts each opening once (controlled=$controlled, keepMounted=$keepMounted, defaultOpen=$defaultOpen)',
-    async ({ controlled, keepMounted, defaultOpen }) => {
+  it.each(
+    [
+      { controlled: false, keepMounted: false, defaultOpen: false },
+      { controlled: false, keepMounted: false, defaultOpen: true },
+      { controlled: false, keepMounted: true, defaultOpen: false },
+      { controlled: false, keepMounted: true, defaultOpen: true },
+      { controlled: true, keepMounted: false, defaultOpen: false },
+      { controlled: true, keepMounted: false, defaultOpen: true },
+      { controlled: true, keepMounted: true, defaultOpen: false },
+      { controlled: true, keepMounted: true, defaultOpen: true },
+    ].flatMap((testCase) => [
+      { ...testCase, ancestorContainer: false },
+      { ...testCase, ancestorContainer: true },
+    ]),
+  )(
+    'starts each opening once (controlled=$controlled, keepMounted=$keepMounted, defaultOpen=$defaultOpen, ancestorContainer=$ancestorContainer)',
+    async ({ controlled, keepMounted, defaultOpen, ancestorContainer }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const states: PopupState[] = [];
       function onState(state: PopupState) {
@@ -54,12 +59,14 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
       const completed = vi.fn();
       function TestMenu() {
         const [open, setOpen] = createSignal(untrack(() => defaultOpen));
+        // Port note: `container` takes the element itself, from a signal set by a ref callback.
+        const [container, setContainer] = createSignal<HTMLDivElement | null>(null);
         return (
-          <PortFragment>
+          <div ref={setContainer} data-testid="container">
             <style>{`
-                  .transition-state-popup { opacity: 0; transition: opacity 10s linear; }
-                  .transition-state-popup[data-enter] { opacity: 1; }
-                `}</style>
+                .transition-state-popup { opacity: 0; transition: opacity 10s linear; }
+                .transition-state-popup[data-enter] { opacity: 1; }
+              `}</style>
             <Menu.Root
               open={controlled ? open() : undefined}
               defaultOpen={defaultOpen}
@@ -67,7 +74,11 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
               onOpenChangeComplete={completed}
             >
               <Menu.Trigger>Toggle</Menu.Trigger>
-              <Menu.Portal keepMounted={keepMounted}>
+              <Menu.Portal
+                keepMounted={keepMounted}
+                container={ancestorContainer ? container() : undefined}
+                data-testid="portal"
+              >
                 <Menu.Positioner>
                   <Menu.Popup
                     class="transition-state-popup"
@@ -80,7 +91,7 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
                 </Menu.Positioner>
               </Menu.Portal>
             </Menu.Root>
-          </PortFragment>
+          </div>
         );
       }
       const { user } = await render(
@@ -118,6 +129,9 @@ describe.skipIf(isJSDOM)('Menu popup transition state', () => {
       } else {
         await openMenu();
       }
+      expect(screen.getByTestId('portal').parentElement).toBe(
+        ancestorContainer ? screen.getByTestId('container') : document.body,
+      );
       async function closeAndReopen() {
         completed.mockClear();
         const popup = screen.getByRole('menu');

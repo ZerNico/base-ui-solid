@@ -33,6 +33,7 @@ import { useRenderElement } from '../../../internals/useRenderElement';
 import type { UseRenderElementComponentProps } from '../../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../../internals/constants';
 import type { BaseUIComponentProps } from '../../../internals/types';
+import { createFlushBeforePaint } from '../../../internals/createFlushBeforePaint';
 
 export type FocusManagerState = null | {
   modal: boolean;
@@ -63,6 +64,9 @@ const PortalContext = createContext<PortalContextValue | null>(null);
 export const usePortalContext = () => useContext(PortalContext);
 
 const attr = createAttribute('portal');
+// A separate queue: a shared batch could run an animation completion that removes the container
+// before this read commits.
+const flushContainerUpdates = createFlushBeforePaint();
 
 /**
  * Port note: read lazily like Solid props (`props.container`), so pass a props-like object with
@@ -88,6 +92,15 @@ export interface UseFloatingPortalNodeResult {
    */
   readonly nodeId: string | undefined;
   subtree: JSX.Element;
+}
+
+/**
+ * Port note: Solid doesn't reset a ref object when its element is removed (React sets it to
+ * `null`), so a removed element counts as an empty ref.
+ */
+function getAttachedElement(ref: RefObject<HTMLElement | ShadowRoot | null>) {
+  const element = ref.current;
+  return element?.isConnected ? element : null;
 }
 
 export function useFloatingPortalNode(
@@ -125,28 +138,52 @@ export function useFloatingPortalNode(
           setPortalNode(null);
           setContainerElement(null);
         }
-        return;
+        return undefined;
       }
 
-      const resolvedContainer =
-        (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
-        parentPortalNodeValue ??
-        document.body;
-
-      if (resolvedContainer == null) {
-        if (containerRef) {
-          containerRef = null;
-          setPortalNode(null);
-          setContainerElement(null);
+      let cancelled = false;
+      function resolveContainer() {
+        if (cancelled) {
+          return;
         }
-        return;
+
+        const resolvedContainer =
+          (containerProp &&
+            (isNode(containerProp) ? containerProp : getAttachedElement(containerProp))) ??
+          parentPortalNodeValue ??
+          document.body;
+
+        if (resolvedContainer == null) {
+          if (containerRef) {
+            containerRef = null;
+            setPortalNode(null);
+            setContainerElement(null);
+          }
+          return;
+        }
+
+        if (containerRef !== resolvedContainer) {
+          containerRef = resolvedContainer;
+          setPortalNode(null);
+          setContainerElement(resolvedContainer);
+        }
       }
 
-      if (containerRef !== resolvedContainer) {
-        containerRef = resolvedContainer;
-        setPortalNode(null);
-        setContainerElement(resolvedContainer);
+      if (containerProp && (!isNode(containerProp) || !containerRef)) {
+        // Port note: upstream waits for a ref that is still empty when this effect runs, because
+        // React attaches ancestor and later sibling refs after it. Solid attaches refs while it
+        // creates the elements, so the ref is set here, but updates cascading from this flush can
+        // still replace its element. A first element from a signal set by a ref callback (the
+        // public form of a container ref) can be replaced the same way. Resolve those once the
+        // flush has settled, before the next paint, so the portal mounts once.
+        flushContainerUpdates(resolveContainer);
+      } else {
+        resolveContainer();
       }
+
+      return () => {
+        cancelled = true;
+      };
     },
     () => [props.container, parentPortalNode()],
   );
