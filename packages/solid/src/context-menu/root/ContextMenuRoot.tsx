@@ -72,6 +72,7 @@ export interface ContextMenuRootProps extends Omit<
   | 'closeDelay'
   | 'closeParentOnEsc'
   | 'onOpenChange'
+  | 'actionsRef'
   // Context Menu opens from a pointer position rather than a registered trigger, so the
   // render-function form of `children` (which receives the active trigger's payload) is not applicable.
   | 'children'
@@ -81,6 +82,15 @@ export interface ContextMenuRootProps extends Omit<
    */
   onOpenChange?:
     ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void) | undefined;
+  /**
+   * A callback that receives the imperative actions. It's called once, when the component is
+   * set up (like a `ref` callback).
+   * - `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.
+   *   Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.
+   *   Whether it leaves the DOM is decided by `keepMounted` on the portal.
+   * - `close`: Closes the menu imperatively when called.
+   */
+  actionsRef?: ((actions: ContextMenuRoot.Actions) => void) | undefined;
   /**
    * @ignore
    * @deprecated This prop has no effect on Context Menu.

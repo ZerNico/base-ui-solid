@@ -28,7 +28,7 @@
       },
       {
         "name": "actionsRef",
-        "type": "((actions: MenuRoot.Actions) => void)",
+        "type": "((actions: ContextMenu.Root.Actions) => void)",
         "default": "-",
         "description": "A callback that receives the imperative actions. It's called once, when the component is set up (like a `ref` callback). `unmount`: Ends the closing phase of the menu after an externally controlled closing animation finishes.\nCall `preventUnmountOnClose()` in `onOpenChange` first, otherwise the menu completes closing on its own.\nWhether it leaves the DOM is decided by `keepMounted` on the portal.`close`: Closes the menu imperatively when called."
       },
