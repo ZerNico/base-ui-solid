@@ -119,7 +119,7 @@ export function TooltipTrigger<Payload>(
     currentStore.useSyncedValue('isInstantPhase', () => delayGroup.isInstantPhase);
 
     const rootDisabled = currentStore.useState('disabled');
-    const disabled = () => componentProps.disabled ?? rootDisabled();
+    const disabled = () => componentProps.disabled || rootDisabled();
     const trackCursorAxis = currentStore.useState('trackCursorAxis');
     const disableHoverablePopup = currentStore.useState('disableHoverablePopup');
 
