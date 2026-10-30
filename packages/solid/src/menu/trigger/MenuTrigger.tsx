@@ -4,6 +4,7 @@ import type { JSX } from '@solidjs/web';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
+import { getTarget } from '@base-ui-solid/utils/shadowDom';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
@@ -155,7 +156,7 @@ export function MenuTrigger<Payload>(componentProps: MenuTrigger.Props<Payload>)
     allowMouseUpTriggerTimeout.clear();
     currentStore.context.allowMouseUpTriggerRef.current = false;
 
-    const mouseUpTarget = mouseEvent.target as Element | null;
+    const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
     if (
       contains(triggerElement, mouseUpTarget) ||

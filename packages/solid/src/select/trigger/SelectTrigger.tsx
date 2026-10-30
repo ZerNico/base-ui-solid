@@ -1,6 +1,7 @@
 import { createMemo, omit, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
+import { getTarget } from '@base-ui-solid/utils/shadowDom';
 import { useTimeout } from '@base-ui-solid/utils/useTimeout';
 import { useValueAsRef } from '@base-ui-solid/utils/useValueAsRef';
 import { useEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
@@ -195,7 +196,7 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
               return;
             }
 
-            const mouseUpTarget = mouseEvent.target as Element | null;
+            const mouseUpTarget = getTarget(mouseEvent) as Element | null;
 
             // Don't treat the release as an outside press when it lands on the trigger or inside
             // the popup positioner (or their children).

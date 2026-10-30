@@ -1,3 +1,4 @@
+import { getComputedStyle } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui-solid/utils/clamp';
 import { ownerDocument } from '@base-ui-solid/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
