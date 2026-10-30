@@ -71,7 +71,7 @@ function FieldRootInner(componentProps: FieldRoot.Props) {
     return nextDirty;
   });
   const registerDirtySource = (source: Accessor<FieldDirtySource>) => {
-    setDirtySource(() => source);
+    void setDirtySource(() => source);
     return () => {
       if (untrack(dirtySource) === source) {
         setDirtySource(undefined);
