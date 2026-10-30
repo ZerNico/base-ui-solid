@@ -257,6 +257,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const labelsRef: RefObject<Array<string | null>> = { current: [] };
   const popupRef: RefObject<HTMLDivElement | null> = { current: null };
   const inputRef: RefObject<HTMLInputElement | null> = { current: null };
+  const hiddenInputElementRef: RefObject<HTMLInputElement | null> = { current: null };
   const startDismissRef: RefObject<HTMLSpanElement | null> = { current: null };
   const endDismissRef: RefObject<HTMLSpanElement | null> = { current: null };
   const emptyRef: RefObject<HTMLDivElement | null> = { current: null };
@@ -1007,7 +1008,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   };
 
   const requestSubmit = () => {
-    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    const formElement = hiddenInputElementRef.current?.form ?? store.state.inputElement?.form;
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
@@ -1898,6 +1900,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const hiddenInputRef = useMergedRefs(
     () => props.inputRef,
     () => validation.inputRef,
+    () => hiddenInputElementRef,
     () => attachAutofillListener,
   );
 

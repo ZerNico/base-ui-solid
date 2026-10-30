@@ -1,5 +1,6 @@
 import { expect, vi, describe, it } from 'vitest';
 import { createSignal, flush, For, Show } from 'solid-js';
+import { Portal } from '@solidjs/web';
 import {
   describeConformance,
   fireEvent,
@@ -12,6 +13,7 @@ import {
 import { OTPField as OTPFieldBase } from '..';
 import { Field } from '../../field';
 import { Form } from '../../form';
+import { Input } from '../../input';
 import { REASONS } from '../../internals/reasons';
 import { AlphanumericHiddenInput, HiddenInputLength, SlotIds } from './OTPFieldRoot.fixtures';
 
@@ -1416,6 +1418,75 @@ describe('<OTPField.Root />', () => {
 
         expect(getValues()).toBe('123456');
         expect(handleSubmit).not.toHaveBeenCalled();
+      });
+
+      it('submits its own form when an unscoped control in another form mounts later', async () => {
+        const handleSubmit = vi.fn((event: SubmitEvent) => {
+          event.preventDefault();
+        });
+        const handleOtherSubmit = vi.fn((event: SubmitEvent) => {
+          event.preventDefault();
+        });
+
+        await render(() => (
+          <>
+            <form onSubmit={handleSubmit}>
+              <OTPField autoSubmit />
+            </form>
+            <form onSubmit={handleOtherSubmit}>
+              <Input aria-label="Unrelated input" />
+            </form>
+          </>
+        ));
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await change(firstInput, '123456');
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleOtherSubmit).not.toHaveBeenCalled();
+      });
+
+      // Port note: `ReactDOM.createPortal` -> Solid's `<Portal mount>`.
+      it.each([
+        {
+          name: 'the root is portaled through render',
+          renderOTPField: () => (
+            <OTPField
+              autoSubmit
+              render={(props) => (
+                <Portal mount={document.body}>
+                  <div {...props} />
+                </Portal>
+              )}
+            />
+          ),
+        },
+        {
+          name: 'the inputs are portaled',
+          renderOTPField: () => (
+            <OTPFieldBase.Root length={OTP_LENGTH} autoSubmit>
+              <Portal mount={document.body}>
+                {Array.from({ length: OTP_LENGTH }, () => (
+                  <OTPFieldBase.Input />
+                ))}
+              </Portal>
+            </OTPFieldBase.Root>
+          ),
+        },
+      ])('submits the hidden input form when $name', async ({ renderOTPField }) => {
+        const handleSubmit = vi.fn((event: SubmitEvent) => {
+          event.preventDefault();
+        });
+
+        await render(() => <form onSubmit={handleSubmit}>{renderOTPField()}</form>);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        expect(firstInput.form).toBe(null);
+
+        await change(firstInput, '123456');
+
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
       });
 
       it('submits the completed named OTP value from the owning form when enabled', async () => {

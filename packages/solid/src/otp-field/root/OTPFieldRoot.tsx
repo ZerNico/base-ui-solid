@@ -122,6 +122,7 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
     value: string;
     eventDetails: OTPFieldRoot.CompleteEventDetails;
   } | null = null;
+  let hiddenInputElement: HTMLInputElement | null = null;
   const firstInputRef: RefObject<HTMLInputElement | null> = {
     get current() {
       return (inputRefs.current[0] as HTMLInputElement | undefined) ?? null;
@@ -214,9 +215,10 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
   }
 
   function requestSubmit() {
-    // The hidden validation input only renders for a valid `length`, but the slots always do,
-    // so fall back to the owning form of the first slot.
-    let formElement = validation.inputRef.current?.form ?? firstInputRef.current?.form ?? null;
+    // Not `validation.inputRef`: outside a Field, every control shares it.
+    // The hidden input only renders for a valid `length` and the slots may be portaled,
+    // so prefer the hidden input's form before falling back to the first slot.
+    let formElement = hiddenInputElement?.form ?? firstInputRef.current?.form ?? null;
 
     const formId = untrack(form);
     if (formId) {
@@ -418,8 +420,6 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
     validationType,
     value,
   };
-
-  let hiddenInputElement: HTMLInputElement | null = null;
 
   function handleHiddenInputChange(event: InputEvent) {
     if (event.defaultPrevented || untrack(disabled) || untrack(readOnly)) {
