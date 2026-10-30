@@ -1,6 +1,7 @@
 import { createMemo, createSignal, flush, omit, Show, untrack } from 'solid-js';
 import type { JSX } from '@solidjs/web';
 import { EMPTY_OBJECT } from '@base-ui-solid/utils/empty';
+import { clamp } from '@base-ui-solid/utils/clamp';
 import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import type { RefObject } from '@base-ui-solid/utils/refObject';
 import { useControlled } from '@base-ui-solid/utils/useControlled';
@@ -188,7 +189,7 @@ export function OTPFieldRoot(componentProps: OTPFieldRoot.Props): JSX.Element {
   useRegisterFieldControl(firstInputRef, id, value, undefined, () => !disabled(), nameProp);
 
   function focusInput(index: number) {
-    const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
+    const targetIndex = clamp(index, 0, Math.max(inputRefs.current.length - 1, 0));
     const target = inputRefs.current[targetIndex] as HTMLInputElement | null | undefined;
     target?.focus();
     target?.select();

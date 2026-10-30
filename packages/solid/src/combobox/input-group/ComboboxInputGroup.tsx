@@ -48,9 +48,7 @@ export function ComboboxInputGroup(componentProps: ComboboxInputGroup.Props): JS
     { equals: fastObjectShallowCompare },
   );
 
-  const setInputGroupElement = (element: HTMLDivElement | null) => {
-    store.set('inputGroupElement', element);
-  };
+  const setInputGroupElement = store.useStateSetter('inputGroupElement');
 
   return useRenderElement('div', componentProps, {
     ref: [setInputGroupElement],

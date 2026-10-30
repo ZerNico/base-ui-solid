@@ -157,9 +157,7 @@ export function ComboboxTrigger(componentProps: ComboboxTrigger.Props): JSX.Elem
     { equals: fastObjectShallowCompare },
   );
 
-  const setTriggerElement = (element: HTMLElement | null) => {
-    store.set('triggerElement', element);
-  };
+  const setTriggerElement = store.useStateSetter('triggerElement');
 
   return useRenderElement('button', componentProps, {
     ref: [

@@ -139,9 +139,7 @@ export function ComboboxPositioner(componentProps: ComboboxPositioner.Props): JS
     () => [positioning.side, store] as const,
   );
 
-  const setPositionerElement = (element: HTMLDivElement | null) => {
-    store.set('positionerElement', element);
-  };
+  const setPositionerElement = store.useStateSetter('positionerElement');
 
   return (
     <ComboboxPositionerContext value={positioning}>

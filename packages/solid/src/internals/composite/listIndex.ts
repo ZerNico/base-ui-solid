@@ -3,6 +3,7 @@ import { IS_DEV } from '@base-ui-solid/utils/isDev';
 import { getComputedStyle } from '@floating-ui/utils/dom';
 
 import type { RefObject } from '@base-ui-solid/utils/refObject';
+import { isElementDisabled } from '@base-ui-solid/utils/isElementDisabled';
 import type { Dimensions } from '../../utils/popups/positioning/dom';
 import { stopEvent } from '../../utils/popups/event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../../utils/popups/constants';
@@ -548,10 +549,7 @@ export function isListIndexDisabled(
     return true;
   }
 
-  return (
-    !disabledIndices &&
-    (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true')
-  );
+  return !disabledIndices && isElementDisabled(element);
 }
 
 export function isHiddenByStyles(styles: CSSStyleDeclaration) {

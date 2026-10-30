@@ -1,4 +1,5 @@
 import { untrack } from 'solid-js';
+import { isElementDisabled } from '@base-ui-solid/utils/isElementDisabled';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
 import { useCompositeListItem } from '../list/useCompositeListItem';
 import type { UseCompositeListItemParameters } from '../list/useCompositeListItem';
@@ -34,8 +35,7 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
         return;
       }
 
-      const disabled = item.hasAttribute('disabled') || item.ariaDisabled === 'true';
-      if (!untrack(isHighlighted) && !disabled) {
+      if (!untrack(isHighlighted) && !isElementDisabled(item)) {
         item.focus();
       }
     },
