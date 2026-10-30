@@ -1,4 +1,5 @@
 import { createSignal, untrack } from 'solid-js';
+import { isElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui-solid/utils/useScrollLock';
 import { useDismiss } from '../../utils/popups/interactions/useDismiss';
@@ -78,7 +79,9 @@ export function DialogInteractions(props: {
           return internalBackdrop || backdrop
             ? internalBackdrop === target ||
                 backdrop === target ||
-                (contains(target, popupElement()) && !target?.hasAttribute('data-base-ui-portal'))
+                // `target` can be the document, which contains the popup but isn't an element.
+                (contains(target, popupElement()) &&
+                  !(isElement(target) && target.hasAttribute('data-base-ui-portal')))
             : true;
         }
         return true;
