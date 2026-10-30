@@ -1,9 +1,33 @@
-import { expect, vi, describe, it } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it, onTestFinished } from 'vitest';
 import { Show, createEffect, createSignal, flush, untrack } from 'solid-js';
 import type { Setter } from 'solid-js';
+import { Portal } from '@solidjs/web';
 import { useEffect, useIsoLayoutEffect } from '@base-ui-solid/utils/useIsoLayoutEffect';
-import { flushMicrotasks, render, screen, waitFor } from '#test-utils';
+import { flushMicrotasks, isJSDOM, render, screen, waitFor } from '#test-utils';
 import { useAnimationsFinished } from './useAnimationsFinished';
+
+const mockedAnimations = new Map<Element, () => Animation[]>();
+
+afterEach(() => {
+  mockedAnimations.clear();
+  Reflect.deleteProperty(document, 'getAnimations');
+});
+
+/**
+ * Mocks the element's animations. Elements checked in the same frame can be looked up through
+ * `document.getAnimations()`, so it returns the mocked animations too.
+ */
+function mockAnimations(element: Element, getAnimations: () => Animation[]) {
+  element.getAnimations = getAnimations;
+  mockedAnimations.set(element, getAnimations);
+  document.getAnimations = () =>
+    Array.from(mockedAnimations, ([target, getTargetAnimations]) =>
+      getTargetAnimations().map(
+        (animation) =>
+          ({ ...animation, effect: { ...animation.effect, target } }) as unknown as Animation,
+      ),
+    ).flat();
+}
 
 function createAnimation(iterations = 1, duration = 1) {
   let resolveFinished!: () => void;
@@ -58,7 +82,7 @@ function Test(props: TestProps) {
   useIsoLayoutEffect(
     ([getAnimations]) => {
       if (ref) {
-        ref.getAnimations = getAnimations;
+        mockAnimations(ref, getAnimations);
       }
     },
     () => [props.getAnimations],
@@ -94,7 +118,7 @@ describe('useAnimationsFinished', () => {
 
         animations = [infinite.animation];
         finite[completion]();
-        await flushMicrotasks();
+        await flushAllMicrotasks();
 
         expect(onFinished).toHaveBeenCalledTimes(1);
       } finally {
@@ -196,7 +220,7 @@ describe('useAnimationsFinished', () => {
       animations = [];
 
       initialAnimation.cancel();
-      await flushMicrotasks();
+      await flushAllMicrotasks();
 
       expect(onFinished).toHaveBeenCalledTimes(1);
     } finally {
@@ -229,10 +253,10 @@ describe('useAnimationsFinished', () => {
       useIsoLayoutEffect(
         ([animation]) => {
           if (ref) {
-            ref.getAnimations = () => {
+            mockAnimations(ref, () => {
               getAnimationsCallCounts[index] += 1;
               return [animation];
-            };
+            });
           }
         },
         () => [props.animation],
@@ -384,7 +408,7 @@ describe('useAnimationsFinished', () => {
       useIsoLayoutEffect(
         ([getAnimations]) => {
           if (ref) {
-            ref.getAnimations = getAnimations;
+            mockAnimations(ref, getAnimations);
           }
         },
         () => [props.getAnimations],
@@ -502,5 +526,329 @@ describe('useAnimationsFinished', () => {
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
+  });
+
+  describe.skipIf(isJSDOM)('elements checked in the same frame', () => {
+    const FADE: Keyframe[] = [{ opacity: 1 }, { opacity: 0 }];
+
+    interface WatchedElement {
+      onFinished: () => void;
+      animate?: ((element: HTMLElement) => Animation | Animation[]) | undefined;
+      signal?: AbortSignal | undefined;
+    }
+
+    function Watched(props: WatchedElement) {
+      let ref: HTMLDivElement | undefined;
+      const runOnceAnimationsFinish = useAnimationsFinished(() => ref);
+
+      useIsoLayoutEffect(
+        ([animate]) => {
+          const animations = [animate?.(ref!) ?? []].flat();
+          return () => animations.forEach((animation) => animation.cancel());
+        },
+        () => [props.animate],
+      );
+
+      useEffect(
+        ([onFinished, signal]) => {
+          runOnceAnimationsFinish(onFinished, signal ?? null);
+        },
+        () => [props.onFinished, props.signal],
+      );
+
+      return <div ref={ref} />;
+    }
+
+    function createWatchedElements(timings: Array<KeyframeAnimationOptions | null>) {
+      const animations: Animation[] = [];
+      const elements: WatchedElement[] = timings.map((timing, index) => ({
+        onFinished: vi.fn(),
+        animate: timing
+          ? (element: HTMLElement) => {
+              animations[index] = element.animate(FADE, timing);
+              return animations[index];
+            }
+          : undefined,
+      }));
+      return { animations, elements };
+    }
+
+    function renderWatched(elements: WatchedElement[]) {
+      return (
+        <>
+          {elements.map((element) => (
+            <Watched {...element} />
+          ))}
+        </>
+      );
+    }
+
+    function spyOnLookups() {
+      const getDocumentAnimations = vi.spyOn(document, 'getAnimations');
+      const getElementAnimations = vi.spyOn(Element.prototype, 'getAnimations');
+      onTestFinished(() => {
+        getDocumentAnimations.mockRestore();
+        getElementAnimations.mockRestore();
+      });
+      return { getDocumentAnimations, getElementAnimations };
+    }
+
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    it('serves the other elements of the tree with one root lookup once one has animations', async () => {
+      const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
+
+      const { animations, elements } = createWatchedElements([
+        { duration: 1000, iterations: Infinity },
+        { duration: 10_000 },
+        { duration: 10_000 },
+      ]);
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(getDocumentAnimations).toHaveBeenCalledTimes(1);
+      });
+      expect(getElementAnimations).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      });
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+      expect(elements[2].onFinished).not.toHaveBeenCalled();
+
+      animations[2].finish();
+      await flushAllMicrotasks();
+
+      expect(elements[2].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+    });
+
+    it('ignores animations of pseudo-elements in the root lookup', async () => {
+      const { getDocumentAnimations } = spyOnLookups();
+
+      const { elements } = createWatchedElements([
+        { duration: 10_000 },
+        { duration: 10_000, pseudoElement: '::after' },
+        null,
+      ]);
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
+      });
+      expect(getDocumentAnimations).toHaveBeenCalledTimes(1);
+      expect(elements[0].onFinished).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      { name: 'no animations', timing: null },
+      {
+        name: 'only pseudo-element animations',
+        timing: { duration: 10_000, pseudoElement: '::after' },
+      },
+    ])('looks up each element on its own when they have $name', async ({ timing }) => {
+      const { getDocumentAnimations } = spyOnLookups();
+
+      const { elements } = createWatchedElements([timing, timing, timing]);
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(elements[2].onFinished).toHaveBeenCalledTimes(1);
+      });
+      expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
+      expect(getDocumentAnimations).not.toHaveBeenCalled();
+    });
+
+    it('waits for every animation of an element served by the root lookup', async () => {
+      const { getDocumentAnimations } = spyOnLookups();
+      let firstAnimation: Animation;
+      let secondAnimation: Animation;
+      const { elements } = createWatchedElements([{ duration: 10_000 }, null, null]);
+      elements[1].animate = (element) => {
+        firstAnimation = element.animate(FADE, 10_000);
+        secondAnimation = element.animate(FADE, 10_000);
+        return [firstAnimation, secondAnimation];
+      };
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(getDocumentAnimations).toHaveBeenCalledTimes(1);
+      });
+
+      secondAnimation!.finish();
+      await flushAllMicrotasks();
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+
+      firstAnimation!.finish();
+      await flushAllMicrotasks();
+      expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      { name: 'a single animated element', timings: [{ duration: 10_000 }] },
+      {
+        name: 'two animated elements',
+        timings: [{ duration: 10_000 }, { duration: 10_000 }],
+      },
+      {
+        name: 'an animated element followed by a nonanimated element',
+        timings: [{ duration: 10_000 }, null],
+      },
+      {
+        name: 'a nonanimated element followed by an animated element',
+        timings: [null, { duration: 10_000 }],
+      },
+      {
+        name: 'three elements with one left after the animated one',
+        timings: [null, { duration: 10_000 }, null],
+      },
+    ])('looks up $name individually without scanning the root', async ({ timings }) => {
+      const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
+
+      const { animations, elements } = createWatchedElements(timings);
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(getElementAnimations).toHaveBeenCalledTimes(elements.length);
+      });
+      expect(getDocumentAnimations).not.toHaveBeenCalled();
+      const animatedIndex = timings.findIndex((timing) => timing !== null);
+      expect(elements[animatedIndex].onFinished).not.toHaveBeenCalled();
+
+      animations.forEach((animation) => animation.finish());
+      await flushAllMicrotasks();
+
+      expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements.at(-1)!.onFinished).toHaveBeenCalledTimes(1);
+    });
+
+    it('looks up an element checked twice once and counts it once toward the root lookup', async () => {
+      const { getDocumentAnimations, getElementAnimations } = spyOnLookups();
+      const onFirstFinished = vi.fn();
+      const onSecondFinished = vi.fn();
+      const { elements } = createWatchedElements([null]);
+      let animation: Animation | undefined;
+
+      function TwiceWatched() {
+        let ref: HTMLDivElement | undefined;
+        const runFirst = useAnimationsFinished(() => ref);
+        const runSecond = useAnimationsFinished(() => ref);
+
+        useIsoLayoutEffect(
+          () => {
+            const currentAnimation = ref!.animate(FADE, { duration: 10_000 });
+            animation = currentAnimation;
+            return () => currentAnimation.cancel();
+          },
+          () => [],
+        );
+
+        useEffect(
+          () => {
+            runFirst(onFirstFinished);
+            runSecond(onSecondFinished);
+          },
+          () => [],
+        );
+
+        return <div ref={ref} />;
+      }
+
+      await render(() => (
+        <>
+          <TwiceWatched />
+          {renderWatched(elements)}
+        </>
+      ));
+
+      await waitFor(() => {
+        expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      });
+      expect(getElementAnimations).toHaveBeenCalledTimes(2);
+      expect(getDocumentAnimations).not.toHaveBeenCalled();
+      expect(onFirstFinished).not.toHaveBeenCalled();
+      expect(onSecondFinished).not.toHaveBeenCalled();
+
+      animation!.finish();
+      await flushAllMicrotasks();
+
+      expect(onFirstFinished).toHaveBeenCalledTimes(1);
+      expect(onSecondFinished).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips the callback of an aborted element that was looked up with others', async () => {
+      const { getDocumentAnimations } = spyOnLookups();
+      const abortController = new AbortController();
+      const { animations, elements } = createWatchedElements([
+        { duration: 10_000 },
+        { duration: 10_000 },
+        { duration: 10_000 },
+      ]);
+      elements[1] = { ...elements[1], signal: abortController.signal };
+      await render(() => renderWatched(elements));
+
+      await waitFor(() => {
+        expect(getDocumentAnimations).toHaveBeenCalledTimes(1);
+      });
+      abortController.abort();
+
+      animations.forEach((animation) => animation.finish());
+      await flushAllMicrotasks();
+
+      expect(elements[0].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+      expect(elements[2].onFinished).toHaveBeenCalledTimes(1);
+    });
+
+    // Port note: `ReactDOM.createPortal` -> Solid's `<Portal mount>`.
+    it.each([
+      {
+        name: 'a shadow root',
+        createContainer() {
+          const host = document.createElement('div');
+          document.body.append(host);
+          return { container: host.attachShadow({ mode: 'open' }), remove: () => host.remove() };
+        },
+      },
+      {
+        name: 'an iframe',
+        createContainer() {
+          const iframe = document.createElement('iframe');
+          document.body.append(iframe);
+          return { container: iframe.contentDocument!.body, remove: () => iframe.remove() };
+        },
+      },
+    ])('looks up elements in $name through their own root', async ({ createContainer }) => {
+      const { container, remove } = createContainer();
+      const root = container.getRootNode() as Document | ShadowRoot;
+      const getRootAnimations = vi.spyOn(root, 'getAnimations');
+      const { getDocumentAnimations } = spyOnLookups();
+      onTestFinished(remove);
+
+      const { animations, elements } = createWatchedElements([
+        { duration: 10_000 },
+        { duration: 10_000 },
+        { duration: 10_000 },
+      ]);
+      await render(() => (
+        <Portal mount={container as unknown as Element}>{renderWatched(elements)}</Portal>
+      ));
+
+      await waitFor(() => {
+        expect(getRootAnimations).toHaveBeenCalledTimes(1);
+      });
+      expect(getDocumentAnimations).not.toHaveBeenCalled();
+      await flushAllMicrotasks();
+      expect(elements[0].onFinished).not.toHaveBeenCalled();
+      expect(elements[1].onFinished).not.toHaveBeenCalled();
+
+      animations[1].finish();
+      await flushAllMicrotasks();
+
+      expect(elements[1].onFinished).toHaveBeenCalledTimes(1);
+      expect(elements[0].onFinished).not.toHaveBeenCalled();
+    });
   });
 });
