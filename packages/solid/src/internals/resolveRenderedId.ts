@@ -17,8 +17,6 @@ interface ResolveRenderedIdProps {
  * Port note: upstream first checks for an `id` on a `render` element (unwrapping server-created
  * `React.lazy` wrappers). Solid doesn't support element `render` props (only functions,
  * components and tag names, which are opaque), so only the `id` prop is read.
- *
- * @internal
  */
 export function resolveRenderedId(props: ResolveRenderedIdProps, fallbackId: string | undefined) {
   return props.id ?? fallbackId;
@@ -34,8 +32,6 @@ export function resolveRenderedId(props: ResolveRenderedIdProps, fallbackId: str
  * ref when the registered id changes (calling it with `null` first); Solid calls refs once, so
  * the id is published from an effect whose cleanup clears it before the next run and when the
  * owner is disposed.
- *
- * @internal
  */
 export function useRenderedId(
   props: ResolveRenderedIdProps,
