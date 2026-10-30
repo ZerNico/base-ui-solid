@@ -575,9 +575,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
                 // If the focused element is removed on pointerdown, the browser
                 // tries to move focus to it right after the `.focus()` call above,
                 // but because it's removed in the same tick, focus is lost instead.
-                // Re-focusing asynchronously (next frame) wins that race.
+                // Re-focusing asynchronously (next frame) wins that race, but only
+                // while focus is still lost: focus moved elsewhere meanwhile is kept.
                 restoreFocusFrame.request(() => {
-                  floatingFocusElementValue.focus();
+                  const currentActiveElement = activeElement(doc);
+                  if (currentActiveElement == null || currentActiveElement === doc.body) {
+                    floatingFocusElementValue.focus();
+                  }
                 });
                 return;
               }
