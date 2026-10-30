@@ -7,23 +7,16 @@ import { FloatingFocusManager } from '../../utils/popups/focus/FloatingFocusMana
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { popupStateMapping } from '../../utils/popups/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popups/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { contains, getTarget } from '../../utils/popups/element';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
-  ...popupStateMapping,
-  ...transitionStatusMapping,
-};
 
 /**
  * A container for the list.
@@ -120,7 +113,7 @@ export function ComboboxPopup(componentProps: ComboboxPopup.Props): JSX.Element 
         getDisabledMountTransitionStyles(transitionStatus()),
         elementProps,
       ],
-      stateAttributesMapping,
+      stateAttributesMapping: popupTransitionStateMapping,
     });
 
   // Default initial focus logic:
