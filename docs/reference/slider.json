@@ -42,7 +42,7 @@
         "name": "locale",
         "type": "Intl.LocalesArgument",
         "default": "-",
-        "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+        "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.\nWhen server rendering, `en-US` is used until hydration."
       },
       {
         "name": "thumbAlignment",
