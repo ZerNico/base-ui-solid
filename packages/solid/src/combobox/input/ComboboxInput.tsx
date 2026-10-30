@@ -498,6 +498,15 @@ export function ComboboxInput(componentProps: ComboboxInput.Props): JSX.Element 
               return;
             }
 
+            // Space types into a non-empty input, and otherwise selects the highlighted item.
+            if (event.key === ' ' && isOpen && input.value === '') {
+              stopEvent(event);
+              if (store.state.activeIndex !== null) {
+                clickHighlightedItem(store, store.state.activeIndex, event);
+              }
+              return;
+            }
+
             if (event.key === 'Enter' && isOpen) {
               const activeIndex = store.state.activeIndex;
 
