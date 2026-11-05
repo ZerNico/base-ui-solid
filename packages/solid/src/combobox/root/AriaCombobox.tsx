@@ -308,6 +308,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     name: 'Combobox',
     state: 'selectedValue',
   });
+  // Port note: `useControlled` decides the mode once. Mirror that so the event fast path only
+  // applies when the write actually reaches local state.
+  const isControlled = untrack(() => props.selectedValue) !== undefined;
 
   const filter = createMemo<
     (item: Item, query: string, itemToString?: (item: Item) => string) => boolean
@@ -931,6 +934,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   };
 
+  let locallyValidatedValue: unknown;
+  let hasLocallyValidatedValue = false;
+
   const setSelectedValue = (
     nextValue: Value | Value[] | null,
     eventDetails: AriaCombobox.ChangeEventDetails,
@@ -945,6 +951,36 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
     // Port note: wrapped so that a function value isn't read as an updater.
     setSelectedValueUnwrapped(() => nextValue);
+
+    // Port note: a local selection synchronizes this root's native constraint source in this event
+    // transaction, before the reactive hidden-input attributes land. The hidden input is the
+    // field's constraint source, so validation must read its new state. A controlled request is
+    // left to the effect: it may not become the selected value until the parent updates.
+    const hiddenInput = hiddenInputElementRef.current;
+    if (!isControlled && untrack(selectionMode) !== 'none' && hiddenInput) {
+      const nextIsMultiple = untrack(multiple) && Array.isArray(nextValue);
+      hiddenInput.value = Array.isArray(nextValue)
+        ? ''
+        : stringifyAsValue(nextValue, untrack(itemToStringValue));
+      hiddenInput.required = untrack(required) && !(nextIsMultiple && nextValue.length > 0);
+      clearErrors(untrack(name));
+      setDirty(
+        isSelectedValueDirty(
+          nextValue,
+          untrack(validityData).initialValue,
+          untrack(isItemEqualToValue),
+        ),
+      );
+      setFilled(
+        untrack(multiple)
+          ? Array.isArray(nextValue) && nextValue.length > 0
+          : nextValue != null,
+      );
+      validation.change(nextValue);
+      // The effect still owns the input-label sync, but must not validate this value again.
+      locallyValidatedValue = nextValue;
+      hasLocallyValidatedValue = true;
+    }
 
     const shouldFillInput =
       (untrack(selectionMode) === 'none' && popupRef.current && untrack(fillInputOnItemPress)) ||
@@ -1402,6 +1438,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
 
     const currentSelectedValue = untrack(selectedValue);
+
+    if (hasLocallyValidatedValue) {
+      const validatedValue = locallyValidatedValue;
+      hasLocallyValidatedValue = false;
+      locallyValidatedValue = undefined;
+      // A local selection already validated against its new value in the event handler. Controlled
+      // updates and external value changes still validate here.
+      if (Object.is(currentSelectedValue, validatedValue)) {
+        if (untrack(single) && !untrack(hasInputValue) && !untrack(inputInsidePopup)) {
+          syncInputToSelectedLabel();
+        }
+        return;
+      }
+    }
 
     clearErrors(untrack(name));
     setDirty(
