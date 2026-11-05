@@ -17,6 +17,7 @@ import {
   getMinListIndex,
   getNextListIndex,
   isIndexOutOfListBounds,
+  isListIndexDisabled,
 } from '../../../internals/composite/listIndex';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../constants';
@@ -524,6 +525,10 @@ export function useListNavigation(
   // `listVersion` keep the highlight pending instead, and resolve it once the list has its items
   // (see the effect below). It reads which items are rendered, so it's a measuring effect.
   let pendingInitialHighlight: (() => boolean) | null = null;
+  // Pending work belongs to one opening. A newer effect run, an owner disposal, closing,
+  // disabling, or a highlight/selection published while waiting all invalidate it, so an old
+  // microtask, frame, or `listVersion` publication can never commit.
+  let initialHighlightGeneration = 0;
 
   useIsoLayoutEffect(
     ([
@@ -534,69 +539,110 @@ export function useListNavigation(
       triggerOrientationValue,
       rtlValue,
     ]) => {
+      initialHighlightGeneration += 1;
+      const generation = initialHighlightGeneration;
       pendingInitialHighlight = null;
 
-      if (
-        !enabledValue ||
-        !openValue ||
-        !floatingElementValue ||
-        untrack(activeIndex) != null ||
-        selectedIndexRef.current != null
-      ) {
-        return;
-      }
-
-      if (
-        (!previousOpenRef || !previousMountedRef) &&
-        untrack(focusItemOnOpenState) &&
-        (keyRef != null || (untrack(focusItemOnOpenState) === true && keyRef == null))
-      ) {
-        // Returns whether the list had items to highlight.
-        const highlightInitialItem = () => {
-          if (listRef().current[0] == null) {
-            return false;
-          }
-          // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-          // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-          // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-          // would regress that behavior (see mui/base-ui#2604).
-          // The key came from the trigger, so it is read on the trigger's orientation.
-          indexRef =
-            keyRef == null ||
-            isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
-            nestedValue
-              ? getMinListIndex(listRef())
-              : getMaxListIndex(listRef());
-          keyRef = null;
-          onNavigate();
-          return true;
-        };
-
-        if ('listVersion' in props) {
-          if (!highlightInitialItem()) {
-            pendingInitialHighlight = highlightInitialItem;
-          }
+      const scheduleInitialHighlight = () => {
+        if (
+          !enabledValue ||
+          !openValue ||
+          !floatingElementValue ||
+          untrack(activeIndex) != null ||
+          untrack(selectedIndex) != null
+        ) {
           return;
         }
 
-        let runs = 0;
-        const waitForListPopulated = () => {
-          if (!highlightInitialItem()) {
-            // Avoid letting the browser paint if possible on the first try,
-            // otherwise use rAF. Don't try more than twice, since something
-            // is wrong otherwise.
-            if (runs < 2) {
-              const scheduler = runs
-                ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
-                : queueMicrotask;
-              scheduler(waitForListPopulated);
-            }
-            runs += 1;
-          }
-        };
+        if (
+          (!previousOpenRef || !previousMountedRef) &&
+          untrack(focusItemOnOpenState) &&
+          (keyRef != null || (untrack(focusItemOnOpenState) === true && keyRef == null))
+        ) {
+          // Reads the live lifecycle and selection state, so a pending attempt cannot commit after
+          // its opening was superseded. `activeIndex` is read live rather than through a highlight
+          // queued earlier in the same flush.
+          const isCurrent = () =>
+            generation === initialHighlightGeneration &&
+            untrack(enabled) &&
+            untrack(open) &&
+            untrack(positionerElement) != null &&
+            untrack(activeIndex) == null &&
+            untrack(selectedIndex) == null;
 
-        waitForListPopulated();
-      }
+          // Returns whether the list had a valid item to highlight.
+          const highlightInitialItem = () => {
+            if (!isCurrent()) {
+              return false;
+            }
+            if (listRef().current[0] == null) {
+              return false;
+            }
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
+            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
+            // would regress that behavior (see mui/base-ui#2604).
+            // The key came from the trigger, so it is read on the trigger's orientation.
+            const nextIndex =
+              keyRef == null ||
+              isMainOrientationToEndKey(keyRef, triggerOrientationValue, rtlValue) ||
+              nestedValue
+                ? getMinListIndex(listRef())
+                : getMaxListIndex(listRef());
+            // `findNonDisabledListIndex` returns a boundary sentinel (`list.length` forward,
+            // `-1` reverse) when every candidate is disabled. Reject it here instead of emitting
+            // a fake item navigation; the list may still publish a selectable item later.
+            const nextItem = listRef().current[nextIndex];
+            if (
+              isIndexOutOfListBounds(listRef().current, nextIndex) ||
+              nextItem == null ||
+              isListIndexDisabled(listRef().current, nextIndex)
+            ) {
+              return false;
+            }
+            indexRef = nextIndex;
+            keyRef = null;
+            onNavigate();
+            return true;
+          };
+
+          if ('listVersion' in props) {
+            if (!highlightInitialItem() && generation === initialHighlightGeneration) {
+              pendingInitialHighlight = highlightInitialItem;
+            }
+          } else {
+            let runs = 0;
+            const waitForListPopulated = () => {
+              if (generation !== initialHighlightGeneration) {
+                return;
+              }
+              if (!highlightInitialItem()) {
+                // Avoid letting the browser paint if possible on the first try,
+                // otherwise use rAF. Don't try more than twice, since something
+                // is wrong otherwise.
+                if (generation === initialHighlightGeneration && runs < 2) {
+                  const scheduler = runs
+                    ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
+                    : queueMicrotask;
+                  scheduler(waitForListPopulated);
+                }
+                runs += 1;
+              }
+            };
+
+            waitForListPopulated();
+          }
+        }
+      };
+
+      scheduleInitialHighlight();
+
+      return () => {
+        if (generation === initialHighlightGeneration) {
+          initialHighlightGeneration += 1;
+          pendingInitialHighlight = null;
+        }
+      };
     },
     () => [
       enabled(),
@@ -612,7 +658,7 @@ export function useListNavigation(
 
   // Port note: resolves a pending initial highlight when the list publishes its items. Which item
   // it is depends on what is rendered and visible, so this is a measuring effect (its apply takes
-  // no argument). An item highlighted since the list opened wins.
+  // no argument). An item highlighted or selected since the list opened wins.
   createEffect(
     () => props.listVersion,
     () => {
@@ -620,7 +666,11 @@ export function useListNavigation(
         if (!pendingInitialHighlight) {
           return;
         }
-        if (activeIndex() != null || pendingInitialHighlight()) {
+        if (activeIndex() != null || selectedIndex() != null) {
+          pendingInitialHighlight = null;
+          return;
+        }
+        if (pendingInitialHighlight()) {
           pendingInitialHighlight = null;
         }
       });
