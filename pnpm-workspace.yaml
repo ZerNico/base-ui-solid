@@ -12,7 +12,7 @@ engineStrict: true
 updateNotifier: false
 autoDedupe: true
 minimumReleaseAgeExclude:
-  - '@solidjs/babel-plugin@2.0.0-rc.16'
-  - '@solidjs/signals@2.0.0-rc.16'
-  - '@solidjs/web@2.0.0-rc.16'
-  - solid-js@2.0.0-rc.16
+  - '@solidjs/babel-plugin@2.0.0-rc.21'
+  - '@solidjs/signals@2.0.0-rc.21'
+  - '@solidjs/web@2.0.0-rc.21'
+  - solid-js@2.0.0-rc.21
