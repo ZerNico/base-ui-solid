@@ -1,4 +1,4 @@
-import { createSignal, flush } from 'solid-js';
+import { createMemo, createSignal, flush, Loading } from 'solid-js';
 import type { Accessor } from 'solid-js';
 import { describe, expect, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -86,5 +86,47 @@ describe('<Combobox.Root /> (port)', () => {
     expect(cherry).toHaveAttribute('aria-selected', 'true');
     expect(cherry).toHaveAttribute('data-selected');
     expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-selected');
+  });
+  // Port-specific: Solid props can read an async memo that's still pending on mount.
+  it('mounts once pending items resolve and keeps the input when they reload', async () => {
+    const [query, setQuery] = createSignal('');
+    const asyncItems = createMemo(async () => {
+      const currentQuery = query();
+      await new Promise((resolve) => {
+        setTimeout(resolve, 10);
+      });
+      return items.filter((item) => item.includes(currentQuery));
+    });
+
+    await render(() => (
+      <Loading fallback={<span>Loading…</span>}>
+        <Combobox.Root items={asyncItems()} filter={null} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: Accessor<string>) => (
+                    <Combobox.Item value={item()}>{item()}</Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </Loading>
+    ));
+
+    expect(screen.getByText('Loading…')).not.toBe(null);
+    await waitFor(() => {
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(items);
+    });
+    const input = screen.getByTestId('input');
+
+    setQuery('an');
+    await waitFor(() => {
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['banana']);
+    });
+    expect(screen.getByTestId('input')).toBe(input);
   });
 });

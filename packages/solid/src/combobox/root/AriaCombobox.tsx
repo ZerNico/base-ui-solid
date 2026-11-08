@@ -105,6 +105,28 @@ export function AriaCombobox<Value, Mode extends SelectionMode = 'none', Item = 
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', Item = Value>(
   props: InternalAriaComboboxProps<Value, Mode, Item>,
 ): JSX.Element {
+  // Port note: the setup reads props once, untracked, which can't wait for an async prop. Read
+  // them here first, so a pending prop suspends to the nearest `<Loading>` instead.
+  const propsReady = createMemo(() => {
+    readSetupProps(props);
+    return true;
+  });
+
+  return <>{propsReady() && untrack(() => <AriaComboboxSetup {...props} />)}</>;
+}
+
+function readSetupProps(props: object) {
+  for (const key in props) {
+    // Reading `children` would create the child nodes.
+    if (key !== 'children') {
+      void (props as Record<string, unknown>)[key];
+    }
+  }
+}
+
+function AriaComboboxSetup<Value = any, Mode extends SelectionMode = 'none', Item = Value>(
+  props: InternalAriaComboboxProps<Value, Mode, Item>,
+): JSX.Element {
   const defaultSelectedValue = untrack(() => props.defaultSelectedValue ?? null);
   const selectionMode = () => props.selectionMode;
   const disabledProp = () => props.disabled ?? false;
