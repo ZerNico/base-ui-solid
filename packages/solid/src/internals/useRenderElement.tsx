@@ -1,4 +1,4 @@
-import { createMemo, merge, untrack } from 'solid-js';
+import { createEffect, createMemo, createSignal, merge, NotReadyError, untrack } from 'solid-js';
 import { fastObjectShallowCompare } from '@base-ui-solid/utils/fastObjectShallowCompare';
 import type { Accessor } from 'solid-js';
 import { dynamic, isServer } from '@solidjs/web';
@@ -84,11 +84,43 @@ export function useRenderElement<
   });
 
   // Port note: ref attachment reads current props imperatively, outside dependency tracking.
-  const refCallback = (node: Element) =>
+  // A ref can't suspend, so refs in props that are still pending on an async value are attached
+  // by an effect once those props resolve.
+  const [pendingRefNode, setPendingRefNode] = createSignal<Element | null>(null, {
+    ownedWrite: true,
+  });
+  if (!isServer) {
+    createEffect(
+      () => {
+        const node = pendingRefNode();
+        return node ? { node, ref: computed().ref } : null;
+      },
+      (pending) => {
+        if (pending) {
+          setPendingRefNode(null);
+          applyRefs(pending.ref, pending.node);
+        }
+      },
+    );
+  }
+
+  const refCallback = (node: Element) => {
+    let ref: unknown;
+    try {
+      ref = untrack(() => computed().ref);
+    } catch (err) {
+      if (!(err instanceof NotReadyError)) {
+        throw err;
+      }
+      untrack(() => internalRef(node));
+      setPendingRefNode(() => node);
+      return;
+    }
     untrack(() => {
-      applyRefs(computed().ref, node);
+      applyRefs(ref, node);
       internalRef(node);
     });
+  };
 
   const outProps = merge(() => computed().props, {
     get children() {
