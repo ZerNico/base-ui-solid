@@ -84,42 +84,41 @@ export function useRenderElement<
   });
 
   // Port note: ref attachment reads current props imperatively, outside dependency tracking.
-  // A ref can't suspend, so refs in props that are still pending on an async value are attached
+  // A ref can't suspend, so refs that read props still pending on an async value are attached
   // by an effect once those props resolve.
-  const [pendingRefNode, setPendingRefNode] = createSignal<Element | null>(null, {
-    ownedWrite: true,
-  });
+  const [pendingRef, setPendingRef] = createSignal<PendingRef | null>(null, { ownedWrite: true });
   if (!isServer) {
     createEffect(
       () => {
-        const node = pendingRefNode();
-        return node ? { node, ref: computed().ref } : null;
+        const pending = pendingRef();
+        return pending && { ...pending, ref: pending.userRefsAttached || computed().ref };
       },
       (pending) => {
         if (pending) {
-          setPendingRefNode(null);
-          applyRefs(pending.ref, pending.node);
+          setPendingRef(null);
+          if (!pending.userRefsAttached) {
+            applyRefs(pending.ref, pending.node);
+          }
+          internalRef(pending.node);
         }
       },
     );
   }
 
   const refCallback = (node: Element) => {
-    let ref: unknown;
+    let userRefsAttached = false;
     try {
-      ref = untrack(() => computed().ref);
+      untrack(() => {
+        applyRefs(computed().ref, node);
+        userRefsAttached = true;
+        internalRef(node);
+      });
     } catch (err) {
       if (!(err instanceof NotReadyError)) {
         throw err;
       }
-      untrack(() => internalRef(node));
-      setPendingRefNode(() => node);
-      return;
+      setPendingRef({ node, userRefsAttached });
     }
-    untrack(() => {
-      applyRefs(ref, node);
-      internalRef(node);
-    });
   };
 
   const outProps = merge(() => computed().props, {
@@ -171,6 +170,11 @@ export function useRenderElement<
   });
 
   return <>{rendered()}</>;
+}
+
+interface PendingRef {
+  node: Element;
+  userRefsAttached: boolean;
 }
 
 interface ComputedRenderElementProps {
