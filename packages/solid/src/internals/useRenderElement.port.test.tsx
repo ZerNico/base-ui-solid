@@ -38,6 +38,7 @@ describe('useRenderElement (port)', () => {
     });
     expect(refElement).toBe(screen.getByRole('button', { name: 'Save' }));
   });
+
   it('attaches internal refs once props pending on an async value resolve', async () => {
     let resolveLabel!: (value: string) => void;
     const label = createMemo(

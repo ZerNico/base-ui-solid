@@ -87,23 +87,23 @@ export function useRenderElement<
   // A ref can't suspend, so refs that read props still pending on an async value are attached
   // by an effect once those props resolve.
   const [pendingRef, setPendingRef] = createSignal<PendingRef | null>(null, { ownedWrite: true });
-  if (!isServer) {
-    createEffect(
-      () => {
-        const pending = pendingRef();
-        return pending && { ...pending, ref: pending.userRefsAttached || computed().ref };
-      },
-      (pending) => {
-        if (pending) {
-          setPendingRef(null);
-          if (!pending.userRefsAttached) {
-            applyRefs(pending.ref, pending.node);
-          }
-          internalRef(pending.node);
+  // Created on the server too (where it does nothing): a client-only effect would shift the owner
+  // tree, and with it the hydration keys of everything rendered after it.
+  createEffect(
+    () => {
+      const pending = pendingRef();
+      return pending && { ...pending, ref: pending.userRefsAttached || computed().ref };
+    },
+    (pending) => {
+      if (pending) {
+        setPendingRef(null);
+        if (!pending.userRefsAttached) {
+          applyRefs(pending.ref, pending.node);
         }
-      },
-    );
-  }
+        internalRef(pending.node);
+      }
+    },
+  );
 
   const refCallback = (node: Element) => {
     let userRefsAttached = false;
