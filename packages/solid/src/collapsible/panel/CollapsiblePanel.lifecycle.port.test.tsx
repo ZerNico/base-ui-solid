@@ -20,6 +20,9 @@ function fireBeforeMatch(element: Element) {
   );
 }
 
+// Port note: guards the no-motion open/close path and the styles restored when the owner is
+// disposed mid-transition. The duration test replaces upstream's `React.Activity` test, which is
+// skipped as React-only.
 describe('<Collapsible.Panel /> lifecycle (port)', () => {
   it('keeps an initially closed no-motion open, close and reopen out of the starting phase', async () => {
     await render(() => (
@@ -121,33 +124,36 @@ describe('<Collapsible.Panel /> lifecycle (port)', () => {
     },
   );
 
-  it('restores a beforematch temporary duration when disposed during the open', async () => {
-    const { unmount } = await render(() => (
-      <Collapsible.Root>
-        <Collapsible.Panel
-          hiddenUntilFound
-          keepMounted
-          data-testid="panel"
-          style={{ 'transition-duration': '123ms' }}
-        >
-          Content
-        </Collapsible.Panel>
-      </Collapsible.Root>
-    ));
+  it.skipIf(isJSDOM || !('onbeforematch' in window))(
+    'restores a beforematch temporary duration when disposed during the open',
+    async () => {
+      const { unmount } = await render(() => (
+        <Collapsible.Root>
+          <Collapsible.Panel
+            hiddenUntilFound
+            keepMounted
+            data-testid="panel"
+            style={{ 'transition-duration': '123ms' }}
+          >
+            Content
+          </Collapsible.Panel>
+        </Collapsible.Root>
+      ));
 
-    const panel = screen.getByTestId('panel');
-    fireBeforeMatch(panel);
-    flush();
-    await flushMicrotasks();
+      const panel = screen.getByTestId('panel');
+      fireBeforeMatch(panel);
+      flush();
+      await flushMicrotasks();
 
-    // The reveal opens without waiting for the authored motion.
-    expect(panel.style.transitionDuration).toBe('0s');
+      // The reveal opens without waiting for the authored motion.
+      expect(panel.style.transitionDuration).toBe('0s');
 
-    unmount();
-    expect(panel.style.transitionDuration).toBe('123ms');
+      unmount();
+      expect(panel.style.transitionDuration).toBe('123ms');
 
-    await waitForAnimationFrame();
-    await flushMicrotasks();
-    expect(panel.style.transitionDuration).toBe('123ms');
-  });
+      await waitForAnimationFrame();
+      await flushMicrotasks();
+      expect(panel.style.transitionDuration).toBe('123ms');
+    },
+  );
 });
