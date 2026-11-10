@@ -156,6 +156,15 @@ local `/solid/…` paths (`docs/src/mdx/markdownPlugin.mjs`).
 
 - Conditional rendering (`if (!shouldRender) return null`) → `<Show when={…}>{useRenderElement(…)}</Show>`.
 
+- **Pending async props**: a prop can read an async value that hasn't resolved yet (React props
+  never can). A ref can't suspend, so `useRenderElement` hands refs that throw `NotReadyError`
+  to an effect that attaches them once the props resolve. Setup code that reads props once,
+  untracked, must read them in a tracked scope first (see `AriaCombobox`), so a pending prop
+  suspends to the nearest `<Loading>`.
+- Never create a reactive primitive on only the server or only the client, e.g. an effect inside
+  `if (!isServer)`. It shifts the owner tree and the hydration keys of everything after it.
+  Create it everywhere and guard its body instead.
+
 - Internal components that take `props`/`state` (`CompositeRoot`, `CompositeItem`) read them
   reactively, so pass them as normal JSX props: `<CompositeItem state={state()} props={props()} />`.
 - A branch that depends only on context presence (`groupContext ? <CompositeItem …/> : …`) is

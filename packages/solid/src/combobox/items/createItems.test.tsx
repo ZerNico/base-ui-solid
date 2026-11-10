@@ -6,6 +6,7 @@ import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
 import {
   renderToString,
+  renderWithErrorBoundary,
   createRenderer,
   act,
   fireEvent,
@@ -80,7 +81,7 @@ describe('Combobox.createItems', () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       try {
         await expect(
-          render((overrides) => <Combobox.Root items={{ a: 'A' } as any} {...overrides()} />),
+          renderWithErrorBoundary(render, () => <Combobox.Root items={{ a: 'A' } as any} />),
         ).rejects.toThrow(/not a collection/);
       } finally {
         errorSpy.mockRestore();
