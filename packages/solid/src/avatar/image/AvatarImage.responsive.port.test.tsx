@@ -63,7 +63,9 @@ function mockImageLoading({ completeOnSet = false, naturalWidth = 100 } = {}) {
   };
 }
 
-describe('<Avatar.Image /> responsive source updates', () => {
+// Port note: the effects that probe the image list `srcset` and `sizes` as dependencies by hand,
+// which React's lint rule checks upstream.
+describe('<Avatar.Image /> responsive source updates (port)', () => {
   let restoreImage: () => void;
 
   function installImageMock(options?: Parameters<typeof mockImageLoading>[0]) {
@@ -122,6 +124,14 @@ describe('<Avatar.Image /> responsive source updates', () => {
       liveProbe.onload?.();
       await flushMicrotasks();
       expect(statuses).toEqual(['loading', 'loaded']);
+
+      // A `sizes` change alone also probes again.
+      setSizes('128px');
+      flush();
+
+      expect(imageMock.images).toHaveLength(3);
+      expect(imageMock.images[2].srcset).toBe('avatar-2x.png 2x');
+      expect(imageMock.images[2].sizes).toBe('128px');
     },
   );
 
