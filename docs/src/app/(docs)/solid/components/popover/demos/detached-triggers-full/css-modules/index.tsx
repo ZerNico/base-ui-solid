@@ -1,4 +1,5 @@
 import { Dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import type { Component } from 'solid-js';
 import { Popover } from 'base-ui-solid/popover';
 import baseStyles from '../../_index.module.css';
@@ -9,12 +10,12 @@ const demoPopover = Popover.createHandle<Component>();
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div class={styles.Container}>
-      <Popover.Trigger class={baseStyles.Button} handle={demoPopover} payload={NotificationsPanel}>
-        Notifications
+      <Popover.Trigger class={baseStyles.Button} handle={demoPopover} payload={ShippingPanel}>
+        Shipping
       </Popover.Trigger>
 
-      <Popover.Trigger class={baseStyles.Button} handle={demoPopover} payload={ActivityPanel}>
-        Activity
+      <Popover.Trigger class={baseStyles.Button} handle={demoPopover} payload={ReturnsPanel}>
+        Returns
       </Popover.Trigger>
 
       <Popover.Trigger class={baseStyles.Button} handle={demoPopover} payload={ProfilePanel}>
@@ -31,6 +32,10 @@ export default function PopoverDetachedTriggersFullDemo() {
                 <Popover.Viewport class={styles.Viewport}>
                   {payload() !== undefined && <Dynamic component={payload()} />}
                 </Popover.Viewport>
+
+                <Popover.Close aria-label="Close" class={styles.Close}>
+                  <XIcon />
+                </Popover.Close>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
@@ -40,12 +45,12 @@ export default function PopoverDetachedTriggersFullDemo() {
   );
 }
 
-function NotificationsPanel() {
+function ShippingPanel() {
   return (
     <div class={styles.Stack}>
-      <Popover.Title class={styles.Title}>Notifications</Popover.Title>
+      <Popover.Title class={styles.Title}>Free shipping</Popover.Title>
       <Popover.Description class={styles.Description}>
-        You are all caught up. Good job!
+        Orders over $50 arrive in 3–5 business days at no extra cost.
       </Popover.Description>
     </div>
   );
@@ -71,13 +76,35 @@ function ProfilePanel() {
   );
 }
 
-function ActivityPanel() {
+function ReturnsPanel() {
   return (
     <div class={styles.Stack}>
-      <Popover.Title class={styles.Title}>Activity</Popover.Title>
+      <Popover.Title class={styles.Title}>Free returns</Popover.Title>
       <Popover.Description class={styles.Description}>
-        Nothing interesting happened recently.
+        Return any item within 30 days for a full refund.
       </Popover.Description>
     </div>
+  );
+}
+
+function XIcon(props: JSX.IntrinsicElements['svg']) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="square"
+      stroke-linejoin="round"
+      {...props}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
+    >
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
+    </svg>
   );
 }

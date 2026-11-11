@@ -1,4 +1,5 @@
 import { Dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import type { Component } from 'solid-js';
 import { Popover } from 'base-ui-solid/popover';
 
@@ -10,12 +11,12 @@ const triggerClassName =
 export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div class="flex gap-2">
-      <Popover.Trigger class={triggerClassName} handle={demoPopover} payload={NotificationsPanel}>
-        Notifications
+      <Popover.Trigger class={triggerClassName} handle={demoPopover} payload={ShippingPanel}>
+        Shipping
       </Popover.Trigger>
 
-      <Popover.Trigger class={triggerClassName} handle={demoPopover} payload={ActivityPanel}>
-        Activity
+      <Popover.Trigger class={triggerClassName} handle={demoPopover} payload={ReturnsPanel}>
+        Returns
       </Popover.Trigger>
 
       <Popover.Trigger class={triggerClassName} handle={demoPopover} payload={ProfilePanel}>
@@ -58,6 +59,13 @@ export default function PopoverDetachedTriggersFullDemo() {
                 >
                   {payload() !== undefined && <Dynamic component={payload()} />}
                 </Popover.Viewport>
+
+                <Popover.Close
+                  aria-label="Close"
+                  class="absolute top-1 right-1 flex size-7 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                >
+                  <XIcon />
+                </Popover.Close>
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>
@@ -67,12 +75,12 @@ export default function PopoverDetachedTriggersFullDemo() {
   );
 }
 
-function NotificationsPanel() {
+function ShippingPanel() {
   return (
     <div class="flex flex-col gap-1">
-      <Popover.Title class="text-sm font-bold">Notifications</Popover.Title>
+      <Popover.Title class="pr-8 text-sm font-bold">Free shipping</Popover.Title>
       <Popover.Description class="text-sm text-neutral-600 dark:text-neutral-400">
-        You are all caught up. Good job!
+        Orders over $50 arrive in 3–5 business days at no extra cost.
       </Popover.Description>
     </div>
   );
@@ -81,7 +89,7 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div class="grid w-max grid-cols-[auto_auto] gap-x-2">
-      <Popover.Title class="col-start-2 col-end-3 row-start-1 row-end-2 text-sm font-bold">
+      <Popover.Title class="col-start-2 col-end-3 row-start-1 row-end-2 pr-8 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
       <img
@@ -112,13 +120,35 @@ function ProfilePanel() {
   );
 }
 
-function ActivityPanel() {
+function ReturnsPanel() {
   return (
     <div class="flex flex-col gap-1">
-      <Popover.Title class="text-sm font-bold">Activity</Popover.Title>
+      <Popover.Title class="pr-8 text-sm font-bold">Free returns</Popover.Title>
       <Popover.Description class="text-sm text-neutral-600 dark:text-neutral-400">
-        Nothing interesting happened recently.
+        Return any item within 30 days for a full refund.
       </Popover.Description>
     </div>
+  );
+}
+
+function XIcon(props: JSX.IntrinsicElements['svg']) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="square"
+      stroke-linejoin="round"
+      {...props}
+      style={
+        typeof props.style === 'string'
+          ? `display: block; ${props.style}`
+          : { display: 'block', ...(typeof props.style === 'object' ? props.style : {}) }
+      }
+    >
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
+    </svg>
   );
 }
