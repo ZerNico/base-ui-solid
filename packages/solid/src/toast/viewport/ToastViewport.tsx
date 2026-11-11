@@ -171,6 +171,30 @@ export function ToastViewport(componentProps: ToastViewport.Props): JSX.Element 
     () => [hasTransitioningToasts()],
   );
 
+  function handleDocumentMouseOver(event: MouseEvent) {
+    if (
+      store.state.hovering &&
+      !contains(store.state.viewport, getTarget(event) as Element | null)
+    ) {
+      handleMouseLeave();
+    }
+  }
+
+  useEffect(
+    ([expandedValue]) => {
+      const viewport = store.state.viewport;
+      if (!expandedValue || !viewport) {
+        return undefined;
+      }
+
+      // When the toast under the pointer is removed, the browser sends no `mouseout` from the
+      // viewport, so `onMouseLeave` never fires. The next `mouseover` outside the viewport
+      // is the only sign that the pointer has left.
+      return addEventListener(ownerDocument(viewport), 'mouseover', handleDocumentMouseOver, true);
+    },
+    () => [expanded()],
+  );
+
   function handleMouseEnter() {
     store.pauseTimers();
     store.set('hovering', true);

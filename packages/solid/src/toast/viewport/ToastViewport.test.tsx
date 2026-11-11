@@ -2,6 +2,7 @@ import { createSignal, For, flush } from 'solid-js';
 import { Portal } from '@solidjs/web';
 import { expect, vi, describe, it } from 'vitest';
 import type { UserEvent } from '@testing-library/user-event';
+import { within } from '@solidjs/testing-library';
 import { Toast } from 'base-ui-solid/toast';
 import {
   createRenderer,
@@ -690,6 +691,36 @@ describe('<Toast.Viewport />', () => {
     expect(viewport).toHaveAttribute('data-expanded');
 
     mouseLeave(root);
+    expect(viewport).not.toHaveAttribute('data-expanded');
+  });
+
+  it('collapses when the pointer moves away after the hovered toast was closed', async () => {
+    const { user } = await render(() => (
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>
+    ));
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+    await user.click(button);
+    const [hoveredRoot] = await screen.findAllByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    mouseEnter(hoveredRoot);
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.click(within(hoveredRoot).getByRole('button', { name: 'close-press' }));
+    flush();
+    await waitFor(() => expect(screen.getAllByTestId('root')).toHaveLength(1));
+
+    // The closed toast was under the pointer, so no `mouseout` reaches the viewport. The next
+    // pointer movement only produces a `mouseover` on whatever is now under the pointer.
+    fireEvent.mouseOver(document.body);
+    flush();
     expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
