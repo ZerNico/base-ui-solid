@@ -77,11 +77,11 @@ export function useMenuItemCommonProps(
   const ariaSelected = selectionStore.useState('webkitAriaSelected', highlighted);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const open = store.useState('open');
+  const highlightedWhileOpen = store.useState('highlightedWhileOpen', highlighted);
 
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
-  const tabIndex = () => (!virtualFocus() && open() && highlighted() ? 0 : -1);
+  const tabIndex = () => (!virtualFocus() && highlightedWhileOpen() ? 0 : -1);
 
   return createMemo((): HTMLProps => ({
     id: id(),
