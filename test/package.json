@@ -6,7 +6,7 @@
     "@base-ui-solid/utils": "workspace:*",
     "@playwright/test": "1.64.1",
     "@solidjs/web": "2.0.0-rc.21",
-    "@tailwindcss/vite": "4.3.3",
+    "@tailwindcss/vite": "4.3.4",
     "@tanstack/solid-router": "2.0.0-rc.8",
     "@testing-library/dom": "10.4.2",
     "base-ui-solid": "workspace:*",
