@@ -385,7 +385,7 @@ const promise = toastManager.promise(
 );
 ```
 
-Each state also accepts the [method options](#update-method) object to granularly control the toast for each state:
+The `loading` state accepts the [`add` method options](#add-method). The `success` and `error` states accept the [`update` method options](#update-method):
 
 ```tsx title="Method options configuration"
 const promise = toastManager.promise(
@@ -394,6 +394,7 @@ const promise = toastManager.promise(
   }),
   {
     loading: {
+      id: 'my-toast',
       title: 'Loading…',
       description: 'The promise is loading.',
     },
@@ -415,13 +416,17 @@ const promise = toastManager.promise(
 );
 ```
 
+Providing `loading.id` lets you update or close the toast by that ID. Reusing an ID updates the existing toast in place instead of adding another.
+
 See full [`promise` method](#promise-method)
 
 [//]: # '@exclude-table-of-contents'
 
 ## Additional types
 
-<TypesToastAdditional showAdditionalTypes={['toastmanagerupdateoptions']} />
+<TypesToastAdditional
+  showAdditionalTypes={['toastmanageraddoptions', 'toastmanagerupdateoptions']}
+/>
 
 export const metadata = {
   description: 'Generates toast notifications.',

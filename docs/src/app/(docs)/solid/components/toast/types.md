@@ -1006,7 +1006,7 @@ type ToastManagerPositionerProps = {
 
 ```typescript
 type ToastManagerPromiseOptions<Value, Data extends {}> = {
-  loading: string | ToastManagerUpdateOptions<Data>;
+  loading: string | ToastManagerAddOptions<Data>;
   success:
     | string
     | ToastManagerUpdateOptions<Data>

@@ -933,7 +933,7 @@
     "additionalTypes": [
       {
         "name": "ToastManagerPromiseOptions",
-        "source": "type ToastManagerPromiseOptions<Value, Data extends {}> = {\n  loading: string | ToastManagerUpdateOptions<Data>;\n  success:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((result: Value) => string | ToastManagerUpdateOptions<Data>);\n  error:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((error: any) => string | ToastManagerUpdateOptions<Data>);\n};"
+        "source": "type ToastManagerPromiseOptions<Value, Data extends {}> = {\n  loading: string | ToastManagerAddOptions<Data>;\n  success:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((result: Value) => string | ToastManagerUpdateOptions<Data>);\n  error:\n    | string\n    | ToastManagerUpdateOptions<Data>\n    | ((error: any) => string | ToastManagerUpdateOptions<Data>);\n};"
       }
     ]
   },
