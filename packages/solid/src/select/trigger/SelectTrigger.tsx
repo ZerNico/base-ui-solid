@@ -101,7 +101,6 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
   const setTriggerElement = store.useStateSetter('triggerElement');
 
   const timeoutFocus = useTimeout();
-  const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
 
   useEffect(
@@ -126,8 +125,6 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
         allowUnselectedMouseUp: false,
         dragY: 0,
       };
-
-      timeoutMouseDown.clear();
 
       return undefined;
     },
@@ -214,10 +211,7 @@ export function SelectTrigger(componentProps: SelectTrigger.Props) {
             store.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
-          // Firefox can fire this upon mousedown
-          timeoutMouseDown.start(0, () => {
-            doc.addEventListener('mouseup', handleMouseUp, { once: true });
-          });
+          doc.addEventListener('mouseup', handleMouseUp, { once: true });
         },
       },
       elementProps,
