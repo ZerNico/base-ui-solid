@@ -1,4 +1,5 @@
 import { flush } from 'solid-js';
+import { Portal } from '@solidjs/web';
 import type { Accessor } from 'solid-js';
 
 import { expect, vi, describe, it } from 'vitest';
@@ -60,6 +61,38 @@ describe('<Combobox.Chips />', () => {
     flush();
     expect(input).toHaveFocus();
   });
+  it('does not focus the input when pressing content in a nested React portal', async () => {
+    // Port note: a Solid `Portal` stands in for `ReactDOM.createPortal`. Solid's delegated events
+    // also reach the portal's owner through the portal's host link.
+    const { user } = await render(() => (
+      <Combobox.Root items={['apple']} multiple>
+        <Combobox.Chips>
+          <Combobox.Input data-testid="input" />
+          <Portal mount={document.body}>
+            <div data-testid="portal" />
+          </Portal>
+        </Combobox.Chips>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ));
+
+    const input = screen.getByTestId('input');
+    expect(input).not.toHaveFocus();
+
+    await user.pointer({ keys: '[MouseLeft]', target: screen.getByTestId('portal') });
+
+    expect(input).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
   it('lets onMouseDown prevent the built-in focus and open behavior', async () => {
     const handleMouseDown = vi.fn();
     await render(() => (

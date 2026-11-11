@@ -1,4 +1,5 @@
 import { flush } from 'solid-js';
+import { Portal } from '@solidjs/web';
 
 import { expect, vi, describe, it } from 'vitest';
 import { Combobox } from 'base-ui-solid/combobox';
@@ -68,6 +69,38 @@ describe('<Combobox.InputGroup />', () => {
     expect(input).toHaveFocus();
     expect(screen.queryByRole('listbox')).not.toBe(null);
   });
+  it('does not focus the input when pressing content in a nested React portal', async () => {
+    // Port note: a Solid `Portal` stands in for `ReactDOM.createPortal`. Solid's delegated events
+    // also reach the portal's owner through the portal's host link.
+    const { user } = await render(() => (
+      <Combobox.Root items={['a']}>
+        <Combobox.InputGroup>
+          <Combobox.Input data-testid="input" />
+          <Portal mount={document.body}>
+            <div data-testid="portal" />
+          </Portal>
+        </Combobox.InputGroup>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    ));
+
+    const input = screen.getByTestId('input');
+    expect(input).not.toHaveFocus();
+
+    await user.pointer({ keys: '[MouseLeft]', target: screen.getByTestId('portal') });
+
+    expect(input).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
   it('does not handle chip presses a second time when chips are nested inside the input group', async () => {
     const onOpenChange = vi.fn();
     await render(() => (

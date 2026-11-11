@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getTarget, isInteractiveElement } from '../../utils/popups/element';
+import { contains, getTarget, isInteractiveElement } from '../../utils/popups/element';
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(
@@ -17,6 +17,11 @@ export function handleInputPress(
   // Port note: events are native, so the target is read from `event` itself.
   const target = getTarget(event);
   const targetElement = isElement(target) ? target : null;
+
+  if (targetElement && !contains(event.currentTarget as Element | null, targetElement)) {
+    return;
+  }
+
   if (
     targetElement !== event.currentTarget &&
     (shouldIgnoreTarget?.(targetElement) || isInteractiveElement(targetElement))
