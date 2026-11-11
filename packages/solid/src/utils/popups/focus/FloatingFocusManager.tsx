@@ -624,7 +624,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
             (isUntrapped || relatedTarget !== getPreviouslyFocusedElement())
           ) {
             preventReturnFocus = true;
-            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+            // A popup that stays mounted after it closed (during its exit animation or after
+            // `preventUnmountOnClose()`) already reported that close.
+            if (store.select('open')) {
+              store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+            }
           }
         });
       }
