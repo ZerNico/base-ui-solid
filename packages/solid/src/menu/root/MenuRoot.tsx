@@ -441,6 +441,11 @@ export function MenuRootInternal<Payload>(props: MenuRootInternalProps<Payload>)
     get openOnArrowKeyDown() {
       return parent().type !== 'context-menu' && !(virtualFocus && isSubmenu);
     },
+    // A root context menu's focus manager is modal, so its guard swallows Tab when no item is
+    // tabbable. Close it here instead, as a regular menu closes when Tab moves focus out.
+    get closeOnTab() {
+      return parent().type === 'context-menu';
+    },
     get externalTree() {
       return !virtualFocus && nested() ? floatingTreeRoot() : undefined;
     },
