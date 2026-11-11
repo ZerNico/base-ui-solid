@@ -1,5 +1,5 @@
 import { expect, vi, describe, it } from 'vitest';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 import {
   render,
   screen,
@@ -1801,6 +1801,78 @@ describe('<NumberField />', () => {
       await flushMicrotasks();
 
       expect(fieldValue).toBe('54.5');
+    });
+
+    it.skipIf(isJSDOM)('only validates the form specified by `form`', async () => {
+      const onParentSubmit = vi.fn((event: SubmitEvent) => {
+        event.preventDefault();
+      });
+      const onExternalSubmit = vi.fn((event: SubmitEvent & { currentTarget: HTMLFormElement }) => {
+        event.preventDefault();
+        return new FormData(event.currentTarget).getAll('quantity');
+      });
+      const { user } = await render(() => (
+        <>
+          <form id="external-form" onSubmit={onExternalSubmit}>
+            <button type="submit">Submit external</button>
+          </form>
+          <form onSubmit={onParentSubmit}>
+            <NumberFieldBase.Root name="quantity" form="external-form" required>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <button type="submit">Submit parent</button>
+          </form>
+        </>
+      ));
+
+      await user.click(screen.getByRole('button', { name: 'Submit parent' }));
+      expect(onParentSubmit).toHaveBeenCalledOnce();
+
+      await user.click(screen.getByRole('button', { name: 'Submit external' }));
+      expect(onExternalSubmit).not.toHaveBeenCalled();
+
+      await user.type(screen.getByRole('textbox'), '12');
+      await user.click(screen.getByRole('button', { name: 'Submit external' }));
+      expect(onExternalSubmit).toHaveBeenCalledOnce();
+      expect(onExternalSubmit).toHaveReturnedWith(['12']);
+    });
+
+    it('updates both input form owners when `form` changes or is removed', async () => {
+      let inputRef: HTMLInputElement | null = null;
+      const [form, setForm] = createSignal<string | undefined>('first-form');
+      function TestCase(props: { form?: string | undefined }) {
+        return (
+          <>
+            <form id="first-form" data-testid="first-form" />
+            <form id="second-form" data-testid="second-form" />
+            <form data-testid="parent-form">
+              <NumberFieldBase.Root
+                form={props.form}
+                inputRef={(element) => {
+                  inputRef = element;
+                }}
+              >
+                <NumberFieldBase.Input />
+              </NumberFieldBase.Root>
+            </form>
+          </>
+        );
+      }
+
+      await render(() => <TestCase form={form()} />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      expect(input.form).toBe(screen.getByTestId('first-form'));
+      expect(inputRef!.form).toBe(input.form);
+
+      setForm('second-form');
+      flush();
+      expect(input.form).toBe(screen.getByTestId('second-form'));
+      expect(inputRef!.form).toBe(input.form);
+
+      setForm(undefined);
+      flush();
+      expect(input.form).toBe(screen.getByTestId('parent-form'));
+      expect(inputRef!.form).toBe(input.form);
     });
 
     it('triggers native HTML validation on submit', async () => {

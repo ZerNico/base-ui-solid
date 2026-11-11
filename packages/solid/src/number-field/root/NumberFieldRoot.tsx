@@ -97,6 +97,7 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
   const required = () => componentProps.required ?? false;
   const readOnly = () => componentProps.readOnly ?? false;
   const nameProp = () => componentProps.name;
+  const form = () => componentProps.form;
   const allowWheelScrub = () => componentProps.allowWheelScrub ?? false;
   const snapOnStep = () => componentProps.snapOnStep ?? false;
   const allowOutOfRange = () => componentProps.allowOutOfRange ?? false;
@@ -486,6 +487,7 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
     minWithDefault,
     maxWithDefault,
     id,
+    form,
     setValue,
     incrementValue,
     getStepAmount,
@@ -541,7 +543,7 @@ export function NumberFieldRoot(componentProps: NumberFieldRoot.Props): JSX.Elem
           }),
           {
             type: 'number',
-            form: componentProps.form,
+            form: form(),
             name: name(),
             value: value() ?? '',
             // Port note: React also mirrors a controlled input's value into its `value`

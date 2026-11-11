@@ -59,6 +59,7 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
     getAllowedNonNumericKeys,
     getStepAmount,
     id,
+    form,
     incrementValue,
     inputMode,
     max,
@@ -135,6 +136,7 @@ export function NumberFieldInput(componentProps: NumberFieldInput.Props): JSX.El
 
   const inputProps = () => ({
     id: id(),
+    form: form(),
     required: required(),
     disabled: disabled(),
     readonly: readOnly(),

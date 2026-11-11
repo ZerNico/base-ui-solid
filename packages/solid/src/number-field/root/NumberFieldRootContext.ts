@@ -13,6 +13,7 @@ export interface NumberFieldRootContext {
   minWithDefault: Accessor<number>;
   maxWithDefault: Accessor<number>;
   id: Accessor<string | undefined>;
+  form: Accessor<string | undefined>;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
