@@ -216,8 +216,8 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       remark-typography:
-        specifier: 0.8.9
-        version: 0.8.9
+        specifier: 0.8.11
+        version: 0.8.11
       solid-js:
         specifier: 2.0.0
         version: 2.0.0
@@ -5830,8 +5830,8 @@ packages:
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
-  remark-typography@0.8.9:
-    resolution: {integrity: sha512-wUBsgHqUUNDirsuMBW90LitJ8qZ62uFHQE0G8rIgPY3cw/2pKkdJYjENFE+0cF5xW/WiqdaTBBvsWagltO//qw==}
+  remark-typography@0.8.11:
+    resolution: {integrity: sha512-zJ2c11YMIqCZE04pSyxrM99ajNQt/rXT4vWtuC3qi4fgg9V5uAjpJNtmeFxlPRUlFYP+vcCXbawVQmpmwW7lmg==}
     engines: {node: '>=18.20.8'}
 
   remove-accents@0.5.0:
@@ -6087,8 +6087,8 @@ packages:
     resolution: {integrity: sha512-oc7BSa7LWJMFARfOtTS5X0cHao+XVGGp7YrT+fBmI3t7HMYlAchwSBwug2myCOb2ZCAWA5/8tH4wJwtisZ96Mw==}
     engines: {node: '>=18.20.8'}
 
-  string-remove-widows@4.2.10:
-    resolution: {integrity: sha512-NpQMu8eAo2blV/HzL7vo1Gg6zbJYdKxueqSHJPQgvmpMPy+Qnc4kdlLkFAnDN8tCfR3HWewFFBPcI4TMLK9jlg==}
+  string-remove-widows@4.2.11:
+    resolution: {integrity: sha512-IeotQ9gLGg0nOMVydRNWpTfT5Wc2a127CqueqZThAEiZfzWvFBwUA/qtNXVc5reBkGRGK8tavV+mPaLbSLci0g==}
     engines: {node: '>=18.20.8'}
 
   string-width@4.2.3:
@@ -8445,7 +8445,7 @@ snapshots:
       remark-mdx: 3.1.1(supports-color@10.2.2)
       remark-parse: 11.0.0(supports-color@10.2.2)
       remark-stringify: 11.0.0
-      remark-typography: 0.8.9
+      remark-typography: 0.8.11
       sucrase: 3.35.1
       typescript: '@typescript/typescript6@6.0.2'
       typescript-api-extractor: 1.0.0-beta.7
@@ -13080,13 +13080,13 @@ snapshots:
       mdast-util-to-markdown: 2.1.3
       unified: 11.0.5
 
-  remark-typography@0.8.9:
+  remark-typography@0.8.11:
     dependencies:
       '@types/mdast': 4.0.4
       codsen-utils: 1.10.3
       string-apostrophes: 4.2.7
       string-dashes: 1.4.7
-      string-remove-widows: 4.2.10
+      string-remove-widows: 4.2.11
       unified: 11.0.5
       vfile: 6.0.3
 
@@ -13432,7 +13432,7 @@ snapshots:
     dependencies:
       codsen-utils: 1.10.3
 
-  string-remove-widows@4.2.10:
+  string-remove-widows@4.2.11:
     dependencies:
       codsen-utils: 1.10.3
       ranges-apply: 7.2.6
