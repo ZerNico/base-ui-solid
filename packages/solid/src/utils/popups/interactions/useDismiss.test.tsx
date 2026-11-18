@@ -10,6 +10,7 @@ import {
   waitFor,
   isJSDOM,
   useTestInteractions,
+  firePointer,
 } from '#test-utils';
 import userEvent from '@testing-library/user-event';
 
@@ -25,6 +26,7 @@ import { useDismiss, normalizeProp } from './useDismiss';
 import { useFocus } from './useFocus';
 import { useClick } from './useClick';
 import { useFloating } from '../../../../test/floating-ui-tests/useFloating';
+import type { UseFloatingOptions } from '../types';
 import { REASONS } from '../../../internals/reasons';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import type { UseDismissProps } from './useDismiss';
@@ -2097,5 +2099,133 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     expect(screen.getByText('open 1')).toBeInTheDocument();
     expect(screen.getByText('open 2')).toBeInTheDocument();
     expect(screen.getByText('nested')).toBeInTheDocument();
+  });
+});
+
+describe('press ownership across independent non-modal layers', () => {
+  const { render: renderLayers } = createRenderer();
+
+  function createTouch(target: HTMLElement, clientX: number) {
+    const init = { identifier: 1, target, clientX, clientY: 0 };
+    return typeof Touch === 'undefined' ? init : new Touch(init);
+  }
+
+  function Layer(props: {
+    id: string;
+    open: boolean;
+    mode: 'intentional' | 'sloppy';
+    onOpenChange: UseFloatingOptions['onOpenChange'];
+  }) {
+    const { refs, context } = useFloating({
+      get open() {
+        return props.open;
+      },
+      get onOpenChange() {
+        return props.onOpenChange;
+      },
+    });
+    const { getFloatingProps } = useTestInteractions([
+      useDismiss(context.rootStore, {
+        get outsidePressEvent() {
+          return props.mode;
+        },
+      }),
+    ]);
+    return (
+      <div
+        data-testid={props.id}
+        data-open={context.open ? '' : undefined}
+        {...getFloatingProps({ ref: refs.setFloating })}
+      />
+    );
+  }
+
+  describe.each([
+    { name: 'later-opened', targetIsLater: true, expectedCloses: 0 },
+    { name: 'earlier-opened', targetIsLater: false, expectedCloses: 1 },
+  ])('$name layer', ({ targetIsLater, expectedCloses }) => {
+    test.each([
+      {
+        name: 'intentional mouse click',
+        mode: 'intentional' as const,
+        press: (target: HTMLElement) => {
+          firePointer.down(target, { pointerType: 'mouse', timeStamp: 1 });
+          fireEvent.mouseDown(target);
+          firePointer.up(target, { pointerType: 'mouse', timeStamp: 2 });
+          fireEvent.mouseUp(target);
+          fireEvent.click(target, { detail: 1 });
+        },
+      },
+      {
+        name: 'sloppy pointerdown',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          firePointer.down(target, { pointerType: 'mouse', timeStamp: 1 });
+        },
+      },
+      {
+        name: 'sloppy mousedown',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          fireEvent.mouseDown(target);
+        },
+      },
+      {
+        name: 'sloppy touchend',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          const touch = createTouch(target, 0);
+          fireEvent.touchStart(target, { touches: [touch], changedTouches: [touch] });
+          const moved = createTouch(target, 6);
+          fireEvent.touchMove(target, { touches: [moved], changedTouches: [moved] });
+          fireEvent.touchEnd(target, { touches: [], changedTouches: [moved] });
+        },
+      },
+      {
+        name: 'sloppy touchmove',
+        mode: 'sloppy' as const,
+        press: (target: HTMLElement) => {
+          const touch = createTouch(target, 0);
+          fireEvent.touchStart(target, { touches: [touch], changedTouches: [touch] });
+          const moved = createTouch(target, 12);
+          fireEvent.touchMove(target, { touches: [moved], changedTouches: [moved] });
+        },
+      },
+    ])('$name respects opening order', async ({ mode, press }) => {
+      const onOlderOpenChange = vi.fn<NonNullable<UseFloatingOptions['onOpenChange']>>();
+      const onTargetOpenChange = vi.fn<NonNullable<UseFloatingOptions['onOpenChange']>>();
+      function Fixture(props: { bothOpen: boolean }) {
+        return (
+          <>
+            <Layer
+              id="older"
+              open={props.bothOpen || targetIsLater}
+              mode={mode}
+              onOpenChange={onOlderOpenChange}
+            />
+            <Layer
+              id="target"
+              open={props.bothOpen || !targetIsLater}
+              mode={mode}
+              onOpenChange={onTargetOpenChange}
+            />
+          </>
+        );
+      }
+      const { setProps } = await renderLayers((overrides) => (
+        <Fixture bothOpen={false} {...overrides()} />
+      ));
+      await setProps({ bothOpen: true });
+      expect(screen.getByTestId('older')).toHaveAttribute('data-open');
+      expect(screen.getByTestId('target')).toHaveAttribute('data-open');
+      expect(onOlderOpenChange).not.toHaveBeenCalled();
+      expect(onTargetOpenChange).not.toHaveBeenCalled();
+      press(screen.getByTestId('target'));
+      expect(onOlderOpenChange).toHaveBeenCalledTimes(expectedCloses);
+      expect(
+        onOlderOpenChange.mock.calls.map(([open, details]) => ({ open, reason: details.reason })),
+      ).toEqual(expectedCloses ? [{ open: false, reason: REASONS.outsidePress }] : []);
+      expect(onTargetOpenChange).not.toHaveBeenCalled();
+    });
   });
 });

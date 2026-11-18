@@ -34,6 +34,10 @@ type PressType = 'intentional' | 'sloppy';
 // with any newer ones that do.
 let openCount = 0;
 const escapeLayers = new WeakMap<Event, number>();
+// The same numbering decides who owns a press: a press inside a floating element opened after this
+// one (a modal Dialog that isn't nested in its component tree, for example) belongs to that layer, so it
+// isn't an outside press here.
+const pressLayers = new WeakMap<Event, number>();
 
 function alwaysFalse() {
   return false;
@@ -380,7 +384,7 @@ export function useDismiss(
     () => [positionerElement(), enabled()] as const,
   );
 
-  // This popup's open number for an Escape that reaches the document (see `openCount`).
+  // This popup's open number orders Escape and outside-press ownership (see `openCount`).
   // Port note: upstream numbers it in a memo during render. The memo here first runs in the hook's
   // body, then when `open` changes, before the listener effect below reads it. Both reach parents
   // before their children (Solid runs a parent's effects first), so parents still number
@@ -503,6 +507,10 @@ export function useDismiss(
 
         if (storeContext.insideReactTree) {
           clearInsideReactTree();
+          return;
+        }
+
+        if ((pressLayers.get(event) ?? 0) > currentLayer) {
           return;
         }
 
@@ -812,7 +820,20 @@ export function useDismiss(
         addTargetEventListenerOnce(event, handleTouchEnd);
       }
 
+      // Recorded in the capture phase, so every open floating element has claimed the press before
+      // the target-phase `closeOnPressOutside` checks run.
+      function recordPressLayer(event: Event) {
+        if (isEventTargetWithin(event, store.select('positionerElement'))) {
+          pressLayers.set(event, Math.max(pressLayers.get(event) ?? 0, currentLayer));
+        }
+      }
+
       const unsubscribe = mergeCleanups(
+        addEventListener(doc, 'pointerdown', recordPressLayer, true),
+        addEventListener(doc, 'mousedown', recordPressLayer, true),
+        addEventListener(doc, 'click', recordPressLayer, true),
+        addEventListener(doc, 'touchmove', recordPressLayer, { capture: true, passive: true }),
+        addEventListener(doc, 'touchend', recordPressLayer, { capture: true, passive: true }),
         escapeKeyEnabled &&
           mergeCleanups(
             addEventListener(
