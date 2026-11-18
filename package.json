@@ -47,7 +47,7 @@
     "@base-ui-solid/monorepo-tests": "workspace:*",
     "@floating-ui/utils": "^0.2.12",
     "@mui/internal-code-infra": "0.1.1-canary.4",
-    "@next/eslint-plugin-next": "16.4.5",
+    "@next/eslint-plugin-next": "16.4.6",
     "@playwright/test": "1.65.0",
     "@solidjs/babel-plugin": "2.0.0",
     "@solidjs/testing-library": "1.0.0-rc.2",
