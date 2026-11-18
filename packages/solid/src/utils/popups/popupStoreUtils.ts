@@ -43,6 +43,10 @@ function read<T>(value: MaybeAccessor<T>): T {
 
 /**
  * `store.useState(key, ...args)` for a store that may change.
+ *
+ * The current store's accessor is created once, in the component body, and reused while the store
+ * is the one it was created for. Solid 2.0.0 can leave a reader of an accessor that a memo creates
+ * on each run out of its update queue (the reader stops updating).
  */
 function useMaybeAccessorStoreState<State extends PopupStoreState<unknown>>(
   store: MaybeAccessor<PopupTriggerDataStore<State>>,
@@ -52,7 +56,14 @@ function useMaybeAccessorStoreState<State extends PopupStoreState<unknown>>(
   if (typeof store !== 'function') {
     return store.useState(key, triggerId);
   }
-  const state = createMemo(() => store().useState(key, triggerId));
+  const initialStore = untrack(store);
+  const initialState = initialStore.useState(key, triggerId);
+  const state = createMemo(() => {
+    const currentStore = store();
+    return currentStore === initialStore
+      ? initialState
+      : untrack(() => currentStore.useState(key, triggerId));
+  });
   return () => state()();
 }
 

@@ -36,14 +36,15 @@ Run `pnpm --filter docs links` after building to audit source/config/public/gene
 and crawl every exported HTML page. It prints the exact upstream allowlist and fails on
 unapproved upstream URLs, broken internal destinations, or missing fragment targets.
 
-`npm view` on 2026-10-04 verified `@tanstack/solid-start` and `@tanstack/solid-router`
-**2.0.0-rc.8**, and their Solid 2.0 peer ranges. Both are pinned to that release.
-Solid and Solid Web remain at the workspace's **2.0.0-rc.15**.
+`npm view` on 2026-11-18 verified `@tanstack/solid-start` and `@tanstack/solid-router`
+**2.0.0-rc.10** (the `rc` tag), and their Solid 2.0 peer ranges. Both are pinned to that release.
+Solid and Solid Web are at the workspace's **2.0.0**.
 
-Port note: Start rc.8's server barrel imports a server-function API removed in Solid Web rc.13.
-`src/server.ts` uses the same underlying Start SSR handler and Solid request-event scope directly.
-This static site has no server functions. Remove the custom entry once Start's barrel supports
-the current Solid Web API. No package sources or installed packages are patched.
+Port note: `src/server.ts` uses Start's SSR handler and Solid's request-event scope directly, and
+serves the legacy redirects and generated files. It was added because Start rc.8's server barrel
+imported a server-function API removed in Solid Web rc.13. Start rc.10's barrel imports the
+current API. This static site has no server functions. No package sources or installed packages
+are patched.
 
 See [PORTING-DOCS.md](./PORTING-DOCS.md) for the repeatable content port workflow.
 

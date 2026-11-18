@@ -3,9 +3,10 @@ import { createStartHandler, defaultStreamHandler } from '@tanstack/solid-start-
 import { legacyPath } from './mdx/legacyPaths.mjs';
 import { getGeneratedFile } from './mdx/generatedFiles';
 
-// Port note: Solid Web rc.13 removed server-function helpers still imported by Start rc.8's
-// server barrel. This static docs site uses Start's real SSR handler directly, with the same
-// request-event scope, and has no server functions. Remove this entry when the barrel is fixed.
+// Port note: this static docs site uses Start's real SSR handler directly, with the same
+// request-event scope, and has no server functions. The entry was added because Start rc.8's
+// server barrel imported server-function helpers that Solid Web rc.13 removed (fixed in Start
+// rc.10). It also serves the legacy redirects and the generated files.
 const handle = createStartHandler(defaultStreamHandler);
 export default {
   async fetch(request: Request) {

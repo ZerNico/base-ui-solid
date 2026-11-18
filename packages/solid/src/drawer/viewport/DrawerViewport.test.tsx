@@ -4493,7 +4493,10 @@ describe('<Drawer.Viewport />', () => {
               <div
                 {...omit(props, 'onTouchStart')}
                 ref={(element) => {
-                  element.addEventListener('touchstart', props.onTouchStart as EventListener);
+                  element.addEventListener(
+                    'touchstart',
+                    untrack(() => props.onTouchStart) as EventListener,
+                  );
                 }}
               />
             )}

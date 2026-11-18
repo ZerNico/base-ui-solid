@@ -149,8 +149,10 @@ describe('<Menu.Trigger />', () => {
       addEventListenerSpy.mockClear();
       await user.hover(trigger);
       await screen.findByRole('menu', { hidden: false });
+      // Port note: the dismissal's capture-phase `mouseup` listener may be added first (Solid
+      // 2.0.0 runs its effect before the trigger's), so skip capture listeners.
       const mouseUpListener = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'mouseup',
+        (call) => call[0] === 'mouseup' && call[2] !== true,
       )?.[1];
       expect(mouseUpListener).toBeTypeOf('function');
       unmount();

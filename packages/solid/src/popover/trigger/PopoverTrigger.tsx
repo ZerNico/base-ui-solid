@@ -213,14 +213,21 @@ export function PopoverTrigger<Payload>(componentProps: PopoverTrigger.Props<Pay
 /**
  * Port note: `store.useState(key, ...args)` for a store that may change. The returned reader
  * subscribes to the current store and follows the store accessor.
+ * The current store's accessor is created once, in the component body, and reused while the store
+ * is the one it was created for. Solid 2.0.0 can leave a reader of an accessor that a memo creates
+ * on each run out of its update queue (the reader stops updating).
  */
 function createStoreStateReader<Store extends Pick<PopoverHandleStore<unknown>, 'useState'>>(
   store: Accessor<Store>,
 ): Store['useState'] {
   return ((key: string, ...args: unknown[]) => {
+    const initialStore = untrack(store) as any;
+    const initialState = initialStore.useState(key, ...args) as Accessor<unknown>;
     const state = createMemo(() => {
       const currentStore = store() as any;
-      return untrack(() => currentStore.useState(key, ...args) as Accessor<unknown>);
+      return currentStore === initialStore
+        ? initialState
+        : untrack(() => currentStore.useState(key, ...args) as Accessor<unknown>);
     });
     return () => state()();
   }) as Store['useState'];

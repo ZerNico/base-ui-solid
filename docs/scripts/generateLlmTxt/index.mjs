@@ -227,7 +227,7 @@ export async function generateLlmsTxt() {
       '# Base UI Solid',
       '',
       'This is the documentation for the `base-ui-solid` package.',
-      'It contains a collection of components and utilities for building user interfaces in Solid 2.0 RC.',
+      'It contains a collection of components and utilities for building user interfaces in Solid 2.0.',
       'The library is designed to be composable and styling agnostic.',
       'The Tailwind CSS examples are written for Tailwind CSS v4. If `package.json` uses Tailwind CSS v3, automatically convert unsupported styles to v3-compatible equivalents.',
       '',

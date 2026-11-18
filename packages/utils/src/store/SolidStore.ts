@@ -654,11 +654,12 @@ interface DerivedKey {
 }
 
 /**
- * A source or derivation is evaluated where the store is read, which may be an effect callback.
- * There's no owner there, so a computation created by the read would throw
+ * A source or derivation is evaluated where the store is read, which may be an effect callback
+ * or a ref callback. A computation created by the read there would throw
  * (`PRIMITIVE_IN_EFFECT_CALLBACK`), e.g. the memo the compiler creates on each read of an inline
- * `open={a() && b()}` prop. Such a read then runs under a temporary owner, disposed after it.
- * Without an owner nothing is tracked, so the read loses nothing.
+ * `open={a() && b()}` prop. An effect callback has no owner, and a ref callback runs untracked in
+ * the owner of the pass that creates its element (Solid 2.0.0). Such an untracked read runs under
+ * a temporary owner, disposed after it. Nothing is tracked there, so the read loses nothing.
  */
 function createOwnedRunner(): <T>(fn: () => T) => T {
   if (getOwner() === null) {
@@ -677,7 +678,7 @@ function createOwnedRunner(): <T>(fn: () => T) => T {
     { transparent: true },
   );
   return (fn) => {
-    if (parent === null || getOwner() !== null) {
+    if (parent === null || getObserver() !== null) {
       return fn();
     }
     return runWithOwner(parent, () =>

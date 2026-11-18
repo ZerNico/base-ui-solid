@@ -535,13 +535,24 @@ Firefox/WebKit failure as a port bug: run the same files with `pnpm test:firefox
 - Tests that record what a Root's children render function receives on every render record each
   payload that its children render instead, since the function is called once with a `payload`
   accessor (`keeps the payload while a controlled reopen moves to another trigger`).
+- Since Solid 2.0.0 a ref callback runs untracked in the owner of the pass that creates its
+  element. Creating a computation there throws `PRIMITIVE_IN_EFFECT_CALLBACK`, and a direct prop
+  read reports `STRICT_READ_UNTRACKED` (read it with `untrack`). A store source read from a ref
+  can create a computation (the memo the compiler makes on each read of an inline
+  `open={a() && b()}` prop), so `SolidStore` runs untracked source reads under a temporary owner.
+- Solid 2.0.0 can leave a memo out of its update queue after the height of a dependency changes
+  mid-flush, so the memo keeps its first value. It showed up when a memo read a store accessor
+  that another memo created on each run. Triggers that follow a store that may change
+  (`createStoreStateReader` in the Menu and Popover triggers, `useMaybeAccessorStoreState`) create
+  the accessor for their first store in the component body, and only create one in the memo after
+  the store changed.
 
 - **Solid dev diagnostics in the browser.** With `solid-js/attribution` enabled, the components
   report no warnings in the docs' demos (`storeDiagnostics.interactions.port.test.tsx` drives them
   in Chromium). Plain dev builds don't check effect relays at all. What's left is inherent to
   measuring the DOM after it rendered, which Solid's guide calls a fact to accept. Each is reported
   as an info, which attribution escalates to a warning once the same relay happened three times,
-  unless the effect's apply half takes no argument (Solid's sign of a measuring effect, rc.16).
+  unless the effect's apply half takes no argument (Solid's sign of a measuring effect since 2.0.0-rc.16).
   `useIsoLayoutEffect` passes its dependencies to the effect, so effects that copy state stay
   visible. Effects that measure pass `{ measuring: true }` (or are a native effect whose apply
   takes no argument), so they stay advisory.
