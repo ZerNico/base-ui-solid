@@ -337,6 +337,11 @@
         "description": "Indicates how the popup is aligned relative to the specified side."
       },
       {
+        "name": "data-nested",
+        "type": "-",
+        "description": "Present when the menu is a submenu."
+      },
+      {
         "name": "data-side",
         "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'",
         "description": "Indicates which side the popup is positioned relative to the anchor."
@@ -440,6 +445,11 @@
         "name": "data-instant",
         "type": "'click' | 'dismiss' | 'group' | 'trigger-change'",
         "description": "Present if animations should be instant."
+      },
+      {
+        "name": "data-nested",
+        "type": "-",
+        "description": "Present when the menu is a submenu."
       },
       {
         "name": "data-side",
@@ -939,7 +949,13 @@
         "description": "Replace the default element with a tag name, component, or render function."
       }
     ],
-    "dataAttributes": [],
+    "dataAttributes": [
+      {
+        "name": "data-disabled",
+        "type": "-",
+        "description": "Present when the menu radio group is disabled."
+      }
+    ],
     "cssVariables": [],
     "additionalTypes": [
       {
@@ -1082,6 +1098,11 @@
         "name": "data-unchecked",
         "type": "-",
         "description": "Present when the menu radio item is not selected."
+      },
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the menu radio item is highlighted."
       },
       {
         "name": "data-disabled",
@@ -1253,6 +1274,11 @@
         "name": "data-unchecked",
         "type": "-",
         "description": "Present when the menu checkbox item is not checked."
+      },
+      {
+        "name": "data-highlighted",
+        "type": "-",
+        "description": "Present when the menu checkbox item is highlighted."
       },
       {
         "name": "data-disabled",

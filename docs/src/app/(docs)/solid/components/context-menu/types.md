@@ -208,6 +208,7 @@ Renders a `<div>` element.
 | data-closed        | -                                                                          | Present when the menu popup is closed.                               |
 | data-anchor-hidden | -                                                                          | Present when the anchor is hidden.                                   |
 | data-align         | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.   |
+| data-nested        | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side          | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 
 **Positioner CSS Variables:**
@@ -264,6 +265,7 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the menu is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.       |
 | data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                             |
+| data-nested         | -                                                                          | Present when the menu is a submenu.                                  |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the anchor. |
 | data-starting-style | -                                                                          | Present when the menu begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                              |
@@ -573,6 +575,12 @@ Renders a `<div>` element.
 | style         | `JSX.CSSProperties \| string \| ((state) => JSX.CSSProperties \| string \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                           |
 | render        | `keyof JSX.IntrinsicElements \| Component \| ((props, state) => JSX.Element)`          | -       | Replace the default element with a tag name, component, or render function.                                                                           |
 
+**RadioGroup Data Attributes:**
+
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the menu radio group is disabled. |
+
 ### RadioGroup.State
 
 ```typescript
@@ -700,6 +708,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :---------------------------------------------------- |
 | data-checked        | -    | Present when the menu radio item is selected.         |
 | data-unchecked      | -    | Present when the menu radio item is not selected.     |
+| data-highlighted    | -    | Present when the menu radio item is highlighted.      |
 | data-disabled       | -    | Present when the menu radio item is disabled.         |
 | data-starting-style | -    | Present when the radio indicator begins animating in. |
 | data-ending-style   | -    | Present when the radio indicator is animating out.    |
@@ -839,6 +848,7 @@ Renders a `<span>` element.
 | :------------------ | :--- | :-------------------------------------------------- |
 | data-checked        | -    | Present when the menu checkbox item is checked.     |
 | data-unchecked      | -    | Present when the menu checkbox item is not checked. |
+| data-highlighted    | -    | Present when the menu checkbox item is highlighted. |
 | data-disabled       | -    | Present when the menu checkbox item is disabled.    |
 | data-starting-style | -    | Present when the indicator begins animating in.     |
 | data-ending-style   | -    | Present when the indicator is animating out.        |
