@@ -1107,7 +1107,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
                 const nextTabbable = getNextTabbable(domReference());
                 nextTabbable?.focus();
               } else {
-                resolveRef(previousFocusableElement() ?? portalContext.beforeOutsideRef)?.focus();
+                (
+                  resolveRef(previousFocusableElement()) ?? portalContext.beforeOutsideRef.current
+                )?.focus();
               }
             }
           }}
@@ -1129,7 +1131,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): JSX.Elem
                 const prevTabbable = getPreviousTabbable(domReference());
                 prevTabbable?.focus();
               } else {
-                resolveRef(nextFocusableElement() ?? portalContext.afterOutsideRef)?.focus();
+                (
+                  resolveRef(nextFocusableElement()) ?? portalContext.afterOutsideRef.current
+                )?.focus();
               }
             }
           }}
