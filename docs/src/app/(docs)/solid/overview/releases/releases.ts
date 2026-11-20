@@ -10,10 +10,20 @@ export interface Release {
 // `v<x-y-z>/page.mdx` release page and a route. Upstream release notes are in its changelog.
 export const releases: Release[] = [
   {
+    version: 'v0.4.0',
+    versionSlug: 'v0-4-0',
+    date: '2026-11-20',
+    latest: true,
+    highlights: [
+      'Requires the stable Solid `2.0.0`',
+      'Syncs with upstream Base UI past v1.9.0',
+      'Fixes for popup dismissal and focus, Select, Menu, Autocomplete, Toast and Drawer',
+    ],
+  },
+  {
     version: 'v0.3.1',
     versionSlug: 'v0-3-1',
     date: '2026-10-19',
-    latest: true,
     highlights: [
       'Popups wait for exit animations that start a frame after they close, like Motion components in the `render` prop',
     ],

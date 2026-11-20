@@ -1,0 +1,40 @@
+import { sourceUrl } from '../../../../../../config';
+
+# v0.4.0
+
+<Subtitle>Nov 20, 2026</Subtitle>
+<Meta name="description" content="v0.4.0 release notes. Nov 20, 2026." />
+
+## Upstream
+
+- Tracks upstream commit [`6dd2a69`](https://github.com/mui/base-ui/commit/6dd2a6987b3a01d000da6745a45f4690941e7a13), which builds on `@base-ui/react` [v1.9.0](https://github.com/mui/base-ui/releases/tag/v1.9.0)
+- Ports everything upstream changed since v0.3.1. The full list of differences from the React API is in the <a href={sourceUrl('PORTING.md')}>public API differences</a>.
+
+## Breaking changes
+
+- Requires the stable `solid-js` and `@solidjs/web` `2.0.0` or later
+
+## Bug fixes
+
+- Fix refs and Combobox setup running before async props resolve
+- Fix popups ignoring outside presses that were stopped before reaching their target, and presses inside layers opened later
+- Fix Escape closing more than the topmost layer
+- Fix modal popups losing focus when Tab is pressed faster than a frame
+- Fix capped popups not flipping to the larger side after they grow, and arrows that mount after the popup is positioned
+- Fix Menu and Select closing when the press is released inside a shadow root
+- Fix Context Menu staying open on Tab
+- Fix Select ignoring a controlled value during item updates, and closing on an unrelated mouseup after a fast trigger click
+- Fix Autocomplete losing keystrokes when controlled
+- Fix Tooltip triggers becoming enabled while the root is disabled
+- Fix Radio Group keeping a tab stop while disabled
+- Fix Accordion, Collapsible and Slider parts ignoring their own `disabled` in `data-disabled`
+- Fix Number Field form ownership, and Progress, Meter and Slider hydration of formatted values
+- Fix Toast `id` in loading options, and the viewport staying expanded after the hovered toast closes
+- Fix Drawer keyboard handling on Android and iOS
+
+## Improvements
+
+- Select and Combobox run on the shared popup store and Root, like the other popups
+- Menu and Select no longer re-run every item when the popup closes
+- Animations of elements that close together are looked up in one batch
+- Checkbox, Switch and Radio respect an `aria-label` on the render element over associated labels
